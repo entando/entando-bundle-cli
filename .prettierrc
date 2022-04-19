@@ -1,10 +1,10 @@
 {
-    "useTabs": false,
-    "trailingComma": "none",
-    "endOfLine": "lf",
-    "printWidth": 80,
-    "bracketSpacing": true,
-    "arrowParens": "avoid",
-    "tabWidth": 2
-  }
-  
+  "useTabs": false,
+  "trailingComma": "none",
+  "semi": false,
+  "endOfLine": "lf",
+  "printWidth": 80,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "tabWidth": 2
+}

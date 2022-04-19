@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable unicorn/prefer-module */
+/* eslint-disable node/no-unpublished-require */
+/* eslint-disable node/shebang */
 
 const oclif = require('@oclif/core')
 
@@ -11,7 +14,7 @@ process.env.NODE_ENV = 'development'
 require('ts-node').register({project})
 
 // In dev mode, always show stack traces
-oclif.settings.debug = true;
+oclif.settings.debug = true
 
 // Start the CLI
 oclif.run().then(oclif.flush).catch(oclif.Errors.handle)
