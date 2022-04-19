@@ -2,5 +2,14 @@
   "extends": [
     "oclif",
     "oclif-typescript"
-  ]
+  ],
+  "rules": {
+    "quotes": "off",
+    "indent": "off",
+    "@typescript-eslint/semi": "off",
+    "@typescript-eslint/indent": "off",
+    "semi": "off",
+    "object-curly-spacing": "off",
+    "comma-dangle": "off"
+  }
 }
