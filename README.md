@@ -1,5 +1,4 @@
-oclif-hello-world
-=================
+# oclif-hello-world
 
 oclif example Hello World CLI
 
@@ -10,43 +9,51 @@ oclif example Hello World CLI
 [![License](https://img.shields.io/npm/l/oclif-hello-world.svg)](https://github.com/oclif/hello-world/blob/main/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
-$ npm install -g cli-boilerplate
-$ cli-boilerplate COMMAND
+$ npm install -g entando-bundle-cli
+$ entando-bundle-cli COMMAND
 running command...
-$ cli-boilerplate (--version)
-cli-boilerplate/0.0.0 linux-x64 node-v14.19.0
-$ cli-boilerplate --help [COMMAND]
+$ entando-bundle-cli (--version)
+entando-bundle-cli/0.0.1 linux-x64 node-v14.19.0
+$ entando-bundle-cli --help [COMMAND]
 USAGE
-  $ cli-boilerplate COMMAND
+  $ entando-bundle-cli COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`cli-boilerplate help [COMMAND]`](#cli-boilerplate-help-command)
-* [`cli-boilerplate plugins`](#cli-boilerplate-plugins)
-* [`cli-boilerplate plugins:install PLUGIN...`](#cli-boilerplate-pluginsinstall-plugin)
-* [`cli-boilerplate plugins:inspect PLUGIN...`](#cli-boilerplate-pluginsinspect-plugin)
-* [`cli-boilerplate plugins:install PLUGIN...`](#cli-boilerplate-pluginsinstall-plugin-1)
-* [`cli-boilerplate plugins:link PLUGIN`](#cli-boilerplate-pluginslink-plugin)
-* [`cli-boilerplate plugins:uninstall PLUGIN...`](#cli-boilerplate-pluginsuninstall-plugin)
-* [`cli-boilerplate plugins:uninstall PLUGIN...`](#cli-boilerplate-pluginsuninstall-plugin-1)
-* [`cli-boilerplate plugins:uninstall PLUGIN...`](#cli-boilerplate-pluginsuninstall-plugin-2)
-* [`cli-boilerplate plugins update`](#cli-boilerplate-plugins-update)
 
-## `cli-boilerplate help [COMMAND]`
+- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli plugins`](#entando-bundle-cli-plugins)
+- [`entando-bundle-cli plugins:install PLUGIN...`](#entando-bundle-cli-pluginsinstall-plugin)
+- [`entando-bundle-cli plugins:inspect PLUGIN...`](#entando-bundle-cli-pluginsinspect-plugin)
+- [`entando-bundle-cli plugins:install PLUGIN...`](#entando-bundle-cli-pluginsinstall-plugin-1)
+- [`entando-bundle-cli plugins:link PLUGIN`](#entando-bundle-cli-pluginslink-plugin)
+- [`entando-bundle-cli plugins:uninstall PLUGIN...`](#entando-bundle-cli-pluginsuninstall-plugin)
+- [`entando-bundle-cli plugins:uninstall PLUGIN...`](#entando-bundle-cli-pluginsuninstall-plugin-1)
+- [`entando-bundle-cli plugins:uninstall PLUGIN...`](#entando-bundle-cli-pluginsuninstall-plugin-2)
+- [`entando-bundle-cli plugins update`](#entando-bundle-cli-plugins-update)
 
-Display help for cli-boilerplate.
+## `entando-bundle-cli help [COMMAND]`
+
+Display help for entando-bundle-cli.
 
 ```
 USAGE
-  $ cli-boilerplate help [COMMAND] [-n]
+  $ entando-bundle-cli help [COMMAND] [-n]
 
 ARGUMENTS
   COMMAND  Command to show help for.
@@ -55,18 +62,18 @@ FLAGS
   -n, --nested-commands  Include all nested commands in the output.
 
 DESCRIPTION
-  Display help for cli-boilerplate.
+  Display help for entando-bundle-cli.
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
-## `cli-boilerplate plugins`
+## `entando-bundle-cli plugins`
 
 List installed plugins.
 
 ```
 USAGE
-  $ cli-boilerplate plugins [--core]
+  $ entando-bundle-cli plugins [--core]
 
 FLAGS
   --core  Show core plugins.
@@ -75,18 +82,18 @@ DESCRIPTION
   List installed plugins.
 
 EXAMPLES
-  $ cli-boilerplate plugins
+  $ entando-bundle-cli plugins
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v2.1.0/src/commands/plugins/index.ts)_
 
-## `cli-boilerplate plugins:install PLUGIN...`
+## `entando-bundle-cli plugins:install PLUGIN...`
 
 Installs a plugin into the CLI.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:install PLUGIN...
+  $ entando-bundle-cli plugins:install PLUGIN...
 
 ARGUMENTS
   PLUGIN  Plugin to install.
@@ -108,23 +115,23 @@ DESCRIPTION
   the CLI without the need to patch and update the whole CLI.
 
 ALIASES
-  $ cli-boilerplate plugins add
+  $ entando-bundle-cli plugins add
 
 EXAMPLES
-  $ cli-boilerplate plugins:install myplugin 
+  $ entando-bundle-cli plugins:install myplugin
 
-  $ cli-boilerplate plugins:install https://github.com/someuser/someplugin
+  $ entando-bundle-cli plugins:install https://github.com/someuser/someplugin
 
-  $ cli-boilerplate plugins:install someuser/someplugin
+  $ entando-bundle-cli plugins:install someuser/someplugin
 ```
 
-## `cli-boilerplate plugins:inspect PLUGIN...`
+## `entando-bundle-cli plugins:inspect PLUGIN...`
 
 Displays installation properties of a plugin.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:inspect PLUGIN...
+  $ entando-bundle-cli plugins:inspect PLUGIN...
 
 ARGUMENTS
   PLUGIN  [default: .] Plugin to inspect.
@@ -137,16 +144,16 @@ DESCRIPTION
   Displays installation properties of a plugin.
 
 EXAMPLES
-  $ cli-boilerplate plugins:inspect myplugin
+  $ entando-bundle-cli plugins:inspect myplugin
 ```
 
-## `cli-boilerplate plugins:install PLUGIN...`
+## `entando-bundle-cli plugins:install PLUGIN...`
 
 Installs a plugin into the CLI.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:install PLUGIN...
+  $ entando-bundle-cli plugins:install PLUGIN...
 
 ARGUMENTS
   PLUGIN  Plugin to install.
@@ -168,23 +175,23 @@ DESCRIPTION
   the CLI without the need to patch and update the whole CLI.
 
 ALIASES
-  $ cli-boilerplate plugins add
+  $ entando-bundle-cli plugins add
 
 EXAMPLES
-  $ cli-boilerplate plugins:install myplugin 
+  $ entando-bundle-cli plugins:install myplugin
 
-  $ cli-boilerplate plugins:install https://github.com/someuser/someplugin
+  $ entando-bundle-cli plugins:install https://github.com/someuser/someplugin
 
-  $ cli-boilerplate plugins:install someuser/someplugin
+  $ entando-bundle-cli plugins:install someuser/someplugin
 ```
 
-## `cli-boilerplate plugins:link PLUGIN`
+## `entando-bundle-cli plugins:link PLUGIN`
 
 Links a plugin into the CLI for development.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:link PLUGIN
+  $ entando-bundle-cli plugins:link PLUGIN
 
 ARGUMENTS
   PATH  [default: .] path to plugin
@@ -202,16 +209,16 @@ DESCRIPTION
   command will override the user-installed or core plugin implementation. This is useful for development work.
 
 EXAMPLES
-  $ cli-boilerplate plugins:link myplugin
+  $ entando-bundle-cli plugins:link myplugin
 ```
 
-## `cli-boilerplate plugins:uninstall PLUGIN...`
+## `entando-bundle-cli plugins:uninstall PLUGIN...`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:uninstall PLUGIN...
+  $ entando-bundle-cli plugins:uninstall PLUGIN...
 
 ARGUMENTS
   PLUGIN  plugin to uninstall
@@ -224,17 +231,17 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ cli-boilerplate plugins unlink
-  $ cli-boilerplate plugins remove
+  $ entando-bundle-cli plugins unlink
+  $ entando-bundle-cli plugins remove
 ```
 
-## `cli-boilerplate plugins:uninstall PLUGIN...`
+## `entando-bundle-cli plugins:uninstall PLUGIN...`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:uninstall PLUGIN...
+  $ entando-bundle-cli plugins:uninstall PLUGIN...
 
 ARGUMENTS
   PLUGIN  plugin to uninstall
@@ -247,17 +254,17 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ cli-boilerplate plugins unlink
-  $ cli-boilerplate plugins remove
+  $ entando-bundle-cli plugins unlink
+  $ entando-bundle-cli plugins remove
 ```
 
-## `cli-boilerplate plugins:uninstall PLUGIN...`
+## `entando-bundle-cli plugins:uninstall PLUGIN...`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ cli-boilerplate plugins:uninstall PLUGIN...
+  $ entando-bundle-cli plugins:uninstall PLUGIN...
 
 ARGUMENTS
   PLUGIN  plugin to uninstall
@@ -270,17 +277,17 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ cli-boilerplate plugins unlink
-  $ cli-boilerplate plugins remove
+  $ entando-bundle-cli plugins unlink
+  $ entando-bundle-cli plugins remove
 ```
 
-## `cli-boilerplate plugins update`
+## `entando-bundle-cli plugins update`
 
 Update installed plugins.
 
 ```
 USAGE
-  $ cli-boilerplate plugins update [-h] [-v]
+  $ entando-bundle-cli plugins update [-h] [-v]
 
 FLAGS
   -h, --help     Show CLI help.
@@ -289,4 +296,5 @@ FLAGS
 DESCRIPTION
   Update installed plugins.
 ```
+
 <!-- commandsstop -->
