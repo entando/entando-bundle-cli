@@ -6,10 +6,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
-    "target": "es2019",
-    "composite": true
+    "target": "es2019"
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

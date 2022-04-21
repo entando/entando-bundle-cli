@@ -10,6 +10,7 @@ oclif example Hello World CLI
 
 <!-- toc -->
 
+- [oclif-hello-world](#oclif-hello-world)
 - [Usage](#usage)
 - [Commands](#commands)
 <!-- tocstop -->
@@ -36,6 +37,8 @@ USAGE
 
 <!-- commands -->
 
+- [`entando-bundle-cli hello PERSON`](#entando-bundle-cli-hello-person)
+- [`entando-bundle-cli hello world`](#entando-bundle-cli-hello-world)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 - [`entando-bundle-cli plugins`](#entando-bundle-cli-plugins)
 - [`entando-bundle-cli plugins:install PLUGIN...`](#entando-bundle-cli-pluginsinstall-plugin)
@@ -46,6 +49,45 @@ USAGE
 - [`entando-bundle-cli plugins:uninstall PLUGIN...`](#entando-bundle-cli-pluginsuninstall-plugin-1)
 - [`entando-bundle-cli plugins:uninstall PLUGIN...`](#entando-bundle-cli-pluginsuninstall-plugin-2)
 - [`entando-bundle-cli plugins update`](#entando-bundle-cli-plugins-update)
+
+## `entando-bundle-cli hello PERSON`
+
+Say hello
+
+```
+USAGE
+  $ entando-bundle-cli hello [PERSON] -f <value>
+
+ARGUMENTS
+  PERSON  Person to say hello to
+
+FLAGS
+  -f, --from=<value>  (required) Whom is saying hello
+
+DESCRIPTION
+  Say hello
+
+EXAMPLES
+  $ oex hello friend --from oclif hello friend from oclif! (./src/commands/hello/index.ts)
+```
+
+_See code: [dist/commands/hello/index.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1/dist/commands/hello/index.ts)_
+
+## `entando-bundle-cli hello world`
+
+Say hello world
+
+```
+USAGE
+  $ entando-bundle-cli hello world
+
+DESCRIPTION
+  Say hello world
+
+EXAMPLES
+  $ oex hello world
+  hello world! (./src/commands/hello/world.ts)
+```
 
 ## `entando-bundle-cli help [COMMAND]`
 
