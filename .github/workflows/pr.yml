@@ -12,7 +12,9 @@ on:
       - release/*
 
 env:
-  ENTANDO_OPT_USE_PPL_TAG: "v1.2.0"
+  ENTANDO_OPT_USE_PPL_TAG: "v1.3.0"
+  ENTANDO_OPT_ENVIRONMENTS: "${{ secrets.ENTANDO_OPT_ENVIRONMENTS }}"
+  ENTANDO_OPT_ENVIRONMENT_NAMES: "${{ secrets.ENTANDO_OPT_ENVIRONMENT_NAMES }}"
   ENTANDO_OPT_FEATURES: "${{ secrets.ENTANDO_OPT_FEATURES }}"
   ENTANDO_OPT_GLOBAL_FEATURES: "${{ secrets.ENTANDO_OPT_GLOBAL_FEATURES }}"
   ENTANDO_OPT_LOG_LEVEL: "${{ secrets.ENTANDO_OPT_LOG_LEVEL }}"
@@ -23,11 +25,15 @@ env:
   ENTANDO_OPT_DOCKER_ORG: "${{ secrets.ENTANDO_OPT_DOCKER_ORG }}"
   ENTANDO_OPT_TEST_NAMESPACE: "${{ secrets.ENTANDO_OPT_TEST_NAMESPACE }}"
   ENTANDO_OPT_HELM_CLI_URL: "${{ secrets.ENTANDO_OPT_HELM_CLI_URL }}"
+  ENTANDO_OPT_TEST_POSTDEP_PLAN: "${{ secrets.ENTANDO_OPT_TEST_POSTDEP_PLAN }}"
+  ENTANDO_OPT_TEST_COMPOSE_FILE: "${{ secrets.ENTANDO_OPT_TEST_COMPOSE_FILE }}"
+  ENTANDO_OPT_TEST_OPERATOR_BUNDLE_URL: "${{ secrets.ENTANDO_OPT_TEST_OPERATOR_BUNDLE_URL }}"
+  ENTANDO_OPT_TEST_OPERATOR_BUNDLE_VERSION: "${{ secrets.ENTANDO_OPT_TEST_OPERATOR_BUNDLE_VERSION }}"
   PPL_CONTEXT: ${{ toJson(github) }}
   GIT_USER_NAME: "${{ secrets.GIT_USER_NAME }}"
   GIT_USER_EMAIL: "${{ secrets.GIT_USER_EMAIL }}"
   LOCAL_CLONE_DIR: "local-checkout"
-  SNYK_ORG: "entando-ixc"
+  ENTANDO_OPT_SNYK_ORG: "${{ secrets.ENTANDO_OPT_SNYK_ORG }}"
 
 jobs:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,8 +161,22 @@ jobs:
         run: |
           SCAN_TYPE="${{ matrix.scan-type }}"
           case "$SCAN_TYPE" in
+            MTX-MVN-SCAN-SONAR)
+              export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+              export SONAR_TOKEN="${{ secrets.SONAR_TOKEN }}"
+              export ENTANDO_OPT_SONAR_PROJECT_KEY="${{ secrets.ENTANDO_OPT_SONAR_PROJECT_KEY }}"
+              ;;
             MTX-SCAN-SNYK)
               export SNYK_TOKEN="${{ secrets.SNYK_TOKEN }}"
               ;;
+            MTX-MVN-POST-DEPLOYMENT-TESTS)
+              export ENTANDO_OPT_OKD_LOGIN_TOKEN="${{ secrets.ENTANDO_OPT_OKD_LOGIN_TOKEN }}"
+              export ENTANDO_OPT_IMAGE_REGISTRY_CREDENTIALS="${{ secrets.ENTANDO_OPT_IMAGE_REGISTRY_CREDENTIALS }}"
+              export ENTANDO_OPT_DOCKER_USERNAME="${{ secrets.ENTANDO_OPT_DOCKER_USERNAME }}"
+              export ENTANDO_OPT_DOCKER_PASSWORD="${{ secrets.ENTANDO_OPT_DOCKER_PASSWORD }}"
+              export ENTANDO_OPT_TEST_TLS_CRT="${{ secrets.ENTANDO_OPT_TEST_TLS_CRT }}"
+              export ENTANDO_OPT_TEST_TLS_KEY="${{ secrets.ENTANDO_OPT_TEST_TLS_KEY }}"
+              ;;
           esac
           ~/ppl-run generic "$SCAN_TYPE" mvn --id "$SCAN_TYPE" --lcd "$LOCAL_CLONE_DIR"
+
