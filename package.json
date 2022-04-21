@@ -1,15 +1,15 @@
 {
-  "name": "cli-boilerplate",
-  "version": "0.0.0",
-  "description": "Example CLI boilerplate",
-  "author": "Marco Corradetti @Dv92",
+  "name": "entando-bundle-cli",
+  "version": "0.0.1",
+  "description": "Entando Bundle CLI",
+  "author": "Entando",
   "bin": {
-    "cli-boilerplate": "./bin/run"
+    "entando-bundle-cli": "./bin/run"
   },
-  "homepage": "https://github.com/Dv92/cli-boilerplate",
+  "homepage": "https://github.com/entando/entando-bundle-cli",
   "license": "MIT",
   "main": "dist/index.js",
-  "repository": "Dv92/cli-boilerplate",
+  "repository": "entando/entando-bundle-cli",
   "files": [
     "/bin",
     "/dist",
@@ -29,14 +29,13 @@
   "engines": {
     "node": ">=12.0.0"
   },
-  "bugs": "https://github.com/Dv92/cli-boilerplate/issues",
   "keywords": [
     "oclif"
   ],
   "types": "dist/index.d.ts",
   "oclif": {
-    "bin": "cli-boilerplate",
-    "dirname": "cli-boilerplate",
+    "bin": "entando-bundle-cli",
+    "dirname": "entando-bundle-cli",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help",
