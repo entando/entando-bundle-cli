@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
+    "coverage": "echo \"To be implemented\"",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",
