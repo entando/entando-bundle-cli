@@ -3,7 +3,7 @@
 Entando Bundle CLI, a tool to create and publish Entando bundles.
 
 [![entando](https://img.shields.io/badge/entando-doc-brightgreen.svg)](https://dev.entando.org)
-[![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml)
+[![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
 
