@@ -1,15 +1,15 @@
 {
-  "name": "cli-boilerplate",
-  "version": "0.0.0",
-  "description": "Example CLI boilerplate",
-  "author": "Marco Corradetti @Dv92",
+  "name": "entando-bundle-cli",
+  "version": "0.0.1-SNAPSHOT",
+  "description": "Entando Bundle CLI",
+  "author": "Entando",
   "bin": {
-    "cli-boilerplate": "./bin/run"
+    "entando-bundle-cli": "./bin/run"
   },
-  "homepage": "https://github.com/Dv92/cli-boilerplate",
+  "homepage": "https://github.com/entando/entando-bundle-cli",
   "license": "MIT",
   "main": "dist/index.js",
-  "repository": "Dv92/cli-boilerplate",
+  "repository": "entando/entando-bundle-cli",
   "files": [
     "/bin",
     "/dist",
@@ -17,30 +17,29 @@
     "/oclif.manifest.json"
   ],
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "shx rm -rf dist && tsc -b && npm test",
+    "coverage": "echo \"To be implemented\"",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
-    "posttest": "yarn lint",
-    "prepack": "yarn build && oclif manifest && oclif readme",
+    "posttest": "npm run lint",
+    "prepack": "npm run build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md",
     "prepare": "husky install"
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=14.0.0"
   },
-  "bugs": "https://github.com/Dv92/cli-boilerplate/issues",
   "keywords": [
     "oclif"
   ],
   "types": "dist/index.d.ts",
   "oclif": {
-    "bin": "cli-boilerplate",
-    "dirname": "cli-boilerplate",
+    "bin": "entando-bundle-cli",
+    "dirname": "entando-bundle-cli",
     "commands": "./dist/commands",
     "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-help"
     ],
     "topicSeparator": " ",
     "topics": {
@@ -50,28 +49,26 @@
     }
   },
   "dependencies": {
-    "@oclif/core": "^1.7.0",
-    "@oclif/plugin-help": "^5.1.12",
-    "@oclif/plugin-plugins": "^2.1.0"
+    "@oclif/core": "1.7.0",
+    "@oclif/plugin-help": "5.1.12"
   },
   "devDependencies": {
-    "@oclif/test": "^2.1.0",
-    "@types/chai": "^4.3.1",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.25",
-    "chai": "^4.3.6",
-    "eslint": "^7.32.0",
-    "eslint-config-oclif": "^4",
-    "eslint-config-oclif-typescript": "^1.0.2",
-    "globby": "^11",
+    "@oclif/test": "2.1.0",
+    "@types/chai": "4.3.1",
+    "@types/mocha": "9.1.0",
+    "@types/node": "17.0.25",
+    "chai": "4.3.6",
+    "eslint": "7.32.0",
+    "eslint-config-oclif": "4.0.0",
+    "eslint-config-oclif-typescript": "1.0.2",
+    "globby": "11.0.4",
     "husky": "7.0.4",
-    "lint-staged": "12.3.8",
-    "mocha": "^9.2.2",
-    "oclif": "^3.0.1",
+    "mocha": "9.2.2",
+    "oclif": "3.0.1",
     "prettier": "2.6.2",
-    "shx": "^0.3.4",
-    "ts-node": "^10.7.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.6.3"
+    "shx": "0.3.4",
+    "ts-node": "10.7.0",
+    "tslib": "2.3.1",
+    "typescript": "4.6.3"
   }
 }
