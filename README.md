@@ -22,7 +22,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1 darwin-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -60,7 +60,7 @@ EXAMPLES
   $ oex hello friend --from oclif hello friend from oclif! (./src/commands/hello/index.ts)
 ```
 
-_See code: [dist/commands/hello/index.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1/dist/commands/hello/index.ts)_
+_See code: [dist/commands/hello/index.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/hello/index.ts)_
 
 ## `entando-bundle-cli hello world`
 
@@ -108,3 +108,5 @@ It is suggested to install [nvm](https://github.com/nvm-sh/nvm). From the projec
 nvm install
 nvm use
 ```
+
+If you are receiving `command not found` errors while executing pre-commit hooks with Husky using `nvm`, please refer to https://typicode.github.io/husky/#/?id=command-not-found
