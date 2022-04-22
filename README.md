@@ -5,22 +5,12 @@ Entando Bundle CLI, a tool to create and publish Entando bundles
 [![entando](https://img.shields.io/badge/entando-doc-brightgreen.svg)](https://dev.entando.org)
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml)
 
-## Development environment setup
-
-It is suggested to install [nvm](https://github.com/nvm-sh/nvm). From the project root folder run:
-
-```sh-session
-nvm install
-nvm use
-```
-
-# Command line reference
-
 <!-- toc -->
 
 - [entando-bundle-cli](#entando-bundle-cli)
 - [Usage](#usage)
 - [Commands](#commands)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
@@ -32,7 +22,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1 darwin-x64 node-v12.13.0
+entando-bundle-cli/0.0.1 darwin-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -109,3 +99,12 @@ DESCRIPTION
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
 <!-- commandsstop -->
+
+# Development environment setup
+
+It is suggested to install [nvm](https://github.com/nvm-sh/nvm). From the project root folder run:
+
+```sh-session
+nvm install
+nvm use
+```
