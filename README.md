@@ -22,7 +22,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -35,48 +35,8 @@ USAGE
 
 <!-- commands -->
 
-- [`entando-bundle-cli hello PERSON`](#entando-bundle-cli-hello-person)
-- [`entando-bundle-cli hello world`](#entando-bundle-cli-hello-world)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-
-## `entando-bundle-cli hello PERSON`
-
-Say hello
-
-```
-USAGE
-  $ entando-bundle-cli hello [PERSON] -f <value>
-
-ARGUMENTS
-  PERSON  Person to say hello to
-
-FLAGS
-  -f, --from=<value>  (required) Whom is saying hello
-
-DESCRIPTION
-  Say hello
-
-EXAMPLES
-  $ oex hello friend --from oclif hello friend from oclif! (./src/commands/hello/index.ts)
-```
-
-_See code: [dist/commands/hello/index.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/hello/index.ts)_
-
-## `entando-bundle-cli hello world`
-
-Say hello world
-
-```
-USAGE
-  $ entando-bundle-cli hello world
-
-DESCRIPTION
-  Say hello world
-
-EXAMPLES
-  $ oex hello world
-  hello world! (./src/commands/hello/world.ts)
-```
+- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -97,6 +57,31 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+
+## `entando-bundle-cli init NAME`
+
+performs the scaffolding of an empty bundle project
+
+```
+USAGE
+  $ entando-bundle-cli init [NAME] [--version <value>]
+
+ARGUMENTS
+  NAME  project name
+
+FLAGS
+  --version=<value>  project version
+
+DESCRIPTION
+  performs the scaffolding of an empty bundle project
+
+EXAMPLES
+  $ entando-bundle-cli init my-bundle
+
+  $ entando-bundle-cli init my-bundle --version=0.0.1
+```
+
+_See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/init.ts)_
 
 <!-- commandsstop -->
 
