@@ -1,4 +1,4 @@
-export interface Microservice {
+export interface MicroService {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
   /** Tech stack. It could be guessed from folder content or forced by the user */
@@ -12,7 +12,7 @@ export interface Microservice {
   env: any
 }
 
-export interface Microfrontend {
+export interface MicroFrontend {
   name: string
   stack: string
   code: string
@@ -27,6 +27,6 @@ export interface BundleDescriptor {
   /** Bundle version. It will be used as default Docker image tag */
   version: string
   description?: string
-  microservices: Microservice[]
-  microfrontends: Microfrontend[]
+  microservices: MicroService[]
+  microfrontends: MicroFrontend[]
 }

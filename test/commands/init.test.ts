@@ -89,7 +89,7 @@ describe("init", () => {
     .catch(error => {
       expect(error.message).to.contain("is not writable")
     })
-    .it("handles parent directory not writable")
+    .it("handles a not writable parent directory")
 
   test
     .stderr()

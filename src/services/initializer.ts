@@ -4,6 +4,8 @@ import * as fs from "node:fs"
 import * as path from "node:path"
 import { BundleDescriptor } from "../models/bundle-descriptor"
 
+const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
+
 export interface InitializerOptions {
   parentDirectory: string
   name: string
@@ -11,7 +13,7 @@ export interface InitializerOptions {
 }
 
 /** Handles the scaffolding of a project bundle */
-export default class Initializer {
+export default class BundleProjectInitializer {
   private readonly options: InitializerOptions
 
   constructor(options: InitializerOptions) {
@@ -19,8 +21,10 @@ export default class Initializer {
   }
 
   public async performScaffolding(): Promise<void> {
-    if (!/^[\w-]+$/.test(this.options.name)) {
-      throw new CLIError(`"${this.options.name}" is not a valid bundle name`)
+    if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.options.name)) {
+      throw new CLIError(
+        `"${this.options.name}" is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
+      )
     }
 
     this.createBundleDirectories()
@@ -34,16 +38,16 @@ export default class Initializer {
   private createBundleDirectories() {
     const bundleDir = this.getBundleDirectory()
 
-    if (fs.existsSync(bundleDir)) {
-      throw new CLIError(`${bundleDir} already exists`)
-    }
-
     try {
       fs.accessSync(this.options.parentDirectory, fs.constants.W_OK)
     } catch {
       throw new CLIError(
         `Directory ${this.options.parentDirectory} is not writable`
       )
+    }
+
+    if (fs.existsSync(bundleDir)) {
+      throw new CLIError(`Directory ${bundleDir} already exists`)
     }
 
     fs.mkdirSync(bundleDir)
@@ -99,7 +103,7 @@ export default class Initializer {
     try {
       cp.execSync(`git -C ${this.getBundleDirectory()} init`)
     } catch (error) {
-      throw new CLIError(isStdError(error) ? error.stderr : (error as Error))
+      throw new CLIError((error as { stderr: string }).stderr ?? error)
     }
   }
 
@@ -110,8 +114,4 @@ export default class Initializer {
   private getBundleFilePath(...pathSegments: string[]): string {
     return path.resolve(this.getBundleDirectory(), ...pathSegments)
   }
-}
-
-function isStdError(error: any): error is { stderr: string } {
-  return "stderr" in error && error.stderr
 }
