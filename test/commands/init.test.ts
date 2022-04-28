@@ -27,14 +27,10 @@ describe("init", () => {
   })
 
   test
-    .stderr()
     .stub(cp, "execSync", sinon.stub().returns("Initialized git repo"))
     .command(["init", "bundle-with-version", "--version=0.0.2"])
-    .it("runs init bundle-with-version --version=0.0.2", ctx => {
+    .it("runs init bundle-with-version --version=0.0.2", () => {
       const bundleName = "bundle-with-version"
-      expect(ctx.stderr).to.contain(
-        `Initializing new bundle project ${bundleName}`
-      )
 
       checkFoldersStructure(bundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
@@ -45,14 +41,10 @@ describe("init", () => {
     })
 
   test
-    .stderr()
     .stub(cp, "execSync", sinon.stub().returns("Initialized git repo"))
     .command(["init", "bundle-no-version"])
-    .it("runs init bundle-no-version", ctx => {
+    .it("runs init bundle-no-version", () => {
       const bundleName = "bundle-no-version"
-      expect(ctx.stderr).to.contain(
-        `Initializing new bundle project ${bundleName}`
-      )
 
       checkFoldersStructure(bundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
@@ -107,6 +99,15 @@ describe("init", () => {
       expect(error.message).to.contain("git init error")
     })
     .it("handles git command error")
+
+  test
+    .stderr()
+    .stub(cp, "execSync", sinon.stub().throws(new Error("exec error")))
+    .command(["init", "bundle-exec-error"])
+    .catch(error => {
+      expect(error.message).to.contain("exec error")
+    })
+    .it("handles exec error")
 
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, ".ent")
