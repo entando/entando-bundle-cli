@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "shx rm -rf dist && tsc -b && shx cp -r src/resources dist/resources && npm test",
-    "coverage": "echo \"To be implemented\"",
+    "coverage": "nyc npm run test",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",
@@ -33,6 +33,11 @@
   "keywords": [
     "oclif"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "types": "dist/index.d.ts",
   "oclif": {
     "bin": "entando-bundle-cli",
@@ -51,7 +56,8 @@
   "dependencies": {
     "@oclif/core": "1.7.0",
     "@oclif/errors": "^1.3.5",
-    "@oclif/plugin-help": "5.1.12"
+    "@oclif/plugin-help": "5.1.12",
+    "sinon": "^13.0.2"
   },
   "devDependencies": {
     "@oclif/test": "2.1.0",
@@ -65,10 +71,11 @@
     "globby": "11.0.4",
     "husky": "7.0.4",
     "mocha": "9.2.2",
+    "nyc": "^15.1.0",
     "oclif": "3.0.1",
     "prettier": "2.6.2",
     "shx": "0.3.4",
-    "sinon": "^13.0.2",
+    "source-map-support": "^0.5.21",
     "ts-node": "10.7.0",
     "tslib": "2.3.1",
     "typescript": "4.6.3"
