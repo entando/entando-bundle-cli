@@ -1,7 +1,8 @@
 {
   "**/*.{ts,js}": [
     "prettier --write",
-    "eslint"
+    "eslint",
+    "npm run coverage"
   ],
   "**/*.{md,yml,json,eslintrc,prettierrc}": [
     "prettier --write"
