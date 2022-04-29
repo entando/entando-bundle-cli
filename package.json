@@ -17,7 +17,8 @@
     "/oclif.manifest.json"
   ],
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b && npm test",
+    "copy:resources": "shx cp -r resources dist/resources",
+    "build": "shx rm -rf dist && tsc -b && npm run copy:resources && npm test",
     "coverage": "nyc npm run test",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
@@ -55,6 +56,7 @@
   },
   "dependencies": {
     "@oclif/core": "1.7.0",
+    "@oclif/errors": "^1.3.5",
     "@oclif/plugin-help": "5.1.12"
   },
   "devDependencies": {
@@ -73,6 +75,7 @@
     "oclif": "3.0.1",
     "prettier": "2.6.2",
     "shx": "0.3.4",
+    "sinon": "^13.0.2",
     "source-map-support": "^0.5.21",
     "ts-node": "10.7.0",
     "tslib": "2.3.1",
