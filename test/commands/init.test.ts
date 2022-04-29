@@ -93,21 +93,12 @@ describe("init", () => {
 
   test
     .stderr()
-    .stub(cp, "execSync", sinon.stub().throws({ stderr: "git init error" }))
-    .command(["init", "bundle-no-git"])
+    .stub(cp, "execSync", sinon.stub().throws(new Error("git init error")))
+    .command(["init", "bundle-exec-error"])
     .catch(error => {
       expect(error.message).to.contain("git init error")
     })
     .it("handles git command error")
-
-  test
-    .stderr()
-    .stub(cp, "execSync", sinon.stub().throws(new Error("exec error")))
-    .command(["init", "bundle-exec-error"])
-    .catch(error => {
-      expect(error.message).to.contain("exec error")
-    })
-    .it("handles exec error")
 
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, ".ent")

@@ -2,7 +2,7 @@ import { CLIError } from "@oclif/errors"
 import * as cp from "node:child_process"
 import * as fs from "node:fs"
 import * as path from "node:path"
-import { BundleDescriptor } from "../models/bundle-descriptor"
+import BundleDescriptorManager from "./bundle-descriptor-manager"
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -59,19 +59,13 @@ export default class BundleProjectInitializer {
   }
 
   private createBundleDescriptor() {
-    const bundleDescriptorFile = this.getBundleFilePath("bundle.json")
-
-    const bundleDescriptor: BundleDescriptor = {
-      name: this.options.name,
-      version: this.options.version,
-      microservices: [],
-      microfrontends: []
-    }
-
-    fs.writeFileSync(
-      bundleDescriptorFile,
-      JSON.stringify(bundleDescriptor, null, 4)
+    const bundleDescriptorManager = new BundleDescriptorManager(
+      this.getBundleDirectory()
     )
+    bundleDescriptorManager.createBundleDescriptor({
+      name: this.options.name,
+      version: this.options.version
+    })
   }
 
   private createDockerfile() {
@@ -94,16 +88,17 @@ export default class BundleProjectInitializer {
 
   private createFileFromTemplate(filePath: string, templateFileName: string) {
     const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, "..", "resources", templateFileName)
+      path.resolve(__dirname, "..", "..", "resources", templateFileName)
     )
     fs.writeFileSync(filePath, templateFileContent)
   }
 
   private initGitRepo() {
     try {
-      cp.execSync(`git -C ${this.getBundleDirectory()} init`)
+      // Using stdio "pipe" option to print stderr only through CLIError
+      cp.execSync(`git -C ${this.getBundleDirectory()} init`, { stdio: "pipe" })
     } catch (error) {
-      throw new CLIError((error as { stderr: string }).stderr ?? error)
+      throw new CLIError(error as Error)
     }
   }
 

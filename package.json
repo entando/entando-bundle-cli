@@ -17,7 +17,8 @@
     "/oclif.manifest.json"
   ],
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b && shx cp -r src/resources dist/resources && npm test",
+    "copy:resources": "shx cp -r resources dist/resources",
+    "build": "shx rm -rf dist && tsc -b && npm run copy:resources && npm test",
     "coverage": "nyc npm run test",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
