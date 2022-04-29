@@ -4,6 +4,7 @@ import * as os from "node:os"
 import * as path from "node:path"
 import * as sinon from "sinon"
 import { BundleDescriptor } from "../../src/models/bundle-descriptor"
+import BundleDescriptorManager from "../../src/services/bundle-descriptor-manager"
 import * as cp from "node:child_process"
 
 describe("init", () => {
@@ -115,8 +116,8 @@ describe("init", () => {
   }
 
   function parseBundleDescriptor(bundleName: string): BundleDescriptor {
-    return JSON.parse(
-      fs.readFileSync(path.resolve(tmpDir, bundleName, "bundle.json"), "utf-8")
-    ) as BundleDescriptor
+    return new BundleDescriptorManager(
+      path.resolve(tmpDir, bundleName)
+    ).getBundleDescriptor()
   }
 })

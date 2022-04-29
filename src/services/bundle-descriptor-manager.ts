@@ -28,6 +28,12 @@ export default class BundleDescriptorManager {
     this.writeBundleDescriptor(bundleDescriptor)
   }
 
+  public getBundleDescriptor(): BundleDescriptor {
+    return JSON.parse(
+      fs.readFileSync(this.bundleFilePath, "utf-8")
+    ) as BundleDescriptor
+  }
+
   private writeBundleDescriptor(bundleDescriptor: BundleDescriptor) {
     fs.writeFileSync(
       this.bundleFilePath,
