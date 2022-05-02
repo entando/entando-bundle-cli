@@ -3,6 +3,7 @@ import * as cp from "node:child_process"
 import * as fs from "node:fs"
 import * as path from "node:path"
 import BundleDescriptorManager from "./bundle-descriptor-manager"
+import ConfigService from "./config/config-service";
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -83,7 +84,8 @@ export default class BundleProjectInitializer {
   }
 
   private createConfigJson() {
-    // TODO: ENG-3623
+    const configService = new ConfigService();
+    configService.writeConfigFile(this.getBundleDirectory());
   }
 
   private createFileFromTemplate(filePath: string, templateFileName: string) {
