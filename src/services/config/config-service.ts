@@ -11,14 +11,14 @@ export default class ConfigService {
   private readonly _config: any
 
   constructor(filePath = DEFAULT_CONFIG_PATH) {
-    this._config = this.readDefaultConfigFile(filePath)
+    this._config = this.readConfigFile(filePath)
   }
 
   get config(): any {
     return this._config
   }
 
-  readDefaultConfigFile = (filePath: string): any => {
+  readConfigFile = (filePath: string): any => {
     const templateFileContent = fs.readFileSync(
       path.join(filePath, DEFAULT_CONFIG_FILE),
       {
