@@ -1,9 +1,14 @@
 import { expect, test } from "@oclif/test"
 import ConfigService from "../../src/services/config/config-service"
-import fs from "node:fs";
-import path from "node:path";
+import * as fs from "node:fs"
+import * as path from "node:path"
+import * as os from "node:os"
 
-const TEST_TEMP_FOLDER = "test/tmp-config/"
+const TEST_TEMP_FOLDER = path.resolve(
+  os.tmpdir(),
+  "entando-bundle-cli-test",
+  "config-service"
+)
 
 describe("Test config-service", () => {
   test.it("Read default config file and check content", () => {
@@ -28,7 +33,7 @@ describe("Test config-service", () => {
     const configService = new ConfigService()
     const key = "key1"
     const value = "value1"
-    expect(() => configService.addProperty(key, value)).to.throw();
+    expect(() => configService.addProperty(key, value)).to.throw()
   })
 
   test.it("Delete a property", () => {
@@ -43,7 +48,7 @@ describe("Test config-service", () => {
   test.it("Delete a property that not exists should throw an error", () => {
     const configService = new ConfigService()
     const key = "key3"
-    expect(() => configService.deleteProperty(key)).to.throw();
+    expect(() => configService.deleteProperty(key)).to.throw()
   })
 
   test.it("Update a property", () => {
@@ -59,13 +64,13 @@ describe("Test config-service", () => {
     const configService = new ConfigService()
     const key = "key3"
     const value = "test-value"
-    expect(() => configService.updateProperty(key, value)).to.throw();
+    expect(() => configService.updateProperty(key, value)).to.throw()
   })
 
   test.it("Write config file with default properties", () => {
     const configService = new ConfigService()
-    configService.writeConfigFile(TEST_TEMP_FOLDER);
-    expect(fs.existsSync(`${TEST_TEMP_FOLDER}/.ent/config.json`)).to.be.eq(true);
+    configService.writeConfigFile(TEST_TEMP_FOLDER)
+    expect(fs.existsSync(`${TEST_TEMP_FOLDER}/.ent/config.json`)).to.be.eq(true)
     // temporary directory cleanup
     fs.rmSync(path.resolve(TEST_TEMP_FOLDER), { recursive: true, force: true })
   })
