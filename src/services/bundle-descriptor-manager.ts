@@ -34,7 +34,7 @@ export default class BundleDescriptorManager {
     ) as BundleDescriptor
   }
 
-  private writeBundleDescriptor(bundleDescriptor: BundleDescriptor) {
+  public writeBundleDescriptor(bundleDescriptor: BundleDescriptor): void {
     fs.writeFileSync(
       this.bundleFilePath,
       JSON.stringify(
