@@ -1,32 +1,27 @@
-import {expect, test} from '@oclif/test'
-
-const DEMOBUNDLE = [{
-  bundleGroupName: "test",
-  bundleName: "test",
-  gitSrcRepoAddress: "https://test.github.com/",
-  bundleGroupVersionId: 1,
-  bundleGroupId: 1,
-  bundleId: 1
-}];
-
-// const bundlegroupurl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io/ent/api/templates/bundlegroups';
+import { expect, test } from '@oclif/test'
 
 describe('hub-group-api', () => {
   test
-  .nock('https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io', api => api
-    .get('/ent/api/templates/bundlegroups')
-    .reply(200, [{
-      bundleGroupName: "test",
-      bundleName: "test",
-      gitSrcRepoAddress: "https://test.github.com/",
-      bundleGroupVersionId: 1,
-      bundleGroupId: 1,
-      bundleId: 1
-    }])
-  )
-  .stdout()
-  .command(['hub-group-api', 'list'])
-  .it('runs list option', ctx => {
-    expect(ctx.stdout).to.contain('Bundle Group')
-  })
+    .stdout()
+    .command(['hub-group-api', 'list'])
+    .it('runs list option', ctx => {
+      expect(ctx.stdout).to.contain('Bundle Group')
+      expect(ctx.stdout).to.contain('Test germano 2')
+    })
+
+  test
+    .stdout()
+    .command(['hub-group-api', 'bundle', '--name="Test germano 1"'])
+    .it('runs display bundle with name filter', ctx => {
+      expect(ctx.stdout).to.contain('Test germano 1')
+      expect(ctx.stdout).to.contain('51')
+    })
+
+    test
+    .stdout()
+    .command(['hub-group-api', 'bundle', '--versionId=51'])
+    .it('runs display bundle info by version id', ctx => {
+      expect(ctx.stdout).to.contain('Test germano 2')
+      expect(ctx.stdout).to.contain('51')
+    })
 })
