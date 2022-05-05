@@ -73,4 +73,18 @@ describe('mfe add', () => {
       expect(error.message).to.contain('existing-mfe already exists')
     })
     .it('exits if mfe folder already exists')
+
+  describe('uninitialized bundle project', () => {
+    beforeEach(() =>
+      fs.rmSync(path.resolve(tmpDir, 'bundle.json'), { force: true })
+    )
+
+    test
+      .stderr()
+      .command(['mfe add', 'mfe-in-notbundleproject'])
+      .catch(error => {
+        expect(error.message).to.contain('not an initialized bundle project')
+      })
+      .it('exits if current folder is not a bundle project')
+  })
 })
