@@ -2,7 +2,7 @@ import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-export default class BundleService {
+export class BundleService {
   public static isBundleInitialized(bundleDir: string): boolean {
     return BundleService.descriptorExists(bundleDir)
   }

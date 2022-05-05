@@ -6,7 +6,7 @@ import BundleDescriptorService from './bundle-descriptor-service'
 
 const MICROFRONTENDS_DIRNAME = 'microfrontends'
 
-export default class MicroFrontendsService {
+export class MicroFrontendsService {
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
 

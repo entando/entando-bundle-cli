@@ -50,7 +50,7 @@
     "topicSeparator": " ",
     "topics": {
       "mfe": {
-        "description": "Performs microfrontend operations in the current bundle"
+        "description": "Micro Frontend operations"
       }
     }
   },

@@ -1,7 +1,7 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { MicroFrontend } from '../../models/bundle-descriptor'
-import BundleService from '../../services/bundle-service'
-import MicroFrontendsService from '../../services/microfrontends-service'
+import { BundleService } from '../../services/bundle-service'
+import { MicroFrontendsService } from '../../services/microfrontends-service'
 
 enum Stack {
   React = 'react',
@@ -9,7 +9,7 @@ enum Stack {
 }
 
 export default class Add extends Command {
-  static description = 'Adds a microfrontend component to the current bundle'
+  static description = 'Adds a Micro Frontend component to the bundle'
 
   static examples = [
     '$ entando-bundle-cli mfe add my-mfe',
@@ -27,7 +27,7 @@ export default class Add extends Command {
   static args = [
     {
       name: 'name',
-      description: 'name of the microfrontend component',
+      description: 'Name of the Micro Frontend component',
       required: true
     }
   ]
