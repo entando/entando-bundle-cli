@@ -1,8 +1,8 @@
-import { CLIError } from "@oclif/errors"
-import * as cp from "node:child_process"
-import * as fs from "node:fs"
-import * as path from "node:path"
-import BundleDescriptorManager from "./bundle-descriptor-manager"
+import { CLIError } from '@oclif/errors'
+import * as cp from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import BundleDescriptorService from './bundle-descriptor-service'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -13,7 +13,7 @@ export interface InitializerOptions {
 }
 
 /** Handles the scaffolding of a project bundle */
-export default class BundleProjectInitializer {
+export default class InitializerService {
   private readonly options: InitializerOptions
 
   constructor(options: InitializerOptions) {
@@ -23,7 +23,7 @@ export default class BundleProjectInitializer {
   public async performScaffolding(): Promise<void> {
     if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.options.name)) {
       throw new CLIError(
-        `"${this.options.name}" is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${this.options.name}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
       )
     }
 
@@ -51,18 +51,18 @@ export default class BundleProjectInitializer {
     }
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.getBundleFilePath(".ent"))
-    fs.mkdirSync(this.getBundleFilePath(".ent", "output"))
-    fs.mkdirSync(this.getBundleFilePath("microservices"))
-    fs.mkdirSync(this.getBundleFilePath("microfrontends"))
-    fs.mkdirSync(this.getBundleFilePath("epc"))
+    fs.mkdirSync(this.getBundleFilePath('.ent'))
+    fs.mkdirSync(this.getBundleFilePath('.ent', 'output'))
+    fs.mkdirSync(this.getBundleFilePath('microservices'))
+    fs.mkdirSync(this.getBundleFilePath('microfrontends'))
+    fs.mkdirSync(this.getBundleFilePath('epc'))
   }
 
   private createBundleDescriptor() {
-    const bundleDescriptorManager = new BundleDescriptorManager(
+    const bundleDescriptorService = new BundleDescriptorService(
       this.getBundleDirectory()
     )
-    bundleDescriptorManager.createBundleDescriptor({
+    bundleDescriptorService.createBundleDescriptor({
       name: this.options.name,
       version: this.options.version
     })
@@ -70,15 +70,15 @@ export default class BundleProjectInitializer {
 
   private createDockerfile() {
     this.createFileFromTemplate(
-      this.getBundleFilePath("Dockerfile"),
-      "Dockerfile-template"
+      this.getBundleFilePath('Dockerfile'),
+      'Dockerfile-template'
     )
   }
 
   private createGitignore() {
     this.createFileFromTemplate(
-      this.getBundleFilePath(".gitignore"),
-      "gitignore-template"
+      this.getBundleFilePath('.gitignore'),
+      'gitignore-template'
     )
   }
 
@@ -88,7 +88,7 @@ export default class BundleProjectInitializer {
 
   private createFileFromTemplate(filePath: string, templateFileName: string) {
     const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, "..", "..", "resources", templateFileName)
+      path.resolve(__dirname, '..', '..', 'resources', templateFileName)
     )
     fs.writeFileSync(filePath, templateFileContent)
   }
@@ -96,7 +96,7 @@ export default class BundleProjectInitializer {
   private initGitRepo() {
     try {
       // Using stdio "pipe" option to print stderr only through CLIError
-      cp.execSync(`git -C ${this.getBundleDirectory()} init`, { stdio: "pipe" })
+      cp.execSync(`git -C ${this.getBundleDirectory()} init`, { stdio: 'pipe' })
     } catch (error) {
       throw new CLIError(error as Error)
     }

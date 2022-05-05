@@ -1,7 +1,7 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { MicroFrontend } from '../../models/bundle-descriptor'
-import BundleVerifier from '../../services/bundle-verifier'
-import MicroFrontendsManager from '../../services/microfrontends-manager'
+import BundleService from '../../services/bundle-service'
+import MicroFrontendsService from '../../services/microfrontends-service'
 
 enum Stack {
   React = 'react',
@@ -33,7 +33,7 @@ export default class Add extends Command {
   ]
 
   public async run(): Promise<void> {
-    BundleVerifier.verifyBundleInitialized(process.cwd())
+    BundleService.verifyBundleInitialized(process.cwd())
 
     const { args, flags } = await this.parse(Add)
 
@@ -41,11 +41,11 @@ export default class Add extends Command {
       name: args.name,
       stack: flags.stack
     }
-    const microFrontendsManager: MicroFrontendsManager =
-      new MicroFrontendsManager()
+    const microFrontendsService: MicroFrontendsService =
+      new MicroFrontendsService()
 
     CliUx.ux.action.start(`Adding a new microfrontend ${args.name}`)
-    microFrontendsManager.addMicroFrontend(microFrontend)
+    microFrontendsService.addMicroFrontend(microFrontend)
     CliUx.ux.action.stop()
   }
 }

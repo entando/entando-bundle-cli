@@ -3,7 +3,7 @@ import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
-import BundleDescriptorManager from '../../../src/services/bundle-descriptor-manager'
+import BundleDescriptorService from '../../../src/services/bundle-descriptor-service'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -14,7 +14,7 @@ describe('mfe add', () => {
   }
 
   let tmpDir: string
-  let bundleDescriptorManager: BundleDescriptorManager
+  let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
     tmpDir = path.resolve(os.tmpdir(), bundleDescriptor.name)
@@ -25,11 +25,11 @@ describe('mfe add', () => {
 
     fs.mkdirSync(path.resolve('./microfrontends', 'existing-mfe'))
 
-    bundleDescriptorManager = new BundleDescriptorManager(process.cwd())
+    bundleDescriptorService = new BundleDescriptorService(process.cwd())
   })
 
   beforeEach(() => {
-    bundleDescriptorManager.writeBundleDescriptor(bundleDescriptor)
+    bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
   after(() => {
@@ -42,7 +42,7 @@ describe('mfe add', () => {
       const mfeName = 'default-stack-mfe'
       const filePath = path.resolve(tmpDir, 'microfrontends', mfeName)
       const bundleDescriptor: BundleDescriptor =
-        bundleDescriptorManager.getBundleDescriptor()
+        bundleDescriptorService.getBundleDescriptor()
 
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(bundleDescriptor).to.eql({
@@ -57,7 +57,7 @@ describe('mfe add', () => {
       const mfeName = 'angular-mfe'
       const filePath = path.resolve(tmpDir, 'microfrontends', mfeName)
       const bundleDescriptor: BundleDescriptor =
-        bundleDescriptorManager.getBundleDescriptor()
+        bundleDescriptorService.getBundleDescriptor()
 
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(bundleDescriptor).to.eql({

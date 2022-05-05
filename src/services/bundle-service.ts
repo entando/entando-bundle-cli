@@ -2,13 +2,13 @@ import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-export default class BundleVerifier {
+export default class BundleService {
   public static isBundleInitialized(bundleDir: string): boolean {
-    return BundleVerifier.descriptorExists(bundleDir)
+    return BundleService.descriptorExists(bundleDir)
   }
 
   public static verifyBundleInitialized(bundleDir: string): void {
-    if (!BundleVerifier.isBundleInitialized(bundleDir)) {
+    if (!BundleService.isBundleInitialized(bundleDir)) {
       throw new CLIError(`${bundleDir} is not an initialized bundle project`)
     }
   }

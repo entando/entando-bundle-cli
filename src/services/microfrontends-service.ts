@@ -2,20 +2,20 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
-import BundleDescriptorManager from './bundle-descriptor-manager'
+import BundleDescriptorService from './bundle-descriptor-service'
 
 const MICROFRONTENDS_DIRNAME = 'microfrontends'
 
-export default class MicroFrontendsManager {
+export default class MicroFrontendsService {
   private readonly microfrontendsPath: string
-  private readonly bundleDescriptorManager: BundleDescriptorManager
+  private readonly bundleDescriptorService: BundleDescriptorService
 
   constructor() {
     this.microfrontendsPath = path.resolve(
       process.cwd(),
       MICROFRONTENDS_DIRNAME
     )
-    this.bundleDescriptorManager = new BundleDescriptorManager(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
   }
 
   public addMicroFrontend(mfe: MicroFrontend): void {
@@ -36,12 +36,12 @@ export default class MicroFrontendsManager {
 
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {
     const bundleDescriptor: BundleDescriptor =
-      this.bundleDescriptorManager.getBundleDescriptor()
+      this.bundleDescriptorService.getBundleDescriptor()
     const updatedBundleDescriptor: BundleDescriptor = {
       ...bundleDescriptor,
       microfrontends: [...bundleDescriptor.microfrontends, mfe]
     }
 
-    this.bundleDescriptorManager.writeBundleDescriptor(updatedBundleDescriptor)
+    this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
 }
