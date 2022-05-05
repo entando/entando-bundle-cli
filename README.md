@@ -60,7 +60,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `entando-bundle-cli init NAME`
 
-performs the scaffolding of an empty bundle project
+Performs the scaffolding of a bundle project (we'll add the possibility to init from hub later)
 
 ```
 USAGE
@@ -73,7 +73,7 @@ FLAGS
   --version=<value>  project version
 
 DESCRIPTION
-  performs the scaffolding of an empty bundle project
+  Performs the scaffolding of a bundle project (we'll add the possibility to init from hub later)
 
 EXAMPLES
   $ entando-bundle-cli init my-bundle
@@ -95,3 +95,15 @@ nvm use
 ```
 
 If you are receiving `command not found` errors while executing pre-commit hooks with Husky using `nvm`, please refer to https://typicode.github.io/husky/#/?id=command-not-found
+
+To print debug information define a static `debug` function using the `debugFactory`:
+
+```
+private static debug = debugFactory(MyClass)
+```
+
+Debug output can be enabled using the following environment variable:
+
+```
+ENTANDO_CLI_DEBUG=true
+```

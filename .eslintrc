@@ -8,6 +8,12 @@
     "semi": "off",
     "object-curly-spacing": "off",
     "comma-dangle": "off",
-    "unicorn/prefer-module": "off"
+    "unicorn/prefer-module": "off",
+    "node/no-extraneous-import": [
+      "error",
+      {
+        "allowModules": ["debug"]
+      }
+    ]
   }
 }
