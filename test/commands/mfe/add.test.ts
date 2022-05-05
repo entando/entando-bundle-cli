@@ -2,7 +2,10 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
+import {
+  BundleDescriptor,
+  MicroFrontend
+} from '../../../src/models/bundle-descriptor'
 import BundleDescriptorService from '../../../src/services/bundle-descriptor-service'
 
 describe('mfe add', () => {
@@ -23,7 +26,7 @@ describe('mfe add', () => {
 
     fs.mkdirSync('./microfrontends')
 
-    fs.mkdirSync(path.resolve('./microfrontends', 'existing-mfe'))
+    fs.mkdirSync(path.resolve('./microfrontends', 'existing-mfe-dir'))
 
     bundleDescriptorService = new BundleDescriptorService(process.cwd())
   })
@@ -40,7 +43,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'default-stack-mfe'])
     .it('runs mfe add default-stack-mfe', () => {
       const mfeName = 'default-stack-mfe'
-      const filePath = path.resolve(tmpDir, 'microfrontends', mfeName)
+      const filePath: string = path.resolve(tmpDir, 'microfrontends', mfeName)
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
@@ -55,7 +58,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'angular-mfe', '--stack', 'angular'])
     .it('runs mfe add angular-mfe --stack angular', () => {
       const mfeName = 'angular-mfe'
-      const filePath = path.resolve(tmpDir, 'microfrontends', mfeName)
+      const filePath: string = path.resolve(tmpDir, 'microfrontends', mfeName)
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
@@ -68,11 +71,28 @@ describe('mfe add', () => {
 
   test
     .stderr()
-    .command(['mfe add', 'existing-mfe'])
+    .command(['mfe add', 'existing-mfe-dir'])
     .catch(error => {
-      expect(error.message).to.contain('existing-mfe already exists')
+      expect(error.message).to.contain('existing-mfe-dir already exists')
     })
     .it('exits if mfe folder already exists')
+
+  test
+    .stderr()
+    .do(() => {
+      const microfrontends: Array<MicroFrontend> = <Array<MicroFrontend>>[
+        { name: 'existing-mfe-desc' }
+      ]
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        microfrontends
+      })
+    })
+    .command(['mfe add', 'existing-mfe-desc'])
+    .catch(error => {
+      expect(error.message).to.contain('existing-mfe-desc already exists')
+    })
+    .it('exits if mfe descriptor already exists')
 
   describe('uninitialized bundle project', () => {
     beforeEach(() =>

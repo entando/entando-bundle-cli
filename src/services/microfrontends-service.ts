@@ -37,9 +37,17 @@ export class MicroFrontendsService {
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
+    const { microfrontends } = bundleDescriptor
+
+    if (microfrontends.some(({ name }) => name === mfe.name)) {
+      throw new CLIError(
+        `${mfe.name} already exists in the microfrontends section of the bundle descriptor`
+      )
+    }
+
     const updatedBundleDescriptor: BundleDescriptor = {
       ...bundleDescriptor,
-      microfrontends: [...bundleDescriptor.microfrontends, mfe]
+      microfrontends: [...microfrontends, mfe]
     }
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
