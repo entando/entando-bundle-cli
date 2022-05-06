@@ -12,7 +12,8 @@ export default function debugFactory(
 
   return (message: string, ...args: any[]) => {
     extendedDebugger.enabled =
-      extendedDebugger.enabled || process.env.ENTANDO_CLI_DEBUG === "true"
+      extendedDebugger.enabled ||
+      process.env.ENTANDO_BUNDLE_CLI_DEBUG === "true"
     if (extendedDebugger.enabled) {
       extendedDebugger(format(message, ...args))
     }
