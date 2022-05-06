@@ -3,6 +3,7 @@ import * as cp from "node:child_process"
 import * as fs from "node:fs"
 import * as path from "node:path"
 import BundleDescriptorManager from "./bundle-descriptor-manager"
+import debugFactory from "./debug-factory-service"
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -14,6 +15,8 @@ export interface InitializerOptions {
 
 /** Handles the scaffolding of a project bundle */
 export default class BundleProjectInitializer {
+  private static debug = debugFactory(BundleProjectInitializer)
+
   private readonly options: InitializerOptions
 
   constructor(options: InitializerOptions) {
@@ -21,6 +24,8 @@ export default class BundleProjectInitializer {
   }
 
   public async performScaffolding(): Promise<void> {
+    BundleProjectInitializer.debug("project scaffolding started")
+
     if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.options.name)) {
       throw new CLIError(
         `"${this.options.name}" is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
@@ -36,6 +41,8 @@ export default class BundleProjectInitializer {
   }
 
   private createBundleDirectories() {
+    BundleProjectInitializer.debug("creating bundle directories")
+
     const bundleDir = this.getBundleDirectory()
 
     try {
@@ -59,6 +66,8 @@ export default class BundleProjectInitializer {
   }
 
   private createBundleDescriptor() {
+    BundleProjectInitializer.debug("creating bundle descriptor")
+
     const bundleDescriptorManager = new BundleDescriptorManager(
       this.getBundleDirectory()
     )
@@ -69,6 +78,7 @@ export default class BundleProjectInitializer {
   }
 
   private createDockerfile() {
+    BundleProjectInitializer.debug("creating Dockerfile")
     this.createFileFromTemplate(
       this.getBundleFilePath("Dockerfile"),
       "Dockerfile-template"
@@ -76,6 +86,7 @@ export default class BundleProjectInitializer {
   }
 
   private createGitignore() {
+    BundleProjectInitializer.debug("creating .gitignore")
     this.createFileFromTemplate(
       this.getBundleFilePath(".gitignore"),
       "gitignore-template"
@@ -94,6 +105,7 @@ export default class BundleProjectInitializer {
   }
 
   private initGitRepo() {
+    BundleProjectInitializer.debug("initializing git repository")
     try {
       // Using stdio "pipe" option to print stderr only through CLIError
       cp.execSync(`git -C ${this.getBundleDirectory()} init`, { stdio: "pipe" })
