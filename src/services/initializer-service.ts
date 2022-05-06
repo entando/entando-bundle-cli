@@ -3,6 +3,7 @@ import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import BundleDescriptorService from './bundle-descriptor-service'
+import debugFactory from './debug-factory-service'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -14,6 +15,8 @@ export interface InitializerOptions {
 
 /** Handles the scaffolding of a project bundle */
 export default class InitializerService {
+  private static debug = debugFactory(InitializerService)
+
   private readonly options: InitializerOptions
 
   constructor(options: InitializerOptions) {
@@ -21,6 +24,8 @@ export default class InitializerService {
   }
 
   public async performScaffolding(): Promise<void> {
+    InitializerService.debug('project scaffolding started')
+
     if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.options.name)) {
       throw new CLIError(
         `'${this.options.name}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
@@ -36,6 +41,8 @@ export default class InitializerService {
   }
 
   private createBundleDirectories() {
+    InitializerService.debug('creating bundle directories')
+
     const bundleDir = this.getBundleDirectory()
 
     try {
@@ -59,6 +66,8 @@ export default class InitializerService {
   }
 
   private createBundleDescriptor() {
+    InitializerService.debug('creating bundle descriptor')
+
     const bundleDescriptorService = new BundleDescriptorService(
       this.getBundleDirectory()
     )
@@ -69,6 +78,7 @@ export default class InitializerService {
   }
 
   private createDockerfile() {
+    InitializerService.debug('creating Dockerfile')
     this.createFileFromTemplate(
       this.getBundleFilePath('Dockerfile'),
       'Dockerfile-template'
@@ -76,6 +86,7 @@ export default class InitializerService {
   }
 
   private createGitignore() {
+    InitializerService.debug('creating .gitignore')
     this.createFileFromTemplate(
       this.getBundleFilePath('.gitignore'),
       'gitignore-template'
@@ -94,8 +105,9 @@ export default class InitializerService {
   }
 
   private initGitRepo() {
+    InitializerService.debug('initializing git repository')
     try {
-      // Using stdio "pipe" option to print stderr only through CLIError
+      // Using stdio 'pipe' option to print stderr only through CLIError
       cp.execSync(`git -C ${this.getBundleDirectory()} init`, { stdio: 'pipe' })
     } catch (error) {
       throw new CLIError(error as Error)
