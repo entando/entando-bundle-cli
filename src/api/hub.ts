@@ -1,4 +1,4 @@
-import { request } from 'undici';
+import axios from 'axios';
 
 export default class HubGroupAPI {
   private readonly defaultBaseUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io';
@@ -11,10 +11,10 @@ export default class HubGroupAPI {
   }
 
   async callApi(uri: string): Promise<any[]> {
-    const response = await request(`${this.baseUrl}${uri}`);
-    const { statusCode, body } = response;
+    const response = await axios(`${this.baseUrl}${uri}`);
+    const { data } = response;
 
-    return (statusCode === 200) ? body.json() : Promise.reject(response);
+    return data;
   }
 
   getHubGroups(): Promise<any[]> {
