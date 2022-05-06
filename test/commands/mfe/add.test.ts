@@ -70,6 +70,29 @@ describe('mfe add', () => {
     })
 
   test
+    .do(() => {
+      fs.mkdirSync(path.resolve(tmpDir, 'microfrontends', 'mfe1'))
+      const microfrontends: Array<MicroFrontend> = <Array<MicroFrontend>>[
+        { name: 'mfe1' }
+      ]
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        microfrontends
+      })
+    })
+    .command(['mfe add', 'mfe2'])
+    .it('runs mfe add mfe2', () => {
+      const mfeNames = ['mfe1', 'mfe2']
+      const dirCont: Array<string> = fs.readdirSync(
+        path.resolve(tmpDir, 'microfrontends')
+      )
+      const { microfrontends } = bundleDescriptorService.getBundleDescriptor()
+
+      expect(mfeNames.every(name => dirCont.includes(name))).to.eq(true)
+      expect(microfrontends.every(({ name }) => mfeNames.includes(name)))
+    })
+
+  test
     .stderr()
     .command(['mfe add', 'existing-mfe-dir'])
     .catch(error => {
