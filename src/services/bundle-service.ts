@@ -9,7 +9,7 @@ export class BundleService {
 
   public static verifyBundleInitialized(bundleDir: string): void {
     if (!BundleService.isBundleInitialized(bundleDir)) {
-      throw new CLIError(`${bundleDir} is not an initialized bundle project`)
+      throw new CLIError(`${bundleDir} is not an initialized Bundle project`)
     }
   }
 

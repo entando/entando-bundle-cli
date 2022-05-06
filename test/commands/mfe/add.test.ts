@@ -94,6 +94,14 @@ describe('mfe add', () => {
 
   test
     .stderr()
+    .command(['mfe add', 'invalid name'])
+    .catch(error => {
+      expect(error.message).to.contain('not a valid Micro Frontend name')
+    })
+    .it('validates Micro Frontend name')
+
+  test
+    .stderr()
     .command(['mfe add', 'existing-mfe-dir'])
     .catch(error => {
       expect(error.message).to.contain('existing-mfe-dir already exists')
@@ -117,17 +125,14 @@ describe('mfe add', () => {
     })
     .it('exits if mfe descriptor already exists')
 
-  describe('uninitialized bundle project', () => {
-    beforeEach(() =>
+  test
+    .stderr()
+    .do(() => {
       fs.rmSync(path.resolve(tmpDir, 'bundle.json'), { force: true })
-    )
-
-    test
-      .stderr()
-      .command(['mfe add', 'mfe-in-notbundleproject'])
-      .catch(error => {
-        expect(error.message).to.contain('not an initialized bundle project')
-      })
-      .it('exits if current folder is not a bundle project')
-  })
+    })
+    .command(['mfe add', 'mfe-in-notbundleproject'])
+    .catch(error => {
+      expect(error.message).to.contain('not an initialized Bundle project')
+    })
+    .it('exits if current folder is not a Bundle project')
 })

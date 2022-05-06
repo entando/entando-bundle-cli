@@ -1,7 +1,7 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { MicroFrontend } from '../../models/bundle-descriptor'
 import { BundleService } from '../../services/bundle-service'
-import { MicroFrontendsService } from '../../services/microfrontends-service'
+import { MicroFrontendService } from '../../services/microfrontend-service'
 
 enum Stack {
   React = 'react',
@@ -18,7 +18,7 @@ export default class Add extends Command {
 
   static flags = {
     stack: Flags.string({
-      description: 'frontend stack',
+      description: 'Micro Frontend stack',
       options: [Stack.React, Stack.Angular],
       default: Stack.React
     })
@@ -41,11 +41,11 @@ export default class Add extends Command {
       name: args.name,
       stack: flags.stack
     }
-    const microFrontendsService: MicroFrontendsService =
-      new MicroFrontendsService()
+    const microFrontendService: MicroFrontendService =
+      new MicroFrontendService()
 
-    CliUx.ux.action.start(`Adding a new microfrontend ${args.name}`)
-    microFrontendsService.addMicroFrontend(microFrontend)
+    CliUx.ux.action.start(`Adding a new Micro Frontend ${args.name}`)
+    microFrontendService.addMicroFrontend(microFrontend)
     CliUx.ux.action.stop()
   }
 }

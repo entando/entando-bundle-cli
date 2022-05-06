@@ -5,8 +5,9 @@ import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
 import BundleDescriptorService from './bundle-descriptor-service'
 
 const MICROFRONTENDS_DIRNAME = 'microfrontends'
+const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 
-export class MicroFrontendsService {
+export class MicroFrontendService {
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
 
@@ -19,6 +20,12 @@ export class MicroFrontendsService {
   }
 
   public addMicroFrontend(mfe: MicroFrontend): void {
+    if (!ALLOWED_MFE_NAME_REGEXP.test(mfe.name)) {
+      throw new CLIError(
+        `'${mfe.name}' is not a valid Micro Frontend name. Only alphanumeric characters, underscore and dash are allowed`
+      )
+    }
+
     this.createMicroFrontendDirectory(mfe.name)
 
     this.addMicroFrontendDescriptor(mfe)
@@ -41,7 +48,7 @@ export class MicroFrontendsService {
 
     if (microfrontends.some(({ name }) => name === mfe.name)) {
       throw new CLIError(
-        `${mfe.name} already exists in the microfrontends section of the bundle descriptor`
+        `${mfe.name} already exists in the microfrontends section of the Bundle descriptor`
       )
     }
 
