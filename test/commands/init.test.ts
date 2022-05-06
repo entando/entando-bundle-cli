@@ -1,22 +1,22 @@
-import { expect, test } from "@oclif/test"
-import * as fs from "node:fs"
-import * as os from "node:os"
-import * as path from "node:path"
-import * as sinon from "sinon"
-import { BundleDescriptor } from "../../src/models/bundle-descriptor"
-import BundleDescriptorManager from "../../src/services/bundle-descriptor-manager"
-import * as cp from "node:child_process"
+import { expect, test } from '@oclif/test'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
+import * as sinon from 'sinon'
+import { BundleDescriptor } from '../../src/models/bundle-descriptor'
+import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import * as cp from 'node:child_process'
 
-describe("init", () => {
+describe('init', () => {
   let tmpDir: string
 
   before(() => {
     // creating a temporary directory
-    tmpDir = path.resolve(os.tmpdir(), "bundle-cli-init-test")
+    tmpDir = path.resolve(os.tmpdir(), 'bundle-cli-init-test')
     fs.mkdirSync(tmpDir)
 
     // creating a subfolder for testing the existing bundle case
-    fs.mkdirSync(path.resolve(tmpDir, "existing-bundle"))
+    fs.mkdirSync(path.resolve(tmpDir, 'existing-bundle'))
 
     // setting the temporary directory as current working directory
     process.chdir(tmpDir)
@@ -28,86 +28,86 @@ describe("init", () => {
   })
 
   test
-    .stub(cp, "execSync", sinon.stub().returns("Initialized git repo"))
-    .command(["init", "bundle-with-version", "--version=0.0.2"])
-    .it("runs init bundle-with-version --version=0.0.2", () => {
-      const bundleName = "bundle-with-version"
+    .stub(cp, 'execSync', sinon.stub().returns('Initialized git repo'))
+    .command(['init', 'bundle-with-version', '--version=0.0.2'])
+    .it('runs init bundle-with-version --version=0.0.2', () => {
+      const bundleName = 'bundle-with-version'
 
       checkFoldersStructure(bundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
 
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
-      expect(bundleDescriptor.version).to.eq("0.0.2")
+      expect(bundleDescriptor.version).to.eq('0.0.2')
     })
 
   test
-    .stub(cp, "execSync", sinon.stub().returns("Initialized git repo"))
-    .command(["init", "bundle-no-version"])
-    .it("runs init bundle-no-version", () => {
-      const bundleName = "bundle-no-version"
+    .stub(cp, 'execSync', sinon.stub().returns('Initialized git repo'))
+    .command(['init', 'bundle-no-version'])
+    .it('runs init bundle-no-version', () => {
+      const bundleName = 'bundle-no-version'
 
       checkFoldersStructure(bundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
 
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
-      expect(bundleDescriptor.version).to.eq("0.0.1")
+      expect(bundleDescriptor.version).to.eq('0.0.1')
     })
 
   test
     .stderr()
-    .command(["init"])
+    .command(['init'])
     .catch(error => {
-      expect(error.message).to.contain("required")
+      expect(error.message).to.contain('required')
     })
-    .it("validates required argument")
+    .it('validates required argument')
 
   test
     .stderr()
-    .command(["init", "existing-bundle"])
+    .command(['init', 'existing-bundle'])
     .catch(error => {
-      expect(error.message).to.contain("existing-bundle already exists")
+      expect(error.message).to.contain('existing-bundle already exists')
     })
-    .it("exits if bundle folder already exists")
+    .it('exits if bundle folder already exists')
 
   test
     .stderr()
-    .command(["init", "invalid name"])
+    .command(['init', 'invalid name'])
     .catch(error => {
-      expect(error.message).to.contain("not a valid bundle name")
+      expect(error.message).to.contain('not a valid bundle name')
     })
-    .it("validates bundle name")
+    .it('validates bundle name')
 
   test
     .stderr()
     .stub(
       fs,
-      "accessSync",
-      sinon.stub().throws({ stderr: "permission denied" })
+      'accessSync',
+      sinon.stub().throws({ stderr: 'permission denied' })
     )
-    .command(["init", "bundle-no-permission"])
+    .command(['init', 'bundle-no-permission'])
     .catch(error => {
-      expect(error.message).to.contain("is not writable")
+      expect(error.message).to.contain('is not writable')
     })
-    .it("handles a not writable parent directory")
+    .it('handles a not writable parent directory')
 
   test
     .stderr()
-    .stub(cp, "execSync", sinon.stub().throws(new Error("git init error")))
-    .command(["init", "bundle-exec-error"])
+    .stub(cp, 'execSync', sinon.stub().throws(new Error('git init error')))
+    .command(['init', 'bundle-exec-error'])
     .catch(error => {
-      expect(error.message).to.contain("git init error")
+      expect(error.message).to.contain('git init error')
     })
-    .it("handles git command error")
+    .it('handles git command error')
 
   function checkFoldersStructure(bundleName: string) {
-    checkBundleFile(bundleName, ".ent")
-    checkBundleFile(bundleName, "bundle.json")
-    checkBundleFile(bundleName, "microservices")
-    checkBundleFile(bundleName, "microfrontends")
-    checkBundleFile(bundleName, "Dockerfile")
-    checkBundleFile(bundleName, ".gitignore")
+    checkBundleFile(bundleName, '.ent')
+    checkBundleFile(bundleName, 'bundle.json')
+    checkBundleFile(bundleName, 'microservices')
+    checkBundleFile(bundleName, 'microfrontends')
+    checkBundleFile(bundleName, 'Dockerfile')
+    checkBundleFile(bundleName, '.gitignore')
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
@@ -116,7 +116,7 @@ describe("init", () => {
   }
 
   function parseBundleDescriptor(bundleName: string): BundleDescriptor {
-    return new BundleDescriptorManager(
+    return new BundleDescriptorService(
       path.resolve(tmpDir, bundleName)
     ).getBundleDescriptor()
   }
