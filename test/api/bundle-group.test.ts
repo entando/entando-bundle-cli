@@ -1,6 +1,6 @@
 import { expect } from '@oclif/test'
 import * as nock from 'nock'
-import BundleGroupApi from '../../src/api/bundle-group'
+import HubAPI from '../../src/api/hub-api'
 
 const demoBundle = {
   bundleGroupName: "Test germano 1",
@@ -26,12 +26,12 @@ const domainmock = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io';
 const uri = '/ent/api/templates/bundlegroups';
 
 describe('Bundle Group API', () => {
-  const bundleGroupApi = new BundleGroupApi();
+  const hubApi = new HubAPI();
   it('Bundle Group List', async () => {
     nock(domainmock)
       .get(uri)
       .reply(200, demoBundleGroupList)
-    const bundleGroups = await bundleGroupApi.getBundleGroups();
+    const bundleGroups = await hubApi.getBundleGroups();
     expect(bundleGroups).to.have.length(2);
     expect(bundleGroups[0]).to.deep.equal(demoBundleGroupList[0]);
   })
@@ -41,7 +41,7 @@ describe('Bundle Group API', () => {
     nock(domainmock)
       .get(`${uri}?name=Test+germano+1`)
       .reply(200, [bundleGroup])
-    const bundleGroups = await bundleGroupApi.getBundleGroups(bundleGroup.bundleGroupName);
+    const bundleGroups = await hubApi.getBundleGroups(bundleGroup.bundleGroupName);
     expect(bundleGroups).to.have.length(1);
     expect(bundleGroups[0]).to.have.property('bundleGroupName', bundleGroup.bundleGroupName);
     expect(bundleGroups[0]).to.have.property('bundleGroupVersionId', bundleGroup.bundleGroupVersionId);
@@ -51,7 +51,7 @@ describe('Bundle Group API', () => {
     nock(domainmock)
     .get(`${uri}/${demoBundle.bundleGroupVersionId}`)
     .reply(200, [demoBundle])
-    const bundleGroup = await bundleGroupApi.getBundleGroupById(demoBundle.bundleGroupVersionId);
+    const bundleGroup = await hubApi.getBundleGroupById(demoBundle.bundleGroupVersionId);
     expect(bundleGroup).to.have.length(1);
     expect(bundleGroup[0]).to.have.property('bundleGroupName', demoBundle.bundleGroupName);
     expect(bundleGroup[0]).to.have.property('bundleGroupVersionId', demoBundle.bundleGroupVersionId);

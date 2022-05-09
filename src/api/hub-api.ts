@@ -5,7 +5,7 @@ interface BundleGroupAPIParam {
   name: string
 }
 
-export default class HubGroupAPI {
+export default class HubAPI {
   private readonly defaultBaseUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io';
   private readonly baseUrl: string;
 
