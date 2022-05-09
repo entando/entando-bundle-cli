@@ -1,5 +1,6 @@
 import { CliUx, Command, Flags } from "@oclif/core"
-import HubGroup from '../api/hub'
+import BundleGroupCaller from '../api/hub'
+import { BundleGroup, BundleGroupId } from "../models/bundle-descriptor"
 
 export default class HubGroupApi extends Command {
   static description =
@@ -21,19 +22,13 @@ export default class HubGroupApi extends Command {
   public async run(): Promise<void> {
     const { args, flags } = await this.parse(HubGroupApi)
 
-    const hubGroupCaller = new HubGroup()
+    const hubGroupCaller = new BundleGroupCaller()
 
     switch (args.action) {
       case 'bundle': {
-        if (flags.name || flags.versionId) {
-          let data = null;
-          if (flags.name) {
-            CliUx.ux.action.start(`Retrieving hub group with name ${flags.name}`)
-            data = await hubGroupCaller.getHubGroupByName(flags.name)
-          } else { // versionId
-            CliUx.ux.action.start(`Retrieving hub group with version id ${flags.versionId}`)
-            data = await hubGroupCaller.getHubGroupById(Number(flags.versionId))
-          }
+        if (flags.versionId) {
+          CliUx.ux.action.start(`Retrieving hub group with version id ${flags.versionId}`)
+          const data: BundleGroup[] = await hubGroupCaller.getBundleGroupById(Number(flags.versionId))
 
           CliUx.ux.table(data, {
             bundleGroupName: { header: 'Bundle Group' },
@@ -53,13 +48,10 @@ export default class HubGroupApi extends Command {
       case 'list':
       default: {
         CliUx.ux.action.start('Retrieving existing hub groups')
-        const data = await hubGroupCaller.getHubGroups()
+        const data: BundleGroupId[] = await hubGroupCaller.getBundleGroups(flags.name || undefined)
         CliUx.ux.table(data, {
           bundleGroupName: { header: 'Bundle Group' },
-          bundleName: { header: 'Bundle Name' },
           bundleGroupVersionId: { header: 'Group Version ID' },
-          bundleGroupId: { header: 'Group ID' },
-          bundleId: { header: 'Bundle ID' },
         })
         CliUx.ux.action.stop()
         break

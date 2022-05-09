@@ -30,3 +30,17 @@ export interface BundleDescriptor {
   microservices: MicroService[]
   microfrontends: MicroFrontend[]
 }
+
+export type BundleGroupId = {
+  bundleGroupName: string;
+  bundleGroupVersionId: number;
+}
+
+export type BundleGroup = {
+  bundleGroupName: string
+  bundleName: string
+  gitSrcRepoAddress: string
+  bundleGroupVersionId: number
+  bundleGroupId: number
+  bundleId: number
+};

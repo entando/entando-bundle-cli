@@ -1,4 +1,9 @@
 import axios from 'axios';
+import { BundleGroup, BundleGroupId } from '../models/bundle-descriptor';
+
+interface BundleGroupAPIParam {
+  name: string
+}
 
 export default class HubGroupAPI {
   private readonly defaultBaseUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io';
@@ -10,22 +15,18 @@ export default class HubGroupAPI {
     this.baseUrl = baseUrl || this.defaultBaseUrl;
   }
 
-  async callApi(uri: string): Promise<any[]> {
-    const response = await axios(`${this.baseUrl}${uri}`);
+  async callApi(uri: string, params?: BundleGroupAPIParam): Promise<any[]> {
+    const response = await axios(`${this.baseUrl}${uri}`, params ? { params } : {});
     const { data } = response;
 
     return data;
   }
 
-  getHubGroups(): Promise<any[]> {
-    return this.callApi(this.apiPath);
+  getBundleGroups(name?: string): Promise<BundleGroupId[]> {
+    return this.callApi(this.apiPath, name ? { name } : undefined);
   }
 
-  getHubGroupById(versionId: number): Promise<any[]> {
+  getBundleGroupById(versionId: number): Promise<BundleGroup[]> {
     return this.callApi(`${this.apiPath}/${versionId}`);
-  }
-
-  getHubGroupByName(name: string): Promise<any[]> {
-    return this.callApi(`${this.apiPath}?name=${name}`);
   }
 }
