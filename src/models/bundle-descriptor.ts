@@ -31,12 +31,12 @@ export interface BundleDescriptor {
   microfrontends: MicroFrontend[]
 }
 
-export type BundleGroupId = {
+export type BundleGroup = {
   bundleGroupName: string;
   bundleGroupVersionId: number;
 }
 
-export type BundleGroup = {
+export type Bundle = {
   bundleGroupName: string
   bundleName: string
   gitSrcRepoAddress: string

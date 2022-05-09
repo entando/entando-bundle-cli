@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { BundleGroup, BundleGroupId } from '../models/bundle-descriptor'
+import { Bundle, BundleGroup } from '../models/bundle-descriptor'
 
 interface BundleGroupAPIParam {
   name: string
@@ -22,11 +22,11 @@ export default class HubAPI {
     return data
   }
 
-  getBundleGroups(name?: string): Promise<BundleGroupId[]> {
+  getBundleGroups(name?: string): Promise<BundleGroup[]> {
     return this.callApi(this.apiPath, name ? { name } : undefined)
   }
 
-  getBundleGroupById(versionId: number): Promise<BundleGroup[]> {
+  getBundleGroupById(versionId: number): Promise<Bundle[]> {
     return this.callApi(`${this.apiPath}/${versionId}`)
   }
 }
