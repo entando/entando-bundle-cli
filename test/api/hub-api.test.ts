@@ -52,7 +52,7 @@ describe('Hub API', () => {
       nock(domainmock)
         .get(`${uri}/${demoBundle.bundleGroupVersionId}`)
         .reply(200, [demoBundle])
-      const bundleGroup = await hubApi.getBundleGroupById(demoBundle.bundleGroupVersionId)
+      const bundleGroup = await hubApi.getBundlesByBundleGroupId(demoBundle.bundleGroupVersionId)
       expect(bundleGroup).to.have.length(1)
       expect(bundleGroup[0]).to.have.property('bundleGroupName', demoBundle.bundleGroupName)
       expect(bundleGroup[0]).to.have.property('bundleGroupVersionId', demoBundle.bundleGroupVersionId)

@@ -26,7 +26,7 @@ export default class HubAPI {
     return this.callApi(this.apiPath, name ? { name } : undefined)
   }
 
-  getBundleGroupById(versionId: number): Promise<Bundle[]> {
+  getBundlesByBundleGroupId(versionId: number): Promise<Bundle[]> {
     return this.callApi(`${this.apiPath}/${versionId}`)
   }
 }
