@@ -29,13 +29,13 @@ export class MicroServiceService {
   }
 
   private createMicroServiceDirectory(name: string) {
-    const newMfeDir: string = path.resolve(this.microservicesPath, name)
+    const newMsDir: string = path.resolve(this.microservicesPath, name)
 
-    if (fs.existsSync(newMfeDir)) {
-      throw new CLIError(`Directory ${newMfeDir} already exists`)
+    if (fs.existsSync(newMsDir)) {
+      throw new CLIError(`Directory ${newMsDir} already exists`)
     }
 
-    fs.mkdirSync(newMfeDir)
+    fs.mkdirSync(newMsDir)
   }
 
   private addMicroServiceDescriptor(ms: MicroService): void {
