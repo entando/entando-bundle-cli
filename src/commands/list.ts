@@ -14,10 +14,10 @@ export default class List extends Command {
 
   static flags = {
     ms: Flags.boolean({
-      description: 'List all Micro Service components'
+      description: 'List only Micro Service components'
     }),
     mfe: Flags.boolean({
-      description: 'List all Micro Frontend components'
+      description: 'List only Micro Frontend components'
     })
   }
 
@@ -46,7 +46,7 @@ export default class List extends Command {
       'version',
       'stack'
     ]
-    const columnMap = compKeys.map(k => [[k], { header: k }])
+    const columnMap = compKeys.map(k => [[k], { header: k.toUpperCase() }])
     const columns = Object.fromEntries(columnMap)
 
     CliUx.ux.table(components, columns)
