@@ -11,7 +11,7 @@ import {
   RESOURCES_FOLDER
 } from '../paths'
 
-const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
+import FSService from './fs-service'
 
 export interface InitializerOptions {
   parentDirectory: string
@@ -20,23 +20,20 @@ export interface InitializerOptions {
 }
 
 /** Handles the scaffolding of a project bundle */
-export default class InitializerService {
+export default class InitializerService extends FSService {
   private static debug = debugFactory(InitializerService)
 
   private readonly options: InitializerOptions
 
   constructor(options: InitializerOptions) {
+    super(options.parentDirectory)
     this.options = options
   }
 
   public async performScaffolding(): Promise<void> {
     InitializerService.debug('project scaffolding started')
 
-    if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.options.name)) {
-      throw new CLIError(
-        `'${this.options.name}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
-      )
-    }
+    super.checkBundleName(this.options.name)
 
     this.createBundleDirectories()
     this.createBundleDescriptor()
@@ -49,19 +46,11 @@ export default class InitializerService {
   private createBundleDirectories() {
     InitializerService.debug('creating bundle directories')
 
-    const bundleDir = this.getBundleDirectory()
+    const { name } = this.options
 
-    try {
-      fs.accessSync(this.options.parentDirectory, fs.constants.W_OK)
-    } catch {
-      throw new CLIError(
-        `Directory ${this.options.parentDirectory} is not writable`
-      )
-    }
+    super.checkBundleDirectory(name)
 
-    if (fs.existsSync(bundleDir)) {
-      throw new CLIError(`Directory ${bundleDir} already exists`)
-    }
+    const bundleDir = super.getBundleDirectory(name)
 
     fs.mkdirSync(bundleDir)
     fs.mkdirSync(this.getBundleFilePath('.ent'))
@@ -75,7 +64,7 @@ export default class InitializerService {
     InitializerService.debug('creating bundle descriptor')
 
     const bundleDescriptorService = new BundleDescriptorService(
-      this.getBundleDirectory()
+      super.getBundleDirectory(this.options.name)
     )
     bundleDescriptorService.createBundleDescriptor({
       name: this.options.name,
@@ -118,17 +107,13 @@ export default class InitializerService {
     InitializerService.debug('initializing git repository')
     try {
       // Using stdio 'pipe' option to print stderr only through CLIError
-      cp.execSync(`git -C ${this.getBundleDirectory()} init`, { stdio: 'pipe' })
+      cp.execSync(`git -C ${this.getBundleDirectory(this.options.name)} init`, { stdio: 'pipe' })
     } catch (error) {
       throw new CLIError(error as Error)
     }
   }
 
-  private getBundleDirectory(): string {
-    return path.resolve(this.options.parentDirectory, this.options.name)
-  }
-
   private getBundleFilePath(...pathSegments: string[]): string {
-    return path.resolve(this.getBundleDirectory(), ...pathSegments)
+    return path.resolve(this.getBundleDirectory(this.options.name), ...pathSegments)
   }
 }
