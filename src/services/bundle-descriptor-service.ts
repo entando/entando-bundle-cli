@@ -1,13 +1,13 @@
-import { BundleDescriptor } from "../models/bundle-descriptor"
-import * as path from "node:path"
-import * as fs from "node:fs"
+import { BundleDescriptor } from '../models/bundle-descriptor'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
 
-const BUNDLE_DESCRIPTOR_FILE_NAME = "bundle.json"
+const BUNDLE_DESCRIPTOR_FILE_NAME = 'bundle.json'
 const BUNDLE_DESCRIPTOR_INDENTATION_SPACES = 4
 
 type MandatoryBundleFields = { name: string; version: string }
 
-export default class BundleDescriptorManager {
+export default class BundleDescriptorService {
   private readonly bundleFilePath: string
 
   constructor(bundleDirectory: string) {
@@ -30,11 +30,11 @@ export default class BundleDescriptorManager {
 
   public getBundleDescriptor(): BundleDescriptor {
     return JSON.parse(
-      fs.readFileSync(this.bundleFilePath, "utf-8")
+      fs.readFileSync(this.bundleFilePath, 'utf-8')
     ) as BundleDescriptor
   }
 
-  private writeBundleDescriptor(bundleDescriptor: BundleDescriptor) {
+  public writeBundleDescriptor(bundleDescriptor: BundleDescriptor): void {
     fs.writeFileSync(
       this.bundleFilePath,
       JSON.stringify(
