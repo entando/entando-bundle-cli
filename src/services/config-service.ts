@@ -44,7 +44,7 @@ export default class ConfigService {
       throw new CLIError(`Add property error, ${key} already exists`)
     }
 
-    this.updateConfigFile()
+    this.writeConfigFile()
   }
 
   updateProperty = (key: string, value: string): void => {
@@ -56,7 +56,7 @@ export default class ConfigService {
       this._config[key] = value
     }
 
-    this.updateConfigFile()
+    this.writeConfigFile()
   }
 
   deleteProperty = (key: string): void => {
@@ -68,11 +68,6 @@ export default class ConfigService {
       delete this._config[key]
     }
 
-    this.updateConfigFile()
-  }
-
-  private updateConfigFile = (): void => {
     this.writeConfigFile()
-    this.readConfigFile()
   }
 }
