@@ -1,5 +1,3 @@
-import { CLIError } from '@oclif/errors'
-import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import BundleDescriptorService from './bundle-descriptor-service'
@@ -40,7 +38,7 @@ export default class InitializerService extends FSService {
     this.createDockerfile()
     this.createGitignore()
     this.createConfigJson()
-    this.initGitRepo()
+    super.initGitRepo(this.options.name)
   }
 
   private createBundleDirectories() {
@@ -101,16 +99,6 @@ export default class InitializerService extends FSService {
       path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
     )
     fs.writeFileSync(filePath, templateFileContent)
-  }
-
-  private initGitRepo() {
-    InitializerService.debug('initializing git repository')
-    try {
-      // Using stdio 'pipe' option to print stderr only through CLIError
-      cp.execSync(`git -C ${this.getBundleDirectory(this.options.name)} init`, { stdio: 'pipe' })
-    } catch (error) {
-      throw new CLIError(error as Error)
-    }
   }
 
   private getBundleFilePath(...pathSegments: string[]): string {

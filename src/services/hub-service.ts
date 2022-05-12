@@ -1,8 +1,6 @@
 import { CliUx } from '@oclif/core'
 import { CLIError } from '@oclif/errors'
 import * as cp from 'node:child_process'
-import * as fs from 'node:fs'
-import * as path from 'node:path'
 import * as inquirer from 'inquirer'
 import HubAPI from "../api/hub-api"
 import { BundleDescriptor, Bundle, BundleGroup } from "../models/bundle-descriptor"
@@ -29,8 +27,10 @@ export default class HubService extends FSService {
     CliUx.ux.action.start('Gathering bundle groups')
     this.loadedBundleGroups = await this.hubApi.getBundleGroups()
     CliUx.ux.action.stop()
+
     const selectedBundleGroup = await this.promptSelectBundleGroup()
-    console.log(`You have selected bundle group "${selectedBundleGroup?.bundleGroupName}"`)
+    console.log(`You have selected bundle group "${selectedBundleGroup?.bundleGroupName}".`)
+
     if (selectedBundleGroup) {
       CliUx.ux.action.start(`Opening bundle group "${selectedBundleGroup.bundleGroupName}"`)
       const bundles: Bundle[] = await this.hubApi.getBundlesByBundleGroupId(selectedBundleGroup.bundleGroupVersionId)
@@ -55,7 +55,7 @@ export default class HubService extends FSService {
 
       CliUx.ux.action.stop()
 
-      this.removeGitInfo(newBundleName)
+      super.removeGitInfo(newBundleName)
 
       const newBundleVersion = await CliUx.ux.prompt('What\'s the version number of this bundle?')
 
@@ -63,32 +63,11 @@ export default class HubService extends FSService {
       this.renameBundleDescriptor(newBundleName, newBundleVersion)
       CliUx.ux.action.stop()
 
-      CliUx.ux.action.start('Making changes to the bundle descriptor')
-      this.renameBundleDescriptor(newBundleName, newBundleVersion)
-
-      CliUx.ux.action.stop()
-
-      this.initGitRepo(newBundleName)
+      super.initGitRepo(newBundleName)
     }
   }
 
-  private removeGitInfo(name: string) {
-    fs.rmSync(
-      path.resolve(this.options.parentDirectory, `${name}/.git`),
-      { recursive: true, force: true },
-    );
-  }
-
-  private initGitRepo(name: string) {
-    try {
-      // Using stdio 'pipe' option to print stderr only through CLIError
-      cp.execSync(`git -C ${super.getBundleDirectory(name)} init`, { stdio: 'pipe' })
-    } catch (error) {
-      throw new CLIError(error as Error)
-    }
-  }
-
-  private async promptSelectBundleGroup(): Promise<BundleGroup | null> {
+  private async promptSelectBundleGroup(): Promise<BundleGroup> {
     const choices = this.loadedBundleGroups.map(bundleGroup => ({ name: bundleGroup.bundleGroupName, value: bundleGroup }))
     const response: any = await inquirer.prompt([{
       name: 'bundlegroup',

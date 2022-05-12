@@ -1,10 +1,14 @@
 import { CLIError } from '@oclif/errors'
+import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import debugFactory from './debug-factory-service'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
 export default class FSService {
+  private static debugOut = debugFactory(FSService)
+
   private readonly parentDirectory: string
 
   constructor(parentDirectory: string) {
@@ -12,6 +16,7 @@ export default class FSService {
   }
 
   protected checkBundleName(bundleName: string): void {
+    FSService.debugOut('checking bundle name if it\'s accepted')
     if (!ALLOWED_BUNDLE_NAME_REGEXP.test(bundleName)) {
       throw new CLIError(
         `'${bundleName}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
@@ -20,6 +25,7 @@ export default class FSService {
   }
 
   protected checkBundleDirectory(bundleName: string): void {
+    FSService.debugOut('checking bundle directory if we have access')
     const bundleDir = this.getBundleDirectory(bundleName)
 
     try {
@@ -30,9 +36,28 @@ export default class FSService {
       )
     }
 
+    FSService.debugOut('checking bundle directory it exists')
     if (fs.existsSync(bundleDir)) {
       throw new CLIError(`Directory ${bundleDir} already exists`)
     }
+  }
+
+  protected initGitRepo(name: string): void {
+    FSService.debugOut(`initializing git repository with name ${name}`)
+    try {
+      // Using stdio 'pipe' option to print stderr only through CLIError
+      cp.execSync(`git -C ${this.getBundleDirectory(name)} init`, { stdio: 'pipe' })
+    } catch (error) {
+      throw new CLIError(error as Error)
+    }
+  }
+
+  protected removeGitInfo(name: string): void {
+    FSService.debugOut(`removing origin git info directory (./.git) in bundle ${name}`)
+    fs.rmSync(
+      path.resolve(this.parentDirectory, `${name}/.git`),
+      { recursive: true, force: true },
+    );
   }
 
   protected getBundleDirectory(bundleName: string): string {
