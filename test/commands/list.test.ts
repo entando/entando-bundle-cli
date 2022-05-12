@@ -75,6 +75,18 @@ describe('list', () => {
     })
 
   test
+    .stdout()
+    .command(['list', '--ms', '--mfe'])
+    .it('runs list --ms --mfe', ctx => {
+      const output: string = ctx.stdout
+
+      expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
+      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
+      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+    })
+
+  test
     .stderr()
     .do(() => {
       fs.rmSync(path.resolve(tmpDir, 'bundle.json'), { force: true })
