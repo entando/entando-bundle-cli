@@ -1,11 +1,12 @@
 import { CliUx } from '@oclif/core'
 import { CLIError } from '@oclif/errors'
 import * as cp from 'node:child_process'
-// import * as fs from 'node:fs'
-// import * as path from 'node:path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as inquirer from 'inquirer'
 import HubAPI from "../api/hub-api"
-import { Bundle, BundleGroup } from "../models/bundle-descriptor"
+import { BundleDescriptor, Bundle, BundleGroup } from "../models/bundle-descriptor"
+import BundleDescriptorService from './bundle-descriptor-service'
 import FSService from './fs-service'
 
 export interface HubOptions {
@@ -29,9 +30,9 @@ export default class HubService extends FSService {
     this.loadedBundleGroups = await this.hubApi.getBundleGroups()
     CliUx.ux.action.stop()
     const selectedBundleGroup = await this.promptSelectBundleGroup()
-    console.log(`Your choice is ${selectedBundleGroup?.bundleGroupName}`)
+    console.log(`You have selected bundle group "${selectedBundleGroup?.bundleGroupName}"`)
     if (selectedBundleGroup) {
-      CliUx.ux.action.start(`Opening bundle group ${selectedBundleGroup.bundleGroupName}`)
+      CliUx.ux.action.start(`Opening bundle group "${selectedBundleGroup.bundleGroupName}"`)
       const bundles: Bundle[] = await this.hubApi.getBundlesByBundleGroupId(selectedBundleGroup.bundleGroupVersionId)
       CliUx.ux.action.stop()
 
@@ -53,6 +54,37 @@ export default class HubService extends FSService {
       }
 
       CliUx.ux.action.stop()
+
+      this.removeGitInfo(newBundleName)
+
+      const newBundleVersion = await CliUx.ux.prompt('What\'s the version number of this bundle?')
+
+      CliUx.ux.action.start('Making changes to the bundle descriptor')
+      this.renameBundleDescriptor(newBundleName, newBundleVersion)
+      CliUx.ux.action.stop()
+
+      CliUx.ux.action.start('Making changes to the bundle descriptor')
+      this.renameBundleDescriptor(newBundleName, newBundleVersion)
+
+      CliUx.ux.action.stop()
+
+      this.initGitRepo(newBundleName)
+    }
+  }
+
+  private removeGitInfo(name: string) {
+    fs.rmSync(
+      path.resolve(this.options.parentDirectory, `${name}/.git`),
+      { recursive: true, force: true },
+    );
+  }
+
+  private initGitRepo(name: string) {
+    try {
+      // Using stdio 'pipe' option to print stderr only through CLIError
+      cp.execSync(`git -C ${super.getBundleDirectory(name)} init`, { stdio: 'pipe' })
+    } catch (error) {
+      throw new CLIError(error as Error)
     }
   }
 
@@ -76,5 +108,18 @@ export default class HubService extends FSService {
       choices,
     }])
     return response.bundle;
+  }
+
+  private renameBundleDescriptor(name: string, version: string): void {
+    const bundleDescriptorService = new BundleDescriptorService(super.getBundleDirectory(name))
+    const bundleDescriptor: BundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+
+    const updatedBundleDescriptor: BundleDescriptor = {
+      ...bundleDescriptor,
+      name,
+      version,
+    }
+
+    bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
 }
