@@ -6,14 +6,16 @@ import {
   CONFIG_FOLDER,
   RESOURCES_FOLDER,
   DEFAULT_CONFIG_FILE,
-  CONFIG_FILE,
-  TMP_TEST_FOLDER
+  CONFIG_FILE
 } from '../../src/paths'
+
 import ConfigService from '../../src/services/config-service'
 
 const configService = new ConfigService()
 
 let tmpDir: string
+
+const TMP_TEST_FOLDER = 'entando-bundle-cli-test'
 
 beforeEach(() => {
   tmpDir = path.resolve(os.tmpdir(), TMP_TEST_FOLDER)
