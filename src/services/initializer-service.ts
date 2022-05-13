@@ -1,5 +1,4 @@
 import * as fs from 'node:fs'
-import * as path from 'node:path'
 import BundleDescriptorService from './bundle-descriptor-service'
 import debugFactory from './debug-factory-service'
 import {
@@ -31,14 +30,16 @@ export default class InitializerService extends FSService {
   public async performScaffolding(): Promise<void> {
     InitializerService.debug('project scaffolding started')
 
-    super.checkBundleName(this.options.name)
+    const { name } = this.options
+
+    this.checkBundleName(name)
 
     this.createBundleDirectories()
     this.createBundleDescriptor()
     this.createDockerfile()
-    this.createGitignore()
+    this.createGitignore(name)
     this.createConfigJson()
-    super.initGitRepo(this.options.name)
+    this.initGitRepo(name)
   }
 
   private createBundleDirectories() {
@@ -46,43 +47,34 @@ export default class InitializerService extends FSService {
 
     const { name } = this.options
 
-    super.checkBundleDirectory(name)
+    this.checkBundleDirectory(name)
 
-    const bundleDir = super.getBundleDirectory(name)
+    const bundleDir = this.getBundleDirectory(name)
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.getBundleFilePath('.ent'))
-    fs.mkdirSync(this.getBundleFilePath('.ent', 'output'))
-    fs.mkdirSync(this.getBundleFilePath('microservices'))
-    fs.mkdirSync(this.getBundleFilePath('microfrontends'))
-    fs.mkdirSync(this.getBundleFilePath('epc'))
+    fs.mkdirSync(this.getBundleFilePath(name, '.ent'))
+    fs.mkdirSync(this.getBundleFilePath(name, '.ent', 'output'))
+    fs.mkdirSync(this.getBundleFilePath(name, 'microservices'))
+    fs.mkdirSync(this.getBundleFilePath(name, 'microfrontends'))
+    fs.mkdirSync(this.getBundleFilePath(name, 'epc'))
   }
 
   private createBundleDescriptor() {
     InitializerService.debug('creating bundle descriptor')
 
+    const { name, version } = this.options
+
     const bundleDescriptorService = new BundleDescriptorService(
-      super.getBundleDirectory(this.options.name)
+      this.getBundleDirectory(name)
     )
-    bundleDescriptorService.createBundleDescriptor({
-      name: this.options.name,
-      version: this.options.version
-    })
+    bundleDescriptorService.createBundleDescriptor({ name, version })
   }
 
   private createDockerfile() {
     InitializerService.debug('creating Dockerfile')
     this.createFileFromTemplate(
-      this.getBundleFilePath('Dockerfile'),
+      this.getBundleFilePath(this.options.name, 'Dockerfile'),
       'Dockerfile-template'
-    )
-  }
-
-  private createGitignore() {
-    InitializerService.debug('creating .gitignore')
-    this.createFileFromTemplate(
-      this.getBundleFilePath('.gitignore'),
-      'gitignore-template'
     )
   }
 
@@ -92,16 +84,5 @@ export default class InitializerService extends FSService {
       this.getBundleFilePath(CONFIG_FOLDER, CONFIG_FILE),
       DEFAULT_CONFIG_FILE
     )
-  }
-
-  private createFileFromTemplate(filePath: string, templateFileName: string) {
-    const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
-    )
-    fs.writeFileSync(filePath, templateFileContent)
-  }
-
-  private getBundleFilePath(...pathSegments: string[]): string {
-    return path.resolve(this.getBundleDirectory(this.options.name), ...pathSegments)
   }
 }

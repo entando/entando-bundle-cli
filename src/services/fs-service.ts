@@ -63,4 +63,29 @@ export default class FSService {
   protected getBundleDirectory(bundleName: string): string {
     return path.resolve(this.parentDirectory, bundleName)
   }
+
+  protected getBundleFilePath(name: string, ...pathSegments: string[]): string {
+    return path.resolve(this.getBundleDirectory(name), ...pathSegments)
+  }
+
+  protected createGitignore(bundleName: string): void {
+    FSService.debugOut('creating .gitignore')
+    this.createFileFromTemplate(
+      this.getBundleFilePath(bundleName, '.gitignore'),
+      'gitignore-template'
+    )
+  }
+
+  protected createFileFromTemplate(filePath: string, templateFileName: string): void {
+    const templateFileContent = fs.readFileSync(
+      path.resolve(__dirname, '..', '..', 'resources', templateFileName)
+    )
+    fs.writeFileSync(filePath, templateFileContent)
+  }
+
+  protected createSubDirectoryIfNotExist(bundleName: string, ...subDirectories: string[]): void {
+    if (!fs.existsSync(this.getBundleFilePath(bundleName, ...subDirectories))) {
+      fs.mkdirSync(this.getBundleFilePath(bundleName, ...subDirectories))
+    }
+  }
 }

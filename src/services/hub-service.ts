@@ -24,6 +24,12 @@ export default class HubService extends FSService {
   }
 
   public async start(): Promise<void> {
+    const { selectedBundle } = await this.bundleSelection()
+    const newBundleName = await this.initCloneBundle(selectedBundle)
+    this.checkMissingDirectories(newBundleName)
+  }
+
+  private async bundleSelection(): Promise<{ selectedBundleGroup: BundleGroup, selectedBundle: Bundle }> {
     CliUx.ux.action.start('Gathering bundle groups')
     try {
       this.loadedBundleGroups = await this.hubApi.getBundleGroups()
@@ -36,40 +42,49 @@ export default class HubService extends FSService {
     const selectedBundleGroup = await this.promptSelectBundleGroup()
     console.log(`You have selected bundle group "${selectedBundleGroup?.bundleGroupName}".`)
 
-    if (selectedBundleGroup) {
-      CliUx.ux.action.start(`Opening bundle group "${selectedBundleGroup.bundleGroupName}"`)
-      const bundles: Bundle[] = await this.hubApi.getBundlesByBundleGroupId(selectedBundleGroup.bundleGroupVersionId)
-      CliUx.ux.action.stop()
+    CliUx.ux.action.start(`Opening bundle group "${selectedBundleGroup.bundleGroupName}"`)
+    const bundles: Bundle[] = await this.hubApi.getBundlesByBundleGroupId(selectedBundleGroup.bundleGroupVersionId)
+    CliUx.ux.action.stop()
 
-      const selectedBundle: Bundle = await this.promptBundleSelect(bundles, selectedBundleGroup)
+    const selectedBundle: Bundle = await this.promptBundleSelect(bundles, selectedBundleGroup)
 
-      const newBundleName = await CliUx.ux.prompt('What\'s the new bundle name for this?')
+    return { selectedBundleGroup, selectedBundle }
+  }
 
-      super.checkBundleName(newBundleName)
+  private async initCloneBundle(selectedBundle: Bundle): Promise<string> {
+    const newBundleName = await CliUx.ux.prompt('New bundle name')
 
-      super.checkBundleDirectory(newBundleName)
+    this.checkBundleName(newBundleName)
+    this.checkBundleDirectory(newBundleName)
 
-      CliUx.ux.action.start(`Downloading bundle ${selectedBundle.bundleName}`)
-
-      try {
-        // Using stdio 'pipe' option to print stderr only through CLIError
-        cp.execSync(`git clone ${selectedBundle.gitSrcRepoAddress} ./${newBundleName}`, { stdio: 'pipe' })
-      } catch (error) {
-        throw new CLIError(error as Error)
-      }
-
-      CliUx.ux.action.stop()
-
-      super.removeGitInfo(newBundleName)
-
-      const newBundleVersion = await CliUx.ux.prompt('What\'s the version number of this bundle?')
-
-      CliUx.ux.action.start('Making changes to the bundle descriptor')
-      this.renameBundleDescriptor(newBundleName, newBundleVersion)
-      CliUx.ux.action.stop()
-
-      super.initGitRepo(newBundleName)
+    CliUx.ux.action.start(`Downloading bundle ${selectedBundle.bundleName}`)
+    try {
+      // Using stdio 'pipe' option to print stderr only through CLIError
+      cp.execSync(`git clone ${selectedBundle.gitSrcRepoAddress} ./${newBundleName}`, { stdio: 'pipe' })
+    } catch (error) {
+      throw new CLIError(error as Error)
     }
+
+    CliUx.ux.action.stop()
+
+    const newBundleVersion = await CliUx.ux.prompt('What\'s the version number of this bundle?')
+
+    CliUx.ux.action.start('Making changes to the bundle descriptor')
+    this.renameBundleDescriptor(newBundleName, newBundleVersion)
+    CliUx.ux.action.stop()
+
+    this.removeGitInfo(newBundleName)
+    this.initGitRepo(newBundleName)
+
+    return newBundleName
+  }
+
+  private async checkMissingDirectories(bundleName: string) {
+    this.createSubDirectoryIfNotExist(bundleName, 'microservices')
+    this.createSubDirectoryIfNotExist(bundleName, 'microfrontends')
+    this.createSubDirectoryIfNotExist(bundleName, '.ent')
+    this.createSubDirectoryIfNotExist(bundleName, '.ent', 'output')
+    this.createSubDirectoryIfNotExist(bundleName, 'epc')
   }
 
   private async promptSelectBundleGroup(): Promise<BundleGroup> {
@@ -95,7 +110,7 @@ export default class HubService extends FSService {
   }
 
   private renameBundleDescriptor(name: string, version: string): void {
-    const bundleDescriptorService = new BundleDescriptorService(super.getBundleDirectory(name))
+    const bundleDescriptorService = new BundleDescriptorService(this.getBundleDirectory(name))
     const bundleDescriptor: BundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
     const updatedBundleDescriptor: BundleDescriptor = {
