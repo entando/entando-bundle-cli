@@ -4,8 +4,7 @@ import debugFactory from './debug-factory-service'
 import {
   CONFIG_FILE,
   CONFIG_FOLDER,
-  DEFAULT_CONFIG_FILE,
-  RESOURCES_FOLDER
+  DEFAULT_CONFIG_FILE
 } from '../paths'
 
 import FSService from './fs-service'
@@ -81,7 +80,7 @@ export default class InitializerService extends FSService {
   private createConfigJson() {
     InitializerService.debug(`creating ${CONFIG_FILE}`)
     this.createFileFromTemplate(
-      this.getBundleFilePath(CONFIG_FOLDER, CONFIG_FILE),
+      this.getBundleFilePath(this.options.name, CONFIG_FOLDER, CONFIG_FILE),
       DEFAULT_CONFIG_FILE
     )
   }

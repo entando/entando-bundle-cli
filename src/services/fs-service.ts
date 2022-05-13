@@ -3,6 +3,7 @@ import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import debugFactory from './debug-factory-service'
+import { RESOURCES_FOLDER } from '../paths'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -78,7 +79,7 @@ export default class FSService {
 
   protected createFileFromTemplate(filePath: string, templateFileName: string): void {
     const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, '..', '..', 'resources', templateFileName)
+      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
     )
     fs.writeFileSync(filePath, templateFileContent)
   }
