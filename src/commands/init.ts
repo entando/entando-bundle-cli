@@ -12,7 +12,9 @@ export default class Init extends Command {
     '$ entando-bundle-cli init my-bundle --version=0.0.1'
   ]
 
-  static args = [{ name: 'name', description: 'project name', required: true }]
+  static args = [
+    { name: 'name', description: 'Bundle project name', required: true }
+  ]
 
   static flags = {
     version: Flags.string({ description: 'project version' })
