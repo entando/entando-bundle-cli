@@ -3,6 +3,12 @@ import { Component, ComponentType } from '../models/component'
 import BundleDescriptorService from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 
+type PartialComponent = {
+  name: string
+  stack: string
+  type?: ComponentType
+}
+
 export class ComponentService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentDescriptorService: ComponentDescriptorService
@@ -12,31 +18,41 @@ export class ComponentService {
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 
-  getComponents(): Array<Component> {
-    return [...this.getMsComponents(), ...this.getMfeComponents()]
-  }
-
-  getMsComponents(): Array<Component> {
-    const { microservices }: BundleDescriptor =
+  getComponents(type?: ComponentType): Array<Component> {
+    const { microfrontends, microservices }: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
-    const type = ComponentType.MICROSERVICE
-    return microservices.map(ms => ({
-      name: ms.name,
-      stack: ms.stack,
-      type,
-      version: this.componentDescriptorService.getComponentVersion(ms.name, type)
-    }))
-  }
+    let components: Array<PartialComponent>
 
-  getMfeComponents(): Array<Component> {
-    const { microfrontends }: BundleDescriptor =
-      this.bundleDescriptorService.getBundleDescriptor()
-    const type = ComponentType.MICROFRONTEND
-    return microfrontends.map(mfe => ({
-      name: mfe.name,
-      stack: mfe.stack,
-      type,
-      version: this.componentDescriptorService.getComponentVersion(mfe.name, type)
-    }))
+    if (type === ComponentType.MICROFRONTEND) {
+      components = microfrontends
+    } else if (type === ComponentType.MICROSERVICE) {
+      components = microservices
+    } else {
+      components = [
+        ...microfrontends.map(mfe => ({
+          ...mfe,
+          type: ComponentType.MICROFRONTEND
+        })),
+        ...microservices.map(ms => ({
+          ...ms,
+          type: ComponentType.MICROSERVICE
+        }))
+      ]
+    }
+
+    return components.map(comp => {
+      const { name, stack, type: ctype } = <Component>comp
+      const compType: ComponentType = type || ctype
+
+      return {
+        name,
+        stack,
+        type: compType,
+        version: this.componentDescriptorService.getComponentVersion(
+          name,
+          compType
+        )
+      }
+    })
   }
 }

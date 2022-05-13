@@ -1,7 +1,7 @@
 import { CliUx, Command, Flags } from '@oclif/core'
-import { Component } from '../models/component'
+import { Component, ComponentType } from '../models/component'
 import { BundleService } from '../services/bundle-service'
-import { ComponentDescriptorService } from '../services/component-descriptor-service'
+import { ComponentService } from '../services/component-service'
 
 export default class List extends Command {
   static description = 'Lists the available components in the bundle'
@@ -25,18 +25,22 @@ export default class List extends Command {
     BundleService.verifyBundleInitialized(process.cwd())
 
     const { flags } = await this.parse(List)
-    const components: Array<Component> = []
-    const componentDescriptorService = new ComponentDescriptorService()
+    const componentService = new ComponentService()
+    let components: Array<Component> = []
 
     if (!flags.ms && !flags.mfe) {
-      components.push(...componentDescriptorService.getComponents())
+      components = componentService.getComponents()
     } else {
       if (flags.ms) {
-        components.push(...componentDescriptorService.getMsComponents())
+        components.push(
+          ...componentService.getComponents(ComponentType.MICROSERVICE)
+        )
       }
 
       if (flags.mfe) {
-        components.push(...componentDescriptorService.getMfeComponents())
+        components.push(
+          ...componentService.getComponents(ComponentType.MICROFRONTEND)
+        )
       }
     }
 
