@@ -17,7 +17,9 @@ describe('init', () => {
 
     // creating a subfolder for testing the existing bundle case
     fs.mkdirSync(path.resolve(tmpDir, 'existing-bundle'))
+  })
 
+  beforeEach(() => {
     // setting the temporary directory as current working directory
     process.chdir(tmpDir)
   })
@@ -103,6 +105,7 @@ describe('init', () => {
 
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, '.ent')
+    checkBundleFile(bundleName, '.ent', 'config.json')
     checkBundleFile(bundleName, 'bundle.json')
     checkBundleFile(bundleName, 'microservices')
     checkBundleFile(bundleName, 'microfrontends')

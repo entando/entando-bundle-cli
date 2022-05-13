@@ -4,6 +4,12 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import BundleDescriptorService from './bundle-descriptor-service'
 import debugFactory from './debug-factory-service'
+import {
+  CONFIG_FILE,
+  CONFIG_FOLDER,
+  DEFAULT_CONFIG_FILE,
+  RESOURCES_FOLDER
+} from '../paths'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
@@ -94,12 +100,16 @@ export default class InitializerService {
   }
 
   private createConfigJson() {
-    // TODO: ENG-3623
+    InitializerService.debug(`creating ${CONFIG_FILE}`)
+    this.createFileFromTemplate(
+      this.getBundleFilePath(CONFIG_FOLDER, CONFIG_FILE),
+      DEFAULT_CONFIG_FILE
+    )
   }
 
   private createFileFromTemplate(filePath: string, templateFileName: string) {
     const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, '..', '..', 'resources', templateFileName)
+      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
     )
     fs.writeFileSync(filePath, templateFileContent)
   }

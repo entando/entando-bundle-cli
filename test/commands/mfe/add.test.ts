@@ -18,7 +18,6 @@ describe('mfe add', () => {
 
   let tmpDir: string
   let bundleDescriptorService: BundleDescriptorService
-
   before(() => {
     tmpDir = path.resolve(os.tmpdir(), bundleDescriptor.name)
     fs.mkdirSync(tmpDir)
@@ -27,11 +26,13 @@ describe('mfe add', () => {
     fs.mkdirSync('./microfrontends')
 
     fs.mkdirSync(path.resolve('./microfrontends', 'existing-mfe-dir'))
-
-    bundleDescriptorService = new BundleDescriptorService(process.cwd())
   })
 
   beforeEach(() => {
+    process.chdir(tmpDir)
+
+    bundleDescriptorService = new BundleDescriptorService(process.cwd())
+
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
