@@ -5,7 +5,7 @@ import { CLIError } from '@oclif/core/lib/errors'
 import { CONFIG_FOLDER, CONFIG_FILE } from '../paths'
 
 export default class ConfigService {
-  private _config: any
+  private _config: { [key: string]: string } = {}
 
   private readConfigFile = (): void => {
     const configFile = fs.readFileSync(path.join(CONFIG_FOLDER, CONFIG_FILE), {
