@@ -25,7 +25,12 @@ export default class HubService extends FSService {
 
   public async start(): Promise<void> {
     CliUx.ux.action.start('Gathering bundle groups')
-    this.loadedBundleGroups = await this.hubApi.getBundleGroups()
+    try {
+      this.loadedBundleGroups = await this.hubApi.getBundleGroups()
+    } catch {
+      throw new CLIError('Hub is not accessible')
+    }
+
     CliUx.ux.action.stop()
 
     const selectedBundleGroup = await this.promptSelectBundleGroup()

@@ -10,18 +10,20 @@ export default class FromHub extends Command {
   ]
 
   static flags = {
-    hubUrl: Flags.string({ description: 'bundle url' }),
+    'hub-url': Flags.string({ description: 'bundle url' }),
   }
 
   static args = []
 
   public async run(): Promise<void> {
-    const {args, flags} = await this.parse(FromHub)
+    const {flags} = await this.parse(FromHub)
 
     const hubService = new HubService({
-      parentDirectory: process.cwd()
+      parentDirectory: process.cwd(),
+      hubUrl: flags['hub-url'],
     })
-
-    hubService.start()
+    try {
+      hubService.start()
+    } catch {}
   }
 }
