@@ -1,13 +1,7 @@
 import { BundleDescriptor } from '../models/bundle-descriptor'
-import { Component, ComponentType } from '../models/component'
+import { Component, ComponentType, PartialComponent } from '../models/component'
 import BundleDescriptorService from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
-
-type PartialComponent = {
-  name: string
-  stack: string
-  type?: ComponentType
-}
 
 export class ComponentService {
   private readonly bundleDescriptorService: BundleDescriptorService
@@ -18,9 +12,11 @@ export class ComponentService {
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 
-  getComponents(type?: ComponentType): Array<Component> {
+  public getComponents(type?: ComponentType): Array<Component> {
     const { microfrontends, microservices }: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
+
+    const compTypeMap: { [index: number]: ComponentType } = {}
     let components: Array<PartialComponent>
 
     if (type === ComponentType.MICROFRONTEND) {
@@ -29,27 +25,27 @@ export class ComponentService {
       components = microservices
     } else {
       components = [
-        ...microfrontends.map(mfe => ({
-          ...mfe,
-          type: ComponentType.MICROFRONTEND
-        })),
-        ...microservices.map(ms => ({
-          ...ms,
-          type: ComponentType.MICROSERVICE
-        }))
+        ...microfrontends.map((mfe, idx) => {
+          compTypeMap[idx] = ComponentType.MICROFRONTEND
+          return mfe
+        }),
+        ...microservices.map((ms, idx) => {
+          compTypeMap[microfrontends.length + idx] = ComponentType.MICROSERVICE
+          return ms
+        })
       ]
     }
 
-    return components.map(comp => {
-      const { name, stack, type: ctype } = <Component>comp
-      const compType: ComponentType = type || ctype
+    return components.map((comp, idx) => {
+      const { name, stack } = comp
+      const compType: ComponentType = type || compTypeMap[idx]
 
       return {
         name,
         stack,
         type: compType,
         version: this.componentDescriptorService.getComponentVersion(
-          name,
+          comp,
           compType
         )
       }

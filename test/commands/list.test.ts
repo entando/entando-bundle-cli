@@ -31,11 +31,41 @@ describe('list', () => {
     fs.mkdirSync(tmpDir)
     process.chdir(tmpDir)
 
+    fs.mkdirSync('./microfrontends')
+    fs.mkdirSync('./microservices')
+
+    fs.mkdirSync(path.resolve('./microfrontends', 'mfe1'))
+    fs.mkdirSync(path.resolve('./microfrontends', 'mfe2'))
+    fs.mkdirSync(path.resolve('./microservices', 'ms1'))
+    fs.mkdirSync(path.resolve('./microservices', 'ms2'))
+
     bundleDescriptorService = new BundleDescriptorService(process.cwd())
   })
 
   beforeEach(() => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+
+    const mfe1PackageJSON: string = JSON.stringify({ version: '0.0.1' })
+    const mfe2PackageJSON: string = JSON.stringify({ version: '0.0.2' })
+    const ms1PomXML = '<project><version>0.1.1-SNAPSHOT</version></project>'
+    const ms2PackageJSON: string = JSON.stringify({ version: '0.1.2' })
+
+    fs.writeFileSync(
+      path.resolve('./microfrontends', 'mfe1', 'package.json'),
+      mfe1PackageJSON
+    )
+    fs.writeFileSync(
+      path.resolve('./microfrontends', 'mfe2', 'package.json'),
+      mfe2PackageJSON
+    )
+    fs.writeFileSync(
+      path.resolve('./microservices', 'ms1', 'pom.xml'),
+      ms1PomXML
+    )
+    fs.writeFileSync(
+      path.resolve('./microservices', 'ms2', 'package.json'),
+      ms2PackageJSON
+    )
   })
 
   after(() => {
@@ -49,9 +79,11 @@ describe('list', () => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
-      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
-      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
-      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+0\.1\.1-SNAPSHOT\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
 
   test
@@ -60,8 +92,10 @@ describe('list', () => {
     .it('runs list --ms', ctx => {
       const output: string = ctx.stdout
 
-      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
-      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+0\.1\.1-SNAPSHOT\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
 
   test
@@ -71,7 +105,7 @@ describe('list', () => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
-      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
     })
 
   test
@@ -81,10 +115,44 @@ describe('list', () => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
-      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
-      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
-      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+0\.1\.1-SNAPSHOT\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
+
+  test
+    .stderr()
+    .do(() => {
+      fs.writeFileSync(
+        path.resolve('./microfrontends', 'mfe1', 'package.json'),
+        JSON.stringify({})
+      )
+    })
+    .command(['list'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Failed to get version of mfe1 microfrontend'
+      )
+    })
+    .it('exits if an mfe component version cannot be obtained')
+
+  test
+    .stderr()
+    .do(() => {
+      fs.writeFileSync(
+        path.resolve('./microservices', 'ms1', 'pom.xml'),
+        '<project></project>'
+      )
+    })
+    .command(['list'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Failed to get version of ms1 microservice'
+      )
+    })
+    .it('exits if an ms component version cannot be obtained')
 
   test
     .stderr()
