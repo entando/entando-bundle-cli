@@ -8,6 +8,8 @@ import * as sinon from 'sinon'
 import * as inquirer from 'inquirer'
 import InitializerService from '../../src/services/initializer-service'
 
+const { ux } = CliUx
+
 const demoBundle = {
   bundleGroupName: "Test germano 1",
   bundleName: "germano1",
@@ -60,16 +62,17 @@ describe('from-hub', () => {
   })
 
   test
-    .stub(inquirer, 'prompt', sinon.stub().resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle }))
+    .stub(inquirer, 'prompt', sinon.stub().returns({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle }))
+    .stub(ux, 'prompt', sinon.stub().returns('new name')) // issue so far - not working
     .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
     .nock(domainmock, api => api
       .get(uri)
       .reply(200, demoBundleGroupList)
       .get(`${uri}/51`)
-      .reply(200, demoBundle)
+      .reply(200, [demoBundle])
     )
     .command(['from-hub'])
-    .it('runs from-hub', (ctx, done) => {
-      done()
+    .it('runs from-hub', (ctx) => {
+
   })
 })
