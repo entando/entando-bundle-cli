@@ -12,12 +12,12 @@ import BundleDescriptorService from './bundle-descriptor-service'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { DESCRIPTORS_FOLDER } from '../paths'
+import { DESCRIPTORS_OUTPUT_FOLDER } from '../paths'
 
 const DESCRIPTOR_VERSION = 'v4'
 const DESCRIPTOR_EXTENSION = '.yaml'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
-const WIDGETS_DESCRIPTORS_FOLDER = path.join('ui', 'widgets')
+const WIDGETS_DESCRIPTORS_FOLDER = 'widgets'
 const PLUGINS_DESCRIPTORS_FOLDER = 'plugins'
 
 export default class BundleDescriptorConverterService {
@@ -52,7 +52,7 @@ export default class BundleDescriptorConverterService {
       configUi: microFrontend.configUi
     }
     const filePath = path.join(
-      DESCRIPTORS_FOLDER,
+      DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroFrontendDescriptorRelativePath(microFrontend)
     )
     this.writeYamlFile(filePath, widgetDescriptor)
@@ -72,7 +72,7 @@ export default class BundleDescriptorConverterService {
       environmentVariables: microService.env
     }
     const filePath = path.join(
-      DESCRIPTORS_FOLDER,
+      DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroServiceDescriptorRelativePath(microService)
     )
     this.writeYamlFile(filePath, pluginDescriptor)
@@ -99,7 +99,10 @@ export default class BundleDescriptorConverterService {
       yamlBundleDescriptor.components.plugins.push(msDescriptorPath)
     }
 
-    const filePath = path.join(DESCRIPTORS_FOLDER, BUNDLE_DESCRIPTOR_NAME)
+    const filePath = path.join(
+      DESCRIPTORS_OUTPUT_FOLDER,
+      BUNDLE_DESCRIPTOR_NAME
+    )
     this.writeYamlFile(filePath, yamlBundleDescriptor)
   }
 

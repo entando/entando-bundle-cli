@@ -80,7 +80,6 @@ describe('bundle-descriptor-converter-service', () => {
       bundleDir,
       OUTPUT_FOLDER,
       'descriptors',
-      'ui',
       'widgets',
       'test-mfe',
       'test-mfe.yaml'
@@ -139,7 +138,7 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml'],
-        widgets: ['ui/widgets/test-mfe/test-mfe.yaml']
+        widgets: ['widgets/test-mfe/test-mfe.yaml']
       }
     })
   })
