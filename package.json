@@ -51,6 +51,9 @@
     "topics": {
       "mfe": {
         "description": "Micro Frontend operations"
+      },
+      "ms": {
+        "description": "Micro Service operations"
       }
     }
   },
