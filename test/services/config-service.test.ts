@@ -17,40 +17,46 @@ let tmpDir: string
 
 const TMP_TEST_FOLDER = 'entando-bundle-cli-test'
 
-beforeEach(() => {
-  tmpDir = path.resolve(os.tmpdir(), TMP_TEST_FOLDER)
-
-  fs.mkdirSync(tmpDir)
-  fs.mkdirSync(path.join(tmpDir, CONFIG_FOLDER))
-
-  // setting the temporary directory as current working directory
-  process.chdir(tmpDir)
-
-  // create config from template file
-  const defaultConfig = fs.readFileSync(
-    path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, DEFAULT_CONFIG_FILE),
-    {
-      encoding: 'utf-8'
-    }
-  )
-
-  const defaultConfigParsed = JSON.parse(defaultConfig)
-
-  const filePath = path.join(tmpDir, CONFIG_FOLDER)
-
-  fs.writeFileSync(
-    path.join(filePath, CONFIG_FILE),
-    JSON.stringify(defaultConfigParsed, null, 2),
-    'utf8'
-  )
-})
-
-afterEach(() => {
-  // temporary directory cleanup
-  fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
-})
-
 describe('config-service', () => {
+  beforeEach(() => {
+    tmpDir = path.resolve(os.tmpdir(), TMP_TEST_FOLDER)
+
+    fs.mkdirSync(tmpDir)
+    fs.mkdirSync(path.join(tmpDir, CONFIG_FOLDER))
+
+    // setting the temporary directory as current working directory
+    process.chdir(tmpDir)
+
+    // create config from template file
+    const defaultConfig = fs.readFileSync(
+      path.resolve(
+        __dirname,
+        '..',
+        '..',
+        RESOURCES_FOLDER,
+        DEFAULT_CONFIG_FILE
+      ),
+      {
+        encoding: 'utf-8'
+      }
+    )
+
+    const defaultConfigParsed = JSON.parse(defaultConfig)
+
+    const filePath = path.join(tmpDir, CONFIG_FOLDER)
+
+    fs.writeFileSync(
+      path.join(filePath, CONFIG_FILE),
+      JSON.stringify(defaultConfigParsed, null, 2),
+      'utf8'
+    )
+  })
+
+  afterEach(() => {
+    // temporary directory cleanup
+    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
+  })
+
   test.it('get properties', () => {
     expect(configService.getProperty('key1')).to.be.eq('val1')
     expect(configService.getProperty('key2')).to.be.eq('val2')
