@@ -12,8 +12,8 @@ export default class Add extends Command {
   static description = 'Adds a Micro Frontend component to the bundle'
 
   static examples = [
-    '$ entando-bundle-cli mfe add my-mfe',
-    '$ entando-bundle-cli mfe add my-mfe --stack react'
+    '<%= config.bin %> <%= command.id %> my-mfe',
+    '<%= config.bin %> <%= command.id %> my-mfe --stack react'
   ]
 
   static flags = {

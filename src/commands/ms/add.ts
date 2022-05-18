@@ -12,8 +12,8 @@ export default class Add extends Command {
   static description = 'Adds a Micro Service component to the bundle'
 
   static examples = [
-    '$ entando-bundle-cli ms add my-ms',
-    '$ entando-bundle-cli ms add my-ms --stack spring-boot'
+    '<%= config.bin %> <%= command.id %> my-ms',
+    '<%= config.bin %> <%= command.id %> my-ms --stack spring-boot'
   ]
 
   static flags = {

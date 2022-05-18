@@ -8,8 +8,8 @@ export default class Init extends Command {
     "Performs the scaffolding of a Bundle project (we'll add the possibility to init from hub later)"
 
   static examples = [
-    '$ entando-bundle-cli init my-bundle',
-    '$ entando-bundle-cli init my-bundle --version=0.0.1'
+    '<%= config.bin %> <%= command.id %> my-bundle',
+    '<%= config.bin %> <%= command.id %> my-bundle --version=0.0.1'
   ]
 
   static args = [

@@ -80,7 +80,7 @@ describe('config-service', () => {
   test.it('delete a property', () => {
     const key = 'key1'
     configService.deleteProperty(key)
-    expect(() => configService.getProperty(key)).to.throw()
+    expect(configService.getProperty(key)).to.be.undefined
     expect(configService.getProperty('key2')).to.be.eq('val2')
   })
 
@@ -89,9 +89,9 @@ describe('config-service', () => {
     expect(() => configService.deleteProperty(key)).to.throw()
   })
 
-  test.it('get a property that not exists should throw an error', () => {
+  test.it('get a property that not exists should return undefined', () => {
     const key = 'keyA'
-    expect(() => configService.getProperty(key)).to.throw()
+    expect(configService.getProperty(key)).to.be.undefined
   })
 
   test.it('update a property', () => {
@@ -99,6 +99,17 @@ describe('config-service', () => {
     const value = 'test-value'
     configService.updateProperty(key, value)
     expect(configService.getProperty(key)).to.be.eq(value)
+  })
+
+  test.it('add or update a property', () => {
+    const key = 'key4'
+    const value = 'test-value'
+    expect(configService.getProperty(key)).to.be.undefined
+    configService.addOrUpdateProperty(key, value)
+    expect(configService.getProperty(key)).to.be.eq(value)
+    const updatedValue = 'test-value-updated'
+    configService.addOrUpdateProperty(key, updatedValue)
+    expect(configService.getProperty(key)).to.be.eq(updatedValue)
   })
 
   test.it('update a property that not exists should throw an error', () => {

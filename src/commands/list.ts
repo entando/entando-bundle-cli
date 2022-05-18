@@ -7,9 +7,9 @@ export default class List extends Command {
   static description = 'Lists the available components in the bundle'
 
   static examples = [
-    '$ entando-bundle-cli list',
-    '$ entando-bundle-cli list --ms',
-    '$ entando-bundle-cli list --ms --mfe'
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --ms',
+    '<%= config.bin %> <%= command.id %> --ms --mfe'
   ]
 
   static flags = {
