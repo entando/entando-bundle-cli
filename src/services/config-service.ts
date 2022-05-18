@@ -24,6 +24,12 @@ export default class ConfigService {
     )
   }
 
+  hasProperty = (key: string): boolean => {
+    this.readConfigFile()
+    const configElement = this._config[key]
+    return configElement !== undefined
+  }
+
   getProperty = (key: string): string => {
     this.readConfigFile()
 
