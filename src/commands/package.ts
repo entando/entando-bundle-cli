@@ -5,15 +5,15 @@ import ConfigService, {
 } from '../services/config-service'
 
 export default class Package extends Command {
-  static description = 'Generates the Docker image for the bundle'
+  static description = 'Generates the bundle Docker image'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --organization=my-org'
+    '<%= config.bin %> <%= command.id %> --org=my-org'
   ]
 
   static flags = {
-    organization: Flags.string({
+    org: Flags.string({
       char: 'o',
       description: 'Docker organization name'
     })
@@ -24,28 +24,41 @@ export default class Package extends Command {
   public async run(): Promise<void> {
     BundleService.verifyBundleInitialized(process.cwd())
     const { flags } = await this.parse(Package)
-    await this.getDockerOrganization(flags.organization)
+    await this.getDockerOrganization(flags.org)
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {
-    if (flagOrganization) {
-      return flagOrganization
-    }
-
     const configuredOrganization = this.configService.getProperty(
       DOCKER_ORGANIZATION_PROPERTY
     )
-    if (!configuredOrganization) {
-      const newOrganization: string = await CliUx.ux.prompt(
-        'Enter Docker organization'
-      )
-      this.configService.addProperty(
-        DOCKER_ORGANIZATION_PROPERTY,
-        newOrganization
-      )
-      return newOrganization
+
+    if (flagOrganization) {
+      if (configuredOrganization) {
+        this.configService.updateProperty(
+          DOCKER_ORGANIZATION_PROPERTY,
+          flagOrganization
+        )
+      } else {
+        this.configService.addProperty(
+          DOCKER_ORGANIZATION_PROPERTY,
+          flagOrganization
+        )
+      }
+
+      return flagOrganization
     }
 
-    return configuredOrganization
+    if (configuredOrganization) {
+      return configuredOrganization
+    }
+
+    const newOrganization: string = await CliUx.ux.prompt(
+      'Enter Docker organization'
+    )
+    this.configService.addProperty(
+      DOCKER_ORGANIZATION_PROPERTY,
+      newOrganization
+    )
+    return newOrganization
   }
 }

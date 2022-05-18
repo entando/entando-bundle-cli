@@ -63,7 +63,21 @@ describe('package', () => {
     )
 
   test
-    .do(() => initTestBundleFolder('test-bundle-org-flag'))
+    .do(() => initTestBundleFolder('test-bundle-org-flag-no-existing-conf'))
+    .stub(BundleService, 'verifyBundleInitialized', stubNop)
+    .command(['package', '--org', 'flag-organization'])
+    .it(
+      'runs package --org flag-organization without existing configuration',
+      () => {
+        const configService = new ConfigService()
+        expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
+          'flag-organization'
+        )
+      }
+    )
+
+  test
+    .do(() => initTestBundleFolder('test-bundle-org-flag-with-existing-conf'))
     .do(() => {
       const configService = new ConfigService()
       configService.addProperty(
@@ -72,13 +86,16 @@ describe('package', () => {
       )
     })
     .stub(BundleService, 'verifyBundleInitialized', stubNop)
-    .command(['package', '--organization', 'flag-organization'])
-    .it('runs package --organization flag-organization', () => {
-      const configService = new ConfigService()
-      expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
-        'configured-organization'
-      )
-    })
+    .command(['package', '--org', 'flag-organization'])
+    .it(
+      'runs package --org flag-organization with existing configuration',
+      () => {
+        const configService = new ConfigService()
+        expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
+          'flag-organization'
+        )
+      }
+    )
 
   function initTestBundleFolder(bundleName: string) {
     const bundleDir = path.resolve(tmpDir, bundleName)
