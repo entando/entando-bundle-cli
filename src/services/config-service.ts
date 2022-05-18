@@ -55,6 +55,12 @@ export default class ConfigService {
     this.writeConfigFile()
   }
 
+  addOrUpdateProperty = (key: string, value: string): void => {
+    this.readConfigFile()
+    this.config[key] = value
+    this.writeConfigFile()
+  }
+
   deleteProperty = (key: string): void => {
     this.readConfigFile()
 

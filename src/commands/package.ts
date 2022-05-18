@@ -33,18 +33,10 @@ export default class Package extends Command {
     )
 
     if (flagOrganization) {
-      if (configuredOrganization) {
-        this.configService.updateProperty(
-          DOCKER_ORGANIZATION_PROPERTY,
-          flagOrganization
-        )
-      } else {
-        this.configService.addProperty(
-          DOCKER_ORGANIZATION_PROPERTY,
-          flagOrganization
-        )
-      }
-
+      this.configService.addOrUpdateProperty(
+        DOCKER_ORGANIZATION_PROPERTY,
+        flagOrganization
+      )
       return flagOrganization
     }
 

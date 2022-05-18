@@ -101,6 +101,17 @@ describe('config-service', () => {
     expect(configService.getProperty(key)).to.be.eq(value)
   })
 
+  test.it('add or update a property', () => {
+    const key = 'key4'
+    const value = 'test-value'
+    expect(configService.getProperty(key)).to.be.undefined
+    configService.addOrUpdateProperty(key, value)
+    expect(configService.getProperty(key)).to.be.eq(value)
+    const updatedValue = 'test-value-updated'
+    configService.addOrUpdateProperty(key, updatedValue)
+    expect(configService.getProperty(key)).to.be.eq(updatedValue)
+  })
+
   test.it('update a property that not exists should throw an error', () => {
     const key = 'key3'
     const value = 'test-value'
