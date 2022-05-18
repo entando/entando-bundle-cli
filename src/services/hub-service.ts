@@ -1,90 +1,71 @@
-import { CliUx } from '@oclif/core'
 import { CLIError } from '@oclif/errors'
-import * as cp from 'node:child_process'
 import * as inquirer from 'inquirer'
 import HubAPI from "../api/hub-api"
 import { BundleDescriptor, Bundle, BundleGroup } from "../models/bundle-descriptor"
+import { ServiceTools } from '../models/service-params'
 import BundleDescriptorService from './bundle-descriptor-service'
-import FSService from './fs-service'
+import { InitializerOptions } from './initializer-service'
 
-export interface HubOptions {
-  parentDirectory: string
+export interface HubOptions extends InitializerOptions {
   hubUrl?: string
 }
 
-export default class HubService extends FSService {
+export default class HubService {
   private readonly options: HubOptions
   private hubApi: HubAPI
   private loadedBundleGroups: BundleGroup[] = []
+  private readonly serviceTools: ServiceTools
 
-  constructor(options: HubOptions) {
-    super(options.parentDirectory)
+  constructor(options: HubOptions, serviceTools: ServiceTools) {
     this.options = options
-    this.hubApi = new HubAPI(this.options.hubUrl)
+    this.serviceTools = serviceTools
+    this.hubApi = new HubAPI(options.hubUrl)
   }
 
-  public async start(): Promise<void> {
-    const { selectedBundle } = await this.bundleSelection()
-    const newBundleName = await this.initCloneBundle(selectedBundle)
-    this.checkMissingDirectories(newBundleName)
+  public precheck(): void {
+    const { filesys } = this.serviceTools
+    filesys.checkBundleName()
+    filesys.checkBundleDirectory()
   }
 
-  private async bundleSelection(): Promise<{ selectedBundleGroup: BundleGroup, selectedBundle: Bundle }> {
-    CliUx.ux.action.start('Gathering bundle groups')
+  public async loadBundleGroups(): Promise<void> {
     try {
       this.loadedBundleGroups = await this.hubApi.getBundleGroups()
     } catch {
       throw new CLIError('Hub is not accessible')
     }
+  }
 
-    CliUx.ux.action.stop()
-
+  public async bundleSelection(): Promise<{ selectedBundleGroup: BundleGroup, selectedBundle: Bundle }> {
     const selectedBundleGroup = await this.promptSelectBundleGroup()
-    console.log(`You have selected bundle group "${selectedBundleGroup?.bundleGroupName}".`)
-
-    CliUx.ux.action.start(`Opening bundle group "${selectedBundleGroup.bundleGroupName}"`)
     const bundles: Bundle[] = await this.hubApi.getBundlesByBundleGroupId(selectedBundleGroup.bundleGroupVersionId)
-    CliUx.ux.action.stop()
-
-    const selectedBundle: Bundle = await this.promptBundleSelect(bundles, selectedBundleGroup)
+    const selectedBundle: Bundle = await this.promptSelectBundle(bundles, selectedBundleGroup)
 
     return { selectedBundleGroup, selectedBundle }
   }
 
-  private async initCloneBundle(selectedBundle: Bundle): Promise<string> {
-    const newBundleName = await CliUx.ux.prompt('New bundle name')
+  public async initCloneBundle(selectedBundle: Bundle): Promise<void> {
+    const { name, version } = this.options
+    const { git } = this.serviceTools
 
-    this.checkBundleName(newBundleName)
-    this.checkBundleDirectory(newBundleName)
+    git.cloneRepo(selectedBundle.gitSrcRepoAddress)
 
-    CliUx.ux.action.start(`Downloading bundle ${selectedBundle.bundleName}`)
-    try {
-      // Using stdio 'pipe' option to print stderr only through CLIError
-      cp.execSync(`git clone ${selectedBundle.gitSrcRepoAddress} ./${newBundleName}`, { stdio: 'pipe' })
-    } catch (error) {
-      throw new CLIError(error as Error)
-    }
+    this.renameBundleDescriptor(name, version)
 
-    CliUx.ux.action.stop()
+    git.degit()
+    git.initRepo()
 
-    const newBundleVersion = await CliUx.ux.prompt('What\'s the version number of this bundle?')
-
-    CliUx.ux.action.start('Making changes to the bundle descriptor')
-    this.renameBundleDescriptor(newBundleName, newBundleVersion)
-    CliUx.ux.action.stop()
-
-    this.removeGitInfo(newBundleName)
-    this.initGitRepo(newBundleName)
-
-    return newBundleName
+    this.checkMissingDirectories()
   }
 
-  private async checkMissingDirectories(bundleName: string) {
-    this.createSubDirectoryIfNotExist(bundleName, 'microservices')
-    this.createSubDirectoryIfNotExist(bundleName, 'microfrontends')
-    this.createSubDirectoryIfNotExist(bundleName, '.ent')
-    this.createSubDirectoryIfNotExist(bundleName, '.ent', 'output')
-    this.createSubDirectoryIfNotExist(bundleName, 'epc')
+  private async checkMissingDirectories() {
+    const { filesys } = this.serviceTools
+
+    filesys.createSubDirectoryIfNotExist('microservices')
+    filesys.createSubDirectoryIfNotExist('microfrontends')
+    filesys.createSubDirectoryIfNotExist('.ent')
+    filesys.createSubDirectoryIfNotExist('.ent', 'output')
+    filesys.createSubDirectoryIfNotExist('epc')
   }
 
   private async promptSelectBundleGroup(): Promise<BundleGroup> {
@@ -98,7 +79,7 @@ export default class HubService extends FSService {
     return response.bundlegroup;
   }
 
-  private async promptBundleSelect(bundleChoices: Bundle[], selectedBundleGroup: BundleGroup): Promise<Bundle> {
+  private async promptSelectBundle(bundleChoices: Bundle[], selectedBundleGroup: BundleGroup): Promise<Bundle> {
     const choices = bundleChoices.map(bundle => ({ name: bundle.bundleName, value: bundle  }))
     const response: any = await inquirer.prompt([{
       name: 'bundle',
@@ -110,7 +91,8 @@ export default class HubService extends FSService {
   }
 
   private renameBundleDescriptor(name: string, version: string): void {
-    const bundleDescriptorService = new BundleDescriptorService(this.getBundleDirectory(name))
+    const { filesys } = this.serviceTools
+    const bundleDescriptorService = new BundleDescriptorService(filesys.getBundleDirectory())
     const bundleDescriptor: BundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
     const updatedBundleDescriptor: BundleDescriptor = {

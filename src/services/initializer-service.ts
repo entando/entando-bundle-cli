@@ -7,80 +7,80 @@ import {
   DEFAULT_CONFIG_FILE
 } from '../paths'
 
-import FSService from './fs-service'
+import ServiceParams, { ServiceTools } from '../models/service-params'
 
-export interface InitializerOptions {
-  parentDirectory: string
-  name: string
+export interface InitializerOptions extends ServiceParams {
   version: string
 }
 
 /** Handles the scaffolding of a project bundle */
-export default class InitializerService extends FSService {
+export default class InitializerService {
   private static debug = debugFactory(InitializerService)
 
   private readonly options: InitializerOptions
+  private readonly serviceTools: ServiceTools
 
-  constructor(options: InitializerOptions) {
-    super(options.parentDirectory)
+  constructor(options: InitializerOptions, serviceTools: ServiceTools) {
     this.options = options
+    this.serviceTools = serviceTools
   }
 
   public async performScaffolding(): Promise<void> {
+    const { git, filesys } = this.serviceTools
     InitializerService.debug('project scaffolding started')
 
-    const { name } = this.options
-
-    this.checkBundleName(name)
-
+    filesys.checkBundleName()
     this.createBundleDirectories()
     this.createBundleDescriptor()
     this.createDockerfile()
-    this.createGitignore(name)
+    git.createGitignore()
     this.createConfigJson()
-    this.initGitRepo(name)
+    git.initRepo()
   }
 
   private createBundleDirectories() {
     InitializerService.debug('creating bundle directories')
 
-    const { name } = this.options
+    const { filesys } = this.serviceTools
 
-    this.checkBundleDirectory(name)
+    filesys.checkBundleDirectory()
 
-    const bundleDir = this.getBundleDirectory(name)
+    const bundleDir = filesys.getBundleDirectory()
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.getBundleFilePath(name, '.ent'))
-    fs.mkdirSync(this.getBundleFilePath(name, '.ent', 'output'))
-    fs.mkdirSync(this.getBundleFilePath(name, 'microservices'))
-    fs.mkdirSync(this.getBundleFilePath(name, 'microfrontends'))
-    fs.mkdirSync(this.getBundleFilePath(name, 'epc'))
+    fs.mkdirSync(filesys.getBundleFilePath('.ent'))
+    fs.mkdirSync(filesys.getBundleFilePath('.ent', 'output'))
+    fs.mkdirSync(filesys.getBundleFilePath('microservices'))
+    fs.mkdirSync(filesys.getBundleFilePath('microfrontends'))
+    fs.mkdirSync(filesys.getBundleFilePath('epc'))
   }
 
   private createBundleDescriptor() {
     InitializerService.debug('creating bundle descriptor')
 
     const { name, version } = this.options
+    const { filesys } = this.serviceTools
 
     const bundleDescriptorService = new BundleDescriptorService(
-      this.getBundleDirectory(name)
+      filesys.getBundleDirectory()
     )
     bundleDescriptorService.createBundleDescriptor({ name, version })
   }
 
   private createDockerfile() {
     InitializerService.debug('creating Dockerfile')
-    this.createFileFromTemplate(
-      this.getBundleFilePath(this.options.name, 'Dockerfile'),
+    const { filesys } = this.serviceTools
+    filesys.createFileFromTemplate(
+      filesys.getBundleFilePath('Dockerfile'),
       'Dockerfile-template'
     )
   }
 
   private createConfigJson() {
     InitializerService.debug(`creating ${CONFIG_FILE}`)
-    this.createFileFromTemplate(
-      this.getBundleFilePath(this.options.name, CONFIG_FOLDER, CONFIG_FILE),
+    const { filesys } = this.serviceTools
+    filesys.createFileFromTemplate(
+      filesys.getBundleFilePath(CONFIG_FOLDER, CONFIG_FILE),
       DEFAULT_CONFIG_FILE
     )
   }

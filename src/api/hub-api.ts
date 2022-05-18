@@ -6,10 +6,10 @@ interface BundleGroupAPIParam {
 }
 
 export default class HubAPI {
-  private readonly defaultBaseUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io/ent/api'
+  private readonly defaultBaseUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io'
   private readonly baseUrl: string
 
-  private readonly apiPath = '/templates/bundlegroups'
+  private readonly apiPath = '/ent/api/templates/bundlegroups'
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl || this.defaultBaseUrl
