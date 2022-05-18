@@ -3,9 +3,10 @@ import { CliUx } from '@oclif/core'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import ConfigService from '../../src/services/config-service'
+import ConfigService, {
+  DOCKER_ORGANIZATION_PROPERTY
+} from '../../src/services/config-service'
 import { BundleService } from '../../src/services/bundle-service'
-import { DOCKER_ORGANIZATION_PROPERTY } from '../../src/services/package-service'
 import { CONFIG_FILE, CONFIG_FOLDER } from '../../src/paths'
 
 describe('package', () => {

@@ -1,5 +1,8 @@
 import { CliUx, Command, Flags } from '@oclif/core'
-import PackageService from '../services/package-service'
+import { BundleService } from '../services/bundle-service'
+import ConfigService, {
+  DOCKER_ORGANIZATION_PROPERTY
+} from '../services/config-service'
 
 export default class Package extends Command {
   static description = 'Generates the Docker image for the bundle'
@@ -16,16 +19,33 @@ export default class Package extends Command {
     })
   }
 
+  configService = new ConfigService()
+
   public async run(): Promise<void> {
+    BundleService.verifyBundleInitialized(process.cwd())
     const { flags } = await this.parse(Package)
+    await this.getDockerOrganization(flags.organization)
+  }
 
-    const packageService = new PackageService()
-
-    let dockerOrganization = flags.organization
-    if (!dockerOrganization) {
-      dockerOrganization = await packageService.getOrInitDockerOrganization(
-        () => CliUx.ux.prompt('Enter Docker organization')
-      )
+  private async getDockerOrganization(flagOrganization: string | undefined) {
+    if (flagOrganization) {
+      return flagOrganization
     }
+
+    const configuredOrganization = this.configService.getProperty(
+      DOCKER_ORGANIZATION_PROPERTY
+    )
+    if (!configuredOrganization) {
+      const newOrganization: string = await CliUx.ux.prompt(
+        'Enter Docker organization'
+      )
+      this.configService.addProperty(
+        DOCKER_ORGANIZATION_PROPERTY,
+        newOrganization
+      )
+      return newOrganization
+    }
+
+    return configuredOrganization
   }
 }
