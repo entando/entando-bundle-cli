@@ -80,7 +80,7 @@ describe('config-service', () => {
   test.it('delete a property', () => {
     const key = 'key1'
     configService.deleteProperty(key)
-    expect(() => configService.getProperty(key)).to.throw()
+    expect(configService.getProperty(key)).to.be.undefined
     expect(configService.getProperty('key2')).to.be.eq('val2')
   })
 
@@ -89,9 +89,9 @@ describe('config-service', () => {
     expect(() => configService.deleteProperty(key)).to.throw()
   })
 
-  test.it('get a property that not exists should throw an error', () => {
+  test.it('get a property that not exists should return undefined', () => {
     const key = 'keyA'
-    expect(() => configService.getProperty(key)).to.throw()
+    expect(configService.getProperty(key)).to.be.undefined
   })
 
   test.it('update a property', () => {
