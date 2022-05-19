@@ -15,7 +15,7 @@ export class GitService {
   constructor(name: string, parentDirectory: string) {
     this.bundleName = name
     this.parentDirectory = parentDirectory
-    this.fsService = new FSService({ name, parentDirectory })
+    this.fsService = new FSService(name, parentDirectory)
   }
 
   public initRepo(): void {

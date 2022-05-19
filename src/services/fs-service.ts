@@ -6,40 +6,35 @@ import { RESOURCES_FOLDER } from '../paths'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 
-export interface ServiceParams {
-  name: string
-  parentDirectory: string
-}
-
 export default class FSService {
   private static debug = debugFactory(FSService)
 
-  private readonly options: ServiceParams
+  private readonly bundleName: string
+  private readonly parentDirectory: string
 
-  constructor(options: ServiceParams) {
-    this.options = options
+  constructor(name: string, parentDirectory: string) {
+    this.bundleName = name
+    this.parentDirectory = parentDirectory
   }
 
   public checkBundleName(): void {
     FSService.debug('checking bundle name if it\'s accepted')
-    const { name } = this.options
-    if (!ALLOWED_BUNDLE_NAME_REGEXP.test(name)) {
+    if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.bundleName)) {
       throw new CLIError(
-        `'${name}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${this.bundleName}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
       )
     }
   }
 
   public checkBundleDirectory(): void {
     FSService.debug('checking bundle directory if we have access')
-    const { parentDirectory } = this.options
     const bundleDir = this.getBundleDirectory()
 
     try {
-      fs.accessSync(parentDirectory, fs.constants.W_OK)
+      fs.accessSync(this.parentDirectory, fs.constants.W_OK)
     } catch {
       throw new CLIError(
-        `Directory ${parentDirectory} is not writable`
+        `Directory ${this.parentDirectory} is not writable`
       )
     }
 
@@ -50,8 +45,7 @@ export default class FSService {
   }
 
   public getBundleDirectory(): string {
-    const { name, parentDirectory } = this.options
-    return path.resolve(parentDirectory, name)
+    return path.resolve(this.parentDirectory, this.bundleName)
   }
 
   public getBundleFilePath(...pathSegments: string[]): string {

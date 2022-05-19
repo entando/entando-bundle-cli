@@ -3,7 +3,7 @@ export const mockUri = '/ent/api/templates/bundlegroups';
 
 export const demoBundle = {
   bundleGroupName: "Test germano 1",
-  bundleName: "{{$randomUserName}}",
+  bundleName: "Germano's Test 1",
   gitSrcRepoAddress: "https://github.com/germano/mysrcrepo2.git",
   bundleGroupVersionId: 51,
   bundleGroupId: 49,

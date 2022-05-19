@@ -7,10 +7,12 @@ import {
   DEFAULT_CONFIG_FILE
 } from '../paths'
 
-import FSService, { ServiceParams } from './fs-service'
+import FSService from './fs-service'
 import { GitService } from './git-service'
 
-export interface InitializerOptions extends ServiceParams {
+export interface InitializerOptions {
+  name: string
+  parentDirectory: string
   version: string
 }
 
@@ -26,9 +28,8 @@ export default class InitializerService {
     this.options = options
 
     const { parentDirectory, name } = options
-    const serviceParams = { parentDirectory, name }
 
-    this.filesys = new FSService(serviceParams)
+    this.filesys = new FSService(name, parentDirectory)
     this.git = new GitService(name, parentDirectory)
   }
 

@@ -8,7 +8,7 @@ import * as cp from 'node:child_process'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import InitializerService from '../../src/services/initializer-service'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
-import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/bundles'
+import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/hub-api'
 
 describe('init', () => {
   let tmpDir: string
