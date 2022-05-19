@@ -2,20 +2,11 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 import { MfeConfig } from '../models/mfe-config'
-import { CLIError } from '@oclif/errors'
 
 const MFE_CONFIG_FILE_NAME = 'mfe-config.json'
 const MFE_CONFIG_INDENTATION_SPACES = 4
 
 export class MfeConfigService {
-  public createMfeConfig(mfeName: string, mfeConfig: MfeConfig = {}): void {
-    if (fs.existsSync(this.getMfeConfigPath(mfeName))) {
-      throw new CLIError(`${this.getMfeConfigPath(mfeName)} already exists`)
-    }
-
-    this.writeMfeConfig(mfeName, mfeConfig)
-  }
-
   public writeMfeConfig(mfeName: string, mfeConfig: MfeConfig): void {
     fs.writeFileSync(
       this.getMfeConfigPath(mfeName),

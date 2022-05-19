@@ -54,7 +54,7 @@ export class ApiClaimService {
     }
 
     if (!this.mfeConfigService.mfeConfigExists(mfeName)) {
-      this.mfeConfigService.createMfeConfig(mfeName)
+      this.mfeConfigService.writeMfeConfig(mfeName, {})
     }
 
     const mfeConfig: MfeConfig = this.mfeConfigService.getMfeConfig(mfeName)
