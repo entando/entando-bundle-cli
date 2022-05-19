@@ -30,7 +30,7 @@ export default class InitializerService {
     const serviceParams = { parentDirectory, name }
 
     this.filesys = new FSService(serviceParams)
-    this.git = new GitService(serviceParams, this.filesys)
+    this.git = new GitService(serviceParams)
   }
 
   public async performScaffolding(): Promise<void> {

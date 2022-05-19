@@ -12,9 +12,9 @@ export class GitService {
   private readonly options: ServiceParams
   private readonly fsService: FSService
 
-  constructor(options: ServiceParams, fsService: FSService) {
+  constructor(options: ServiceParams) {
     this.options = options
-    this.fsService = fsService
+    this.fsService = new FSService(options)
   }
 
   public createGitignore(): void {
