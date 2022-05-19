@@ -1,7 +1,7 @@
 import { CLIError } from '@oclif/errors'
 import * as inquirer from 'inquirer'
 import HubAPI from "../api/hub-api"
-import { BundleDescriptor, Bundle, BundleGroup } from "../models/bundle-descriptor"
+import { Bundle, BundleGroup } from "../models/bundle-descriptor"
 import { ServiceTools } from '../models/service-params'
 import BundleDescriptorService from './bundle-descriptor-service'
 import { InitializerOptions } from './initializer-service'
@@ -46,16 +46,17 @@ export default class HubService {
 
   public async initCloneBundle(selectedBundle: Bundle): Promise<void> {
     const { name, version } = this.options
-    const { git } = this.serviceTools
+    const { git, filesys } = this.serviceTools
 
     git.cloneRepo(selectedBundle.gitSrcRepoAddress)
-
-    this.renameBundleDescriptor(name, version)
-
     git.degit()
     git.initRepo()
 
     this.checkMissingDirectories()
+
+    const bundleDescriptorService = new BundleDescriptorService(filesys.getBundleDirectory())
+    const descriptor = bundleDescriptorService.getBundleDescriptor()
+    bundleDescriptorService.writeBundleDescriptor({ ...descriptor, name, version })
   }
 
   private async checkMissingDirectories() {
@@ -88,19 +89,5 @@ export default class HubService {
       choices,
     }])
     return response.bundle;
-  }
-
-  private renameBundleDescriptor(name: string, version: string): void {
-    const { filesys } = this.serviceTools
-    const bundleDescriptorService = new BundleDescriptorService(filesys.getBundleDirectory())
-    const bundleDescriptor: BundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-
-    const updatedBundleDescriptor: BundleDescriptor = {
-      ...bundleDescriptor,
-      name,
-      version,
-    }
-
-    bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
 }
