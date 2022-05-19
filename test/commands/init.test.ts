@@ -4,35 +4,11 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import * as inquirer from 'inquirer'
+import * as cp from 'node:child_process'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import InitializerService from '../../src/services/initializer-service'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
-import * as cp from 'node:child_process'
-import { GitService } from '../../src/services/git-service'
-import FSService from '../../src/services/fs-service'
-
-const demoBundle = {
-  bundleGroupName: "Test germano 1",
-  bundleName: "germano1",
-  gitSrcRepoAddress: "https://github.com/germano/mysrcrepo2.git",
-  bundleGroupVersionId: 51,
-  bundleGroupId: 49,
-  bundleId: 51,
-}
-
-const demoBundleGroupList = [
-  {
-    bundleGroupName: "Test germano 1",
-    bundleGroupVersionId: 51,
-  },
-  {
-    bundleGroupName: "Test germano wowow",
-    bundleGroupVersionId: 52,
-  },
-]
-
-const domainmock = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io'
-const uri = '/ent/api/templates/bundlegroups'
+import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/bundles'
 
 describe('init', () => {
   let tmpDir: string
@@ -86,19 +62,16 @@ describe('init', () => {
 
   test
     .stub(inquirer, 'prompt', sinon.stub().resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle }))
-    .nock(domainmock, api => api
-      .get(uri)
+    .nock(mockDomain, api => api
+      .get(mockUri)
       .reply(200, demoBundleGroupList)
-      .get(`${uri}/51`)
+      .get(`${mockUri}/51`)
       .reply(200, [demoBundle])
     )
     .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
     .do(async () => {
-      const servparams = { name: 'bundle-with-fromhub', parentDirectory: process.cwd() };
-      const filesys = new FSService(servparams)
       const init = new InitializerService(
-        { name: 'bundle-with-fromhub', version: '0.0.1', parentDirectory: process.cwd() },
-        { git: new GitService(servparams, filesys), filesys },
+        { name: 'bundle-with-fromhub', version: '0.0.1', parentDirectory: process.cwd() }
       )
       await init.performScaffolding()
       fs.rmSync(path.resolve(process.cwd(), 'bundle-with-fromhub/microservices'), { recursive: true, force: true })

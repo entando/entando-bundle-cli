@@ -5,8 +5,7 @@ import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 
 import debugFactory from './debug-factory-service'
-import FSService from './fs-service'
-import ServiceParams from '../models/service-params'
+import FSService, { ServiceParams } from './fs-service'
 
 export class GitService {
   private static debug = debugFactory(GitService)
@@ -20,10 +19,7 @@ export class GitService {
 
   public createGitignore(): void {
     GitService.debug('creating .gitignore')
-    this.fsService.createFileFromTemplate(
-      this.fsService.getBundleFilePath('.gitignore'),
-      'gitignore-template'
-    )
+    this.fsService.createFileFromTemplate(['.gitignore'], 'gitignore-template')
   }
 
   public initRepo(): void {

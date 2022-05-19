@@ -3,9 +3,13 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import debugFactory from './debug-factory-service'
 import { RESOURCES_FOLDER } from '../paths'
-import ServiceParams from '../models/service-params'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
+
+export interface ServiceParams {
+  name: string
+  parentDirectory: string
+}
 
 export default class FSService {
   private static debug = debugFactory(FSService)
@@ -54,7 +58,8 @@ export default class FSService {
     return path.resolve(this.getBundleDirectory(), ...pathSegments)
   }
 
-  public createFileFromTemplate(filePath: string, templateFileName: string): void {
+  public createFileFromTemplate(pathSegments: string[], templateFileName: string): void {
+    const filePath = this.getBundleFilePath(...pathSegments)
     const templateFileContent = fs.readFileSync(
       path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
     )
