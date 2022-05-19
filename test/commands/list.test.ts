@@ -123,36 +123,22 @@ describe('list', () => {
     })
 
   test
-    .stderr()
+    .stdout()
     .do(() => {
-      fs.writeFileSync(
-        path.resolve('./microfrontends', 'mfe1', 'package.json'),
-        JSON.stringify({})
-      )
+      fs.rmSync(path.resolve('./microfrontends', 'mfe1', 'package.json'))
+      fs.rmSync(path.resolve('./microservices', 'ms1', 'pom.xml'))
     })
     .command(['list'])
-    .catch(error => {
-      expect(error.message).to.contain(
-        'Failed to get version of mfe1 microfrontend'
-      )
-    })
-    .it('exits if an mfe component version cannot be obtained')
+    .it('runs list', ctx => {
+      const output: string = ctx.stdout
 
-  test
-    .stderr()
-    .do(() => {
-      fs.writeFileSync(
-        path.resolve('./microservices', 'ms1', 'pom.xml'),
-        '<project></project>'
+      expect(output).to.match(/mfe1\s+microfrontend\s+undefined\s+react/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+undefined\s+spring-boot/
       )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
-    .command(['list'])
-    .catch(error => {
-      expect(error.message).to.contain(
-        'Failed to get version of ms1 microservice'
-      )
-    })
-    .it('exits if an ms component version cannot be obtained')
 
   test
     .stderr()

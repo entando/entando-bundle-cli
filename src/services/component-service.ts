@@ -1,5 +1,5 @@
-import { BundleDescriptor } from '../models/bundle-descriptor'
-import { Component, ComponentType, PartialComponent } from '../models/component'
+import { BundleDescriptor, MicroFrontend, MicroService } from '../models/bundle-descriptor'
+import { Component, ComponentType, VersionedComponent } from '../models/component'
 import BundleDescriptorService from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 
@@ -16,39 +16,30 @@ export class ComponentService {
     const { microfrontends, microservices }: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
 
-    const compTypeMap: { [index: number]: ComponentType } = {}
-    let components: Array<PartialComponent>
+    let components: Array<Component>
 
     if (type === ComponentType.MICROFRONTEND) {
-      components = microfrontends
+      components = microfrontends.map(this.mapComponentType(ComponentType.MICROFRONTEND))
     } else if (type === ComponentType.MICROSERVICE) {
-      components = microservices
+      components = microservices.map(this.mapComponentType(ComponentType.MICROSERVICE))
     } else {
       components = [
-        ...microfrontends.map((mfe, idx) => {
-          compTypeMap[idx] = ComponentType.MICROFRONTEND
-          return mfe
-        }),
-        ...microservices.map((ms, idx) => {
-          compTypeMap[microfrontends.length + idx] = ComponentType.MICROSERVICE
-          return ms
-        })
+        ...microfrontends.map(this.mapComponentType(ComponentType.MICROFRONTEND)),
+        ...microservices.map(this.mapComponentType(ComponentType.MICROSERVICE))
       ]
     }
 
-    return components.map((comp, idx) => {
-      const { name, stack } = comp
-      const compType: ComponentType = type || compTypeMap[idx]
+    return components
+  }
 
-      return {
-        name,
-        stack,
-        type: compType,
-        version: this.componentDescriptorService.getComponentVersion(
-          comp,
-          compType
-        )
-      }
-    })
+  public getVersionedComponents(type?: ComponentType): Array<VersionedComponent> {
+    return this.getComponents(type).map(comp => ({
+      ...comp,
+      version: this.componentDescriptorService.getComponentVersion(comp)
+    }))
+  }
+
+  private mapComponentType(type: ComponentType): (compToMap: MicroFrontend | MicroService) => Component {
+    return ({ name, stack }) => ({ name, stack, type })
   }
 }

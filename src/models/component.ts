@@ -10,12 +10,12 @@ export enum ComponentType {
   MICROSERVICE = 'microservice'
 }
 
-export interface PartialComponent {
+export interface Component {
   name: string
   stack: string
+  type: ComponentType
 }
 
-export interface Component extends PartialComponent, Record<string, unknown> {
-  version: string
-  type: ComponentType
+export interface VersionedComponent extends Component, Record<string, unknown> {
+  version?: string
 }

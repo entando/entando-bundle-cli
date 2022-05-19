@@ -1,5 +1,5 @@
 import { CliUx, Command, Flags } from '@oclif/core'
-import { Component, ComponentType } from '../models/component'
+import { ComponentType, VersionedComponent } from '../models/component'
 import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
 
@@ -26,25 +26,25 @@ export default class List extends Command {
 
     const { flags } = await this.parse(List)
     const componentService = new ComponentService()
-    let components: Array<Component> = []
+    let components: Array<VersionedComponent> = []
 
     if (!flags.ms && !flags.mfe) {
-      components = componentService.getComponents()
+      components = componentService.getVersionedComponents()
     } else {
       if (flags.ms) {
         components.push(
-          ...componentService.getComponents(ComponentType.MICROSERVICE)
+          ...componentService.getVersionedComponents(ComponentType.MICROSERVICE)
         )
       }
 
       if (flags.mfe) {
         components.push(
-          ...componentService.getComponents(ComponentType.MICROFRONTEND)
+          ...componentService.getVersionedComponents(ComponentType.MICROFRONTEND)
         )
       }
     }
 
-    const compKeys: Array<string & keyof Component> = [
+    const compKeys: Array<string & keyof VersionedComponent> = [
       'name',
       'type',
       'version',
