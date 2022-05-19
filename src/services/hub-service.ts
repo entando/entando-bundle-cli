@@ -25,7 +25,6 @@ export default class HubService {
   public precheck(): void {
     const { filesys } = this.serviceTools
     filesys.checkBundleName()
-    filesys.checkBundleDirectory()
   }
 
   public async loadBundleGroups(): Promise<void> {
