@@ -1,3 +1,5 @@
+import { ApiClaim } from './api'
+
 export type EnvironmentVariable =
   | {
       name: string
@@ -46,7 +48,8 @@ export type MicroFrontend = {
   configUi?: {
     customElement: string
     resources: string[]
-  }
+  },
+  apiClaims?: ApiClaim[]
 }
 
 export type BundleDescriptor = {
