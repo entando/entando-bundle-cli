@@ -5,7 +5,7 @@ import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers
 
 describe('Hub API', () => {
   describe('Bundle Groups', () => {
-    const hubApi = new HubAPI()
+    const hubApi = new HubAPI(mockDomain)
     it('Bundle Group List', async () => {
       nock(mockDomain)
         .get(mockUri)

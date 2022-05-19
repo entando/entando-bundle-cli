@@ -8,11 +8,11 @@ import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import InitializerService from '../../src/services/initializer-service'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
 import { GitService } from '../../src/services/git-service'
-import { ServiceParams } from '../../src/services/fs-service'
 
 describe('git-service', () => {
   let tmpDir: string
-  let serviceParams: ServiceParams
+  const defaultBundleName = 'git-mi'
+  let git: GitService
 
   before(() => {
     // creating a temporary directory
@@ -26,12 +26,12 @@ describe('git-service', () => {
   beforeEach(() => {
     // setting the temporary directory as current working directory
     process.chdir(tmpDir)
-    serviceParams = { name: 'git-mi', parentDirectory: process.cwd() }
-    fs.mkdirSync(path.resolve(tmpDir, serviceParams.name))
+    fs.mkdirSync(path.resolve(tmpDir, defaultBundleName))
+    git = new GitService(defaultBundleName, tmpDir)
   })
 
   afterEach(() => {
-    fs.rmSync(path.resolve(tmpDir, serviceParams.name), { recursive: true, force: true })
+    fs.rmSync(path.resolve(tmpDir, defaultBundleName), { recursive: true, force: true })
   })
 
   after(() => {
@@ -41,10 +41,9 @@ describe('git-service', () => {
 
   test
     .it('runs initRepo ', () => {
-      const git = new GitService(serviceParams)
       git.initRepo()
 
-      const filePath = path.resolve(tmpDir, serviceParams.name, '.git')
+      const filePath = path.resolve(tmpDir, defaultBundleName, '.git')
       expect(fs.existsSync(filePath)).to.eq(true)
     })
 
@@ -56,7 +55,6 @@ describe('git-service', () => {
       sinon.stub().throws(new Error('git init error'))
     )
     .do(() => {
-      const git = new GitService(serviceParams)
       git.initRepo()
     })
     .catch(error => {
@@ -67,29 +65,19 @@ describe('git-service', () => {
     })
 
   test
-    .it('runs createGitignore', () => {
-      const git = new GitService(serviceParams)
-      git.createGitignore()
-
-      const filePath = path.resolve(tmpDir, serviceParams.name, '.gitignore')
-      expect(fs.existsSync(filePath)).to.eq(true)
-    })
-
-  test
     .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
     .do(async () => {
-      fs.rmSync(path.resolve(tmpDir, serviceParams.name), { recursive: true, force: true })
-      const init = new InitializerService({ ...serviceParams, version: '0.0.1' })
-      await init.performScaffolding()
+      fs.rmSync(path.resolve(tmpDir, defaultBundleName), { recursive: true, force: true })
+      const init = new InitializerService({ name: defaultBundleName, parentDirectory: tmpDir, version: '0.0.1' })
+      await init.performBundleInit()
     })
     .it('runs cloneRepo', () => {
-      const git = new GitService(serviceParams)
       git.cloneRepo('https://aabbbccc.com/asd.git')
-      checkFoldersStructure(serviceParams.name)
+      checkFoldersStructure(defaultBundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
 
-      const bundleDescriptor = parseBundleDescriptor(serviceParams.name)
-      expect(bundleDescriptor.name).to.eq(serviceParams.name)
+      const bundleDescriptor = parseBundleDescriptor(defaultBundleName)
+      expect(bundleDescriptor.name).to.eq(defaultBundleName)
       expect(bundleDescriptor.version).to.eq('0.0.1')
     })
 
@@ -101,7 +89,6 @@ describe('git-service', () => {
       sinon.stub().throws(new Error('git clone error'))
     )
     .do(() => {
-      const git = new GitService(serviceParams)
       git.cloneRepo('https://aabbbccc.com/asd.git')
     })
     .catch(error => {
@@ -111,12 +98,11 @@ describe('git-service', () => {
 
   test
     .do(() => {
-      const git = new GitService(serviceParams)
       git.initRepo()
       git.degit()
     })
     .it('runs degit', () => {
-      const filePath = path.resolve(tmpDir, serviceParams.name, '.git')
+      const filePath = path.resolve(tmpDir, defaultBundleName, '.git')
       expect(fs.existsSync(filePath)).to.eq(false)
     })
 

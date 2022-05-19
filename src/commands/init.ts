@@ -2,7 +2,7 @@ import { CliUx, Command, Flags } from '@oclif/core'
 import * as inquirer from 'inquirer'
 import HubService from '../services/hub-service'
 import InitializerService from '../services/initializer-service'
-import { Bundle, BundleGroup } from "../models/bundle-descriptor"
+import { Bundle, BundleGroup } from "../api/hub-api"
 
 const DEFAULT_VERSION = '0.0.1'
 
@@ -12,7 +12,8 @@ export default class Init extends Command {
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-bundle',
-    '<%= config.bin %> <%= command.id %> my-bundle --version=0.0.1'
+    '<%= config.bin %> <%= command.id %> my-bundle --version=0.0.1',
+    '<%= config.bin %> <%= command.id %> my-bundle --from-hub'
   ]
 
   static args = [
@@ -21,8 +22,8 @@ export default class Init extends Command {
 
   static flags = {
     version: Flags.string({ description: 'Project version' }),
-    'from-hub': Flags.boolean({ description: 'Clones a bundle from Entando Hub' }),
-    'hub-url': Flags.string({ description: 'Custom Entando Hub url' }),
+    'from-hub': Flags.boolean({ description: 'Initializes a bundle project from the Entando Hub' }),
+    'hub-url': Flags.string({ description: 'Custom Entando Hub url', dependsOn: ['from-hub'] }),
   }
 
   public async run(): Promise<void> {
@@ -37,7 +38,7 @@ export default class Init extends Command {
     const initializer = new InitializerService(options)
 
     if (flags['from-hub']) {
-      CliUx.ux.action.start(`Initializing hub service for your new bundle project ${args.name}`)
+      CliUx.ux.action.start(`Initializing a new bundle project named ${args.name} from an Entando Hub bundle template`)
       const hubService = new HubService(flags['hub-url'])
       const bundleGroups = await hubService.loadBundleGroups()
       CliUx.ux.action.stop()
@@ -45,12 +46,12 @@ export default class Init extends Command {
       const bundles: Bundle[] = await hubService.loadBundlesFromBundleGroup(selectedBundleGroup)
       const selectedBundle: Bundle = await this.promptSelectBundle(bundles, selectedBundleGroup)
 
-      CliUx.ux.action.start(`Gathering selected bundle ${selectedBundle.bundleName} to new project ${args.name}`)
-      await initializer.performCloneBundle(selectedBundle)
+      CliUx.ux.action.start(`Fetching the selected bundle ${selectedBundle.bundleName} from PBC ${selectedBundleGroup.bundleGroupName} into a new project named ${args.name}`)
+      await initializer.performBundleInitFromGit(selectedBundle.gitSrcRepoAddress)
       CliUx.ux.action.stop()
     } else {
-      CliUx.ux.action.start(`Initializing a new bundle project ${args.name}`)
-      await initializer.performScaffolding()
+      CliUx.ux.action.start(`Initializing an empty bundle project named ${args.name}`)
+      await initializer.performBundleInit()
       CliUx.ux.action.stop()
     }
   }
@@ -59,7 +60,7 @@ export default class Init extends Command {
     const choices = loadedBundleGroups.map(bundleGroup => ({ name: bundleGroup.bundleGroupName, value: bundleGroup }))
     const response: any = await inquirer.prompt([{
       name: 'bundlegroup',
-      message: 'Select a bundle group',
+      message: 'Select a PBC:',
       type: 'list',
       choices,
     }])
@@ -70,7 +71,7 @@ export default class Init extends Command {
     const choices = bundleChoices.map(bundle => ({ name: bundle.bundleName, value: bundle  }))
     const response: any = await inquirer.prompt([{
       name: 'bundle',
-      message: `Select a bundle from ${selectedBundleGroup.bundleGroupName}`,
+      message: `Select a bundle from ${selectedBundleGroup.bundleGroupName}:`,
       type: 'list',
       choices,
     }])

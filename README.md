@@ -6,41 +6,37 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-
-- [entando-bundle-cli](#entando-bundle-cli)
-- [Usage](#usage)
-- [Commands](#commands)
-- [Development environment setup](#development-environment-setup)
+* [entando-bundle-cli](#entando-bundle-cli)
+* [Usage](#usage)
+* [Commands](#commands)
+* [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-- [`entando-bundle-cli list`](#entando-bundle-cli-list)
-- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-- [`entando-bundle-cli package`](#entando-bundle-cli-package)
+* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+* [`entando-bundle-cli list`](#entando-bundle-cli-list)
+* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+* [`entando-bundle-cli package`](#entando-bundle-cli-package)
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -68,13 +64,15 @@ Performs the scaffolding of a Bundle project (we'll add the possibility to init 
 
 ```
 USAGE
-  $ entando-bundle-cli init [NAME] [--version <value>]
+  $ entando-bundle-cli init [NAME] [--version <value>] [--hub-url <value> --from-hub]
 
 ARGUMENTS
   NAME  Bundle project name
 
 FLAGS
-  --version=<value>  project version
+  --from-hub         Initializes a bundle project from the Entando Hub
+  --hub-url=<value>  Custom Entando Hub url
+  --version=<value>  Project version
 
 DESCRIPTION
   Performs the scaffolding of a Bundle project (we'll add the possibility to init from hub later)
@@ -83,6 +81,8 @@ EXAMPLES
   $ entando-bundle-cli init my-bundle
 
   $ entando-bundle-cli init my-bundle --version=0.0.1
+
+  $ entando-bundle-cli init my-bundle --from-hub
 ```
 
 _See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/init.ts)_
@@ -162,26 +162,25 @@ EXAMPLES
 
 ## `entando-bundle-cli package`
 
-Generates the Docker image for the bundle
+Generates the bundle Docker image
 
 ```
 USAGE
   $ entando-bundle-cli package [-o <value>]
 
 FLAGS
-  -o, --organization=<value>  Docker organization name
+  -o, --org=<value>  Docker organization name
 
 DESCRIPTION
-  Generates the Docker image for the bundle
+  Generates the bundle Docker image
 
 EXAMPLES
   $ entando-bundle-cli package
 
-  $ entando-bundle-cli package --organization=my-org
+  $ entando-bundle-cli package --org=my-org
 ```
 
 _See code: [dist/commands/package.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/package.ts)_
-
 <!-- commandsstop -->
 
 # Development environment setup

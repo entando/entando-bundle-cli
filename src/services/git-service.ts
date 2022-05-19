@@ -5,25 +5,21 @@ import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 
 import debugFactory from './debug-factory-service'
-import FSService, { ServiceParams } from './fs-service'
-
+import FSService from './fs-service'
 export class GitService {
   private static debug = debugFactory(GitService)
-  private readonly options: ServiceParams
+  private readonly bundleName: string
+  private readonly parentDirectory: string
   private readonly fsService: FSService
 
-  constructor(options: ServiceParams) {
-    this.options = options
-    this.fsService = new FSService(options)
-  }
-
-  public createGitignore(): void {
-    GitService.debug('creating .gitignore')
-    this.fsService.createFileFromTemplate(['.gitignore'], 'gitignore-template')
+  constructor(name: string, parentDirectory: string) {
+    this.bundleName = name
+    this.parentDirectory = parentDirectory
+    this.fsService = new FSService({ name, parentDirectory })
   }
 
   public initRepo(): void {
-    GitService.debug(`initializing git repository with name ${this.options.name}`)
+    GitService.debug(`initializing git repository with name ${this.bundleName}`)
     try {
       // Using stdio 'pipe' option to print stderr only through CLIError
       cp.execSync(`git -C ${this.fsService.getBundleDirectory()} init`, { stdio: 'pipe' })
@@ -33,18 +29,18 @@ export class GitService {
   }
 
   public cloneRepo(gitUrl: string): void {
-    GitService.debug(`cloning bundle ${this.options.name}`)
+    GitService.debug(`cloning bundle ${this.bundleName}`)
     try {
-      cp.execSync(`git clone --depth 1 ${gitUrl} ./${this.options.name}`, { stdio: 'pipe' })
+      cp.execSync(`git clone --depth 1 ${gitUrl} ./${this.bundleName}`, { stdio: 'pipe' })
     } catch (error) {
       throw new CLIError(error as Error)
     }
   }
 
   public degit(): void {
-    GitService.debug(`removing origin git info directory (./.git) in bundle ${this.options.name}`)
+    GitService.debug(`removing origin git info directory (./.git) in bundle ${this.bundleName}`)
     fs.rmSync(
-      path.resolve(this.options.parentDirectory, `${this.options.name}/.git`),
+      path.resolve(this.parentDirectory, `${this.bundleName}/.git`),
       { recursive: true, force: true },
     );
   }

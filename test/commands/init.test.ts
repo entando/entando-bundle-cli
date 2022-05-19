@@ -73,7 +73,7 @@ describe('init', () => {
       const init = new InitializerService(
         { name: 'bundle-with-fromhub', version: '0.0.1', parentDirectory: process.cwd() }
       )
-      await init.performScaffolding()
+      await init.performBundleInit()
       fs.rmSync(path.resolve(process.cwd(), 'bundle-with-fromhub/microservices'), { recursive: true, force: true })
     })
     .command(['init', 'bundle-with-fromhub', '--version=0.0.1', '--from-hub'])

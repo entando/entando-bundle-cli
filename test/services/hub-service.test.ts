@@ -41,7 +41,7 @@ describe('hub-service', () => {
       try {
        await hubService.loadBundleGroups()
       } catch (error: any) {
-        expect(error.message).to.contain('Hub is not accessible')
+        expect(error.message).to.contain('Error while contacting the Entando Hub')
       }
     })
 
@@ -55,7 +55,7 @@ describe('hub-service', () => {
       try {
        await hubService.loadBundlesFromBundleGroup(demoBundleGroupList[0])
       } catch (error: any) {
-        expect(error.message).to.contain('Hub is not accessible')
+        expect(error.message).to.contain('Error while contacting the Entando Hub')
       }
     })
 })

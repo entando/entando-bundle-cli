@@ -1,5 +1,4 @@
 import * as fs from 'node:fs'
-import { Bundle } from "../models/bundle-descriptor"
 import BundleDescriptorService from './bundle-descriptor-service'
 import debugFactory from './debug-factory-service'
 import {
@@ -30,17 +29,17 @@ export default class InitializerService {
     const serviceParams = { parentDirectory, name }
 
     this.filesys = new FSService(serviceParams)
-    this.git = new GitService(serviceParams)
+    this.git = new GitService(name, parentDirectory)
   }
 
-  public async performScaffolding(): Promise<void> {
+  public async performBundleInit(): Promise<void> {
     InitializerService.debug('project scaffolding started')
 
     this.filesys.checkBundleName()
     this.createBundleDirectories()
     this.createBundleDescriptor()
     this.createDockerfile()
-    this.git.createGitignore()
+    this.createGitignore()
     this.createConfigJson()
     this.git.initRepo()
   }
@@ -60,28 +59,27 @@ export default class InitializerService {
     fs.mkdirSync(this.filesys.getBundleFilePath('epc'))
   }
 
-  public async performCloneBundle(bundle: Bundle): Promise<void> {
+  public async performBundleInitFromGit(gitSrcRepoAddress: string): Promise<void> {
     InitializerService.debug('cloning from bundle and creating new project')
     const { name, version } = this.options
 
     this.filesys.checkBundleName()
-    this.git.cloneRepo(bundle.gitSrcRepoAddress)
+    this.git.cloneRepo(gitSrcRepoAddress)
     this.git.degit()
     this.git.initRepo()
 
-    this.checkMissingDirectories()
+    this.createDefaultDirectories()
 
     const bundleDescriptorService = new BundleDescriptorService(this.filesys.getBundleDirectory())
     const descriptor = bundleDescriptorService.getBundleDescriptor()
     bundleDescriptorService.writeBundleDescriptor({ ...descriptor, name, version })
   }
 
-  private async checkMissingDirectories() {
+  private async createDefaultDirectories() {
     this.filesys.createSubDirectoryIfNotExist('microservices')
     this.filesys.createSubDirectoryIfNotExist('microfrontends')
     this.filesys.createSubDirectoryIfNotExist('.ent')
     this.filesys.createSubDirectoryIfNotExist('.ent', 'output')
-    this.filesys.createSubDirectoryIfNotExist('epc')
   }
 
   private createBundleDescriptor() {
@@ -93,6 +91,11 @@ export default class InitializerService {
       this.filesys.getBundleDirectory()
     )
     bundleDescriptorService.createBundleDescriptor({ name, version })
+  }
+
+  public createGitignore(): void {
+    InitializerService.debug('creating .gitignore')
+    this.filesys.createFileFromTemplate(['.gitignore'], 'gitignore-template')
   }
 
   private createDockerfile() {

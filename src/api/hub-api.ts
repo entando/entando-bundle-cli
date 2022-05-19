@@ -1,19 +1,30 @@
 import axios from 'axios'
-import { Bundle, BundleGroup } from '../models/bundle-descriptor'
+
+export type BundleGroup = {
+  bundleGroupName: string
+  bundleGroupVersionId: number
+}
+
+export type Bundle = {
+  bundleGroupName: string
+  bundleName: string
+  gitSrcRepoAddress: string
+  bundleGroupVersionId: number
+  bundleGroupId: number
+  bundleId: number
+}
 
 interface BundleGroupAPIParam {
   name: string
 }
 
 export default class HubAPI {
-  private readonly defaultBaseUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io'
-
   private readonly baseUrl: string
 
   private readonly apiPath = '/ent/api/templates/bundlegroups'
 
-  constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || this.defaultBaseUrl
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl
   }
 
   async callApi(uri: string, params?: BundleGroupAPIParam): Promise<any[]> {
