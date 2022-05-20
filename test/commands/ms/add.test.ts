@@ -96,7 +96,7 @@ describe('ms add', () => {
     .stderr()
     .command(['ms add', 'invalid name'])
     .catch(error => {
-      expect(error.message).to.contain('not a valid Micro Service name')
+      expect(error.message).to.contain('not a valid microservice name')
     })
     .it('validates Micro Service name')
 
