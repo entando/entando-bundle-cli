@@ -1,6 +1,5 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import * as cp from 'node:child_process'
@@ -8,52 +7,39 @@ import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import InitializerService from '../../src/services/initializer-service'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
 import { GitService } from '../../src/services/git-service'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('git-service', () => {
-  let tmpDir: string
+  const tempDirHelper = new TempDirHelper(__filename)
   const defaultBundleName = 'git-mi'
   let git: GitService
 
-  before(() => {
-    // creating a temporary directory
-    tmpDir = path.resolve(os.tmpdir(), 'git-service-test')
-    fs.mkdirSync(tmpDir)
-
-    // creating a subfolder for testing the existing bundle case
-    fs.mkdirSync(path.resolve(tmpDir, 'existing-bundle'))
-  })
-
   beforeEach(() => {
-    // setting the temporary directory as current working directory
-    process.chdir(tmpDir)
-    fs.mkdirSync(path.resolve(tmpDir, defaultBundleName))
-    git = new GitService(defaultBundleName, tmpDir)
+    fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
+    git = new GitService(defaultBundleName, tempDirHelper.tmpDir)
   })
 
   afterEach(() => {
-    fs.rmSync(path.resolve(tmpDir, defaultBundleName), { recursive: true, force: true })
-  })
-
-  after(() => {
-    // temporary directory cleanup
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
-  })
-
-  test
-    .it('runs initRepo ', () => {
-      git.initRepo()
-
-      const filePath = path.resolve(tmpDir, defaultBundleName, '.git')
-      expect(fs.existsSync(filePath)).to.eq(true)
+    fs.rmSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName), {
+      recursive: true,
+      force: true
     })
+  })
+
+  test.it('runs initRepo ', () => {
+    git.initRepo()
+
+    const filePath = path.resolve(
+      tempDirHelper.tmpDir,
+      defaultBundleName,
+      '.git'
+    )
+    expect(fs.existsSync(filePath)).to.eq(true)
+  })
 
   test
     .stderr()
-    .stub(
-      cp,
-      'execSync',
-      sinon.stub().throws(new Error('git init error'))
-    )
+    .stub(cp, 'execSync', sinon.stub().throws(new Error('git init error')))
     .do(() => {
       git.initRepo()
     })
@@ -67,8 +53,15 @@ describe('git-service', () => {
   test
     .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
     .do(async () => {
-      fs.rmSync(path.resolve(tmpDir, defaultBundleName), { recursive: true, force: true })
-      const init = new InitializerService({ name: defaultBundleName, parentDirectory: tmpDir, version: '0.0.1' })
+      fs.rmSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName), {
+        recursive: true,
+        force: true
+      })
+      const init = new InitializerService({
+        name: defaultBundleName,
+        parentDirectory: tempDirHelper.tmpDir,
+        version: '0.0.1'
+      })
       await init.performBundleInit()
     })
     .it('runs cloneRepo', () => {
@@ -83,11 +76,7 @@ describe('git-service', () => {
 
   test
     .stderr()
-    .stub(
-      cp,
-      'execSync',
-      sinon.stub().throws(new Error('git clone error'))
-    )
+    .stub(cp, 'execSync', sinon.stub().throws(new Error('git clone error')))
     .do(() => {
       git.cloneRepo('https://aabbbccc.com/asd.git')
     })
@@ -102,7 +91,11 @@ describe('git-service', () => {
       git.degit()
     })
     .it('runs degit', () => {
-      const filePath = path.resolve(tmpDir, defaultBundleName, '.git')
+      const filePath = path.resolve(
+        tempDirHelper.tmpDir,
+        defaultBundleName,
+        '.git'
+      )
       expect(fs.existsSync(filePath)).to.eq(false)
     })
 
@@ -117,13 +110,17 @@ describe('git-service', () => {
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
-    const filePath = path.resolve(tmpDir, bundleName, ...pathSegments)
+    const filePath = path.resolve(
+      tempDirHelper.tmpDir,
+      bundleName,
+      ...pathSegments
+    )
     expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
   }
 
   function parseBundleDescriptor(bundleName: string): BundleDescriptor {
     return new BundleDescriptorService(
-      path.resolve(tmpDir, bundleName)
+      path.resolve(tempDirHelper.tmpDir, bundleName)
     ).getBundleDescriptor()
   }
 })

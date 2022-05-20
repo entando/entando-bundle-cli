@@ -5,7 +5,7 @@ import { MicroServiceService } from '../../../src/services/microservice-service'
 import { MicroService } from '../../../src/models/bundle-descriptor'
 
 describe('Remove MicroService', () => {
-  const tempDirHelper = new TempDirHelper('bundle-cli-ms-rm-test')
+  const tempDirHelper = new TempDirHelper(__filename)
 
   test
     .do(() => {

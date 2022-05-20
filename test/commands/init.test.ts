@@ -16,7 +16,7 @@ import {
 import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('init', () => {
-  const tempDirHelper = new TempDirHelper('bundle-cli-init-test')
+  const tempDirHelper = new TempDirHelper(__filename)
 
   before(() => {
     // creating a subfolder for testing the existing bundle case

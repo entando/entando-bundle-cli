@@ -1,6 +1,5 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
 import {
   BundleDescriptor,
@@ -8,6 +7,7 @@ import {
   MicroService
 } from '../../src/models/bundle-descriptor'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -23,23 +23,24 @@ describe('list', () => {
     ]
   }
 
-  let tmpDir: string
+  const tempDirHelper = new TempDirHelper(__filename)
+  let tempBundleDir: string
   let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
-    tmpDir = path.resolve(os.tmpdir(), bundleDescriptor.name)
-    fs.mkdirSync(tmpDir)
-    process.chdir(tmpDir)
-
-    bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    tempBundleDir = tempDirHelper.createInitializedBundleDir(
+      bundleDescriptor.name
+    )
+    bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
   })
 
   beforeEach(() => {
+    process.chdir(tempBundleDir)
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
   after(() => {
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
+    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
   })
 
   test
@@ -89,7 +90,7 @@ describe('list', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tmpDir, 'bundle.json'), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, 'bundle.json'), { force: true })
     })
     .command(['list'])
     .catch(error => {

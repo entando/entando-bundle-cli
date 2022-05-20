@@ -7,7 +7,7 @@ import { BundleService } from '../../src/services/bundle-service'
 import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('package', () => {
-  const tempDirHelper = new TempDirHelper('bundle-cli-package-test')
+  const tempDirHelper = new TempDirHelper(__filename)
 
   test
     .do(() =>

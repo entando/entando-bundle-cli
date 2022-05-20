@@ -8,9 +8,7 @@ import { OUTPUT_FOLDER } from '../../src/paths'
 import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('bundle-descriptor-converter-service', () => {
-  const tempDirHelper = new TempDirHelper(
-    'entando-bundle-cli-test-descriptor-converter'
-  )
+  const tempDirHelper = new TempDirHelper(__filename)
 
   test.it('test bundle descriptors conversion', () => {
     const bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')

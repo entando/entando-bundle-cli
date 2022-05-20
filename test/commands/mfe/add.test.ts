@@ -1,12 +1,12 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
 import {
   BundleDescriptor,
   MicroFrontend
 } from '../../../src/models/bundle-descriptor'
 import BundleDescriptorService from '../../../src/services/bundle-descriptor-service'
+import TempDirHelper from '../../helpers/temp-dir-helper'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -16,35 +16,33 @@ describe('mfe add', () => {
     microfrontends: []
   }
 
-  let tmpDir: string
+  const tempDirHelper = new TempDirHelper(__filename)
+  let tempBundleDir: string
+
   let bundleDescriptorService: BundleDescriptorService
   before(() => {
-    tmpDir = path.resolve(os.tmpdir(), bundleDescriptor.name)
-    fs.mkdirSync(tmpDir)
-    process.chdir(tmpDir)
-
-    fs.mkdirSync('./microfrontends')
-
-    fs.mkdirSync(path.resolve('./microfrontends', 'existing-mfe-dir'))
+    tempBundleDir = tempDirHelper.createInitializedBundleDir(
+      bundleDescriptor.name
+    )
+    const microfrontendsDir = path.resolve(tempBundleDir, 'microfrontends')
+    fs.mkdirSync(path.resolve(microfrontendsDir, 'existing-mfe-dir'))
   })
 
   beforeEach(() => {
-    process.chdir(tmpDir)
-
-    bundleDescriptorService = new BundleDescriptorService(process.cwd())
-
+    process.chdir(tempBundleDir)
+    bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
-  })
-
-  after(() => {
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
   })
 
   test
     .command(['mfe add', 'default-stack-mfe'])
     .it('runs mfe add default-stack-mfe', () => {
       const mfeName = 'default-stack-mfe'
-      const filePath: string = path.resolve(tmpDir, 'microfrontends', mfeName)
+      const filePath: string = path.resolve(
+        tempBundleDir,
+        'microfrontends',
+        mfeName
+      )
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
@@ -59,7 +57,11 @@ describe('mfe add', () => {
     .command(['mfe add', 'angular-mfe', '--stack', 'angular'])
     .it('runs mfe add angular-mfe --stack angular', () => {
       const mfeName = 'angular-mfe'
-      const filePath: string = path.resolve(tmpDir, 'microfrontends', mfeName)
+      const filePath: string = path.resolve(
+        tempBundleDir,
+        'microfrontends',
+        mfeName
+      )
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
@@ -72,7 +74,7 @@ describe('mfe add', () => {
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tmpDir, 'microfrontends', 'mfe1'))
+      fs.mkdirSync(path.resolve(tempBundleDir, 'microfrontends', 'mfe1'))
       const microfrontends: Array<MicroFrontend> = <Array<MicroFrontend>>[
         { name: 'mfe1' }
       ]
@@ -85,7 +87,7 @@ describe('mfe add', () => {
     .it('runs mfe add mfe2', () => {
       const mfeNames = ['mfe1', 'mfe2']
       const dirCont: Array<string> = fs.readdirSync(
-        path.resolve(tmpDir, 'microfrontends')
+        path.resolve(tempBundleDir, 'microfrontends')
       )
       const { microfrontends } = bundleDescriptorService.getBundleDescriptor()
 
@@ -129,7 +131,7 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tmpDir, 'bundle.json'), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, 'bundle.json'), { force: true })
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {

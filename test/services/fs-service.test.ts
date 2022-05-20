@@ -6,7 +6,7 @@ import FSService from '../../src/services/fs-service'
 import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('init', () => {
-  const tempDirHelper = new TempDirHelper('bundle-cli-init-test')
+  const tempDirHelper = new TempDirHelper(__filename)
   const defaultBundleName = 'fs-mi'
 
   before(() => {
