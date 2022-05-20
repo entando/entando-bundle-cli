@@ -6,8 +6,6 @@ import { GitService } from '../../src/services/git-service'
 import * as sinon from 'sinon'
 
 export default class TempDirHelper {
-  sandbox: sinon.SinonSandbox = sinon.createSandbox()
-
   tmpDir: string = os.tmpdir()
 
   constructor(dirname: string) {
