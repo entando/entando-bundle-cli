@@ -21,7 +21,7 @@ describe('DockerService', () => {
       path: '.',
       organization: 'my-org',
       name: 'bundle-name',
-      version: '0.0.1'
+      tag: '0.0.1'
     })
 
     sinon.assert.calledWith(
@@ -50,7 +50,7 @@ describe('DockerService', () => {
       path: '.',
       organization: 'my-org',
       name: 'bundle-name',
-      version: '0.0.1',
+      tag: '0.0.1',
       dockerfile: 'my-Dockerfile'
     })
 

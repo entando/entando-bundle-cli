@@ -1,4 +1,3 @@
-import { CLIError } from '@oclif/errors'
 import { spawn } from 'node:child_process'
 import { Writable } from 'node:stream'
 
@@ -6,13 +5,19 @@ export type ProcessExecutionOptions = {
   command: string
   arguments?: string[]
   /** Child process working directory */
-  cwd?: string
+  workDir?: string
   /**
-   * Writable where the child process output (both stdout and stderr) will be sent.
+   * Writable where the child process standard output will be sent.
    * This allows to send the output to the caller process stdout/stderr or redirect it to a file.
    * If the field is not defined the output will be ignored.
    */
   outputStream?: Writable
+  /**
+   * Writable where the child process standard error will be sent.
+   * This allows to send the output to the caller process stdout/stderr or redirect it to a file.
+   * If the field is not defined the output will be ignored.
+   */
+  errorStream?: Writable
 }
 
 export default class ProcessExecutorService {
@@ -26,7 +31,7 @@ export default class ProcessExecutorService {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const process = spawn(options.command, options.arguments, {
-        cwd: options.cwd
+        cwd: options.workDir
       })
 
       process.stdout.on('data', chunk => {
@@ -36,17 +41,15 @@ export default class ProcessExecutorService {
       })
 
       process.stderr.on('data', chunk => {
-        if (options.outputStream) {
-          options.outputStream.write(chunk)
+        if (options.errorStream) {
+          options.errorStream.write(chunk)
         }
       })
 
       process.on('exit', (code, signal) => {
         if (code !== 0) {
           reject(
-            new CLIError(
-              `Command exited with code ${code} and signal ${signal}`
-            )
+            new Error(`Command exited with code ${code} and signal ${signal}`)
           )
         }
 
@@ -54,7 +57,7 @@ export default class ProcessExecutorService {
       })
 
       process.on('error', function (error) {
-        reject(new CLIError(`Command failed due to error: ${error}`))
+        reject(new Error(`Command failed due to error: ${error}`))
       })
     })
   }

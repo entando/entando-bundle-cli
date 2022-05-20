@@ -5,7 +5,7 @@ export type DockerBuildOptions = {
   path: string
   organization: string
   name: string
-  version: string
+  tag: string
   dockerfile?: string
 }
 
@@ -14,9 +14,9 @@ export default class DockerService {
 
   public static async buildDockerImage(
     options: DockerBuildOptions
-  ): Promise<void> {
+  ): Promise<any> {
     const dockerfile = options.dockerfile ?? 'Dockerfile'
-    const dockerImageName = `${options.organization}/${options.name}:${options.version}`
+    const dockerImageName = `${options.organization}/${options.name}:${options.tag}`
 
     DockerService.debug(
       `Building Docker image ${dockerImageName} using ${dockerfile}`
@@ -33,7 +33,8 @@ export default class DockerService {
         options.path
       ],
       // Docker build output will be visible only in debug mode
-      outputStream: DockerService.debug.outputStream
+      outputStream: DockerService.debug.outputStream,
+      errorStream: DockerService.debug.outputStream
     })
   }
 }

@@ -20,11 +20,13 @@ class TestOutputStream extends Writable {
 
 describe('ProcessExecutorService', () => {
   const outputStream = new TestOutputStream()
+  const errorStream = new TestOutputStream()
 
   const optionsWithStream = {
     command: 'test',
     arguments: ['arg1', 'arg2'],
-    outputStream: outputStream
+    outputStream: outputStream,
+    errorStream: errorStream
   }
 
   const stubProcessWithStreams = new StubProcess()
@@ -39,7 +41,8 @@ describe('ProcessExecutorService', () => {
       await promise
     })
     .it('Execute process forwarding streams', () => {
-      expect(outputStream.data).to.eq('info message\nerror message\n')
+      expect(outputStream.data).to.eq('info message\n')
+      expect(errorStream.data).to.eq('error message\n')
     })
 
   const options = {
