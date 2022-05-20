@@ -58,17 +58,3 @@ export type BundleDescriptor = {
   microservices: MicroService[]
   microfrontends: MicroFrontend[]
 }
-
-export type BundleGroup = {
-  bundleGroupName: string
-  bundleGroupVersionId: number
-}
-
-export type Bundle = {
-  bundleGroupName: string
-  bundleName: string
-  gitSrcRepoAddress: string
-  bundleGroupVersionId: number
-  bundleGroupId: number
-  bundleId: number
-}

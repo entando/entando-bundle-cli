@@ -3,9 +3,12 @@ import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
-import { BundleDescriptor } from '../../src/models/bundle-descriptor'
-import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import * as inquirer from 'inquirer'
 import * as cp from 'node:child_process'
+import { BundleDescriptor } from '../../src/models/bundle-descriptor'
+import InitializerService from '../../src/services/initializer-service'
+import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/hub-api'
 
 describe('init', () => {
   let tmpDir: string
@@ -48,6 +51,34 @@ describe('init', () => {
     .command(['init', 'bundle-no-version'])
     .it('runs init bundle-no-version', () => {
       const bundleName = 'bundle-no-version'
+
+      checkFoldersStructure(bundleName)
+      expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
+
+      const bundleDescriptor = parseBundleDescriptor(bundleName)
+      expect(bundleDescriptor.name).to.eq(bundleName)
+      expect(bundleDescriptor.version).to.eq('0.0.1')
+    })
+
+  test
+    .stub(inquirer, 'prompt', sinon.stub().resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle }))
+    .nock(mockDomain, api => api
+      .get(mockUri)
+      .reply(200, demoBundleGroupList)
+      .get(`${mockUri}/51`)
+      .reply(200, [demoBundle])
+    )
+    .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
+    .do(async () => {
+      const init = new InitializerService(
+        { name: 'bundle-with-fromhub', version: '0.0.1', parentDirectory: process.cwd() }
+      )
+      await init.performBundleInit()
+      fs.rmSync(path.resolve(process.cwd(), 'bundle-with-fromhub/microservices'), { recursive: true, force: true })
+    })
+    .command(['init', 'bundle-with-fromhub', '--version=0.0.1', '--from-hub'])
+    .it('runs init --from-hub', () => {
+      const bundleName = 'bundle-with-fromhub'
 
       checkFoldersStructure(bundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
