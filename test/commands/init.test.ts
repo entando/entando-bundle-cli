@@ -1,6 +1,5 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import * as inquirer from 'inquirer'
@@ -8,28 +7,20 @@ import * as cp from 'node:child_process'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import InitializerService from '../../src/services/initializer-service'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
-import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/hub-api'
+import {
+  demoBundle,
+  demoBundleGroupList,
+  mockDomain,
+  mockUri
+} from '../helpers/mocks/hub-api'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('init', () => {
-  let tmpDir: string
+  const tempDirHelper = new TempDirHelper('bundle-cli-init-test')
 
   before(() => {
-    // creating a temporary directory
-    tmpDir = path.resolve(os.tmpdir(), 'bundle-cli-init-test')
-    fs.mkdirSync(tmpDir)
-
     // creating a subfolder for testing the existing bundle case
-    fs.mkdirSync(path.resolve(tmpDir, 'existing-bundle'))
-  })
-
-  beforeEach(() => {
-    // setting the temporary directory as current working directory
-    process.chdir(tmpDir)
-  })
-
-  after(() => {
-    // temporary directory cleanup
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
+    fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, 'existing-bundle'))
   })
 
   test
@@ -61,20 +52,32 @@ describe('init', () => {
     })
 
   test
-    .stub(inquirer, 'prompt', sinon.stub().resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle }))
-    .nock(mockDomain, api => api
-      .get(mockUri)
-      .reply(200, demoBundleGroupList)
-      .get(`${mockUri}/51`)
-      .reply(200, [demoBundle])
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .reply(200, [demoBundle])
     )
     .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
     .do(async () => {
-      const init = new InitializerService(
-        { name: 'bundle-with-fromhub', version: '0.0.1', parentDirectory: process.cwd() }
-      )
+      const init = new InitializerService({
+        name: 'bundle-with-fromhub',
+        version: '0.0.1',
+        parentDirectory: process.cwd()
+      })
       await init.performBundleInit()
-      fs.rmSync(path.resolve(process.cwd(), 'bundle-with-fromhub/microservices'), { recursive: true, force: true })
+      fs.rmSync(
+        path.resolve(process.cwd(), 'bundle-with-fromhub/microservices'),
+        { recursive: true, force: true }
+      )
     })
     .command(['init', 'bundle-with-fromhub', '--version=0.0.1', '--from-hub'])
     .it('runs init --from-hub', () => {
@@ -145,13 +148,17 @@ describe('init', () => {
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
-    const filePath = path.resolve(tmpDir, bundleName, ...pathSegments)
+    const filePath = path.resolve(
+      tempDirHelper.tmpDir,
+      bundleName,
+      ...pathSegments
+    )
     expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
   }
 
   function parseBundleDescriptor(bundleName: string): BundleDescriptor {
     return new BundleDescriptorService(
-      path.resolve(tmpDir, bundleName)
+      path.resolve(tempDirHelper.tmpDir, bundleName)
     ).getBundleDescriptor()
   }
 })
