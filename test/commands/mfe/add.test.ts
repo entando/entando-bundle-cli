@@ -35,6 +35,10 @@ describe('mfe add', () => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
+  after(() => {
+    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
+  })
+
   test
     .command(['mfe add', 'default-stack-mfe'])
     .it('runs mfe add default-stack-mfe', () => {

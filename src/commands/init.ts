@@ -8,7 +8,7 @@ const DEFAULT_VERSION = '0.0.1'
 
 export default class Init extends Command {
   static description =
-    "Performs the scaffolding of a Bundle project (we'll add the possibility to init from hub later)"
+    "Performs the scaffolding of a Bundle project"
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-bundle',

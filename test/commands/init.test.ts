@@ -24,6 +24,10 @@ describe('init', () => {
     fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, 'existing-bundle'))
   })
 
+  after(() => {
+    fs.rmSync(path.resolve(tempDirHelper.tmpDir), { recursive: true, force: true })
+  })
+
   test
     .stub(cp, 'execSync', sinon.stub().returns('Initialized git repo'))
     .command(['init', 'bundle-with-version', '--version=0.0.2'])
