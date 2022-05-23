@@ -36,10 +36,6 @@ describe('ms add', () => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
-  after(() => {
-    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
-  })
-
   test
     .command(['ms add', 'default-stack-ms'])
     .it('runs ms add default-stack-ms', () => {
@@ -137,7 +133,9 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
+        force: true
+      })
     })
     .command(['ms add', 'ms-in-notbundleproject'])
     .catch(error => {

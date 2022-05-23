@@ -21,6 +21,7 @@ describe('mfe add', () => {
   let tempBundleDir: string
 
   let bundleDescriptorService: BundleDescriptorService
+
   before(() => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
@@ -33,10 +34,6 @@ describe('mfe add', () => {
     process.chdir(tempBundleDir)
     bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
-  })
-
-  after(() => {
-    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
   })
 
   test
@@ -136,7 +133,9 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
+        force: true
+      })
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {

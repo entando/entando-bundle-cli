@@ -37,6 +37,8 @@ export default class TempDirHelper {
     })
 
     after(() => {
+      // prevents locking of temporary directory so it can be cleaned up
+      process.chdir(path.resolve(this.tmpDir, '..'))
       // temporary directory cleanup
       fs.rmSync(path.resolve(this.tmpDir), { recursive: true, force: true })
     })
