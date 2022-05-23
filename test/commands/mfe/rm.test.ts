@@ -5,7 +5,7 @@ import * as path from 'node:path'
 import {
   BundleDescriptor,
 } from '../../../src/models/bundle-descriptor'
-import BundleDescriptorService from '../../../src/services/bundle-descriptor-service'
+import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 
 describe('mfe rm', () => {
   const defaultMfeName = 'default-stack-mfe'
