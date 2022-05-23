@@ -3,9 +3,9 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { FSService } from './fs-service'
 
-const BUNDLE_DESCRIPTOR_FILE_NAME = 'bundle.json'
+const BUNDLE_DESCRIPTOR_FILE_NAME = 'entando.json'
 
-type MandatoryBundleFields = { name: string; version: string }
+type MandatoryBundleFields = { name: string; version: string, type: string }
 
 export default class BundleDescriptorService {
   private readonly bundleFilePath: string

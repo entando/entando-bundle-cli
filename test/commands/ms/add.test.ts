@@ -136,7 +136,7 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, 'bundle.json'), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, 'entando.json'), { force: true })
     })
     .command(['ms add', 'ms-in-notbundleproject'])
     .catch(error => {

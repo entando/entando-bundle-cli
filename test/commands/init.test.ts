@@ -140,7 +140,7 @@ describe('init', () => {
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, '.ent')
     checkBundleFile(bundleName, '.ent', 'config.json')
-    checkBundleFile(bundleName, 'bundle.json')
+    checkBundleFile(bundleName, 'entando.json')
     checkBundleFile(bundleName, 'microservices')
     checkBundleFile(bundleName, 'microfrontends')
     checkBundleFile(bundleName, 'Dockerfile')

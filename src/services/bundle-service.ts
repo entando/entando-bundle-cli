@@ -14,7 +14,7 @@ export class BundleService {
   }
 
   private static descriptorExists(bundleDir: string): boolean {
-    const descriptorPath: string = path.resolve(bundleDir, 'bundle.json')
+    const descriptorPath: string = path.resolve(bundleDir, 'entando.json')
     return fs.existsSync(descriptorPath)
   }
 }

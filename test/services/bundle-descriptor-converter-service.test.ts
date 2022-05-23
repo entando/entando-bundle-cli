@@ -19,6 +19,7 @@ describe('bundle-descriptor-converter-service', () => {
     bundleDescriptorService.createBundleDescriptor({
       name: 'test-bundle',
       version: '0.0.1',
+      type: 'bundle',
       description: 'test description',
       microservices: [
         {

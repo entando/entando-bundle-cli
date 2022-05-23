@@ -91,7 +91,7 @@ export default class InitializerService {
     const bundleDescriptorService = new BundleDescriptorService(
       this.filesys.getBundleDirectory()
     )
-    bundleDescriptorService.createBundleDescriptor({ name, version })
+    bundleDescriptorService.createBundleDescriptor({ name, version, type: 'bundle' })
   }
 
   public createGitignore(): void {
