@@ -20,7 +20,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
+entando-bundle-cli/0.0.1-SNAPSHOT win32-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -31,12 +31,36 @@ USAGE
 # Commands
 
 <!-- commands -->
+* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
 * [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 * [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
 * [`entando-bundle-cli list`](#entando-bundle-cli-list)
 * [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
 * [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
 * [`entando-bundle-cli package`](#entando-bundle-cli-package)
+
+## `entando-bundle-cli api add MFENAME CLAIMNAME`
+
+Adds an internal API claim to the specified MFE component
+
+```
+USAGE
+  $ entando-bundle-cli api add [MFENAME] [CLAIMNAME] --serviceId <value> --serviceUrl <value>
+
+ARGUMENTS
+  MFENAME    Name of the Micro Frontend component
+  CLAIMNAME  Name of the API claim
+
+FLAGS
+  --serviceId=<value>   (required) Micro Service ID within the Bundle
+  --serviceUrl=<value>  (required) URL of the internal service
+
+DESCRIPTION
+  Adds an internal API claim to the specified MFE component
+
+EXAMPLES
+  $ entando-bundle-cli api add mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080
+```
 
 ## `entando-bundle-cli help [COMMAND]`
 

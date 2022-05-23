@@ -107,7 +107,7 @@ export default class BundleDescriptorConverterService {
   }
 
   private getMicroFrontendDescriptorRelativePath(microFrontend: MicroFrontend) {
-    return path.join(
+    return path.posix.join(
       WIDGETS_DESCRIPTORS_FOLDER,
       microFrontend.name,
       microFrontend.name + DESCRIPTOR_EXTENSION
@@ -115,7 +115,7 @@ export default class BundleDescriptorConverterService {
   }
 
   private getMicroServiceDescriptorRelativePath(microService: MicroService) {
-    return path.join(
+    return path.posix.join(
       PLUGINS_DESCRIPTORS_FOLDER,
       microService.name + DESCRIPTOR_EXTENSION
     )

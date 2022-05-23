@@ -54,6 +54,9 @@
       },
       "ms": {
         "description": "Micro Service operations"
+      },
+      "api": {
+        "description": "Manage API claims"
       }
     }
   },
