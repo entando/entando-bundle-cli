@@ -59,4 +59,11 @@ export default class TempDirHelper {
     process.chdir(bundleDir)
     return bundleDir
   }
+
+  public createUninitializedBundleDir(dirName = 'empty-dir'): string {
+    const emtpyDir = path.resolve(this.tmpDir, dirName)
+    fs.mkdirSync(emtpyDir)
+    process.chdir(emtpyDir)
+    return emtpyDir
+  }
 }

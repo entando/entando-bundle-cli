@@ -39,5 +39,13 @@ describe('Remove MicroService', () => {
     .catch(error => {
       expect(error.message).to.contain('not found')
     })
-    .it("Returns error if microservice to remove doesn't exist")
+    .it("Returns error if MicroService to remove doesn't exist")
+
+  test
+    .do(() => tempDirHelper.createUninitializedBundleDir())
+    .command(['ms rm', 'test-bundle'])
+    .catch(error => {
+      expect(error.message).to.contain('is not an initialized Bundle project')
+    })
+    .it('Returns error if Bundle directory not initialized')
 })
