@@ -1,14 +1,14 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import * as inquirer from 'inquirer'
-import HubService from '../services/hub-service'
-import InitializerService from '../services/initializer-service'
+import { HubService } from '../services/hub-service'
+import { InitializerService } from '../services/initializer-service'
 import { Bundle, BundleGroup } from "../api/hub-api"
 
 const DEFAULT_VERSION = '0.0.1'
 
 export default class Init extends Command {
   static description =
-    "Performs the scaffolding of a Bundle project (we'll add the possibility to init from hub later)"
+    "Performs the scaffolding of a Bundle project"
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-bundle',

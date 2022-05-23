@@ -18,7 +18,7 @@ interface BundleGroupAPIParam {
   name: string
 }
 
-export default class HubAPI {
+export class HubAPI {
   private readonly baseUrl: string
 
   private readonly apiPath = '/ent/api/templates/bundlegroups'

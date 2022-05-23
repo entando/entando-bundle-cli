@@ -1,7 +1,7 @@
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import InitializerService from '../../src/services/initializer-service'
+import { InitializerService } from '../../src/services/initializer-service'
 import { GitService } from '../../src/services/git-service'
 import * as sinon from 'sinon'
 

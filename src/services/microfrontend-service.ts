@@ -2,7 +2,7 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
-import BundleDescriptorService from './bundle-descriptor-service'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 
 const MICROFRONTENDS_DIRNAME = 'microfrontends'
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/

@@ -1,6 +1,6 @@
 import { CLIError } from '@oclif/errors'
 import { ApiClaim } from '../models/bundle-descriptor'
-import BundleDescriptorService from './bundle-descriptor-service'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { MfeConfigService } from './mfe-config-service'
 import { MfeConfig } from '../models/mfe-config'

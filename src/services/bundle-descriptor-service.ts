@@ -2,12 +2,11 @@ import { BundleDescriptor } from '../models/bundle-descriptor'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { FSService } from './fs-service'
+import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../paths'
 
-const BUNDLE_DESCRIPTOR_FILE_NAME = 'bundle.json'
+type MandatoryBundleFields = { name: string; version: string, type: string }
 
-type MandatoryBundleFields = { name: string; version: string }
-
-export default class BundleDescriptorService {
+export class BundleDescriptorService {
   private readonly bundleFilePath: string
 
   constructor(bundleDirectory: string) {

@@ -5,8 +5,8 @@ import * as sinon from 'sinon'
 import * as inquirer from 'inquirer'
 import * as cp from 'node:child_process'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
-import InitializerService from '../../src/services/initializer-service'
-import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import { InitializerService } from '../../src/services/initializer-service'
+import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import {
   demoBundle,
   demoBundleGroupList,
@@ -14,6 +14,7 @@ import {
   mockUri
 } from '../helpers/mocks/hub-api'
 import TempDirHelper from '../helpers/temp-dir-helper'
+import { CONFIG_FOLDER, CONFIG_FILE, BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
 
 describe('init', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -21,6 +22,10 @@ describe('init', () => {
   before(() => {
     // creating a subfolder for testing the existing bundle case
     fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, 'existing-bundle'))
+  })
+
+  after(() => {
+    fs.rmSync(path.resolve(tempDirHelper.tmpDir), { recursive: true, force: true })
   })
 
   test
@@ -138,9 +143,9 @@ describe('init', () => {
     .it('handles git command error')
 
   function checkFoldersStructure(bundleName: string) {
-    checkBundleFile(bundleName, '.ent')
-    checkBundleFile(bundleName, '.ent', 'config.json')
-    checkBundleFile(bundleName, 'bundle.json')
+    checkBundleFile(bundleName, CONFIG_FOLDER)
+    checkBundleFile(bundleName, CONFIG_FOLDER, CONFIG_FILE)
+    checkBundleFile(bundleName, BUNDLE_DESCRIPTOR_FILE_NAME)
     checkBundleFile(bundleName, 'microservices')
     checkBundleFile(bundleName, 'microfrontends')
     checkBundleFile(bundleName, 'Dockerfile')

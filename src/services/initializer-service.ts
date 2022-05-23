@@ -1,5 +1,5 @@
 import * as fs from 'node:fs'
-import BundleDescriptorService from './bundle-descriptor-service'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 import debugFactory from './debug-factory-service'
 import {
   CONFIG_FILE,
@@ -17,7 +17,7 @@ export interface InitializerOptions {
 }
 
 /** Handles the scaffolding of a project bundle */
-export default class InitializerService {
+export class InitializerService {
   private static debug = debugFactory(InitializerService)
 
   private readonly options: InitializerOptions
@@ -91,7 +91,7 @@ export default class InitializerService {
     const bundleDescriptorService = new BundleDescriptorService(
       this.filesys.getBundleDirectory()
     )
-    bundleDescriptorService.createBundleDescriptor({ name, version })
+    bundleDescriptorService.createBundleDescriptor({ name, version, type: 'bundle' })
   }
 
   public createGitignore(): void {

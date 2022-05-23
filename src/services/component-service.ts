@@ -1,6 +1,6 @@
 import { BundleDescriptor, MicroFrontend, MicroService } from '../models/bundle-descriptor'
 import { Component, ComponentType, VersionedComponent } from '../models/component'
-import BundleDescriptorService from './bundle-descriptor-service'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 
 export class ComponentService {

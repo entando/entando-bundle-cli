@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import { BundleDescriptor, MicroFrontend, MicroService } from '../../../src/models/bundle-descriptor'
 import { MfeConfig } from '../../../src/models/mfe-config'
 
@@ -169,7 +170,7 @@ describe('api add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync('bundle.json', { force: true })
+      fs.rmSync(BUNDLE_DESCRIPTOR_FILE_NAME, { force: true })
     })
     .command(['api add', 'mfe1', 'ms1-api', '--serviceId', 'ms1', '--serviceUrl', 'http://localhost:8080'])
     .catch(error => {
@@ -179,7 +180,7 @@ describe('api add', () => {
 })
 
 function writeBundleDescriptor(bundleDescriptor: BundleDescriptor): void {
-  fs.writeFileSync('bundle.json', JSON.stringify(bundleDescriptor))
+  fs.writeFileSync(BUNDLE_DESCRIPTOR_FILE_NAME, JSON.stringify(bundleDescriptor))
 }
 
 function writeMfeConfig(mfeName: string, mfeConfig: MfeConfig): void {
@@ -187,7 +188,7 @@ function writeMfeConfig(mfeName: string, mfeConfig: MfeConfig): void {
 }
 
 function getBundleDescriptor(): BundleDescriptor {
-  return JSON.parse(fs.readFileSync('bundle.json', 'utf-8'))
+  return JSON.parse(fs.readFileSync(BUNDLE_DESCRIPTOR_FILE_NAME, 'utf-8'))
 }
 
 function getMfeConfig(mfeName: string): MfeConfig {
