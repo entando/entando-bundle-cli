@@ -57,9 +57,9 @@ export class MicroFrontendService {
       microfrontends: microfrontends.filter(({ name }) => name !== mfeName),
     }
 
-    this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
-
     this.removeMicroFrontendDirectory(mfeName)
+
+    this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
 
   private createMicroFrontendDirectory(name: string) {
