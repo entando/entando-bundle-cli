@@ -1,6 +1,6 @@
 import { expect, test } from '@oclif/test'
 import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/hub-api'
-import HubService from '../../src/services/hub-service'
+import { HubService } from '../../src/services/hub-service'
 
 describe('hub-service', () => {
   test

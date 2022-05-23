@@ -1,8 +1,8 @@
 import { CLIError } from '@oclif/errors'
-import HubAPI from "../api/hub-api"
+import { HubAPI } from "../api/hub-api"
 import { Bundle, BundleGroup } from "../api/hub-api"
 
-export default class HubService {
+export class HubService {
   private readonly defaultHubUrl = 'https://63d6be0e-bd49-4c76-8fe5-195bb7cf88a5.mock.pstmn.io'
   private hubApi: HubAPI
 

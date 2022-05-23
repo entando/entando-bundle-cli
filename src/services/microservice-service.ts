@@ -2,7 +2,7 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroService } from '../models/bundle-descriptor'
-import BundleDescriptorService from './bundle-descriptor-service'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 
 const MICROSERVICES_DIRNAME = 'microservices'
 const ALLOWED_MS_NAME_REGEXP = /^[\w-]+$/

@@ -1,6 +1,6 @@
 import { expect } from '@oclif/test'
 import * as nock from 'nock'
-import HubAPI from '../../src/api/hub-api'
+import { HubAPI } from '../../src/api/hub-api'
 import { demoBundle, demoBundleGroupList, mockDomain, mockUri } from '../helpers/mocks/hub-api'
 
 describe('Hub API', () => {

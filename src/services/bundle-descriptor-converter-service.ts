@@ -8,7 +8,7 @@ import {
   YamlPluginDescriptor,
   YamlWidgetDescriptor
 } from '../models/yaml-bundle-descriptor'
-import BundleDescriptorService from './bundle-descriptor-service'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'

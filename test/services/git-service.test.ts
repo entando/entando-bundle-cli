@@ -3,9 +3,10 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import * as cp from 'node:child_process'
+import { CONFIG_FOLDER, CONFIG_FILE, BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
-import InitializerService from '../../src/services/initializer-service'
-import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import { InitializerService } from '../../src/services/initializer-service'
+import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { GitService } from '../../src/services/git-service'
 import TempDirHelper from '../helpers/temp-dir-helper'
 
@@ -100,9 +101,9 @@ describe('git-service', () => {
     })
 
   function checkFoldersStructure(bundleName: string) {
-    checkBundleFile(bundleName, '.ent')
-    checkBundleFile(bundleName, '.ent', 'config.json')
-    checkBundleFile(bundleName, 'entando.json')
+    checkBundleFile(bundleName, CONFIG_FOLDER)
+    checkBundleFile(bundleName, CONFIG_FOLDER, CONFIG_FILE)
+    checkBundleFile(bundleName, BUNDLE_DESCRIPTOR_FILE_NAME)
     checkBundleFile(bundleName, 'microservices')
     checkBundleFile(bundleName, 'microfrontends')
     checkBundleFile(bundleName, 'Dockerfile')

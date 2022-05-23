@@ -1,11 +1,12 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
   MicroFrontend
 } from '../../../src/models/bundle-descriptor'
-import BundleDescriptorService from '../../../src/services/bundle-descriptor-service'
+import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import TempDirHelper from '../../helpers/temp-dir-helper'
 
 describe('mfe add', () => {
@@ -131,7 +132,7 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, 'entando.json'), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {

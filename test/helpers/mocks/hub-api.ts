@@ -21,4 +21,3 @@ export const demoBundleGroupList = [
   },
 ];
 
-export default demoBundle;
