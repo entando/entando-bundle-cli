@@ -3,7 +3,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import FSService from '../../src/services/fs-service'
+import { FSService } from '../../src/services/fs-service'
 
 describe('fs-service', () => {
   let tmpDir: string

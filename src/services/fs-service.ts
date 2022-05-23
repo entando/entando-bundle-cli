@@ -7,7 +7,7 @@ import { RESOURCES_FOLDER } from '../paths'
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 const JSON_INDENTATION_SPACES = 4
 
-export default class FSService {
+export class FSService {
   private static debug = debugFactory(FSService)
 
   private readonly bundleName: string
