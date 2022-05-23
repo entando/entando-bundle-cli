@@ -1,11 +1,21 @@
+export enum Stack {
+  React = 'react',
+  Angular = 'angular',
+  Node = 'node',
+  SpringBoot = 'spring-boot'
+}
+
 export enum ComponentType {
   MICROFRONTEND = 'microfrontend',
   MICROSERVICE = 'microservice'
 }
 
-export interface Component extends Record<string, unknown> {
+export interface Component {
   name: string
-  version: string
-  type: ComponentType
   stack: string
+  type: ComponentType
+}
+
+export interface VersionedComponent extends Component, Record<string, unknown> {
+  version?: string
 }
