@@ -7,7 +7,7 @@ import {
   DEFAULT_CONFIG_FILE
 } from '../paths'
 
-import FSService from './fs-service'
+import { FSService } from './fs-service'
 import { GitService } from './git-service'
 
 export interface InitializerOptions {

@@ -31,12 +31,40 @@ describe('list', () => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
     )
+
+    fs.mkdirSync(path.resolve('microfrontends', 'mfe1'))
+    fs.mkdirSync(path.resolve('microfrontends', 'mfe2'))
+    fs.mkdirSync(path.resolve('microservices', 'ms1'))
+    fs.mkdirSync(path.resolve('microservices', 'ms2'))
+
     bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
   })
 
   beforeEach(() => {
     process.chdir(tempBundleDir)
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+
+    const mfe1PackageJSON: string = JSON.stringify({ version: '0.0.1' })
+    const mfe2PackageJSON: string = JSON.stringify({ version: '0.0.2' })
+    const ms1PomXML = '<project><version>0.1.1-SNAPSHOT</version></project>'
+    const ms2PackageJSON: string = JSON.stringify({ version: '0.1.2' })
+
+    fs.writeFileSync(
+      path.resolve('microfrontends', 'mfe1', 'package.json'),
+      mfe1PackageJSON
+    )
+    fs.writeFileSync(
+      path.resolve('microfrontends', 'mfe2', 'package.json'),
+      mfe2PackageJSON
+    )
+    fs.writeFileSync(
+      path.resolve('microservices', 'ms1', 'pom.xml'),
+      ms1PomXML
+    )
+    fs.writeFileSync(
+      path.resolve('microservices', 'ms2', 'package.json'),
+      ms2PackageJSON
+    )
   })
 
   after(() => {
@@ -50,9 +78,11 @@ describe('list', () => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
-      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
-      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
-      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+0\.1\.1-SNAPSHOT\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
 
   test
@@ -61,8 +91,10 @@ describe('list', () => {
     .it('runs list --ms', ctx => {
       const output: string = ctx.stdout
 
-      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
-      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+0\.1\.1-SNAPSHOT\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
 
   test
@@ -72,7 +104,7 @@ describe('list', () => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
-      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
     })
 
   test
@@ -82,9 +114,29 @@ describe('list', () => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
-      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.1\s+angular/)
-      expect(output).to.match(/ms1\s+microservice\s+0\.0\.1\s+spring-boot/)
-      expect(output).to.match(/ms2\s+microservice\s+0\.0\.1\s+node/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+0\.1\.1-SNAPSHOT\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
+    })
+
+  test
+    .stdout()
+    .do(() => {
+      fs.rmSync(path.resolve('./microfrontends', 'mfe1', 'package.json'))
+      fs.rmSync(path.resolve('./microservices', 'ms1', 'pom.xml'))
+    })
+    .command(['list'])
+    .it('runs list', ctx => {
+      const output: string = ctx.stdout
+
+      expect(output).to.match(/mfe1\s+microfrontend\s+undefined\s+react/)
+      expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
+      expect(output).to.match(
+        /ms1\s+microservice\s+undefined\s+spring-boot/
+      )
+      expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
 
   test

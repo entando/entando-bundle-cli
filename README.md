@@ -6,17 +6,15 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-
-- [entando-bundle-cli](#entando-bundle-cli)
-- [Usage](#usage)
-- [Commands](#commands)
-- [Development environment setup](#development-environment-setup)
+* [entando-bundle-cli](#entando-bundle-cli)
+* [Usage](#usage)
+* [Commands](#commands)
+* [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
@@ -28,19 +26,42 @@ USAGE
   $ entando-bundle-cli COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
+* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+* [`entando-bundle-cli list`](#entando-bundle-cli-list)
+* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+* [`entando-bundle-cli package`](#entando-bundle-cli-package)
 
-- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-- [`entando-bundle-cli list`](#entando-bundle-cli-list)
-- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-- [`entando-bundle-cli package`](#entando-bundle-cli-package)
+## `entando-bundle-cli api add MFENAME CLAIMNAME`
+
+Adds an internal API claim to the specified MFE component
+
+```
+USAGE
+  $ entando-bundle-cli api add [MFENAME] [CLAIMNAME] --serviceId <value> --serviceUrl <value>
+
+ARGUMENTS
+  MFENAME    Name of the Micro Frontend component
+  CLAIMNAME  Name of the API claim
+
+FLAGS
+  --serviceId=<value>   (required) Microservice name within the Bundle
+  --serviceUrl=<value>  (required) Local microservice URL
+
+DESCRIPTION
+  Adds an internal API claim to the specified MFE component
+
+EXAMPLES
+  $ entando-bundle-cli api add mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080
+```
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -164,6 +185,24 @@ EXAMPLES
   $ entando-bundle-cli ms add my-ms --stack spring-boot
 ```
 
+## `entando-bundle-cli ms rm NAME`
+
+Removes a microservice component from the current bundle
+
+```
+USAGE
+  $ entando-bundle-cli ms rm [NAME]
+
+ARGUMENTS
+  NAME  Microservice name
+
+DESCRIPTION
+  Removes a microservice component from the current bundle
+
+EXAMPLES
+  $ entando-bundle-cli ms rm my-microservice
+```
+
 ## `entando-bundle-cli package`
 
 Generates the bundle Docker image
@@ -185,7 +224,6 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/package.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/package.ts)_
-
 <!-- commandsstop -->
 
 # Development environment setup
