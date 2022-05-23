@@ -31,6 +31,37 @@ export class MicroFrontendService {
     this.addMicroFrontendDescriptor(mfe)
   }
 
+  public findMicroFrontend(mfeName: string): MicroFrontend {
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+    const { microfrontends } = bundleDescriptor
+
+    const mfe = microfrontends.find(({ name }) => name === mfeName)
+
+    if (!mfe) {
+      throw new CLIError(
+        `${mfeName} does not exist in the microfrontends section of the Bundle descriptor`
+      )
+    }
+
+    return mfe
+  }
+
+  public removeMicroFrontend(mfeName: string): void {
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+    const { microfrontends } = bundleDescriptor
+
+    const updatedBundleDescriptor: BundleDescriptor = {
+      ...bundleDescriptor,
+      microfrontends: microfrontends.filter(({ name }) => name !== mfeName),
+    }
+
+    this.removeMicroFrontendDirectory(mfeName)
+
+    this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
+  }
+
   private createMicroFrontendDirectory(name: string) {
     const newMfeDir: string = path.resolve(this.microfrontendsPath, name)
 
@@ -39,6 +70,16 @@ export class MicroFrontendService {
     }
 
     fs.mkdirSync(newMfeDir)
+  }
+
+  private removeMicroFrontendDirectory(name: string) {
+    const mfedir: string = path.resolve(this.microfrontendsPath, name)
+
+    if (!fs.existsSync(mfedir)) {
+      throw new CLIError(`Directory ${mfedir} does not exist`)
+    }
+
+    fs.rmSync(mfedir, { recursive: true, force: true });
   }
 
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {
