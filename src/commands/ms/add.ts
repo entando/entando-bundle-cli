@@ -9,7 +9,7 @@ enum Stack {
 }
 
 export default class Add extends Command {
-  static description = 'Adds a Micro Service component to the bundle'
+  static description = 'Adds a microservice component to the bundle'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-ms',
@@ -18,7 +18,7 @@ export default class Add extends Command {
 
   static flags = {
     stack: Flags.string({
-      description: 'Micro Service stack',
+      description: 'Microservice stack',
       options: [Stack.SpringBoot, Stack.Node],
       default: Stack.SpringBoot
     })
@@ -27,7 +27,7 @@ export default class Add extends Command {
   static args = [
     {
       name: 'name',
-      description: 'Name of the Micro Service component',
+      description: 'Name of the microservice component',
       required: true
     }
   ]
@@ -43,7 +43,7 @@ export default class Add extends Command {
     }
     const microServiceService: MicroServiceService = new MicroServiceService()
 
-    CliUx.ux.action.start(`Adding a new Micro Service ${args.name}`)
+    CliUx.ux.action.start(`Adding a new microservice ${args.name}`)
     microServiceService.addMicroService(microService)
     CliUx.ux.action.stop()
   }

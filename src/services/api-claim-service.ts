@@ -14,7 +14,11 @@ export class ApiClaimService {
     this.mfeConfigService = new MfeConfigService()
   }
 
-  public addInternalApiClaim(mfeName: string, apiClaim: ApiClaim, serviceUrl: string): void {
+  public addInternalApiClaim(
+    mfeName: string,
+    apiClaim: ApiClaim,
+    serviceUrl: string
+  ): void {
     if (!this.isValidUrl(serviceUrl)) {
       throw new CLIError(`${serviceUrl} is not a valid URL`)
     }
@@ -25,23 +29,34 @@ export class ApiClaimService {
   }
 
   private addApiClaim(mfeName: string, apiClaim: ApiClaim): void {
-    const bundleDescriptor: BundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
     const { microfrontends, microservices } = bundleDescriptor
-    const mfeIdx: number = microfrontends.findIndex(({ name }) => mfeName === name)
-    const msIdx: number = microservices.findIndex(({ name }) => apiClaim.serviceId === name)
+    const mfeIdx: number = microfrontends.findIndex(
+      ({ name }) => mfeName === name
+    )
+    const msIdx: number = microservices.findIndex(
+      ({ name }) => apiClaim.serviceId === name
+    )
 
     if (mfeIdx === -1) {
       throw new CLIError(`Micro Frontend ${mfeName} does not exist`)
     }
 
     if (msIdx === -1) {
-      throw new CLIError(`Micro Service ${apiClaim.serviceId} does not exist`)
+      throw new CLIError(`Microservice ${apiClaim.serviceId} does not exist`)
     }
 
     if (!microfrontends[mfeIdx].apiClaims) {
       microfrontends[mfeIdx].apiClaims = []
-    } else if (microfrontends[mfeIdx].apiClaims?.some(({ name }) => name === apiClaim.name)) {
-      throw new CLIError(`API claim ${apiClaim.name} already exists in the Bundle descriptor`)
+    } else if (
+      microfrontends[mfeIdx].apiClaims?.some(
+        ({ name }) => name === apiClaim.name
+      )
+    ) {
+      throw new CLIError(
+        `API claim ${apiClaim.name} already exists in the Bundle descriptor`
+      )
     }
 
     microfrontends[mfeIdx].apiClaims?.push(apiClaim)
@@ -52,7 +67,11 @@ export class ApiClaimService {
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
 
-  private updateMfeConfigApi(mfeName: string, apiClaimName: string, url: string) {
+  private updateMfeConfigApi(
+    mfeName: string,
+    apiClaimName: string,
+    url: string
+  ) {
     if (!this.mfeConfigService.mfeConfigExists(mfeName)) {
       this.mfeConfigService.writeMfeConfig(mfeName, {})
     }

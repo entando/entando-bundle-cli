@@ -14,7 +14,7 @@ export default class List extends Command {
 
   static flags = {
     ms: Flags.boolean({
-      description: 'List only Micro Service components'
+      description: 'List only microservice components'
     }),
     mfe: Flags.boolean({
       description: 'List only Micro Frontend components'
@@ -39,7 +39,9 @@ export default class List extends Command {
 
       if (flags.mfe) {
         components.push(
-          ...componentService.getVersionedComponents(ComponentType.MICROFRONTEND)
+          ...componentService.getVersionedComponents(
+            ComponentType.MICROFRONTEND
+          )
         )
       }
     }
