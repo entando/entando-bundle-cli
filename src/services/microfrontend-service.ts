@@ -76,7 +76,7 @@ export class MicroFrontendService {
     const mfedir: string = path.resolve(this.microfrontendsPath, name)
 
     if (!fs.existsSync(mfedir)) {
-      throw new CLIError(`Directory ${mfedir} does not exists`)
+      throw new CLIError(`Directory ${mfedir} does not exist`)
     }
 
     fs.rmSync(mfedir, { recursive: true, force: true });

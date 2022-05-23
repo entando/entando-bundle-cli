@@ -1,18 +1,11 @@
-import { CliUx } from '@oclif/core'
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import * as sinon from 'sinon'
-// import * as sh from 'sinon-helpers'
 import {
   BundleDescriptor,
 } from '../../../src/models/bundle-descriptor'
 import BundleDescriptorService from '../../../src/services/bundle-descriptor-service'
-
-/* const ux = sh.getStubConstructor(CliUx).withInit(instance => {
-  instance.confirm.resolves(true)
-}) */
 
 describe('mfe rm', () => {
   const defaultMfeName = 'default-stack-mfe'
@@ -54,9 +47,8 @@ describe('mfe rm', () => {
   })
 
   test
-    .stub(CliUx.ux, 'confirm', sinon.stub().get(() => true))
     .do(() => {
-      fs.mkdirSync(path.resolve(tmpDir, 'microfrontends', 'jeff-mfe'))
+      fs.mkdirSync(path.resolve(tmpDir, 'microfrontends', 'default-stack-mfe'))
     })
     .command(['mfe rm', defaultMfeName])
     .it('runs mfe rm default-stack-mfe', () => {
@@ -70,4 +62,20 @@ describe('mfe rm', () => {
         microfrontends: []
       })
     })
+
+  test
+    .stderr()
+    .command(['mfe rm', 'jojoma'])
+    .catch(error => {
+      expect(error.message).to.contain('jojoma does not exist in the microfrontends section of the Bundle descriptor')
+    })
+    .it('removing a microfrontend that does not exist in descriptor')
+
+  test
+    .stderr()
+    .command(['mfe rm', defaultMfeName])
+    .catch(error => {
+      expect(error.message).to.contain(`does not exist`)
+    })
+    .it('removing a microfrontend with its folder that does not exist')
 })
