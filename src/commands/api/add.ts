@@ -7,7 +7,7 @@ export default class Add extends Command {
   static description = 'Adds an internal API claim to the specified MFE component'
 
   static examples = [
-    '$ entando-bundle-cli api add mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080',
+    '$ <%= config.bin %> <%= command.id %> mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080',
   ]
 
   static args = [
