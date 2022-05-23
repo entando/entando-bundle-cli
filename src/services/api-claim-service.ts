@@ -15,6 +15,10 @@ export class ApiClaimService {
   }
 
   public addInternalApiClaim(mfeName: string, apiClaim: ApiClaim, serviceUrl: string): void {
+    if (!this.isValidUrl(serviceUrl)) {
+      throw new CLIError(`${serviceUrl} is not a valid URL`)
+    }
+
     this.addApiClaim(mfeName, apiClaim)
 
     this.updateMfeConfigApi(mfeName, apiClaim.name, serviceUrl)
@@ -49,10 +53,6 @@ export class ApiClaimService {
   }
 
   private updateMfeConfigApi(mfeName: string, apiClaimName: string, url: string) {
-    if (!this.isValidUrl(url)) {
-      throw new CLIError(`${url} is not a valid URL`)
-    }
-
     if (!this.mfeConfigService.mfeConfigExists(mfeName)) {
       this.mfeConfigService.writeMfeConfig(mfeName, {})
     }
