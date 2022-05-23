@@ -39,12 +39,12 @@ export class MicroServiceService {
       throw new CLIError(`Microservice ${name} not found in Bundle descriptor`)
     }
 
+    const msDir = path.resolve(this.microservicesPath, name)
+    fs.rmSync(msDir, { recursive: true, force: true })
+
     microservices.splice(msIndex, 1)
 
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
-
-    const msDir = path.resolve(this.microservicesPath, name)
-    fs.rmSync(msDir, { recursive: true, force: true })
   }
 
   private createMicroServiceDirectory(name: string) {
