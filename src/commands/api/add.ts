@@ -25,11 +25,11 @@ export default class Add extends Command {
 
   static flags = {
     serviceId: Flags.string({
-      description: 'Micro Service ID within the Bundle',
+      description: 'Microservice name within the Bundle',
       required: true
     }),
     serviceUrl: Flags.string({
-      description: 'URL of the internal service',
+      description: 'Local microservice URL',
       required: true
     })
   }
@@ -46,7 +46,7 @@ export default class Add extends Command {
     }
     const apiClaimService: ApiClaimService = new ApiClaimService()
 
-    CliUx.ux.action.start(`Adding a new API claim ${args.claimName} to ${args.mfeName}`)
+    CliUx.ux.action.start(`Adding a new API claim named ${args.claimName} to Micro Frontend ${args.mfeName}`)
     apiClaimService.addInternalApiClaim(args.mfeName, apiClaim, flags.serviceUrl)
     CliUx.ux.action.stop()
   }

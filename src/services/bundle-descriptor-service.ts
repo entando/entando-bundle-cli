@@ -1,7 +1,7 @@
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
-import { FileHelper } from '../helpers/file-helper'
+import { FSService } from './fs-service'
 
 const BUNDLE_DESCRIPTOR_FILE_NAME = 'bundle.json'
 
@@ -35,6 +35,6 @@ export default class BundleDescriptorService {
   }
 
   public writeBundleDescriptor(bundleDescriptor: BundleDescriptor): void {
-    FileHelper.writeJSON(this.bundleFilePath, bundleDescriptor)
+    FSService.writeJSON(this.bundleFilePath, bundleDescriptor)
   }
 }

@@ -2,13 +2,13 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 import { MfeConfig } from '../models/mfe-config'
-import { FileHelper } from '../helpers/file-helper'
+import { FSService } from './fs-service'
 
 const MFE_CONFIG_FILE_NAME = 'mfe-config.json'
 
 export class MfeConfigService {
   public writeMfeConfig(mfeName: string, mfeConfig: MfeConfig): void {
-    FileHelper.writeJSON(this.getMfeConfigPath(mfeName), mfeConfig)
+    FSService.writeJSON(this.getMfeConfigPath(mfeName), mfeConfig)
   }
 
   public getMfeConfig(mfeName: string): MfeConfig {

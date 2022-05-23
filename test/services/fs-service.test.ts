@@ -5,13 +5,14 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import FSService from '../../src/services/fs-service'
 
-describe('init', () => {
+describe('fs-service', () => {
   let tmpDir: string
+  let tmpFilePath: string
   const defaultBundleName = 'fs-mi'
 
   before(() => {
     // creating a temporary directory
-    tmpDir = path.resolve(os.tmpdir(), 'bundle-cli-init-test')
+    tmpDir = path.resolve(os.tmpdir(), 'bundle-cli-fs-service-test')
     fs.mkdirSync(tmpDir)
 
     // creating a subfolder for testing the existing bundle case
@@ -31,7 +32,9 @@ describe('init', () => {
 
   after(() => {
     // temporary directory cleanup
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+
+    fs.rmSync(tmpFilePath, { force: true })
   })
 
   test
@@ -90,5 +93,18 @@ describe('init', () => {
       filesys.createSubDirectoryIfNotExist('wowo')
       const filePath = path.resolve(tmpDir, defaultBundleName, 'wowo')
       expect(fs.existsSync(filePath)).to.eq(true)
+    })
+
+  test
+    .it('writeJSON writes JSON data to file', () => {
+      tmpFilePath = path.resolve(os.tmpdir(), 'fs-service-writejson-test')
+
+      const filePath = path.resolve(os.tmpdir(), tmpFilePath)
+      const data = { test: 'testvalue' }
+      FSService.writeJSON(filePath, data)
+
+      const result = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+
+      expect(result).to.eql(data)
     })
 })
