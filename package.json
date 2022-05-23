@@ -53,7 +53,7 @@
         "description": "Micro Frontend operations"
       },
       "ms": {
-        "description": "Micro Service operations"
+        "description": "Microservice operations"
       },
       "api": {
         "description": "Manage API claims"

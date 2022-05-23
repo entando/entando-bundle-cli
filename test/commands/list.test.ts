@@ -1,6 +1,5 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
 import {
   BundleDescriptor,
@@ -8,6 +7,7 @@ import {
   MicroService
 } from '../../src/models/bundle-descriptor'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -23,26 +23,25 @@ describe('list', () => {
     ]
   }
 
-  let tmpDir: string
+  const tempDirHelper = new TempDirHelper(__filename)
+  let tempBundleDir: string
   let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
-    tmpDir = path.resolve(os.tmpdir(), bundleDescriptor.name)
-    fs.mkdirSync(tmpDir)
-    process.chdir(tmpDir)
+    tempBundleDir = tempDirHelper.createInitializedBundleDir(
+      bundleDescriptor.name
+    )
 
-    fs.mkdirSync('./microfrontends')
-    fs.mkdirSync('./microservices')
+    fs.mkdirSync(path.resolve('microfrontends', 'mfe1'))
+    fs.mkdirSync(path.resolve('microfrontends', 'mfe2'))
+    fs.mkdirSync(path.resolve('microservices', 'ms1'))
+    fs.mkdirSync(path.resolve('microservices', 'ms2'))
 
-    fs.mkdirSync(path.resolve('./microfrontends', 'mfe1'))
-    fs.mkdirSync(path.resolve('./microfrontends', 'mfe2'))
-    fs.mkdirSync(path.resolve('./microservices', 'ms1'))
-    fs.mkdirSync(path.resolve('./microservices', 'ms2'))
-
-    bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
   })
 
   beforeEach(() => {
+    process.chdir(tempBundleDir)
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
 
     const mfe1PackageJSON: string = JSON.stringify({ version: '0.0.1' })
@@ -51,25 +50,25 @@ describe('list', () => {
     const ms2PackageJSON: string = JSON.stringify({ version: '0.1.2' })
 
     fs.writeFileSync(
-      path.resolve('./microfrontends', 'mfe1', 'package.json'),
+      path.resolve('microfrontends', 'mfe1', 'package.json'),
       mfe1PackageJSON
     )
     fs.writeFileSync(
-      path.resolve('./microfrontends', 'mfe2', 'package.json'),
+      path.resolve('microfrontends', 'mfe2', 'package.json'),
       mfe2PackageJSON
     )
     fs.writeFileSync(
-      path.resolve('./microservices', 'ms1', 'pom.xml'),
+      path.resolve('microservices', 'ms1', 'pom.xml'),
       ms1PomXML
     )
     fs.writeFileSync(
-      path.resolve('./microservices', 'ms2', 'package.json'),
+      path.resolve('microservices', 'ms2', 'package.json'),
       ms2PackageJSON
     )
   })
 
   after(() => {
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
+    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
   })
 
   test
@@ -143,7 +142,7 @@ describe('list', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tmpDir, 'bundle.json'), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, 'bundle.json'), { force: true })
     })
     .command(['list'])
     .catch(error => {

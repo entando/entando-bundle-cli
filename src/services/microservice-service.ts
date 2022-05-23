@@ -19,13 +19,32 @@ export class MicroServiceService {
   public addMicroService(ms: MicroService): void {
     if (!ALLOWED_MS_NAME_REGEXP.test(ms.name)) {
       throw new CLIError(
-        `'${ms.name}' is not a valid Micro Service name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${ms.name}' is not a valid microservice name. Only alphanumeric characters, underscore and dash are allowed`
       )
     }
 
     this.createMicroServiceDirectory(ms.name)
 
     this.addMicroServiceDescriptor(ms)
+  }
+
+  public removeMicroService(name: string): void {
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+
+    const { microservices } = bundleDescriptor
+    const msIndex = microservices.findIndex(ms => ms.name === name)
+
+    if (msIndex === -1) {
+      throw new CLIError(`Microservice ${name} not found in Bundle descriptor`)
+    }
+
+    const msDir = path.resolve(this.microservicesPath, name)
+    fs.rmSync(msDir, { recursive: true, force: true })
+
+    microservices.splice(msIndex, 1)
+
+    this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   }
 
   private createMicroServiceDirectory(name: string) {

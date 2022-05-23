@@ -20,7 +20,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT win32-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -37,6 +37,7 @@ USAGE
 * [`entando-bundle-cli list`](#entando-bundle-cli-list)
 * [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
 * [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
 * [`entando-bundle-cli package`](#entando-bundle-cli-package)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
@@ -52,8 +53,8 @@ ARGUMENTS
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --serviceId=<value>   (required) Micro Service ID within the Bundle
-  --serviceUrl=<value>  (required) URL of the internal service
+  --serviceId=<value>   (required) Microservice name within the Bundle
+  --serviceUrl=<value>  (required) Local microservice URL
 
 DESCRIPTION
   Adds an internal API claim to the specified MFE component
@@ -182,6 +183,24 @@ EXAMPLES
   $ entando-bundle-cli ms add my-ms
 
   $ entando-bundle-cli ms add my-ms --stack spring-boot
+```
+
+## `entando-bundle-cli ms rm NAME`
+
+Removes a microservice component from the current bundle
+
+```
+USAGE
+  $ entando-bundle-cli ms rm [NAME]
+
+ARGUMENTS
+  NAME  Microservice name
+
+DESCRIPTION
+  Removes a microservice component from the current bundle
+
+EXAMPLES
+  $ entando-bundle-cli ms rm my-microservice
 ```
 
 ## `entando-bundle-cli package`

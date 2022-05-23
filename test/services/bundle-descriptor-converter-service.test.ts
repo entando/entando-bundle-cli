@@ -1,26 +1,17 @@
 import { expect, test } from '@oclif/test'
-import * as os from 'node:os'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as YAML from 'yaml'
 import BundleDescriptorConverterService from '../../src/services/bundle-descriptor-converter-service'
 import BundleDescriptorService from '../../src/services/bundle-descriptor-service'
 import { OUTPUT_FOLDER } from '../../src/paths'
-
-let tmpDir: string
-const TMP_TEST_FOLDER = 'entando-bundle-cli-test-descriptor-converter'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('bundle-descriptor-converter-service', () => {
-  before(() => {
-    tmpDir = path.resolve(os.tmpdir(), TMP_TEST_FOLDER)
-  })
-
-  after(() => {
-    fs.rmSync(path.resolve(tmpDir), { recursive: true })
-  })
+  const tempDirHelper = new TempDirHelper(__filename)
 
   test.it('test bundle descriptors conversion', () => {
-    const bundleDir = path.resolve(tmpDir, 'test-bundle')
+    const bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')
     fs.mkdirSync(bundleDir, { recursive: true })
 
     const bundleDescriptorService = new BundleDescriptorService(bundleDir)

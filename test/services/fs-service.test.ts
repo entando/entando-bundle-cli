@@ -4,100 +4,87 @@ import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import { FSService } from '../../src/services/fs-service'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 describe('fs-service', () => {
-  let tmpDir: string
-  let tmpFilePath: string
+  const tempDirHelper = new TempDirHelper(__filename)
   const defaultBundleName = 'fs-mi'
 
   before(() => {
-    // creating a temporary directory
-    tmpDir = path.resolve(os.tmpdir(), 'bundle-cli-fs-service-test')
-    fs.mkdirSync(tmpDir)
-
     // creating a subfolder for testing the existing bundle case
-    fs.mkdirSync(path.resolve(tmpDir, 'existing-bundle'))
-  })
-
-  beforeEach(() => {
-    // setting the temporary directory as current working directory
-    process.chdir(tmpDir)
+    fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, 'existing-bundle'))
   })
 
   afterEach(() => {
-    if (fs.existsSync(path.resolve(tmpDir, defaultBundleName))) {
-      fs.rmSync(path.resolve(tmpDir, defaultBundleName), { recursive: true, force: true })
+    if (fs.existsSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))) {
+      fs.rmSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName), {
+        recursive: true,
+        force: true
+      })
     }
-  })
-
-  after(() => {
-    // temporary directory cleanup
-    fs.rmSync(tmpDir, { recursive: true, force: true })
-
-    fs.rmSync(tmpFilePath, { force: true })
   })
 
   test
     .it('run checkBundleName', () => {
-      const filesys = new FSService(defaultBundleName, tmpDir)
+      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
       expect(() => filesys.checkBundleName()).to.not.throw(CLIError)
     })
 
   test
     .it('run checkBundleName but has error', () => {
-      const filesys = new FSService('124!@', tmpDir)
+      const filesys = new FSService('124!@', tempDirHelper.tmpDir)
       expect(() => filesys.checkBundleName()).to.throw(CLIError)
     })
 
   test
     .it('run checkBundleDirectory', () => {
-      const filesys = new FSService(defaultBundleName, tmpDir)
+      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
       expect(() => filesys.checkBundleDirectory()).to.not.throw(CLIError)
     })
 
   test
     .it('run checkBundleDirectory but has error', () => {
-      const filesys = new FSService('existing-bundle', tmpDir)
+      const filesys = new FSService('existing-bundle', tempDirHelper.tmpDir)
       expect(() => filesys.checkBundleDirectory()).to.throw(CLIError)
     })
 
   test
     .it('run getBundleDirectory', () => {
-      const filesys = new FSService(defaultBundleName, tmpDir)
-      expect(filesys.getBundleDirectory()).to.eq(path.resolve(tmpDir, defaultBundleName))
+      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
+      expect(filesys.getBundleDirectory()).to.eq(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
     })
 
   test
     .it('run getBundleFilePath', () => {
-      const filesys = new FSService(defaultBundleName, tmpDir)
-      expect(filesys.getBundleFilePath('a', 'b')).to.eq(path.resolve(tmpDir, defaultBundleName, 'a', 'b'))
+      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
+      expect(filesys.getBundleFilePath('a', 'b')).to.eq(path.resolve(tempDirHelper.tmpDir, defaultBundleName, 'a', 'b'))
     })
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tmpDir, defaultBundleName))
+      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
     })
     .it('run createFileFromTemplate', () => {
-      const filesys = new FSService(defaultBundleName, tmpDir)
+      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
       filesys.createFileFromTemplate(['Dockerfile'], 'Dockerfile-template')
-      const filePath = path.resolve(tmpDir, defaultBundleName, 'Dockerfile')
+      const filePath = path.resolve(tempDirHelper.tmpDir, defaultBundleName, 'Dockerfile')
       expect(fs.existsSync(filePath)).to.eq(true)
     })
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tmpDir, defaultBundleName))
+      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
     })
     .it('run createSubDirectoryIfNotExist', () => {
-      const filesys = new FSService(defaultBundleName, tmpDir)
+      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
       filesys.createSubDirectoryIfNotExist('wowo')
-      const filePath = path.resolve(tmpDir, defaultBundleName, 'wowo')
+      const filePath = path.resolve(tempDirHelper.tmpDir, defaultBundleName, 'wowo')
       expect(fs.existsSync(filePath)).to.eq(true)
     })
 
   test
     .it('writeJSON writes JSON data to file', () => {
-      tmpFilePath = path.resolve(os.tmpdir(), 'fs-service-writejson-test')
+      const tmpFilePath = path.resolve(os.tmpdir(), 'fs-service-writejson-test')
 
       const filePath = path.resolve(os.tmpdir(), tmpFilePath)
       const data = { test: 'testvalue' }

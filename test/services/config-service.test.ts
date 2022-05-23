@@ -1,7 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import * as os from 'node:os'
 import {
   CONFIG_FOLDER,
   RESOURCES_FOLDER,
@@ -10,22 +9,20 @@ import {
 } from '../../src/paths'
 
 import ConfigService from '../../src/services/config-service'
+import TempDirHelper from '../helpers/temp-dir-helper'
 
 const configService = new ConfigService()
 
-let tmpDir: string
-
-const TMP_TEST_FOLDER = 'entando-bundle-cli-test'
-
 describe('config-service', () => {
+  const tempDirHelper = new TempDirHelper(__filename)
+  let tempBundleDir: string
+
+  before(() => {
+    tempBundleDir = tempDirHelper.createInitializedBundleDir()
+  })
+
   beforeEach(() => {
-    tmpDir = path.resolve(os.tmpdir(), TMP_TEST_FOLDER)
-
-    fs.mkdirSync(tmpDir)
-    fs.mkdirSync(path.join(tmpDir, CONFIG_FOLDER))
-
-    // setting the temporary directory as current working directory
-    process.chdir(tmpDir)
+    process.chdir(tempBundleDir)
 
     // create config from template file
     const defaultConfig = fs.readFileSync(
@@ -43,18 +40,13 @@ describe('config-service', () => {
 
     const defaultConfigParsed = JSON.parse(defaultConfig)
 
-    const filePath = path.join(tmpDir, CONFIG_FOLDER)
+    const filePath = path.join(tempBundleDir, CONFIG_FOLDER)
 
     fs.writeFileSync(
       path.join(filePath, CONFIG_FILE),
       JSON.stringify(defaultConfigParsed, null, 2),
       'utf8'
     )
-  })
-
-  afterEach(() => {
-    // temporary directory cleanup
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
   })
 
   test.it('get properties', () => {
