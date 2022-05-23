@@ -1,5 +1,5 @@
 import { CliUx, Command, Flags } from '@oclif/core'
-import { ApiClaim, ApiType } from '../../models/api'
+import { ApiClaim, ApiType } from '../../models/bundle-descriptor'
 import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
 

@@ -1,5 +1,3 @@
-import { ApiClaim } from './api'
-
 export type EnvironmentVariable =
   | {
       name: string
@@ -60,4 +58,30 @@ export type BundleDescriptor = {
   description?: string
   microservices: MicroService[]
   microfrontends: MicroFrontend[]
+}
+
+export type BundleGroup = {
+  bundleGroupName: string
+  bundleGroupVersionId: number
+}
+
+export type Bundle = {
+  bundleGroupName: string
+  bundleName: string
+  gitSrcRepoAddress: string
+  bundleGroupVersionId: number
+  bundleGroupId: number
+  bundleId: number
+}
+
+export enum ApiType {
+  Internal = 'internal',
+  External = 'external'
+}
+
+export interface ApiClaim {
+  name: string,
+  type: ApiType,
+  serviceId: string,
+  bundleId?: string
 }
