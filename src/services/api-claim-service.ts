@@ -1,17 +1,20 @@
 import { CLIError } from '@oclif/errors'
-import { ApiClaim } from '../models/bundle-descriptor'
+import { ApiClaim, ExternalApiClaim } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { MfeConfigService } from './mfe-config-service'
 import { MfeConfig } from '../models/mfe-config'
+import { CMService } from './cm-service'
 
 export class ApiClaimService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly mfeConfigService: MfeConfigService
+  private readonly cmService: CMService
 
   constructor() {
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
     this.mfeConfigService = new MfeConfigService()
+    this.cmService = new CMService()
   }
 
   public addInternalApiClaim(
@@ -24,11 +27,26 @@ export class ApiClaimService {
     }
 
     this.addApiClaim(mfeName, apiClaim)
-
     this.updateMfeConfigApi(mfeName, apiClaim.name, serviceUrl)
   }
 
-  private addApiClaim(mfeName: string, apiClaim: ApiClaim): void {
+  public addExternalApiClaim(
+    mfeName: string,
+    apiClaim: ExternalApiClaim
+  ): void {
+    const url = this.cmService.getBundleMicroserviceUrl(
+      apiClaim.bundleId,
+      apiClaim.serviceId
+    )
+
+    this.addApiClaim(mfeName, apiClaim)
+    this.updateMfeConfigApi(mfeName, apiClaim.name, url)
+  }
+
+  private addApiClaim(
+    mfeName: string,
+    apiClaim: ApiClaim | ExternalApiClaim
+  ): void {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
     const { microfrontends, microservices } = bundleDescriptor
