@@ -13,6 +13,7 @@ describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
     name: 'bundle-mfe-test',
     version: '0.0.1',
+    type: 'bundle',
     microservices: [],
     microfrontends: []
   }
@@ -136,7 +137,9 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
+        force: true
+      })
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {

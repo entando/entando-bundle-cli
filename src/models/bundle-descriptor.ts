@@ -46,7 +46,7 @@ export type MicroFrontend = {
   configUi?: {
     customElement: string
     resources: string[]
-  },
+  }
   apiClaims?: ApiClaim[]
 }
 
@@ -55,6 +55,7 @@ export type BundleDescriptor = {
   name: string
   /** Bundle version. It will be used as default Docker image tag */
   version: string
+  type: string
   description?: string
   microservices: MicroService[]
   microfrontends: MicroFrontend[]
@@ -80,8 +81,8 @@ export enum ApiType {
 }
 
 export interface ApiClaim {
-  name: string,
-  type: ApiType,
-  serviceId: string,
+  name: string
+  type: ApiType
+  serviceId: string
   bundleId?: string
 }

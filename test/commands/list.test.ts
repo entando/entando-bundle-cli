@@ -14,6 +14,7 @@ describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
     name: 'bundle-list-test',
     version: '0.0.1',
+    type: 'bundle',
     microfrontends: <Array<MicroFrontend>>[
       { name: 'mfe1', stack: 'react' },
       { name: 'mfe2', stack: 'angular' }
@@ -58,10 +59,7 @@ describe('list', () => {
       path.resolve('microfrontends', 'mfe2', 'package.json'),
       mfe2PackageJSON
     )
-    fs.writeFileSync(
-      path.resolve('microservices', 'ms1', 'pom.xml'),
-      ms1PomXML
-    )
+    fs.writeFileSync(path.resolve('microservices', 'ms1', 'pom.xml'), ms1PomXML)
     fs.writeFileSync(
       path.resolve('microservices', 'ms2', 'package.json'),
       ms2PackageJSON
@@ -134,16 +132,16 @@ describe('list', () => {
 
       expect(output).to.match(/mfe1\s+microfrontend\s+undefined\s+react/)
       expect(output).to.match(/mfe2\s+microfrontend\s+0\.0\.2\s+angular/)
-      expect(output).to.match(
-        /ms1\s+microservice\s+undefined\s+spring-boot/
-      )
+      expect(output).to.match(/ms1\s+microservice\s+undefined\s+spring-boot/)
       expect(output).to.match(/ms2\s+microservice\s+0\.1\.2\s+node/)
     })
 
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
+        force: true
+      })
     })
     .command(['list'])
     .catch(error => {

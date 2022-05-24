@@ -2,9 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import {
-  BundleDescriptor,
-} from '../../../src/models/bundle-descriptor'
+import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 
 describe('mfe rm', () => {
@@ -12,6 +10,7 @@ describe('mfe rm', () => {
   const bundleDescriptor: BundleDescriptor = {
     name: 'bundle-mfe-test',
     version: '0.0.1',
+    type: 'bundle',
     microservices: [],
     microfrontends: [
       {
@@ -52,7 +51,11 @@ describe('mfe rm', () => {
     })
     .command(['mfe rm', defaultMfeName])
     .it('runs mfe rm default-stack-mfe', () => {
-      const filePath: string = path.resolve(tmpDir, 'microfrontends', defaultMfeName)
+      const filePath: string = path.resolve(
+        tmpDir,
+        'microfrontends',
+        defaultMfeName
+      )
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
@@ -67,7 +70,9 @@ describe('mfe rm', () => {
     .stderr()
     .command(['mfe rm', 'jojoma'])
     .catch(error => {
-      expect(error.message).to.contain('jojoma does not exist in the microfrontends section of the Bundle descriptor')
+      expect(error.message).to.contain(
+        'jojoma does not exist in the microfrontends section of the Bundle descriptor'
+      )
     })
     .it('removing a microfrontend that does not exist in descriptor')
 
