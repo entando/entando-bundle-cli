@@ -138,9 +138,7 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
-        force: true
-      })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
     })
     .command(['ms add', 'ms-in-notbundleproject'])
     .catch(error => {

@@ -15,9 +15,7 @@ describe('component-service', () => {
   before(() => {
     const bundleDir = tempDirHelper.createInitializedBundleDir()
     const bundleDescriptorService = new BundleDescriptorService(bundleDir)
-    bundleDescriptorService.createBundleDescriptor(
-      bundleDescriptor as BundleDescriptor
-    )
+    bundleDescriptorService.createBundleDescriptor(bundleDescriptor as BundleDescriptor)
   })
 
   afterEach(function () {
@@ -26,44 +24,28 @@ describe('component-service', () => {
 
   test
     .do(() => {
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+      sinon.stub(BundleDescriptorService.prototype, 'getBundleDescriptor').returns(bundleDescriptor as BundleDescriptor)
     })
     .it('get component', () => {
       componentService = new ComponentService()
-      expect(
-        componentService.getComponent('test-ms-spring-boot-1').stack
-      ).to.be.eq('spring-boot')
-      expect(
-        componentService.getComponent('test-ms-spring-boot-2').stack
-      ).to.be.eq('spring-boot')
-      expect(componentService.getComponent('test-mfe-1').stack).to.be.eq(
-        'react'
-      )
-      expect(componentService.getComponent('test-mfe-2').stack).to.be.eq(
-        'react'
-      )
+      expect(componentService.getComponent('test-ms-spring-boot-1').stack).to.be.eq('spring-boot')
+      expect(componentService.getComponent('test-ms-spring-boot-2').stack).to.be.eq('spring-boot')
+      expect(componentService.getComponent('test-mfe-1').stack).to.be.eq('react')
+      expect(componentService.getComponent('test-mfe-2').stack).to.be.eq('react')
     })
 
   test
     .do(() => {
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+      sinon.stub(BundleDescriptorService.prototype, 'getBundleDescriptor').returns(bundleDescriptor as BundleDescriptor)
     })
     .it('get component that not exists', () => {
       componentService = new ComponentService()
-      expect(() => componentService.getComponent('test-ms-3')).to.throw(
-        CLIError
-      )
+      expect(() => componentService.getComponent('test-ms-3')).to.throw(CLIError)
     })
 
   test
     .do(() => {
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+      sinon.stub(BundleDescriptorService.prototype, 'getBundleDescriptor').returns(bundleDescriptor as BundleDescriptor)
     })
     .it('get all components', () => {
       componentService = new ComponentService()

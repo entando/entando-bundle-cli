@@ -137,9 +137,7 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
-        force: true
-      })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {

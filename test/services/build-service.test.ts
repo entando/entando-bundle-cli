@@ -20,15 +20,9 @@ describe('build-service', () => {
   })
   test
     .do(() => {
-      const bundleDir =
-        tempDirHelper.createInitializedBundleDir('test-build-service')
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, msSpringBoot),
-        { recursive: true }
-      )
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+      const bundleDir = tempDirHelper.createInitializedBundleDir('test-build-service')
+      fs.mkdirSync(path.resolve(bundleDir, MICROSERVICES_FOLDER, msSpringBoot), { recursive: true })
+      sinon.stub(BundleDescriptorService.prototype, 'getBundleDescriptor').returns(bundleDescriptor as BundleDescriptor)
       sinon.stub(fs, 'existsSync').returns(true)
     })
     .it('Builds spring-boot Microservice', async () => {

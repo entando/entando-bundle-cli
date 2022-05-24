@@ -1,13 +1,5 @@
-import {
-  BundleDescriptor,
-  MicroFrontend,
-  MicroService
-} from '../models/bundle-descriptor'
-import {
-  Component,
-  ComponentType,
-  VersionedComponent
-} from '../models/component'
+import { BundleDescriptor, MicroFrontend, MicroService } from '../models/bundle-descriptor'
+import { Component, ComponentType, VersionedComponent } from '../models/component'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 import { CLIError } from '@oclif/errors'
@@ -28,18 +20,12 @@ export class ComponentService {
     let components: Array<Component>
 
     if (type === ComponentType.MICROFRONTEND) {
-      components = microfrontends.map(
-        this.mapComponentType(ComponentType.MICROFRONTEND)
-      )
+      components = microfrontends.map(this.mapComponentType(ComponentType.MICROFRONTEND))
     } else if (type === ComponentType.MICROSERVICE) {
-      components = microservices.map(
-        this.mapComponentType(ComponentType.MICROSERVICE)
-      )
+      components = microservices.map(this.mapComponentType(ComponentType.MICROSERVICE))
     } else {
       components = [
-        ...microfrontends.map(
-          this.mapComponentType(ComponentType.MICROFRONTEND)
-        ),
+        ...microfrontends.map(this.mapComponentType(ComponentType.MICROFRONTEND)),
         ...microservices.map(this.mapComponentType(ComponentType.MICROSERVICE))
       ]
     }
@@ -47,9 +33,7 @@ export class ComponentService {
     return components
   }
 
-  public getVersionedComponents(
-    type?: ComponentType
-  ): Array<VersionedComponent> {
+  public getVersionedComponents(type?: ComponentType): Array<VersionedComponent> {
     return this.getComponents(type).map(comp => ({
       ...comp,
       version: this.componentDescriptorService.getComponentVersion(comp)
@@ -72,9 +56,7 @@ export class ComponentService {
     return [...mfe, ...ms]
   }
 
-  private mapComponentType(
-    type: ComponentType
-  ): (compToMap: MicroFrontend | MicroService) => Component {
+  private mapComponentType(type: ComponentType): (compToMap: MicroFrontend | MicroService) => Component {
     return ({ name, stack }) => ({ name, stack, type })
   }
 }

@@ -46,7 +46,7 @@ export type MicroFrontend = {
   configUi?: {
     customElement: string
     resources: string[]
-  }
+  },
   apiClaims?: ApiClaim[]
 }
 
@@ -81,8 +81,8 @@ export enum ApiType {
 }
 
 export interface ApiClaim {
-  name: string
-  type: ApiType
-  serviceId: string
+  name: string,
+  type: ApiType,
+  serviceId: string,
   bundleId?: string
 }
