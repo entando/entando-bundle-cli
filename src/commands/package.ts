@@ -1,9 +1,12 @@
 import { CliUx, Command, Flags } from '@oclif/core'
+import { BundleDescriptorConverterService } from '../services/bundle-descriptor-converter-service'
+import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import { BundleService } from '../services/bundle-service'
 import {
   ConfigService,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../services/config-service'
+import { DockerService } from '../services/docker-service'
 
 export default class Package extends Command {
   static description = 'Generates the bundle Docker image'
@@ -17,15 +20,43 @@ export default class Package extends Command {
     org: Flags.string({
       char: 'o',
       description: 'Docker organization name'
+    }),
+    file: Flags.string({
+      char: 'f',
+      description: 'Name of the Dockerfile (default is Dockerfile)',
+      required: false
     })
   }
 
   configService = new ConfigService()
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    const bundleDir = process.cwd()
+    BundleService.verifyBundleInitialized(bundleDir)
+
     const { flags } = await this.parse(Package)
-    await this.getDockerOrganization(flags.org)
+
+    const dockerOrganization = await this.getDockerOrganization(flags.org)
+
+    CliUx.ux.action.start('Creating bundle package')
+
+    // TODO: build all components
+
+    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
+    const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+
+    const bundleDescriptorConverterService =
+      new BundleDescriptorConverterService(bundleDir)
+    bundleDescriptorConverterService.generateYamlDescriptors()
+
+    DockerService.buildDockerImage({
+      name: bundleDescriptor.name,
+      organization: dockerOrganization,
+      path: '.',
+      tag: bundleDescriptor.version
+    })
+
+    CliUx.ux.action.stop()
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {

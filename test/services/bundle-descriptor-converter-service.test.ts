@@ -70,7 +70,7 @@ describe('bundle-descriptor-converter-service', () => {
 
     const mfeDescriptorPath = path.resolve(
       bundleDir,
-      OUTPUT_FOLDER,
+      ...OUTPUT_FOLDER,
       'descriptors',
       'widgets',
       'test-mfe',
@@ -92,7 +92,7 @@ describe('bundle-descriptor-converter-service', () => {
 
     const msDescriptorPath = path.resolve(
       bundleDir,
-      OUTPUT_FOLDER,
+      ...OUTPUT_FOLDER,
       'descriptors',
       'plugins',
       'test-ms.yaml'
@@ -121,7 +121,7 @@ describe('bundle-descriptor-converter-service', () => {
 
     const bundleDescriptorPath = path.resolve(
       bundleDir,
-      OUTPUT_FOLDER,
+      ...OUTPUT_FOLDER,
       'descriptors',
       'descriptor.yaml'
     )

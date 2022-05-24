@@ -3,20 +3,23 @@ import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
+import { DockerService } from './docker-service'
 
 const MICROFRONTENDS_DIRNAME = 'microfrontends'
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 
 export class MicroFrontendService {
+  private readonly bundleDir: string
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
 
   constructor() {
+    this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(
-      process.cwd(),
+      this.bundleDir,
       MICROFRONTENDS_DIRNAME
     )
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService(this.bundleDir)
   }
 
   public addMicroFrontend(mfe: MicroFrontend): void {
@@ -27,6 +30,8 @@ export class MicroFrontendService {
     }
 
     this.createMicroFrontendDirectory(mfe.name)
+
+    DockerService.addMicroFrontEndToDockerfile(this.bundleDir, mfe.name)
 
     this.addMicroFrontendDescriptor(mfe)
   }
@@ -54,10 +59,12 @@ export class MicroFrontendService {
 
     const updatedBundleDescriptor: BundleDescriptor = {
       ...bundleDescriptor,
-      microfrontends: microfrontends.filter(({ name }) => name !== mfeName),
+      microfrontends: microfrontends.filter(({ name }) => name !== mfeName)
     }
 
     this.removeMicroFrontendDirectory(mfeName)
+
+    DockerService.removeMicroFrontendFromDockerfile(this.bundleDir, mfeName)
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
@@ -79,7 +86,7 @@ export class MicroFrontendService {
       throw new CLIError(`Directory ${mfedir} does not exist`)
     }
 
-    fs.rmSync(mfedir, { recursive: true, force: true });
+    fs.rmSync(mfedir, { recursive: true, force: true })
   }
 
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {

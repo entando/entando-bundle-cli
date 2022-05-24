@@ -5,15 +5,32 @@ import {
   DOCKER_ORGANIZATION_PROPERTY
 } from '../../src/services/config-service'
 import { BundleService } from '../../src/services/bundle-service'
+import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
+import { DockerService } from '../../src/services/docker-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import * as sinon from 'sinon'
 
 describe('package', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
+  afterEach(() => {
+    sinon.restore()
+  })
+
+  let stubBuildDockerImage: sinon.SinonStub
+  let stubGenerateYamlDescriptors: sinon.SinonStub
+
   test
-    .do(() =>
+    .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-org-prompt')
-    )
+      stubBuildDockerImage = sinon
+        .stub(DockerService, 'buildDockerImage')
+        .resolves()
+      stubGenerateYamlDescriptors = sinon.stub(
+        BundleDescriptorConverterService.prototype,
+        'generateYamlDescriptors'
+      )
+    })
     .stub(CliUx.ux, 'prompt', function () {
       return async () => 'prompted-organization'
     })
@@ -24,12 +41,21 @@ describe('package', () => {
       expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
         'prompted-organization'
       )
+      sinon.assert.calledOnce(stubGenerateYamlDescriptors)
+      sinon.assert.calledOnce(stubBuildDockerImage)
     })
 
   test
-    .do(() =>
+    .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-existing-org')
-    )
+      stubBuildDockerImage = sinon
+        .stub(DockerService, 'buildDockerImage')
+        .resolves()
+      stubGenerateYamlDescriptors = sinon.stub(
+        BundleDescriptorConverterService.prototype,
+        'generateYamlDescriptors'
+      )
+    })
     .do(() => {
       const configService = new ConfigService()
       configService.addProperty(
@@ -46,6 +72,8 @@ describe('package', () => {
         expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
           'configured-organization'
         )
+        sinon.assert.calledOnce(stubGenerateYamlDescriptors)
+        sinon.assert.calledOnce(stubBuildDockerImage)
       }
     )
 

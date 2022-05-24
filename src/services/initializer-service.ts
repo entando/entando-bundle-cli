@@ -61,7 +61,7 @@ export class InitializerService {
     const bundleDir = this.filesys.getBundleDirectory()
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.filesys.getBundleFilePath(OUTPUT_FOLDER), {
+    fs.mkdirSync(this.filesys.getBundleFilePath(...OUTPUT_FOLDER), {
       recursive: true
     })
     fs.mkdirSync(this.filesys.getBundleFilePath(MICROSERVICES_FOLDER))
@@ -98,7 +98,7 @@ export class InitializerService {
     this.filesys.createSubDirectoryIfNotExist(MICROSERVICES_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(MICROFRONTENDS_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
-    this.filesys.createSubDirectoryIfNotExist(OUTPUT_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(...OUTPUT_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(AUX_FOLDER)
   }
 

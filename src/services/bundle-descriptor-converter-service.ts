@@ -52,7 +52,7 @@ export class BundleDescriptorConverterService {
       configUi: microFrontend.configUi
     }
     const filePath = path.join(
-      DESCRIPTORS_OUTPUT_FOLDER,
+      ...DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroFrontendDescriptorRelativePath(microFrontend)
     )
     this.writeYamlFile(filePath, widgetDescriptor)
@@ -72,7 +72,7 @@ export class BundleDescriptorConverterService {
       environmentVariables: microService.env
     }
     const filePath = path.join(
-      DESCRIPTORS_OUTPUT_FOLDER,
+      ...DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroServiceDescriptorRelativePath(microService)
     )
     this.writeYamlFile(filePath, pluginDescriptor)
@@ -100,7 +100,7 @@ export class BundleDescriptorConverterService {
     }
 
     const filePath = path.join(
-      DESCRIPTORS_OUTPUT_FOLDER,
+      ...DESCRIPTORS_OUTPUT_FOLDER,
       BUNDLE_DESCRIPTOR_NAME
     )
     this.writeYamlFile(filePath, yamlBundleDescriptor)
