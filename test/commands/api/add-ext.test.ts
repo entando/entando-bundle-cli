@@ -7,14 +7,18 @@ import {
   MicroFrontend,
   MicroService
 } from '../../../src/models/bundle-descriptor'
+import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import TempDirHelper from '../../helpers/temp-dir-helper'
 
 describe('api add-ext', () => {
-  let bundleDescriptor: BundleDescriptor
-
   const tempDirHelper = new TempDirHelper(__filename)
   let tempBundleDir: string
+
+  let bundleDescriptor: BundleDescriptor
+  let bundleDescriptorService: BundleDescriptorService
+  let mfeConfigService: MfeConfigService
 
   before(() => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir('bundle-api-test')
@@ -32,8 +36,11 @@ describe('api add-ext', () => {
     }
 
     process.chdir(tempBundleDir)
-    writeBundleDescriptor(bundleDescriptor)
-    writeMfeConfig('mfe1', {})
+
+    bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
+    bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+    mfeConfigService = new MfeConfigService()
+    mfeConfigService.writeMfeConfig('mfe1', {})
   })
 
   test
@@ -46,34 +53,32 @@ describe('api add-ext', () => {
       '--bundleId',
       'my-bundle'
     ])
-    .it(
-      'runs api add-ext mfe1 ms1-api --serviceId ms1 --bundleId my-bundle',
-      () => {
-        const updatedBundleDescriptor: BundleDescriptor = getBundleDescriptor()
-        const updatedMfeConfig: MfeConfig = getMfeConfig('mfe1')
+    .it('adds an external api claim to an mfe', () => {
+      const updatedBundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+      const updatedMfeConfig: MfeConfig = mfeConfigService.getMfeConfig('mfe1')
 
-        expect(updatedBundleDescriptor).to.eql({
-          ...bundleDescriptor,
-          microfrontends: [
-            {
-              ...bundleDescriptor.microfrontends[0],
-              apiClaims: [
-                {
-                  name: 'ms1-api',
-                  type: 'external',
-                  serviceId: 'ms1',
-                  bundleId: 'my-bundle'
-                }
-              ]
-            }
-          ]
-        })
+      expect(updatedBundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microfrontends: [
+          {
+            ...bundleDescriptor.microfrontends[0],
+            apiClaims: [
+              {
+                name: 'ms1-api',
+                type: 'external',
+                serviceId: 'ms1',
+                bundleId: 'my-bundle'
+              }
+            ]
+          }
+        ]
+      })
 
-        expect(updatedMfeConfig).to.eql({
-          api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
-        })
-      }
-    )
+      expect(updatedMfeConfig).to.eql({
+        api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
+      })
+    })
 
   test
     .do(() => {
@@ -95,8 +100,8 @@ describe('api add-ext', () => {
         }
       ]
       bundleDescriptor = { ...bundleDescriptor, microfrontends, microservices }
-      writeBundleDescriptor(bundleDescriptor)
-      writeMfeConfig('mfe1', {
+      bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+      mfeConfigService.writeMfeConfig('mfe1', {
         api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
       })
     })
@@ -110,10 +115,12 @@ describe('api add-ext', () => {
       'my-bundle'
     ])
     .it(
-      'runs api add-ext mfe1 ms2-api --serviceId ms2 --bundleId my-bundle',
+      'adds a new external api claim to an mfe having an existing api claim',
       () => {
-        const updatedBundleDescriptor: BundleDescriptor = getBundleDescriptor()
-        const updatedMfeConfig: MfeConfig = getMfeConfig('mfe1')
+        const updatedBundleDescriptor: BundleDescriptor =
+          bundleDescriptorService.getBundleDescriptor()
+        const updatedMfeConfig: MfeConfig =
+          mfeConfigService.getMfeConfig('mfe1')
 
         expect(updatedBundleDescriptor).to.eql({
           ...bundleDescriptor,
@@ -161,10 +168,12 @@ describe('api add-ext', () => {
       'my-bundle'
     ])
     .it(
-      'runs api add-ext mfe1 ms1-api --serviceId ms1 --bundleId my-bundle',
+      "adds an external api claim to an mfe that doesn't have an existing mfe-config.json",
       () => {
-        const updatedBundleDescriptor: BundleDescriptor = getBundleDescriptor()
-        const updatedMfeConfig: MfeConfig = getMfeConfig('mfe1')
+        const updatedBundleDescriptor: BundleDescriptor =
+          bundleDescriptorService.getBundleDescriptor()
+        const updatedMfeConfig: MfeConfig =
+          mfeConfigService.getMfeConfig('mfe1')
 
         expect(updatedBundleDescriptor).to.eql({
           ...bundleDescriptor,
@@ -192,7 +201,7 @@ describe('api add-ext', () => {
   test
     .stderr()
     .do(() => {
-      writeBundleDescriptor({
+      bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
         microfrontends: []
       })
@@ -209,7 +218,7 @@ describe('api add-ext', () => {
     .catch(error => {
       expect(error.message).to.contain('mfe1 does not exist')
     })
-    .it('exits if microfrontend does not exist in the descriptor')
+    .it('exits with an error if microfrontend does not exist in the descriptor')
 
   test
     .stderr()
@@ -228,7 +237,7 @@ describe('api add-ext', () => {
         }
       ]
       bundleDescriptor = { ...bundleDescriptor, microfrontends }
-      writeBundleDescriptor(bundleDescriptor)
+      bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
     })
     .command([
       'api add-ext',
@@ -242,7 +251,7 @@ describe('api add-ext', () => {
     .catch(error => {
       expect(error.message).to.contain('API claim ms1-api already exists')
     })
-    .it('exits if API claim already exists')
+    .it('exits with error if API claim already exists')
 
   test
     .stderr()
@@ -261,32 +270,5 @@ describe('api add-ext', () => {
     .catch(error => {
       expect(error.message).to.contain('not an initialized Bundle project')
     })
-    .it('exits if current folder is not a Bundle project')
+    .it('exits with error if current folder is not a Bundle project')
 })
-
-function writeBundleDescriptor(bundleDescriptor: BundleDescriptor): void {
-  fs.writeFileSync(
-    BUNDLE_DESCRIPTOR_FILE_NAME,
-    JSON.stringify(bundleDescriptor)
-  )
-}
-
-function writeMfeConfig(mfeName: string, mfeConfig: MfeConfig): void {
-  fs.writeFileSync(
-    path.resolve('microfrontends', mfeName, 'mfe-config.json'),
-    JSON.stringify(mfeConfig)
-  )
-}
-
-function getBundleDescriptor(): BundleDescriptor {
-  return JSON.parse(fs.readFileSync(BUNDLE_DESCRIPTOR_FILE_NAME, 'utf-8'))
-}
-
-function getMfeConfig(mfeName: string): MfeConfig {
-  return JSON.parse(
-    fs.readFileSync(
-      path.resolve('microfrontends', mfeName, 'mfe-config.json'),
-      'utf-8'
-    )
-  )
-}

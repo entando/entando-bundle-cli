@@ -47,7 +47,7 @@ describe('mfe rm', () => {
       )
     })
     .command(['mfe rm', defaultMfeName])
-    .it('runs mfe rm default-stack-mfe', () => {
+    .it('removes a micro frontend', () => {
       const filePath: string = path.resolve(
         tempBundleDir,
         'microfrontends',
@@ -71,7 +71,9 @@ describe('mfe rm', () => {
         'jojoma does not exist in the microfrontends section of the Bundle descriptor'
       )
     })
-    .it('removing a microfrontend that does not exist in descriptor')
+    .it(
+      'exits with an error if the micro frontend does not exist in the descriptor'
+    )
 
   test
     .stderr()
@@ -79,5 +81,5 @@ describe('mfe rm', () => {
     .catch(error => {
       expect(error.message).to.contain(`does not exist`)
     })
-    .it('removing a microfrontend with its folder that does not exist')
+    .it('exits with an error if the micro frontend folder does not exist')
 })
