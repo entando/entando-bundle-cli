@@ -83,7 +83,6 @@ export class ComponentService {
     ComponentService.debug(
       `Building ${name} using ${buildCmd} ${buildCmdArgs.join(' ').trim()}`
     )
-    ComponentService.debug(`Component Path ${componentPath}`)
 
     if (!fs.existsSync(componentPath)) {
       throw new CLIError(`Directory ${componentPath} not exists`)
