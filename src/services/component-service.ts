@@ -89,13 +89,12 @@ export class ComponentService {
       throw new CLIError(`Directory ${componentPath} not exists`)
     }
 
-    process.chdir(componentPath)
-
     return ProcessExecutorService.executeProcess({
       command: buildCmd,
       arguments: buildCmdArgs,
       outputStream: process.stdout,
-      errorStream: process.stdout
+      errorStream: process.stdout,
+      workDir: componentPath
     })
   }
 
