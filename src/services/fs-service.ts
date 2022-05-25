@@ -19,7 +19,7 @@ export class FSService {
   }
 
   public checkBundleName(): void {
-    FSService.debug("checking bundle name if it's accepted")
+    FSService.debug('checking if bundle name is valid')
     if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.bundleName)) {
       throw new CLIError(
         `'${this.bundleName}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`

@@ -2,12 +2,12 @@ import { spawn } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 
-const PARALLELISM = 2
+const DEFAULT_PARALLEL_PROCESSES_SIZE = 2
 
 export type ProcessExecutionOptions = {
   command: string
   arguments?: string[]
-  /** Child process working directory */
+  /** Child process working directory (same as caller process working directory if not specified) */
   workDir?: string
   /**
    * Writable where the child process standard output will be sent.
@@ -77,6 +77,9 @@ type QueuedProcessExecution = {
 /**
  * Executes multiple long running child processes and handles their output streams.
  * A 'start' and 'done' event is emitted every time a process starts and completes (both successfully or unsuccessfully).
+ * Processes are started in the same order their commands are provided to the service constructor.
+ * If the number of processes exceed the configured parallelism limit, the exceeding processes are put in a queue.
+ * A process waiting in the queue is started as soon as one of the previously running processes completes.
  */
 export class ParallelProcessExecutorService extends EventEmitter {
   private static debug = debugFactory(ParallelProcessExecutorService)
@@ -92,7 +95,7 @@ export class ParallelProcessExecutorService extends EventEmitter {
    */
   constructor(
     processesOptions: ProcessExecutionOptions[],
-    parallelism: number = PARALLELISM
+    parallelism: number = DEFAULT_PARALLEL_PROCESSES_SIZE
   ) {
     super()
     this.parallelism = parallelism
