@@ -1,6 +1,6 @@
 import { CliUx, Command } from '@oclif/core'
-import { BuildService } from '../services/build-service'
 import { BundleService } from '../services/bundle-service'
+import { ComponentService } from '../services/component-service'
 
 export default class Build extends Command {
   static description = 'Build the component'
@@ -17,11 +17,11 @@ export default class Build extends Command {
 
   public async run(): Promise<void> {
     BundleService.verifyBundleInitialized(process.cwd())
-
     const { args } = await this.parse(Build)
 
     CliUx.ux.action.start(`Building component ${args.name}`)
-    await BuildService.build(args.name)
+    const componentService = new ComponentService()
+    await componentService.build(args.name)
     CliUx.ux.action.stop()
   }
 }
