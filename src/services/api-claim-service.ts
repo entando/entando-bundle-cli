@@ -39,6 +39,10 @@ export class ApiClaimService {
       apiClaim.serviceId
     )
 
+    if (!url) {
+      throw new CLIError('Failed to get microservice URL')
+    }
+
     this.addApiClaim(mfeName, apiClaim)
     this.updateMfeConfigApi(mfeName, apiClaim.name, url)
   }

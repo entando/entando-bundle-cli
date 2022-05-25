@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as sinon from 'sinon'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
@@ -9,6 +10,7 @@ import {
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
+import { CMService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import TempDirHelper from '../../helpers/temp-dir-helper'
 
@@ -252,6 +254,27 @@ describe('api add-ext', () => {
       expect(error.message).to.contain('API claim ms1-api already exists')
     })
     .it('exits with error if API claim already exists')
+
+  test
+    .stderr()
+    .stub(
+      CMService.prototype,
+      'getBundleMicroserviceUrl',
+      sinon.stub().returns(null)
+    )
+    .command([
+      'api add-ext',
+      'mfe1',
+      'ms1-api',
+      '--serviceId',
+      'ms1',
+      '--bundleId',
+      'my-bundle'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain('Failed to get microservice URL')
+    })
+    .it('exits with an error if it fails to get the microservice url')
 
   test
     .stderr()
