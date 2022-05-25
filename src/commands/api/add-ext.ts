@@ -8,7 +8,7 @@ export default class AddExt extends Command {
     'Adds an external API claim to the specified MFE component'
 
   static examples = [
-    '$ <%= config.bin %> <%= command.id %> mfe1 ms1-api --bundleId my-bundle --serviceId ms1'
+    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --bundleId my-bundle --serviceId ms1'
   ]
 
   static args = [
