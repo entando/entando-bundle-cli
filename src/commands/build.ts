@@ -20,7 +20,7 @@ export default class Build extends Command {
 
     const { args } = await this.parse(Build)
 
-    CliUx.ux.action.start(`Building Component ${args.name}`)
+    CliUx.ux.action.start(`Building component ${args.name}`)
     await BuildService.build(args.name)
     CliUx.ux.action.stop()
   }

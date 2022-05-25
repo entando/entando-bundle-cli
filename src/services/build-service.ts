@@ -28,9 +28,7 @@ export class BuildService {
       throw new CLIError(`${stack} ${type} build not implemented`)
     }
 
-    BuildService.debug(
-      `Building ${name} using ${buildCmd} ${buildCmdArgs.join(' ').trim()}`
-    )
+    BuildService.debug(`Building ${name} using ${buildCmd} ${buildCmdArgs.join(' ').trim()}`)
     BuildService.debug(`Component Path ${componentPath}`)
 
     if (!fs.existsSync(componentPath)) {
@@ -42,9 +40,8 @@ export class BuildService {
     return ProcessExecutorService.executeProcess({
       command: buildCmd,
       arguments: buildCmdArgs,
-      // Build output will be visible only in debug mode
-      outputStream: BuildService.debug.outputStream,
-      errorStream: BuildService.debug.outputStream
+      outputStream: process.stdout,
+      errorStream: process.stdout
     })
   }
 }
