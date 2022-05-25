@@ -36,9 +36,13 @@ describe('Build command', () => {
       const bundleDir =
         tempDirHelper.createInitializedBundleDir('test-build-command')
       fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, msSpringBoot), { recursive: true })
+        path.resolve(bundleDir, MICROSERVICES_FOLDER, msSpringBoot),
+        { recursive: true }
+      )
       executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
-      sinon.stub(ComponentService.prototype, 'getComponent').returns(microserviceSpringBoot)
+      sinon
+        .stub(ComponentService.prototype, 'getComponent')
+        .returns(microserviceSpringBoot)
     })
     .command(['build', msSpringBoot])
     .it('build spring-boot Microservice', async () => {
@@ -55,7 +59,9 @@ describe('Build command', () => {
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command')
       executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
-      sinon.stub(ComponentService.prototype, 'getComponent').returns(microserviceSpringBoot)
+      sinon
+        .stub(ComponentService.prototype, 'getComponent')
+        .returns(microserviceSpringBoot)
     })
     .command(['build', 'test-ms-not-found'])
     .catch(error => {
@@ -67,7 +73,9 @@ describe('Build command', () => {
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command')
       executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
-      sinon.stub(ComponentService.prototype, 'getComponent').returns(microserviceNotImplementedStack)
+      sinon
+        .stub(ComponentService.prototype, 'getComponent')
+        .returns(microserviceNotImplementedStack)
     })
     .command(['build', msNotImplementedStack])
     .catch(error => {
