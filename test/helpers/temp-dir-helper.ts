@@ -11,7 +11,7 @@ import * as sinon from 'sinon'
  * generated for each test file. The helper also provides a function to generate
  * already initialized bundle directories inside the test temporary directory.
  */
-export default class TempDirHelper {
+export class TempDirHelper {
   tmpDir: string = os.tmpdir()
 
   constructor(testFile: string) {

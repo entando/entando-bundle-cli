@@ -13,8 +13,12 @@ import {
   mockDomain,
   mockUri
 } from '../helpers/mocks/hub-api'
-import TempDirHelper from '../helpers/temp-dir-helper'
-import { CONFIG_FOLDER, CONFIG_FILE, BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
+import {
+  CONFIG_FOLDER,
+  CONFIG_FILE,
+  BUNDLE_DESCRIPTOR_FILE_NAME
+} from '../../src/paths'
 
 describe('init', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -25,7 +29,10 @@ describe('init', () => {
   })
 
   after(() => {
-    fs.rmSync(path.resolve(tempDirHelper.tmpDir), { recursive: true, force: true })
+    fs.rmSync(path.resolve(tempDirHelper.tmpDir), {
+      recursive: true,
+      force: true
+    })
   })
 
   test

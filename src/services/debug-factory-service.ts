@@ -10,9 +10,7 @@ export interface Debugger {
   outputStream?: Writable
 }
 
-export default function debugFactory(
-  caller: { name: string } | string
-): Debugger {
+export function debugFactory(caller: { name: string } | string): Debugger {
   const namespace = typeof caller === 'string' ? caller : caller.name
   const extendedDebugger = rootDebugger.extend(namespace)
 

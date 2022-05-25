@@ -7,7 +7,7 @@ import {
   MicroService
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
-import TempDirHelper from '../../helpers/temp-dir-helper'
+import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -137,7 +137,9 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
+        force: true
+      })
     })
     .command(['ms add', 'ms-in-notbundleproject'])
     .catch(error => {

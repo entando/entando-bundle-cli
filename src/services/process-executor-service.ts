@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
-import debugFactory from './debug-factory-service'
+import { debugFactory } from './debug-factory-service'
 
 const PARALLELISM = 2
 

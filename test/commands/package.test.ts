@@ -1,10 +1,11 @@
 import { expect, test } from '@oclif/test'
 import { CliUx } from '@oclif/core'
-import ConfigService, {
+import {
+  ConfigService,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../../src/services/config-service'
 import { BundleService } from '../../src/services/bundle-service'
-import TempDirHelper from '../helpers/temp-dir-helper'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 
 describe('package', () => {
   const tempDirHelper = new TempDirHelper(__filename)

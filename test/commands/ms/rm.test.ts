@@ -1,5 +1,5 @@
 import { expect, test } from '@oclif/test'
-import TempDirHelper from '../../helpers/temp-dir-helper'
+import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MicroServiceService } from '../../../src/services/microservice-service'
 import { MicroService } from '../../../src/models/bundle-descriptor'

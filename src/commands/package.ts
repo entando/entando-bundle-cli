@@ -1,6 +1,7 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { BundleService } from '../services/bundle-service'
-import ConfigService, {
+import {
+  ConfigService,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../services/config-service'
 

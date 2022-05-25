@@ -20,7 +20,7 @@ const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 const WIDGETS_DESCRIPTORS_FOLDER = 'widgets'
 const PLUGINS_DESCRIPTORS_FOLDER = 'plugins'
 
-export default class BundleDescriptorConverterService {
+export class BundleDescriptorConverterService {
   private readonly bundleDirectory: string
   private readonly bundleDescriptorService: BundleDescriptorService
 
