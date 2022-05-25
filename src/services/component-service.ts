@@ -41,19 +41,12 @@ export class ComponentService {
   }
 
   getComponent(name: string): Component {
-    const allComponents = this.getAllComponents()
-    const component = allComponents.find(comp => comp.name === name)
+    const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
       throw new CLIError(`Component ${name} not found`)
     }
 
     return component
-  }
-
-  getAllComponents(): Component[] {
-    const mfe = this.getComponents(ComponentType.MICROFRONTEND)
-    const ms = this.getComponents(ComponentType.MICROSERVICE)
-    return [...mfe, ...ms]
   }
 
   private mapComponentType(type: ComponentType): (compToMap: MicroFrontend | MicroService) => Component {
