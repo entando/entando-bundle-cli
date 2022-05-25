@@ -1,4 +1,4 @@
-import ProcessExecutorService from './process-executor-service'
+import { ProcessExecutorService } from './process-executor-service'
 import debugFactory from './debug-factory-service'
 
 export type DockerBuildOptions = {

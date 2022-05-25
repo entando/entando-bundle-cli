@@ -1,6 +1,6 @@
 import { test } from '@oclif/test'
 
-import ProcessExecutorService from '../../src/services/process-executor-service'
+import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import DockerService from '../../src/services/docker-service'
 import * as sinon from 'sinon'
 
