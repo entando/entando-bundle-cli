@@ -84,10 +84,6 @@ describe('api add-ext', () => {
 
   test
     .do(() => {
-      const microservices = <Array<MicroService>>[
-        ...bundleDescriptor.microservices,
-        { name: 'ms2', stack: 'node' }
-      ]
       const microfrontends = <Array<MicroFrontend>>[
         {
           ...bundleDescriptor.microfrontends[0],
@@ -101,7 +97,7 @@ describe('api add-ext', () => {
           ]
         }
       ]
-      bundleDescriptor = { ...bundleDescriptor, microfrontends, microservices }
+      bundleDescriptor = { ...bundleDescriptor, microfrontends }
       bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
       mfeConfigService.writeMfeConfig('mfe1', {
         api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
