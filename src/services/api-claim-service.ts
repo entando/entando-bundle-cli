@@ -26,6 +26,10 @@ export class ApiClaimService {
       throw new CLIError(`${serviceUrl} is not a valid URL`)
     }
 
+    if (!this.internalMicroserviceExists(apiClaim.serviceId)) {
+      throw new CLIError(`Microservice ${apiClaim.serviceId} does not exist`)
+    }
+
     this.addApiClaim(mfeName, apiClaim)
     this.updateMfeConfigApi(mfeName, apiClaim.name, serviceUrl)
   }
@@ -53,20 +57,13 @@ export class ApiClaimService {
   ): void {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
-    const { microfrontends, microservices } = bundleDescriptor
+    const { microfrontends } = bundleDescriptor
     const mfeIdx: number = microfrontends.findIndex(
       ({ name }) => mfeName === name
-    )
-    const msIdx: number = microservices.findIndex(
-      ({ name }) => apiClaim.serviceId === name
     )
 
     if (mfeIdx === -1) {
       throw new CLIError(`Micro Frontend ${mfeName} does not exist`)
-    }
-
-    if (msIdx === -1) {
-      throw new CLIError(`Microservice ${apiClaim.serviceId} does not exist`)
     }
 
     if (!microfrontends[mfeIdx].apiClaims) {
@@ -107,6 +104,13 @@ export class ApiClaimService {
       }
     }
     this.mfeConfigService.writeMfeConfig(mfeName, updatedMfeConfig)
+  }
+
+  private internalMicroserviceExists(msName: string): boolean {
+    const { microservices } = this.bundleDescriptorService.getBundleDescriptor()
+    const msIdx: number = microservices.findIndex(({ name }) => msName === name)
+
+    return msIdx !== -1
   }
 
   private isValidUrl(url: string): boolean {
