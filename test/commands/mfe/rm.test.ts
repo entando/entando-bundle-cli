@@ -1,11 +1,9 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
-import {
-  BundleDescriptor,
-} from '../../../src/models/bundle-descriptor'
+import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import TempDirHelper from '../../helpers/temp-dir-helper'
 
 describe('mfe rm', () => {
   const defaultMfeName = 'default-stack-mfe'
@@ -25,34 +23,36 @@ describe('mfe rm', () => {
     ]
   }
 
-  let tmpDir: string
-  let bundleDescriptorService: BundleDescriptorService
-  before(() => {
-    tmpDir = path.resolve(os.tmpdir(), bundleDescriptor.name)
-    fs.mkdirSync(tmpDir)
-    process.chdir(tmpDir)
+  const tempDirHelper = new TempDirHelper(__filename)
+  let tempBundleDir: string
 
-    fs.mkdirSync('./microfrontends')
+  let bundleDescriptorService: BundleDescriptorService
+
+  before(() => {
+    tempBundleDir = tempDirHelper.createInitializedBundleDir(
+      bundleDescriptor.name
+    )
   })
 
   beforeEach(() => {
-    process.chdir(tmpDir)
+    process.chdir(tempBundleDir)
     bundleDescriptorService = new BundleDescriptorService(process.cwd())
-
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
-  })
-
-  after(() => {
-    fs.rmSync(path.resolve(tmpDir), { recursive: true, force: true })
   })
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tmpDir, 'microfrontends', 'default-stack-mfe'))
+      fs.mkdirSync(
+        path.resolve(tempBundleDir, 'microfrontends', 'default-stack-mfe')
+      )
     })
     .command(['mfe rm', defaultMfeName])
-    .it('runs mfe rm default-stack-mfe', () => {
-      const filePath: string = path.resolve(tmpDir, 'microfrontends', defaultMfeName)
+    .it('removes a micro frontend', () => {
+      const filePath: string = path.resolve(
+        tempBundleDir,
+        'microfrontends',
+        defaultMfeName
+      )
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
@@ -67,9 +67,13 @@ describe('mfe rm', () => {
     .stderr()
     .command(['mfe rm', 'jojoma'])
     .catch(error => {
-      expect(error.message).to.contain('jojoma does not exist in the microfrontends section of the Bundle descriptor')
+      expect(error.message).to.contain(
+        'jojoma does not exist in the microfrontends section of the Bundle descriptor'
+      )
     })
-    .it('removing a microfrontend that does not exist in descriptor')
+    .it(
+      'exits with an error if the micro frontend does not exist in the descriptor'
+    )
 
   test
     .stderr()
@@ -77,5 +81,5 @@ describe('mfe rm', () => {
     .catch(error => {
       expect(error.message).to.contain(`does not exist`)
     })
-    .it('removing a microfrontend with its folder that does not exist')
+    .it('exits with an error if the micro frontend folder does not exist')
 })

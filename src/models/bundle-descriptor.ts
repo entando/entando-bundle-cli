@@ -46,8 +46,8 @@ export type MicroFrontend = {
   configUi?: {
     customElement: string
     resources: string[]
-  },
-  apiClaims?: ApiClaim[]
+  }
+  apiClaims?: Array<ApiClaim | ExternalApiClaim>
 }
 
 export type BundleDescriptor = {
@@ -80,8 +80,11 @@ export enum ApiType {
 }
 
 export interface ApiClaim {
-  name: string,
-  type: ApiType,
-  serviceId: string,
-  bundleId?: string
+  name: string
+  type: ApiType
+  serviceId: string
+}
+
+export interface ExternalApiClaim extends ApiClaim {
+  bundleId: string
 }
