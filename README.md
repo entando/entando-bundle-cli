@@ -6,11 +6,10 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-
-- [entando-bundle-cli](#entando-bundle-cli)
-- [Usage](#usage)
-- [Commands](#commands)
-- [Development environment setup](#development-environment-setup)
+* [entando-bundle-cli](#entando-bundle-cli)
+* [Usage](#usage)
+* [Commands](#commands)
+* [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
@@ -22,7 +21,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.0
+entando-bundle-cli/0.0.1-SNAPSHOT win32-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -34,17 +33,16 @@ USAGE
 # Commands
 
 <!-- commands -->
-
-- [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
-- [`entando-bundle-cli build NAME`](#entando-bundle-cli-build-name)
-- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-- [`entando-bundle-cli list`](#entando-bundle-cli-list)
-- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-- [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-- [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
-- [`entando-bundle-cli package`](#entando-bundle-cli-package)
+* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+* [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
+* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+* [`entando-bundle-cli list`](#entando-bundle-cli-list)
+* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+* [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
+* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+* [`entando-bundle-cli package`](#entando-bundle-cli-package)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -69,25 +67,28 @@ EXAMPLES
   $ entando-bundle-cli api add mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080
 ```
 
-## `entando-bundle-cli build NAME`
+## `entando-bundle-cli api add-ext MFENAME CLAIMNAME`
 
-Build the component
+Adds an external API claim to the specified MFE component
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME]
+  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] --bundleId <value> --serviceId <value>
 
 ARGUMENTS
-  NAME  The name of the component to build
+  MFENAME    Name of the Micro Frontend component
+  CLAIMNAME  Name of the API claim
+
+FLAGS
+  --bundleId=<value>   (required) Target Bundle ID
+  --serviceId=<value>  (required) Microservice name within the target Bundle
 
 DESCRIPTION
-  describe the command here
+  Adds an external API claim to the specified MFE component
 
 EXAMPLES
-  $ entando-bundle-cli build my-component
+  $ entando-bundle-cli api add-ext mfe1 ms1-api --bundleId my-bundle --serviceId ms1
 ```
-
-_See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/build.ts)_
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -111,7 +112,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `entando-bundle-cli init NAME`
 
-Performs the scaffolding of a Bundle project (we'll add the possibility to init from hub later)
+Performs the scaffolding of a Bundle project
 
 ```
 USAGE
@@ -126,7 +127,7 @@ FLAGS
   --version=<value>  Project version
 
 DESCRIPTION
-  Performs the scaffolding of a Bundle project (we'll add the possibility to init from hub later)
+  Performs the scaffolding of a Bundle project
 
 EXAMPLES
   $ entando-bundle-cli init my-bundle
@@ -148,7 +149,7 @@ USAGE
 
 FLAGS
   --mfe  List only Micro Frontend components
-  --ms   List only Micro Service components
+  --ms   List only microservice components
 
 DESCRIPTION
   Lists the available components in the bundle
@@ -207,21 +208,21 @@ EXAMPLES
 
 ## `entando-bundle-cli ms add NAME`
 
-Adds a Micro Service component to the bundle
+Adds a microservice component to the bundle
 
 ```
 USAGE
   $ entando-bundle-cli ms add [NAME] [--stack spring-boot|node]
 
 ARGUMENTS
-  NAME  Name of the Micro Service component
+  NAME  Name of the microservice component
 
 FLAGS
-  --stack=<option>  [default: spring-boot] Micro Service stack
+  --stack=<option>  [default: spring-boot] Microservice stack
                     <options: spring-boot|node>
 
 DESCRIPTION
-  Adds a Micro Service component to the bundle
+  Adds a microservice component to the bundle
 
 EXAMPLES
   $ entando-bundle-cli ms add my-ms
@@ -268,7 +269,6 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/package.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/package.ts)_
-
 <!-- commandsstop -->
 
 # Development environment setup

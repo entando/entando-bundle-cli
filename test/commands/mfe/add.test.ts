@@ -7,7 +7,7 @@ import {
   MicroFrontend
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
-import TempDirHelper from '../../helpers/temp-dir-helper'
+import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -22,6 +22,7 @@ describe('mfe add', () => {
   let tempBundleDir: string
 
   let bundleDescriptorService: BundleDescriptorService
+
   before(() => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
@@ -36,24 +37,20 @@ describe('mfe add', () => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
-  after(() => {
-    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
-  })
-
   test
     .command(['mfe add', 'default-stack-mfe'])
-    .it('runs mfe add default-stack-mfe', () => {
+    .it('adds a micro frontend with default stack', () => {
       const mfeName = 'default-stack-mfe'
       const filePath: string = path.resolve(
         tempBundleDir,
         'microfrontends',
         mfeName
       )
-      const bundleDescriptor: BundleDescriptor =
+      const updatedBundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
-      expect(bundleDescriptor).to.eql({
+      expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: [{ name: mfeName, stack: 'react' }]
       })
@@ -61,18 +58,18 @@ describe('mfe add', () => {
 
   test
     .command(['mfe add', 'angular-mfe', '--stack', 'angular'])
-    .it('runs mfe add angular-mfe --stack angular', () => {
+    .it('adds a micro frontend with specified stack', () => {
       const mfeName = 'angular-mfe'
       const filePath: string = path.resolve(
         tempBundleDir,
         'microfrontends',
         mfeName
       )
-      const bundleDescriptor: BundleDescriptor =
+      const updatedBundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
-      expect(bundleDescriptor).to.eql({
+      expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: [{ name: mfeName, stack: 'angular' }]
       })
@@ -90,16 +87,19 @@ describe('mfe add', () => {
       })
     })
     .command(['mfe add', 'mfe2'])
-    .it('runs mfe add mfe2', () => {
-      const mfeNames = ['mfe1', 'mfe2']
-      const dirCont: Array<string> = fs.readdirSync(
-        path.resolve(tempBundleDir, 'microfrontends')
-      )
-      const { microfrontends } = bundleDescriptorService.getBundleDescriptor()
+    .it(
+      'adds a new micro frontend to bundle having an existing micro frontend',
+      () => {
+        const mfeNames = ['mfe1', 'mfe2']
+        const dirCont: Array<string> = fs.readdirSync(
+          path.resolve(tempBundleDir, 'microfrontends')
+        )
+        const { microfrontends } = bundleDescriptorService.getBundleDescriptor()
 
-      expect(mfeNames.every(name => dirCont.includes(name))).to.eq(true)
-      expect(microfrontends.every(({ name }) => mfeNames.includes(name)))
-    })
+        expect(mfeNames.every(name => dirCont.includes(name))).to.eq(true)
+        expect(microfrontends.every(({ name }) => mfeNames.includes(name)))
+      }
+    )
 
   test
     .stderr()
@@ -107,7 +107,7 @@ describe('mfe add', () => {
     .catch(error => {
       expect(error.message).to.contain('not a valid Micro Frontend name')
     })
-    .it('validates Micro Frontend name')
+    .it('exists with an error if micro frontend name is invalid')
 
   test
     .stderr()
@@ -115,7 +115,7 @@ describe('mfe add', () => {
     .catch(error => {
       expect(error.message).to.contain('existing-mfe-dir already exists')
     })
-    .it('exits if mfe folder already exists')
+    .it('exits with an error if mfe folder already exists')
 
   test
     .stderr()
@@ -132,16 +132,18 @@ describe('mfe add', () => {
     .catch(error => {
       expect(error.message).to.contain('existing-mfe-desc already exists')
     })
-    .it('exits if mfe descriptor already exists')
+    .it('exits with an error if mfe descriptor already exists')
 
   test
     .stderr()
     .do(() => {
-      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), { force: true })
+      fs.rmSync(path.resolve(tempBundleDir, BUNDLE_DESCRIPTOR_FILE_NAME), {
+        force: true
+      })
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {
       expect(error.message).to.contain('not an initialized Bundle project')
     })
-    .it('exits if current folder is not a Bundle project')
+    .it('exits with an error if current folder is not a Bundle project')
 })

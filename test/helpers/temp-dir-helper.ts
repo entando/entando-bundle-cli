@@ -11,7 +11,7 @@ import * as sinon from 'sinon'
  * generated for each test file. The helper also provides a function to generate
  * already initialized bundle directories inside the test temporary directory.
  */
-export default class TempDirHelper {
+export class TempDirHelper {
   tmpDir: string = os.tmpdir()
 
   constructor(testFile: string) {
@@ -37,6 +37,8 @@ export default class TempDirHelper {
     })
 
     after(() => {
+      // prevents locking of temporary directory so it can be cleaned up
+      process.chdir(path.resolve(this.tmpDir, '..'))
       // temporary directory cleanup
       fs.rmSync(path.resolve(this.tmpDir), { recursive: true, force: true })
     })

@@ -1,17 +1,20 @@
 import { CLIError } from '@oclif/errors'
-import { ApiClaim } from '../models/bundle-descriptor'
+import { ApiClaim, ExternalApiClaim } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { MfeConfigService } from './mfe-config-service'
 import { MfeConfig } from '../models/mfe-config'
+import { CMService } from './cm-service'
 
 export class ApiClaimService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly mfeConfigService: MfeConfigService
+  private readonly cmService: CMService
 
   constructor() {
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
     this.mfeConfigService = new MfeConfigService()
+    this.cmService = new CMService()
   }
 
   public addInternalApiClaim(
@@ -23,28 +26,44 @@ export class ApiClaimService {
       throw new CLIError(`${serviceUrl} is not a valid URL`)
     }
 
-    this.addApiClaim(mfeName, apiClaim)
+    if (!this.internalMicroserviceExists(apiClaim.serviceId)) {
+      throw new CLIError(`Microservice ${apiClaim.serviceId} does not exist`)
+    }
 
+    this.addApiClaim(mfeName, apiClaim)
     this.updateMfeConfigApi(mfeName, apiClaim.name, serviceUrl)
   }
 
-  private addApiClaim(mfeName: string, apiClaim: ApiClaim): void {
+  public addExternalApiClaim(
+    mfeName: string,
+    apiClaim: ExternalApiClaim
+  ): void {
+    const url = this.cmService.getBundleMicroserviceUrl(
+      apiClaim.bundleId,
+      apiClaim.serviceId
+    )
+
+    if (!url) {
+      throw new CLIError('Failed to get microservice URL')
+    }
+
+    this.addApiClaim(mfeName, apiClaim)
+    this.updateMfeConfigApi(mfeName, apiClaim.name, url)
+  }
+
+  private addApiClaim(
+    mfeName: string,
+    apiClaim: ApiClaim | ExternalApiClaim
+  ): void {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
-    const { microfrontends, microservices } = bundleDescriptor
+    const { microfrontends } = bundleDescriptor
     const mfeIdx: number = microfrontends.findIndex(
       ({ name }) => mfeName === name
-    )
-    const msIdx: number = microservices.findIndex(
-      ({ name }) => apiClaim.serviceId === name
     )
 
     if (mfeIdx === -1) {
       throw new CLIError(`Micro Frontend ${mfeName} does not exist`)
-    }
-
-    if (msIdx === -1) {
-      throw new CLIError(`Microservice ${apiClaim.serviceId} does not exist`)
     }
 
     if (!microfrontends[mfeIdx].apiClaims) {
@@ -85,6 +104,13 @@ export class ApiClaimService {
       }
     }
     this.mfeConfigService.writeMfeConfig(mfeName, updatedMfeConfig)
+  }
+
+  private internalMicroserviceExists(msName: string): boolean {
+    const { microservices } = this.bundleDescriptorService.getBundleDescriptor()
+    const msIdx: number = microservices.findIndex(({ name }) => msName === name)
+
+    return msIdx !== -1
   }
 
   private isValidUrl(url: string): boolean {

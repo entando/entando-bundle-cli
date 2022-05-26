@@ -6,7 +6,7 @@ import { CONFIG_FOLDER, CONFIG_FILE } from '../paths'
 
 export const DOCKER_ORGANIZATION_PROPERTY = 'docker-organization'
 
-export default class ConfigService {
+export class ConfigService {
   private config: { [key: string]: string } = {}
 
   private readConfigFile = (): void => {

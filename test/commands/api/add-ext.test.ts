@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as sinon from 'sinon'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
@@ -9,10 +10,11 @@ import {
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
+import { CMService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
-describe('api add', () => {
+describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
   let tempBundleDir: string
 
@@ -29,7 +31,6 @@ describe('api add', () => {
     bundleDescriptor = {
       name: 'bundle-api-test',
       version: '0.0.1',
-      type: 'bundle',
       microservices: <Array<MicroService>>[
         { name: 'ms1', stack: 'spring-boot' }
       ],
@@ -46,15 +47,15 @@ describe('api add', () => {
 
   test
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms1-api',
       '--serviceId',
       'ms1',
-      '--serviceUrl',
-      'http://localhost:8080'
+      '--bundleId',
+      'my-bundle'
     ])
-    .it('adds an internal api claim to an mfe', () => {
+    .it('adds an external api claim to an mfe', () => {
       const updatedBundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
       const updatedMfeConfig: MfeConfig = mfeConfigService.getMfeConfig('mfe1')
@@ -64,45 +65,55 @@ describe('api add', () => {
         microfrontends: [
           {
             ...bundleDescriptor.microfrontends[0],
-            apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
+            apiClaims: [
+              {
+                name: 'ms1-api',
+                type: 'external',
+                serviceId: 'ms1',
+                bundleId: 'my-bundle'
+              }
+            ]
           }
         ]
       })
 
       expect(updatedMfeConfig).to.eql({
-        api: { 'ms1-api': { url: 'http://localhost:8080' } }
+        api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
       })
     })
 
   test
     .do(() => {
-      const microservices = <Array<MicroService>>[
-        ...bundleDescriptor.microservices,
-        { name: 'ms2', stack: 'node' }
-      ]
       const microfrontends = <Array<MicroFrontend>>[
         {
           ...bundleDescriptor.microfrontends[0],
-          apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
+          apiClaims: [
+            {
+              name: 'ms1-api',
+              type: 'external',
+              serviceId: 'ms1',
+              bundleId: 'my-bundle'
+            }
+          ]
         }
       ]
-      bundleDescriptor = { ...bundleDescriptor, microfrontends, microservices }
+      bundleDescriptor = { ...bundleDescriptor, microfrontends }
       bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
       mfeConfigService.writeMfeConfig('mfe1', {
-        api: { 'ms1-api': { url: 'http://localhost:8080' } }
+        api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
       })
     })
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms2-api',
       '--serviceId',
       'ms2',
-      '--serviceUrl',
-      'http://localhost:8081'
+      '--bundleId',
+      'my-bundle'
     ])
     .it(
-      'adds a new internal api claim to an mfe having an existing api claim',
+      'adds a new external api claim to an mfe having an existing api claim',
       () => {
         const updatedBundleDescriptor: BundleDescriptor =
           bundleDescriptorService.getBundleDescriptor()
@@ -115,8 +126,18 @@ describe('api add', () => {
             {
               ...bundleDescriptor.microfrontends[0],
               apiClaims: [
-                { name: 'ms1-api', type: 'internal', serviceId: 'ms1' },
-                { name: 'ms2-api', type: 'internal', serviceId: 'ms2' }
+                {
+                  name: 'ms1-api',
+                  type: 'external',
+                  serviceId: 'ms1',
+                  bundleId: 'my-bundle'
+                },
+                {
+                  name: 'ms2-api',
+                  type: 'external',
+                  serviceId: 'ms2',
+                  bundleId: 'my-bundle'
+                }
               ]
             }
           ]
@@ -124,8 +145,8 @@ describe('api add', () => {
 
         expect(updatedMfeConfig).to.eql({
           api: {
-            'ms1-api': { url: 'http://localhost:8080' },
-            'ms2-api': { url: 'http://localhost:8081' }
+            'ms1-api': { url: 'http://mock-my-bundle-ms1' },
+            'ms2-api': { url: 'http://mock-my-bundle-ms2' }
           }
         })
       }
@@ -136,16 +157,16 @@ describe('api add', () => {
       fs.rmSync(path.resolve('microfrontends', 'mfe1', 'mfe-config.json'))
     })
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms1-api',
       '--serviceId',
       'ms1',
-      '--serviceUrl',
-      'http://localhost:8080'
+      '--bundleId',
+      'my-bundle'
     ])
     .it(
-      "adds an internal api claim to an mfe that doesn't have an existing mfe-config.json",
+      "adds an external api claim to an mfe that doesn't have an existing mfe-config.json",
       () => {
         const updatedBundleDescriptor: BundleDescriptor =
           bundleDescriptorService.getBundleDescriptor()
@@ -158,14 +179,19 @@ describe('api add', () => {
             {
               ...bundleDescriptor.microfrontends[0],
               apiClaims: [
-                { name: 'ms1-api', type: 'internal', serviceId: 'ms1' }
+                {
+                  name: 'ms1-api',
+                  type: 'external',
+                  serviceId: 'ms1',
+                  bundleId: 'my-bundle'
+                }
               ]
             }
           ]
         })
 
         expect(updatedMfeConfig).to.eql({
-          api: { 'ms1-api': { url: 'http://localhost:8080' } }
+          api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
         })
       }
     )
@@ -179,13 +205,13 @@ describe('api add', () => {
       })
     })
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms1-api',
       '--serviceId',
       'ms1',
-      '--serviceUrl',
-      'http://localhost:8080'
+      '--bundleId',
+      'my-bundle'
     ])
     .catch(error => {
       expect(error.message).to.contain('mfe1 does not exist')
@@ -195,66 +221,56 @@ describe('api add', () => {
   test
     .stderr()
     .do(() => {
-      bundleDescriptorService.writeBundleDescriptor({
-        ...bundleDescriptor,
-        microservices: []
-      })
-    })
-    .command([
-      'api add',
-      'mfe1',
-      'ms1-api',
-      '--serviceId',
-      'ms1',
-      '--serviceUrl',
-      'http://localhost:8080'
-    ])
-    .catch(error => {
-      expect(error.message).to.contain('ms1 does not exist')
-    })
-    .it('exits with an error if microservice does not exist in the descriptor')
-
-  test
-    .stderr()
-    .do(() => {
       const microfrontends = <Array<MicroFrontend>>[
         {
           ...bundleDescriptor.microfrontends[0],
-          apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
+          apiClaims: [
+            {
+              name: 'ms1-api',
+              type: 'external',
+              serviceId: 'ms1',
+              bundleId: 'my-bundle'
+            }
+          ]
         }
       ]
       bundleDescriptor = { ...bundleDescriptor, microfrontends }
       bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
     })
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms1-api',
       '--serviceId',
       'ms1',
-      '--serviceUrl',
-      'http://localhost:8080'
+      '--bundleId',
+      'my-bundle'
     ])
     .catch(error => {
       expect(error.message).to.contain('API claim ms1-api already exists')
     })
-    .it('exits with an error if API claim already exists')
+    .it('exits with error if API claim already exists')
 
   test
     .stderr()
+    .stub(
+      CMService.prototype,
+      'getBundleMicroserviceUrl',
+      sinon.stub().returns(null)
+    )
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms1-api',
       '--serviceId',
       'ms1',
-      '--serviceUrl',
-      'invalidurl'
+      '--bundleId',
+      'my-bundle'
     ])
     .catch(error => {
-      expect(error.message).to.contain('invalidurl is not a valid URL')
+      expect(error.message).to.contain('Failed to get microservice URL')
     })
-    .it('exits with an error if serviceUrl is not a valid URL')
+    .it('exits with an error if it fails to get the microservice url')
 
   test
     .stderr()
@@ -262,16 +278,16 @@ describe('api add', () => {
       fs.rmSync(BUNDLE_DESCRIPTOR_FILE_NAME, { force: true })
     })
     .command([
-      'api add',
+      'api add-ext',
       'mfe1',
       'ms1-api',
       '--serviceId',
       'ms1',
-      '--serviceUrl',
-      'http://localhost:8080'
+      '--bundleId',
+      'my-bundle'
     ])
     .catch(error => {
       expect(error.message).to.contain('not an initialized Bundle project')
     })
-    .it('exits with an error if current folder is not a Bundle project')
+    .it('exits with error if current folder is not a Bundle project')
 })

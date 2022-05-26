@@ -1,7 +1,7 @@
 import { expect, test } from '@oclif/test'
 
 import Init from '../../src/commands/init'
-import debugFactory from '../../src/services/debug-factory-service'
+import { debugFactory } from '../../src/services/debug-factory-service'
 
 describe('debugFactory', () => {
   test
