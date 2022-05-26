@@ -30,10 +30,8 @@ describe('api add', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: <Array<MicroService>>[
-        { name: 'ms1', stack: 'spring-boot' }
-      ],
-      microfrontends: <Array<MicroFrontend>>[{ name: 'mfe1', stack: 'react' }]
+      microservices: <MicroService[]>[{ name: 'ms1', stack: 'spring-boot' }],
+      microfrontends: <MicroFrontend[]>[{ name: 'mfe1', stack: 'react' }]
     }
 
     process.chdir(tempBundleDir)
@@ -76,11 +74,11 @@ describe('api add', () => {
 
   test
     .do(() => {
-      const microservices = <Array<MicroService>>[
+      const microservices = <MicroService[]>[
         ...bundleDescriptor.microservices,
         { name: 'ms2', stack: 'node' }
       ]
-      const microfrontends = <Array<MicroFrontend>>[
+      const microfrontends = <MicroFrontend[]>[
         {
           ...bundleDescriptor.microfrontends[0],
           apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
@@ -211,7 +209,7 @@ describe('api add', () => {
   test
     .stderr()
     .do(() => {
-      const microfrontends = <Array<MicroFrontend>>[
+      const microfrontends = <MicroFrontend[]>[
         {
           ...bundleDescriptor.microfrontends[0],
           apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]

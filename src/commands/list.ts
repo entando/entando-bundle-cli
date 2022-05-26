@@ -26,7 +26,7 @@ export default class List extends Command {
 
     const { flags } = await this.parse(List)
     const componentService = new ComponentService()
-    let components: Array<VersionedComponent> = []
+    let components: VersionedComponent[] = []
 
     if (!flags.ms && !flags.mfe) {
       components = componentService.getVersionedComponents()

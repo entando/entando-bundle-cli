@@ -29,7 +29,7 @@ describe('api rm', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       microservices: [],
-      microfrontends: <Array<MicroFrontend>>[
+      microfrontends: <MicroFrontend[]>[
         {
           name: 'mfe1',
           stack: 'react',

@@ -31,11 +31,11 @@ export class ComponentService {
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 
-  public getComponents(type?: ComponentType): Array<Component> {
+  public getComponents(type?: ComponentType): Component[] {
     const { microfrontends, microservices }: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
 
-    let components: Array<Component>
+    let components: Component[]
 
     if (type === ComponentType.MICROFRONTEND) {
       components = microfrontends.map(
@@ -57,9 +57,7 @@ export class ComponentService {
     return components
   }
 
-  public getVersionedComponents(
-    type?: ComponentType
-  ): Array<VersionedComponent> {
+  public getVersionedComponents(type?: ComponentType): VersionedComponent[] {
     return this.getComponents(type).map(comp => ({
       ...comp,
       version: this.componentDescriptorService.getComponentVersion(comp)

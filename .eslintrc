@@ -5,6 +5,7 @@
     "indent": "off",
     "@typescript-eslint/semi": "off",
     "@typescript-eslint/indent": "off",
+    "@typescript-eslint/array-type": ["warn", { "default": "array-simple" }],
     "semi": "off",
     "object-curly-spacing": "off",
     "comma-dangle": "off",
