@@ -56,7 +56,7 @@ export class ProcessExecutorService {
 
       process.on('exit', (code, signal) => {
         if (code !== 0) {
-          reject(new ExecutionError(code === null ? signal! : code))
+          reject(new ExecutionError(code ?? signal!))
         }
 
         resolve(code!)
@@ -100,11 +100,7 @@ export class ParallelProcessExecutorService extends EventEmitter {
     super()
     this.parallelism = parallelism
     this.processesToWait = processesOptions.length
-    this.queue = processesOptions
-      .map((options, index) => ({ options, index }))
-      // reversing queue, so that when we use pop() the first process of the list
-      // passed to constructor is effectively the first process to be started
-      .reverse()
+    this.queue = processesOptions.map((options, index) => ({ options, index }))
   }
 
   public async execute(): Promise<ProcessExecutionResult[]> {
@@ -130,7 +126,7 @@ export class ParallelProcessExecutorService extends EventEmitter {
   }
 
   private startNextProcess() {
-    const queuedExecution = this.queue.pop()
+    const queuedExecution = this.queue.shift()
 
     if (queuedExecution) {
       ParallelProcessExecutorService.debug(
@@ -145,7 +141,7 @@ export class ParallelProcessExecutorService extends EventEmitter {
         ParallelProcessExecutorService.debug(
           `Process ${queuedExecution.index} exited with code ${code} and signal ${signal}`
         )
-        this.emit('done', queuedExecution.index, code === null ? signal! : code)
+        this.emit('done', queuedExecution.index, code ?? signal!)
       })
 
       process.on('error', error => {
