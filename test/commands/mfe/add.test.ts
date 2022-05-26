@@ -13,6 +13,7 @@ describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
     name: 'bundle-mfe-test',
     version: '0.0.1',
+    type: 'bundle',
     microservices: [],
     microfrontends: []
   }

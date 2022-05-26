@@ -93,6 +93,7 @@ export class InitializerService {
     this.filesys.createSubDirectoryIfNotExist('microfrontends')
     this.filesys.createSubDirectoryIfNotExist('.ent')
     this.filesys.createSubDirectoryIfNotExist('.ent', 'output')
+    this.filesys.createSubDirectoryIfNotExist('aux')
   }
 
   private createBundleDescriptor() {
@@ -122,9 +123,17 @@ export class InitializerService {
 
   public createDefaultAuxFiles(): void {
     InitializerService.debug('creating auxfiles')
+
     const replaceDict = { '%BUNDLENAME%': this.options.name }
-    this.filesys.createFileFromTemplate([AUX_FOLDER, 'mysql.yml'], path.join('aux', 'mysql-template'), replaceDict)
-    this.filesys.createFileFromTemplate([AUX_FOLDER, 'postgresql.yml'], path.join('aux', 'postgresql-template'), replaceDict)
+    const defaultYamls = ['mysql', 'postgresql', 'keycloak']
+
+    for (const yamlName of defaultYamls) {
+      this.filesys.createFileFromTemplate(
+        [AUX_FOLDER, `${yamlName}.yml`],
+        path.join('aux', `${yamlName}-template`),
+        replaceDict
+      )
+    }
   }
 
   private createConfigJson() {

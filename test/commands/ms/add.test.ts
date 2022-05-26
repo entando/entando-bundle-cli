@@ -13,6 +13,7 @@ describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
     name: 'bundle-ms-test',
     version: '0.0.1',
+    type: 'bundle',
     microservices: [],
     microfrontends: []
   }

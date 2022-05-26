@@ -55,9 +55,11 @@ export type BundleDescriptor = {
   name: string
   /** Bundle version. It will be used as default Docker image tag */
   version: string
+  type: string
   description?: string
   microservices: MicroService[]
   microfrontends: MicroFrontend[]
+  aux?: string[]
 }
 
 export type BundleGroup = {

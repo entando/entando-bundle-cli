@@ -76,6 +76,30 @@ describe('fs-service', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
+      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName, 'aux'))
+    })
+    .it(
+      'run createFileFromTemplate with replaces from placeholder to bundle name',
+      () => {
+        const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
+        filesys.createFileFromTemplate(
+          ['aux', 'mysql.yml'],
+          path.join('aux', 'mysql-template'),
+          { '%BUNDLENAME%': defaultBundleName }
+        )
+        const filePath = path.resolve(
+          tempDirHelper.tmpDir,
+          defaultBundleName,
+          'aux',
+          'mysql.yml'
+        )
+        expect(fs.existsSync(filePath)).to.eq(true)
+      }
+    )
+
+  test
+    .do(() => {
+      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
     })
     .it('run createSubDirectoryIfNotExist', () => {
       const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)

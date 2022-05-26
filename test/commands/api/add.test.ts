@@ -29,6 +29,7 @@ describe('api add', () => {
     bundleDescriptor = {
       name: 'bundle-api-test',
       version: '0.0.1',
+      type: 'bundle',
       microservices: <Array<MicroService>>[
         { name: 'ms1', stack: 'spring-boot' }
       ],
