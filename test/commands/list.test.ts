@@ -65,14 +65,10 @@ describe('list', () => {
     )
   })
 
-  after(() => {
-    fs.rmSync(path.resolve(tempBundleDir), { recursive: true, force: true })
-  })
-
   test
     .stdout()
     .command(['list'])
-    .it('runs list', ctx => {
+    .it('lists all components', ctx => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
@@ -86,7 +82,7 @@ describe('list', () => {
   test
     .stdout()
     .command(['list', '--ms'])
-    .it('runs list --ms', ctx => {
+    .it('lists only microservice components', ctx => {
       const output: string = ctx.stdout
 
       expect(output).to.match(
@@ -98,7 +94,7 @@ describe('list', () => {
   test
     .stdout()
     .command(['list', '--mfe'])
-    .it('runs list --mfe', ctx => {
+    .it('lists only micro frontend components', ctx => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
@@ -108,7 +104,7 @@ describe('list', () => {
   test
     .stdout()
     .command(['list', '--ms', '--mfe'])
-    .it('runs list --ms --mfe', ctx => {
+    .it('lists micro frontend and microservice components', ctx => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+0\.0\.1\s+react/)
@@ -126,7 +122,7 @@ describe('list', () => {
       fs.rmSync(path.resolve('./microservices', 'ms1', 'pom.xml'))
     })
     .command(['list'])
-    .it('runs list', ctx => {
+    .it('lists all components including ones without versions', ctx => {
       const output: string = ctx.stdout
 
       expect(output).to.match(/mfe1\s+microfrontend\s+undefined\s+react/)
@@ -146,5 +142,5 @@ describe('list', () => {
     .catch(error => {
       expect(error.message).to.contain('not an initialized Bundle project')
     })
-    .it('exits if current folder is not a Bundle project')
+    .it('exits with an error if current folder is not a Bundle project')
 })
