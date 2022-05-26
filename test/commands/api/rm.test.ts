@@ -28,6 +28,7 @@ describe('api rm', () => {
     bundleDescriptor = {
       name: 'bundle-api-test',
       version: '0.0.1',
+      type: 'bundle',
       microservices: [],
       microfrontends: <MicroFrontend[]>[
         {
