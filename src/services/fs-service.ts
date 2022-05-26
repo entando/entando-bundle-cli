@@ -7,6 +7,10 @@ import { RESOURCES_FOLDER } from '../paths'
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 const JSON_INDENTATION_SPACES = 4
 
+interface ContentReplaceDictionary {
+  [key: string]: string
+}
+
 export class FSService {
   private static debug = debugFactory(FSService)
 
@@ -51,14 +55,19 @@ export class FSService {
     return path.resolve(this.getBundleDirectory(), ...pathSegments)
   }
 
-  public createFileFromTemplate(
-    pathSegments: string[],
-    templateFileName: string
-  ): void {
+  public createFileFromTemplate(pathSegments: string[], templateFileName: string, replaceDict?: ContentReplaceDictionary): void {
     const filePath = this.getBundleFilePath(...pathSegments)
-    const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
+    let templateFileContent = fs.readFileSync(
+      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName),
+      replaceDict ? 'utf8' : null,
     )
+    if (replaceDict) {
+      const placeholders: string[] = Object.keys(replaceDict)
+      templateFileContent = placeholders.reduce((currContent: string, placeholder: string) => (
+        currContent.replace(`/${placeholder}/g`, replaceDict[placeholder])
+      ), templateFileContent)
+      
+    }
     fs.writeFileSync(filePath, templateFileContent)
   }
 
