@@ -15,11 +15,11 @@ describe('list', () => {
     name: 'bundle-list-test',
     version: '0.0.1',
     type: 'bundle',
-    microfrontends: <Array<MicroFrontend>>[
+    microfrontends: <MicroFrontend[]>[
       { name: 'mfe1', stack: 'react' },
       { name: 'mfe2', stack: 'angular' }
     ],
-    microservices: <Array<MicroService>>[
+    microservices: <MicroService[]>[
       { name: 'ms1', stack: 'spring-boot' },
       { name: 'ms2', stack: 'node' }
     ]

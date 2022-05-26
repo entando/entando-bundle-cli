@@ -78,7 +78,7 @@ describe('mfe add', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microfrontends', 'mfe1'))
-      const microfrontends: Array<MicroFrontend> = <Array<MicroFrontend>>[
+      const microfrontends: MicroFrontend[] = <MicroFrontend[]>[
         { name: 'mfe1' }
       ]
       bundleDescriptorService.writeBundleDescriptor({
@@ -91,7 +91,7 @@ describe('mfe add', () => {
       'adds a new micro frontend to bundle having an existing micro frontend',
       () => {
         const mfeNames = ['mfe1', 'mfe2']
-        const dirCont: Array<string> = fs.readdirSync(
+        const dirCont: string[] = fs.readdirSync(
           path.resolve(tempBundleDir, 'microfrontends')
         )
         const { microfrontends } = bundleDescriptorService.getBundleDescriptor()
@@ -120,7 +120,7 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      const microfrontends: Array<MicroFrontend> = <Array<MicroFrontend>>[
+      const microfrontends: MicroFrontend[] = <MicroFrontend[]>[
         { name: 'existing-mfe-desc' }
       ]
       bundleDescriptorService.writeBundleDescriptor({

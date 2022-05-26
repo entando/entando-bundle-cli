@@ -77,7 +77,7 @@ describe('ms add', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microservices', 'ms1'))
-      const microservices: Array<MicroService> = <Array<MicroService>>[
+      const microservices: MicroService[] = <MicroService[]>[
         { name: 'ms1' }
       ]
       bundleDescriptorService.writeBundleDescriptor({
@@ -90,7 +90,7 @@ describe('ms add', () => {
       'adds a new microservice to bundle having an existing microservice',
       () => {
         const msNames = ['ms1', 'ms2']
-        const dirCont: Array<string> = fs.readdirSync(
+        const dirCont: string[] = fs.readdirSync(
           path.resolve(tempBundleDir, 'microservices')
         )
         const { microservices } = bundleDescriptorService.getBundleDescriptor()
@@ -119,7 +119,7 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      const microservices: Array<MicroService> = <Array<MicroService>>[
+      const microservices: MicroService[] = <MicroService[]>[
         { name: 'existing-ms-desc' }
       ]
       bundleDescriptorService.writeBundleDescriptor({
