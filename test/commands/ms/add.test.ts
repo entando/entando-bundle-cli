@@ -7,7 +7,7 @@ import {
   MicroService
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
-import TempDirHelper from '../../helpers/temp-dir-helper'
+import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {

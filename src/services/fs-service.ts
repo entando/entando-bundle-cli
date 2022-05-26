@@ -1,7 +1,7 @@
 import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import debugFactory from './debug-factory-service'
+import { debugFactory } from './debug-factory-service'
 import { RESOURCES_FOLDER } from '../paths'
 
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
@@ -19,7 +19,7 @@ export class FSService {
   }
 
   public checkBundleName(): void {
-    FSService.debug('checking bundle name if it\'s accepted')
+    FSService.debug('checking if bundle name is valid')
     if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.bundleName)) {
       throw new CLIError(
         `'${this.bundleName}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
@@ -34,9 +34,7 @@ export class FSService {
     try {
       fs.accessSync(this.parentDirectory, fs.constants.W_OK)
     } catch {
-      throw new CLIError(
-        `Directory ${this.parentDirectory} is not writable`
-      )
+      throw new CLIError(`Directory ${this.parentDirectory} is not writable`)
     }
 
     FSService.debug('checking bundle directory it exists')
@@ -53,7 +51,10 @@ export class FSService {
     return path.resolve(this.getBundleDirectory(), ...pathSegments)
   }
 
-  public createFileFromTemplate(pathSegments: string[], templateFileName: string): void {
+  public createFileFromTemplate(
+    pathSegments: string[],
+    templateFileName: string
+  ): void {
     const filePath = this.getBundleFilePath(...pathSegments)
     const templateFileContent = fs.readFileSync(
       path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
@@ -71,6 +72,7 @@ export class FSService {
   public static writeJSON(filePath: string, data: any): void {
     fs.writeFileSync(
       filePath,
-      JSON.stringify(data, null, JSON_INDENTATION_SPACES))
+      JSON.stringify(data, null, JSON_INDENTATION_SPACES)
+    )
   }
 }

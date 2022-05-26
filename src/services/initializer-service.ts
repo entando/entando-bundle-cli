@@ -1,11 +1,7 @@
 import * as fs from 'node:fs'
 import { BundleDescriptorService } from './bundle-descriptor-service'
-import debugFactory from './debug-factory-service'
-import {
-  CONFIG_FILE,
-  CONFIG_FOLDER,
-  DEFAULT_CONFIG_FILE
-} from '../paths'
+import { debugFactory } from './debug-factory-service'
+import { CONFIG_FILE, CONFIG_FOLDER, DEFAULT_CONFIG_FILE } from '../paths'
 
 import { FSService } from './fs-service'
 import { GitService } from './git-service'
@@ -60,7 +56,9 @@ export class InitializerService {
     fs.mkdirSync(this.filesys.getBundleFilePath('epc'))
   }
 
-  public async performBundleInitFromGit(gitSrcRepoAddress: string): Promise<void> {
+  public async performBundleInitFromGit(
+    gitSrcRepoAddress: string
+  ): Promise<void> {
     InitializerService.debug('cloning from bundle and creating new project')
     const { name, version } = this.options
 
@@ -71,9 +69,15 @@ export class InitializerService {
 
     this.createDefaultDirectories()
 
-    const bundleDescriptorService = new BundleDescriptorService(this.filesys.getBundleDirectory())
+    const bundleDescriptorService = new BundleDescriptorService(
+      this.filesys.getBundleDirectory()
+    )
     const descriptor = bundleDescriptorService.getBundleDescriptor()
-    bundleDescriptorService.writeBundleDescriptor({ ...descriptor, name, version })
+    bundleDescriptorService.writeBundleDescriptor({
+      ...descriptor,
+      name,
+      version
+    })
   }
 
   private async createDefaultDirectories() {
@@ -91,7 +95,11 @@ export class InitializerService {
     const bundleDescriptorService = new BundleDescriptorService(
       this.filesys.getBundleDirectory()
     )
-    bundleDescriptorService.createBundleDescriptor({ name, version, type: 'bundle' })
+    bundleDescriptorService.createBundleDescriptor({
+      name,
+      version,
+      type: 'bundle'
+    })
   }
 
   public createGitignore(): void {
@@ -106,6 +114,9 @@ export class InitializerService {
 
   private createConfigJson() {
     InitializerService.debug(`creating ${CONFIG_FILE}`)
-    this.filesys.createFileFromTemplate([CONFIG_FOLDER, CONFIG_FILE], DEFAULT_CONFIG_FILE)
+    this.filesys.createFileFromTemplate(
+      [CONFIG_FOLDER, CONFIG_FILE],
+      DEFAULT_CONFIG_FILE
+    )
   }
 }

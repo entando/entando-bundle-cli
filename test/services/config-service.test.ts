@@ -8,8 +8,8 @@ import {
   CONFIG_FILE
 } from '../../src/paths'
 
-import ConfigService from '../../src/services/config-service'
-import TempDirHelper from '../helpers/temp-dir-helper'
+import { ConfigService } from '../../src/services/config-service'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 
 const configService = new ConfigService()
 

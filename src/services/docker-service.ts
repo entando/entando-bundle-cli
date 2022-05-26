@@ -1,5 +1,5 @@
-import ProcessExecutorService from './process-executor-service'
-import debugFactory from './debug-factory-service'
+import { ProcessExecutorService } from './process-executor-service'
+import { debugFactory } from './debug-factory-service'
 
 export type DockerBuildOptions = {
   path: string
@@ -9,7 +9,7 @@ export type DockerBuildOptions = {
   dockerfile?: string
 }
 
-export default class DockerService {
+export class DockerService {
   private static debug = debugFactory(DockerService)
 
   public static async buildDockerImage(
