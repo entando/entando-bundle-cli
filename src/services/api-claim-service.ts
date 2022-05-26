@@ -31,7 +31,7 @@ export class ApiClaimService {
     }
 
     this.addApiClaim(mfeName, apiClaim)
-    this.updateMfeConfigApi(mfeName, apiClaim.name, serviceUrl)
+    this.updateMfeConfigApiClaim(mfeName, apiClaim.name, serviceUrl)
   }
 
   public addExternalApiClaim(
@@ -48,7 +48,35 @@ export class ApiClaimService {
     }
 
     this.addApiClaim(mfeName, apiClaim)
-    this.updateMfeConfigApi(mfeName, apiClaim.name, url)
+    this.updateMfeConfigApiClaim(mfeName, apiClaim.name, url)
+  }
+
+  public removeApiClaim(mfeName: string, claimName: string): void {
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+    const { microfrontends } = bundleDescriptor
+    const mfeIdx: number = microfrontends.findIndex(
+      ({ name }) => mfeName === name
+    )
+
+    if (mfeIdx === -1) {
+      throw new CLIError(`Micro Frontend ${mfeName} does not exist`)
+    }
+
+    const apiClaimIdx: number = (
+      microfrontends[mfeIdx].apiClaims || []
+    ).findIndex(({ name }) => name === claimName)
+
+    if (apiClaimIdx === -1) {
+      throw new CLIError(`API claim named ${claimName} does not exist`)
+    }
+
+    microfrontends[mfeIdx].apiClaims!.splice(apiClaimIdx, 1)
+    this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+
+    const mfeConfig: MfeConfig = this.mfeConfigService.getMfeConfig(mfeName)
+    delete (mfeConfig.api || {})[claimName]
+    this.mfeConfigService.writeMfeConfig(mfeName, mfeConfig)
   }
 
   private addApiClaim(
@@ -69,7 +97,7 @@ export class ApiClaimService {
     if (!microfrontends[mfeIdx].apiClaims) {
       microfrontends[mfeIdx].apiClaims = []
     } else if (
-      microfrontends[mfeIdx].apiClaims?.some(
+      microfrontends[mfeIdx].apiClaims!.some(
         ({ name }) => name === apiClaim.name
       )
     ) {
@@ -78,15 +106,11 @@ export class ApiClaimService {
       )
     }
 
-    microfrontends[mfeIdx].apiClaims?.push(apiClaim)
-    const updatedBundleDescriptor: BundleDescriptor = {
-      ...bundleDescriptor,
-      microfrontends
-    }
-    this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
+    microfrontends[mfeIdx].apiClaims!.push(apiClaim)
+    this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   }
 
-  private updateMfeConfigApi(
+  private updateMfeConfigApiClaim(
     mfeName: string,
     apiClaimName: string,
     url: string
@@ -108,9 +132,8 @@ export class ApiClaimService {
 
   private internalMicroserviceExists(msName: string): boolean {
     const { microservices } = this.bundleDescriptorService.getBundleDescriptor()
-    const msIdx: number = microservices.findIndex(({ name }) => msName === name)
 
-    return msIdx !== -1
+    return microservices.some(({ name }) => name === msName)
   }
 
   private isValidUrl(url: string): boolean {
