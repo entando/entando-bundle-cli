@@ -12,7 +12,7 @@ import { BundleDescriptorService } from '../../../src/services/bundle-descriptor
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { CMService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
-import TempDirHelper from '../../helpers/temp-dir-helper'
+import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)

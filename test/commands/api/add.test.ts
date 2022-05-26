@@ -10,7 +10,7 @@ import {
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
-import TempDirHelper from '../../helpers/temp-dir-helper'
+import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
 describe('api add', () => {
   const tempDirHelper = new TempDirHelper(__filename)
