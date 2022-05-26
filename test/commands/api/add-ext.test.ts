@@ -199,15 +199,9 @@ describe('api add-ext', () => {
 
   test
     .stderr()
-    .do(() => {
-      bundleDescriptorService.writeBundleDescriptor({
-        ...bundleDescriptor,
-        microfrontends: []
-      })
-    })
     .command([
       'api add-ext',
-      'mfe1',
+      'nonexistent-mfe',
       'ms1-api',
       '--serviceId',
       'ms1',
@@ -215,9 +209,9 @@ describe('api add-ext', () => {
       'my-bundle'
     ])
     .catch(error => {
-      expect(error.message).to.contain('mfe1 does not exist')
+      expect(error.message).to.contain('nonexistent-mfe does not exist')
     })
-    .it('exits with an error if microfrontend does not exist in the descriptor')
+    .it('exits with an error if micro frontend does not exist in the descriptor')
 
   test
     .stderr()
