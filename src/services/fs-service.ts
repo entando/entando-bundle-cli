@@ -64,10 +64,10 @@ export class FSService {
     if (replaceDict) {
       const placeholders: string[] = Object.keys(replaceDict)
       templateFileContent = placeholders.reduce((currContent: string, placeholder: string) => (
-        currContent.replace(`/${placeholder}/g`, replaceDict[placeholder])
-      ), templateFileContent)
-      
+        currContent.replace(new RegExp(placeholder, 'g'), replaceDict[placeholder])
+      ), templateFileContent as string)
     }
+
     fs.writeFileSync(filePath, templateFileContent)
   }
 

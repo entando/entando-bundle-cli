@@ -1,7 +1,13 @@
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { debugFactory } from './debug-factory-service'
-import { CONFIG_FILE, CONFIG_FOLDER, DEFAULT_CONFIG_FILE } from '../paths'
+import {
+  AUX_FOLDER,
+  CONFIG_FILE,
+  CONFIG_FOLDER,
+  DEFAULT_CONFIG_FILE
+} from '../paths'
 
 import { FSService } from './fs-service'
 import { GitService } from './git-service'
@@ -38,6 +44,7 @@ export class InitializerService {
     this.createDockerfile()
     this.createGitignore()
     this.createConfigJson()
+    this.createDefaultAuxFiles()
     this.git.initRepo()
   }
 
@@ -54,6 +61,7 @@ export class InitializerService {
     fs.mkdirSync(this.filesys.getBundleFilePath('microservices'))
     fs.mkdirSync(this.filesys.getBundleFilePath('microfrontends'))
     fs.mkdirSync(this.filesys.getBundleFilePath('epc'))
+    fs.mkdirSync(this.filesys.getBundleFilePath('aux'))
   }
 
   public async performBundleInitFromGit(
@@ -110,6 +118,13 @@ export class InitializerService {
   private createDockerfile() {
     InitializerService.debug('creating Dockerfile')
     this.filesys.createFileFromTemplate(['Dockerfile'], 'Dockerfile-template')
+  }
+
+  public createDefaultAuxFiles(): void {
+    InitializerService.debug('creating auxfiles')
+    const replaceDict = { '%BUNDLENAME%': this.options.name }
+    this.filesys.createFileFromTemplate([AUX_FOLDER, 'mysql.yml'], path.join('aux', 'mysql-template'), replaceDict)
+    this.filesys.createFileFromTemplate([AUX_FOLDER, 'postgresql.yml'], path.join('aux', 'postgresql-template'), replaceDict)
   }
 
   private createConfigJson() {
