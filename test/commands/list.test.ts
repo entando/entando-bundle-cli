@@ -14,6 +14,7 @@ describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
     name: 'bundle-list-test',
     version: '0.0.1',
+    type: 'bundle',
     microfrontends: <Array<MicroFrontend>>[
       { name: 'mfe1', stack: 'react' },
       { name: 'mfe2', stack: 'angular' }
