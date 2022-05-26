@@ -14,7 +14,10 @@ import { CLIError } from '@oclif/errors'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../paths'
 import * as fs from 'node:fs'
-import { ProcessExecutorService } from './process-executor-service'
+import {
+  ProcessExecutionResult,
+  ProcessExecutorService
+} from './process-executor-service'
 import { debugFactory } from './debug-factory-service'
 
 export class ComponentService {
@@ -63,7 +66,7 @@ export class ComponentService {
     }))
   }
 
-  public async build(name: string): Promise<any> {
+  public async build(name: string): Promise<ProcessExecutionResult> {
     const component = this.getComponent(name)
 
     const { type, stack } = component

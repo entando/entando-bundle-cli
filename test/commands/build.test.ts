@@ -8,6 +8,7 @@ import { ProcessExecutorService } from '../../src/services/process-executor-serv
 import { ComponentService } from '../../src/services/component-service'
 import { Component } from '../../src/models/component'
 import { ComponentType } from '../../src/models/component'
+import { ExecutionError } from '../../src/services/process-executor-service'
 
 describe('Build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -89,11 +90,21 @@ describe('Build command', () => {
       executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
       sinon
         .stub(ComponentService.prototype, 'build')
-        .rejects(new Error(`Command failed due to error: error`))
+        .rejects(new ExecutionError(5))
     })
     .command(['build', msNameSpringBoot])
-    .catch(error => {
-      expect(error.message).to.contain('Command failed due to error')
+    .exit(5)
+    .it('build spring-boot Microservice exits with code 5')
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command')
+      executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      sinon
+        .stub(ComponentService.prototype, 'build')
+        .rejects(new ExecutionError(new Error('Command not found')))
     })
-    .it('build spring-boot Microservice build error')
+    .command(['build', msNameSpringBoot])
+    .exit(1)
+    .it('build spring-boot Microservice exits with code 1')
 })
