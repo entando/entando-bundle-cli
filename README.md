@@ -6,10 +6,11 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-* [entando-bundle-cli](#entando-bundle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-* [Development environment setup](#development-environment-setup)
+
+- [entando-bundle-cli](#entando-bundle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
@@ -21,7 +22,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT win32-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.0
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -33,16 +34,18 @@ USAGE
 # Commands
 
 <!-- commands -->
-* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
-* [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
-* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-* [`entando-bundle-cli list`](#entando-bundle-cli-list)
-* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-* [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
-* [`entando-bundle-cli package`](#entando-bundle-cli-package)
+
+- [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+- [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
+- [`entando-bundle-cli build NAME`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+- [`entando-bundle-cli list`](#entando-bundle-cli-list)
+- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+- [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
+- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+- [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+- [`entando-bundle-cli package`](#entando-bundle-cli-package)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -89,6 +92,26 @@ DESCRIPTION
 EXAMPLES
   $ entando-bundle-cli api add-ext mfe1 ms1-api --bundleId my-bundle --serviceId ms1
 ```
+
+## `entando-bundle-cli build NAME`
+
+Build the component
+
+```
+USAGE
+  $ entando-bundle-cli build [NAME]
+
+ARGUMENTS
+  NAME  The name of the component to build
+
+DESCRIPTION
+  Build the component
+
+EXAMPLES
+  $ entando-bundle-cli build my-component
+```
+
+_See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/build.ts)_
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -269,6 +292,7 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/package.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/package.ts)_
+
 <!-- commandsstop -->
 
 # Development environment setup

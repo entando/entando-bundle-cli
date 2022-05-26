@@ -14,8 +14,8 @@ import { CLIError } from '@oclif/errors'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../paths'
 import * as fs from 'node:fs'
-import ProcessExecutorService from './process-executor-service'
-import debugFactory from './debug-factory-service'
+import { ProcessExecutorService } from './process-executor-service'
+import { debugFactory } from './debug-factory-service'
 
 export class ComponentService {
   private static debug = debugFactory(ComponentService)

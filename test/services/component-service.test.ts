@@ -5,12 +5,12 @@ import { BundleDescriptorService } from '../../src/services/bundle-descriptor-se
 import { bundleDescriptor } from '../helpers/mocks/component-service-test/bundle-descriptor'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
-import TempDirHelper from '../helpers/temp-dir-helper'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as sinon from 'sinon'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
-import ProcessExecutorService from '../../src/services/process-executor-service'
+import { ProcessExecutorService } from '../../src/services/process-executor-service'
 
 describe('component-service', () => {
   let componentService: ComponentService
