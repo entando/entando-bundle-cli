@@ -6,6 +6,7 @@ import {
   AUX_FOLDER,
   CONFIG_FILE,
   CONFIG_FOLDER,
+  RESOURCES_FOLDER,
   DEFAULT_CONFIG_FILE
 } from '../paths'
 
@@ -56,12 +57,13 @@ export class InitializerService {
     const bundleDir = this.filesys.getBundleDirectory()
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.filesys.getBundleFilePath('.ent'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('.ent', 'output'))
+    fs.mkdirSync(this.filesys.getBundleFilePath(CONFIG_FOLDER, 'output'), {
+      recursive: true
+    })
     fs.mkdirSync(this.filesys.getBundleFilePath('microservices'))
     fs.mkdirSync(this.filesys.getBundleFilePath('microfrontends'))
     fs.mkdirSync(this.filesys.getBundleFilePath('epc'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('aux'))
+    fs.mkdirSync(this.filesys.getBundleFilePath(AUX_FOLDER))
   }
 
   public async performBundleInitFromGit(
@@ -91,9 +93,9 @@ export class InitializerService {
   private async createDefaultDirectories() {
     this.filesys.createSubDirectoryIfNotExist('microservices')
     this.filesys.createSubDirectoryIfNotExist('microfrontends')
-    this.filesys.createSubDirectoryIfNotExist('.ent')
-    this.filesys.createSubDirectoryIfNotExist('.ent', 'output')
-    this.filesys.createSubDirectoryIfNotExist('aux')
+    this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER, 'output')
+    this.filesys.createSubDirectoryIfNotExist(AUX_FOLDER)
   }
 
   private createBundleDescriptor() {
@@ -122,15 +124,27 @@ export class InitializerService {
   }
 
   public createDefaultAuxFiles(): void {
-    InitializerService.debug('creating auxfiles')
+    InitializerService.debug('creating aux files')
 
     const replaceDict = { '%BUNDLENAME%': this.options.name }
-    const defaultYamls = ['mysql', 'postgresql', 'keycloak']
+    const templateFilenameTail = 'yml-template'
+    const defaultYamls = fs
+      .readdirSync(
+        path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, AUX_FOLDER)
+      )
+      .filter(
+        filename =>
+          filename.slice(-1 * templateFilenameTail.length) ===
+          templateFilenameTail
+      )
+      .map(filename =>
+        filename.slice(0, -1 * (templateFilenameTail.length + 1))
+      )
 
-    for (const yamlName of defaultYamls) {
+    for (const defaultYaml of defaultYamls) {
       this.filesys.createFileFromTemplate(
-        [AUX_FOLDER, `${yamlName}.yml`],
-        path.join('aux', `${yamlName}-template`),
+        [AUX_FOLDER, `${defaultYaml}.yml`],
+        path.join(AUX_FOLDER, `${defaultYaml}-${templateFilenameTail}`),
         replaceDict
       )
     }

@@ -96,7 +96,7 @@ describe('init', () => {
     .it('runs init --from-hub', () => {
       const bundleName = 'bundle-with-fromhub'
 
-      checkFoldersStructure(bundleName, true)
+      checkFoldersStructure(bundleName)
       expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
 
       const bundleDescriptor = parseBundleDescriptor(bundleName)
@@ -150,7 +150,7 @@ describe('init', () => {
     })
     .it('handles git command error')
 
-  function checkFoldersStructure(bundleName: string, fromhub?: boolean) {
+  function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, CONFIG_FOLDER)
     checkBundleFile(bundleName, CONFIG_FOLDER, CONFIG_FILE)
     checkBundleFile(bundleName, BUNDLE_DESCRIPTOR_FILE_NAME)
@@ -158,12 +158,10 @@ describe('init', () => {
     checkBundleFile(bundleName, 'microfrontends')
     checkBundleFile(bundleName, 'Dockerfile')
     checkBundleFile(bundleName, '.gitignore')
-    if (!fromhub) {
-      checkBundleFile(bundleName, AUX_FOLDER)
-      checkBundleFile(bundleName, AUX_FOLDER, 'mysql.yml')
-      checkBundleFile(bundleName, AUX_FOLDER, 'postgresql.yml')
-      checkBundleFile(bundleName, AUX_FOLDER, 'keycloak.yml')
-    }
+    checkBundleFile(bundleName, AUX_FOLDER)
+    checkBundleFile(bundleName, AUX_FOLDER, 'mysql.yml')
+    checkBundleFile(bundleName, AUX_FOLDER, 'postgresql.yml')
+    checkBundleFile(bundleName, AUX_FOLDER, 'keycloak.yml')
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {

@@ -3,6 +3,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { AUX_FOLDER, RESOURCES_FOLDER } from '../../src/paths'
 import { FSService } from '../../src/services/fs-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 
@@ -75,25 +76,44 @@ describe('fs-service', () => {
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
-      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName, 'aux'))
+      fs.mkdirSync(
+        path.resolve(tempDirHelper.tmpDir, defaultBundleName, AUX_FOLDER),
+        { recursive: true }
+      )
     })
     .it(
       'run createFileFromTemplate with replaces from placeholder to bundle name',
       () => {
         const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
+        const placeholder = '%BUNDLENAME%'
         filesys.createFileFromTemplate(
-          ['aux', 'mysql.yml'],
-          path.join('aux', 'mysql-template'),
-          { '%BUNDLENAME%': defaultBundleName }
+          [AUX_FOLDER, 'mysql.yml'],
+          path.join(AUX_FOLDER, 'mysql-yml-template'),
+          { [placeholder]: defaultBundleName }
         )
         const filePath = path.resolve(
           tempDirHelper.tmpDir,
           defaultBundleName,
-          'aux',
+          AUX_FOLDER,
           'mysql.yml'
         )
+        const templateFileContent = fs.readFileSync(
+          path.resolve(
+            __dirname,
+            '..',
+            '..',
+            RESOURCES_FOLDER,
+            AUX_FOLDER,
+            'mysql-yml-template'
+          ),
+          'utf8'
+        ) as string
+        const convertedContent = templateFileContent.replace(
+          new RegExp(placeholder, 'g'),
+          defaultBundleName
+        )
         expect(fs.existsSync(filePath)).to.eq(true)
+        expect(fs.readFileSync(filePath, 'utf-8')).to.eq(convertedContent)
       }
     )
 
