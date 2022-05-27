@@ -1,8 +1,10 @@
 import {
+  ParallelProcessExecutorService,
+  ProcessExecutionOptions,
   ProcessExecutionResult,
   ProcessExecutorService
 } from './process-executor-service'
-import { debugFactory } from './debug-factory-service'
+import { Writable } from 'node:stream'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { DIST_FOLDER, MICROFRONTENDS_FOLDER, WIDGETS_FOLDER } from '../paths'
@@ -15,35 +17,45 @@ export type DockerBuildOptions = {
   name: string
   tag: string
   dockerfile?: string
+  outputStream?: Writable
 }
 
 export class DockerService {
-  private static debug = debugFactory(DockerService)
-
   public static async buildDockerImage(
     options: DockerBuildOptions
   ): Promise<ProcessExecutionResult> {
+    return ProcessExecutorService.executeProcess({
+      ...DockerService.getDockerBuildCommand(options),
+      outputStream: options.outputStream,
+      errorStream: options.outputStream,
+      workDir: options.path
+    })
+  }
+
+  public static getDockerImagesExecutorService(
+    dockerOptions: DockerBuildOptions[]
+  ): ParallelProcessExecutorService {
+    const executionOptions: ProcessExecutionOptions[] = []
+
+    for (const options of dockerOptions) {
+      executionOptions.push({
+        ...DockerService.getDockerBuildCommand(options),
+        outputStream: options.outputStream,
+        errorStream: options.outputStream,
+        workDir: options.path
+      })
+    }
+
+    return new ParallelProcessExecutorService(executionOptions)
+  }
+
+  private static getDockerBuildCommand(options: DockerBuildOptions) {
     const dockerfile = options.dockerfile ?? DEFAULT_DOCKERFILE_NAME
     const dockerImageName = `${options.organization}/${options.name}:${options.tag}`
-
-    DockerService.debug(
-      `Building Docker image ${dockerImageName} using ${dockerfile}`
-    )
-
-    return ProcessExecutorService.executeProcess({
+    return {
       command: 'docker',
-      arguments: [
-        'build',
-        '-f',
-        dockerfile,
-        '-t',
-        dockerImageName,
-        options.path
-      ],
-      // Docker build output will be visible only in debug mode
-      outputStream: DockerService.debug.outputStream,
-      errorStream: DockerService.debug.outputStream
-    })
+      arguments: ['build', '-f', dockerfile, '-t', dockerImageName, '.']
+    }
   }
 
   public static addMicroFrontEndToDockerfile(

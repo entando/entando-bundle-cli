@@ -1,13 +1,19 @@
 import { CliUx, Flags } from '@oclif/core'
+import { ComponentType } from '../models/component'
 import { BundleDescriptorConverterService } from '../services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import { BundleService } from '../services/bundle-service'
+import { ComponentService } from '../services/component-service'
 import {
   ConfigService,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../services/config-service'
-import { DockerService } from '../services/docker-service'
+import { debugFactory } from '../services/debug-factory-service'
+import { DockerBuildOptions, DockerService } from '../services/docker-service'
 import { BaseBuildCommand } from './base-build'
+import * as path from 'node:path'
+import { MICROSERVICES_FOLDER } from '../paths'
+import { BundleDescriptor } from '../models/bundle-descriptor'
 
 export default class Package extends BaseBuildCommand {
   static description = 'Generates the bundle Docker image'
@@ -29,6 +35,8 @@ export default class Package extends BaseBuildCommand {
     })
   }
 
+  private static debug = debugFactory(Package)
+
   configService = new ConfigService()
 
   public async run(): Promise<void> {
@@ -36,6 +44,9 @@ export default class Package extends BaseBuildCommand {
     BundleService.verifyBundleInitialized(bundleDir)
 
     const { flags } = await this.parse(Package)
+
+    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
+    const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
     const needsBuild = process.stdout.isTTY
       ? await CliUx.ux.confirm('Rebuild components?')
@@ -47,7 +58,16 @@ export default class Package extends BaseBuildCommand {
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    await this.buildBundleDockerImage(bundleDir, dockerOrganization)
+    await this.buildMicroServicesDockerImages(
+      dockerOrganization,
+      bundleDescriptor.version
+    )
+
+    await this.buildBundleDockerImage(
+      bundleDir,
+      bundleDescriptor,
+      dockerOrganization
+    )
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {
@@ -77,13 +97,47 @@ export default class Package extends BaseBuildCommand {
     return newOrganization
   }
 
+  private async buildMicroServicesDockerImages(
+    dockerOrganization: string,
+    tag: string
+  ) {
+    const componentService = new ComponentService()
+    const microServices = componentService.getComponents(
+      ComponentType.MICROSERVICE
+    )
+
+    this.log('Building microservices Docker images...')
+
+    const buildOptions: DockerBuildOptions[] = []
+
+    for (const microService of microServices) {
+      const msPath = path.resolve(MICROSERVICES_FOLDER, microService.name)
+
+      const logFile = this.getBuildOutputLogFile(
+        microService,
+        MICROSERVICES_FOLDER
+      )
+
+      buildOptions.push({
+        name: microService.name,
+        organization: dockerOrganization,
+        path: msPath,
+        tag,
+        outputStream: logFile
+      })
+    }
+
+    const executorService =
+      DockerService.getDockerImagesExecutorService(buildOptions)
+
+    await this.parallelBuild(executorService, microServices)
+  }
+
   private async buildBundleDockerImage(
     bundleDir: string,
+    bundleDescriptor: BundleDescriptor,
     dockerOrganization: string
   ) {
-    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
-    const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-
     CliUx.ux.action.start('Creating bundle package')
 
     const bundleDescriptorConverterService =
@@ -94,7 +148,9 @@ export default class Package extends BaseBuildCommand {
       name: bundleDescriptor.name,
       organization: dockerOrganization,
       path: '.',
-      tag: bundleDescriptor.version
+      tag: bundleDescriptor.version,
+      // Docker build output will be visible only in debug mode
+      outputStream: Package.debug.outputStream
     })
 
     if (result !== 0) {

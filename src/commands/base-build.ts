@@ -30,30 +30,7 @@ export abstract class BaseBuildCommand extends Command {
 
     const executorService = new ParallelProcessExecutorService(executionOptions)
 
-    const progress = CliUx.ux.progress()
-    progress.start(executionOptions.length, 0)
-
-    executorService.on('done', () => {
-      progress.update(progress.value + 1)
-    })
-
-    const results = await executorService.execute()
-    progress.stop()
-
-    if (results.some(result => result !== 0)) {
-      let errorMessage = 'Following components failed to build:\n'
-
-      for (const [i, result] of results
-        .filter(result => result !== 0)
-        .entries()) {
-        errorMessage += `- ${components[i].name}: ${this.getErrorMessage(
-          result
-        )}\n`
-      }
-
-      errorMessage += 'See log files for more information'
-      this.error(errorMessage)
-    }
+    await this.parallelBuild(executorService, components)
   }
 
   private buildExecutionOptions(components: Array<Component<ComponentType>>) {
@@ -71,15 +48,7 @@ export abstract class BaseBuildCommand extends Command {
           : MICROSERVICES_FOLDER
 
       const workDir = path.resolve(componentTypeFolder, component.name)
-
-      const logDir = path.resolve(...OUTPUT_FOLDER, componentTypeFolder)
-      mkdirSync(logDir, { recursive: true })
-      const logFilePath = path.resolve(logDir, component.name + '.log')
-      const logFile = fs.createWriteStream(logFilePath)
-
-      this.log(
-        `- Build output for ${component.name} will be available in ${logFilePath}`
-      )
+      const logFile = this.getBuildOutputLogFile(component, componentTypeFolder)
 
       executionOptions.push({
         command: commandOptions.command,
@@ -91,6 +60,59 @@ export abstract class BaseBuildCommand extends Command {
     }
 
     return executionOptions
+  }
+
+  public getBuildOutputLogFile(
+    component: Component<ComponentType>,
+    componentFolder: string
+  ): fs.WriteStream {
+    const logDir = path.resolve(...OUTPUT_FOLDER, componentFolder)
+    mkdirSync(logDir, { recursive: true })
+    const logFilePath = path.resolve(logDir, component.name + '.log')
+    const logFile = fs.createWriteStream(logFilePath)
+
+    this.log(
+      `- Build output for ${component.name} will be available in ${logFilePath}`
+    )
+
+    return logFile
+  }
+
+  public async parallelBuild(
+    executorService: ParallelProcessExecutorService,
+    components: Array<Component<ComponentType>>
+  ): Promise<void> {
+    const progress = CliUx.ux.progress()
+    progress.start(components.length, 0)
+
+    executorService.on('done', () => {
+      progress.update(progress.value + 1)
+    })
+
+    const results = await executorService.execute()
+    progress.stop()
+
+    this.checkBuildResults(results, components)
+  }
+
+  public checkBuildResults(
+    results: ProcessExecutionResult[],
+    components: Array<Component<ComponentType>>
+  ): void {
+    if (results.some(result => result !== 0)) {
+      let errorMessage = 'Following components failed to build:\n'
+
+      for (const [i, result] of results
+        .filter(result => result !== 0)
+        .entries()) {
+        errorMessage += `- ${components[i].name}: ${this.getErrorMessage(
+          result
+        )}\n`
+      }
+
+      errorMessage += 'See log files for more information'
+      this.error(errorMessage)
+    }
   }
 
   public getErrorMessage(executionResult: ProcessExecutionResult): string {
