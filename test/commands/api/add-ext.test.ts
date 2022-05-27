@@ -32,10 +32,8 @@ describe('api add-ext', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: <Array<MicroService>>[
-        { name: 'ms1', stack: 'spring-boot' }
-      ],
-      microfrontends: <Array<MicroFrontend>>[{ name: 'mfe1', stack: 'react' }]
+      microservices: <MicroService[]>[{ name: 'ms1', stack: 'spring-boot' }],
+      microfrontends: <MicroFrontend[]>[{ name: 'mfe1', stack: 'react' }]
     }
 
     process.chdir(tempBundleDir)
@@ -85,7 +83,7 @@ describe('api add-ext', () => {
 
   test
     .do(() => {
-      const microfrontends = <Array<MicroFrontend>>[
+      const microfrontends = <MicroFrontend[]>[
         {
           ...bundleDescriptor.microfrontends[0],
           apiClaims: [
@@ -199,15 +197,9 @@ describe('api add-ext', () => {
 
   test
     .stderr()
-    .do(() => {
-      bundleDescriptorService.writeBundleDescriptor({
-        ...bundleDescriptor,
-        microfrontends: []
-      })
-    })
     .command([
       'api add-ext',
-      'mfe1',
+      'nonexistent-mfe',
       'ms1-api',
       '--serviceId',
       'ms1',
@@ -215,14 +207,16 @@ describe('api add-ext', () => {
       'my-bundle'
     ])
     .catch(error => {
-      expect(error.message).to.contain('mfe1 does not exist')
+      expect(error.message).to.contain('nonexistent-mfe does not exist')
     })
-    .it('exits with an error if microfrontend does not exist in the descriptor')
+    .it(
+      'exits with an error if micro frontend does not exist in the descriptor'
+    )
 
   test
     .stderr()
     .do(() => {
-      const microfrontends = <Array<MicroFrontend>>[
+      const microfrontends = <MicroFrontend[]>[
         {
           ...bundleDescriptor.microfrontends[0],
           apiClaims: [
