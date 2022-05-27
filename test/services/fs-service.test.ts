@@ -65,7 +65,7 @@ describe('fs-service', () => {
     })
     .it('run createFileFromTemplate', () => {
       const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
-      filesys.createFileFromTemplate(['Dockerfile'], 'Dockerfile-template')
+      filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
       const filePath = path.resolve(
         tempDirHelper.tmpDir,
         defaultBundleName,

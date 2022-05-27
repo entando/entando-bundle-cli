@@ -115,12 +115,12 @@ export class InitializerService {
 
   public createGitignore(): void {
     InitializerService.debug('creating .gitignore')
-    this.filesys.createFileFromTemplate(['.gitignore'], 'gitignore-template')
+    this.filesys.createFileFromTemplate(['.gitignore'], 'default-gitignore')
   }
 
   private createDockerfile() {
     InitializerService.debug('creating Dockerfile')
-    this.filesys.createFileFromTemplate(['Dockerfile'], 'Dockerfile-template')
+    this.filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
   }
 
   public createDefaultAuxFiles(): void {
