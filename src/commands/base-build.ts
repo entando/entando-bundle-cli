@@ -20,26 +20,32 @@ import {
 import { mkdirSync } from 'node:fs'
 
 export abstract class BaseBuildCommand extends Command {
-  public async buildAllComponents(): Promise<void> {
+  public async buildAllComponents(commandPhase: Phase): Promise<void> {
     this.log('Building packages...')
 
     const componentService = new ComponentService()
     const components = componentService.getComponents()
 
-    const executionOptions = this.buildExecutionOptions(components)
+    const executionOptions = this.buildExecutionOptions(
+      components,
+      commandPhase
+    )
 
     const executorService = new ParallelProcessExecutorService(executionOptions)
 
     await this.parallelBuild(executorService, components)
   }
 
-  private buildExecutionOptions(components: Array<Component<ComponentType>>) {
+  private buildExecutionOptions(
+    components: Array<Component<ComponentType>>,
+    commandPhase: Phase
+  ) {
     const executionOptions: ProcessExecutionOptions[] = []
 
     for (const component of components) {
       const commandOptions = CommandFactoryService.getCommand(
         component,
-        Phase.Package
+        commandPhase
       )
 
       const componentTypeFolder =

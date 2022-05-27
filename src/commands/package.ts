@@ -14,6 +14,7 @@ import { BaseBuildCommand } from './base-build'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
+import { Phase } from '../services/command-factory-service'
 
 export default class Package extends BaseBuildCommand {
   static description = 'Generates the bundle Docker image'
@@ -53,7 +54,7 @@ export default class Package extends BaseBuildCommand {
       : true
 
     if (needsBuild) {
-      await this.buildAllComponents()
+      await this.buildAllComponents(Phase.Package)
     }
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
