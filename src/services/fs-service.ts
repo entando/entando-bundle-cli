@@ -58,19 +58,19 @@ export class FSService {
   public createFileFromTemplate(
     pathSegments: string[],
     templateFileName: string,
-    replaceDict?: TemplateVariables
+    templateVariables?: TemplateVariables
   ): void {
     const filePath = this.getBundleFilePath(...pathSegments)
     let templateFileContent = fs.readFileSync(
       path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName),
-      replaceDict ? 'utf8' : null
+      templateVariables ? 'utf8' : null
     ) as string
-    if (replaceDict) {
-      const placeholders: string[] = Object.keys(replaceDict)
+    if (templateVariables) {
+      const placeholders: string[] = Object.keys(templateVariables)
       for (const placeholder of placeholders) {
         templateFileContent = templateFileContent.replace(
           new RegExp(placeholder, 'g'),
-          replaceDict[placeholder]
+          templateVariables[placeholder]
         )
       }
     }

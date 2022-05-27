@@ -7,7 +7,11 @@ import {
   CONFIG_FILE,
   CONFIG_FOLDER,
   RESOURCES_FOLDER,
-  DEFAULT_CONFIG_FILE
+  DEFAULT_CONFIG_FILE,
+  OUTPUT_FOLDER,
+  MICROFRONTENDS_FOLDER,
+  MICROSERVICES_FOLDER,
+  EPC_FOLDER
 } from '../paths'
 
 import { FSService } from './fs-service'
@@ -57,12 +61,12 @@ export class InitializerService {
     const bundleDir = this.filesys.getBundleDirectory()
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.filesys.getBundleFilePath(CONFIG_FOLDER, 'output'), {
+    fs.mkdirSync(this.filesys.getBundleFilePath(OUTPUT_FOLDER), {
       recursive: true
     })
-    fs.mkdirSync(this.filesys.getBundleFilePath('microservices'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('microfrontends'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('epc'))
+    fs.mkdirSync(this.filesys.getBundleFilePath(MICROSERVICES_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(MICROFRONTENDS_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(EPC_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(AUX_FOLDER))
   }
 
@@ -91,10 +95,10 @@ export class InitializerService {
   }
 
   private async createDefaultDirectories() {
-    this.filesys.createSubDirectoryIfNotExist('microservices')
-    this.filesys.createSubDirectoryIfNotExist('microfrontends')
+    this.filesys.createSubDirectoryIfNotExist(MICROSERVICES_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(MICROFRONTENDS_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
-    this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER, 'output')
+    this.filesys.createSubDirectoryIfNotExist(OUTPUT_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(AUX_FOLDER)
   }
 
@@ -126,19 +130,20 @@ export class InitializerService {
   public createDefaultAuxFiles(): void {
     InitializerService.debug('creating aux files')
 
-    const replaceDict = { '%BUNDLENAME%': this.options.name }
+    const defaultPrefix = 'default-'
+    const templateVariables = { '%BUNDLENAME%': this.options.name }
     const defaultYamls = fs
       .readdirSync(
         path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, AUX_FOLDER)
       )
       .filter(filename => filename.slice(-3) === 'yml')
-      .map(filename => filename.slice(8))
+      .map(filename => filename.replace(defaultPrefix, ''))
 
     for (const defaultYaml of defaultYamls) {
       this.filesys.createFileFromTemplate(
         [AUX_FOLDER, defaultYaml],
-        path.join(AUX_FOLDER, `default-${defaultYaml}`),
-        replaceDict
+        path.join(AUX_FOLDER, `${defaultPrefix}${defaultYaml}`),
+        templateVariables
       )
     }
   }
