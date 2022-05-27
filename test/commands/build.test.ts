@@ -6,7 +6,7 @@ import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { ComponentService } from '../../src/services/component-service'
-import { Component } from '../../src/models/component'
+import { Component, MicroServiceStack } from '../../src/models/component'
 import { ComponentType } from '../../src/models/component'
 import { ExecutionError } from '../../src/services/process-executor-service'
 
@@ -15,15 +15,15 @@ describe('Build command', () => {
   const msNameSpringBoot = 'test-ms-spring-boot'
   const msNameNotImplementedStack = 'test-not-implemented-stack'
 
-  const microserviceSpringBoot: Component = {
+  const microserviceSpringBoot: Component<ComponentType> = {
     name: msNameSpringBoot,
-    stack: 'spring-boot',
+    stack: MicroServiceStack.SpringBoot,
     type: ComponentType.MICROSERVICE
   }
 
-  const microserviceNotImplementedStack: Component = {
+  const microserviceNotImplementedStack: Component<ComponentType> = {
     name: msNameNotImplementedStack,
-    stack: 'test',
+    stack: MicroServiceStack.Node,
     type: ComponentType.MICROSERVICE
   }
   let executeProcessStub: sinon.SinonStub

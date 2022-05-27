@@ -6,6 +6,10 @@ import { BundleDescriptorConverterService } from '../../src/services/bundle-desc
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { OUTPUT_FOLDER } from '../../src/paths'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import {
+  MicroFrontendStack,
+  MicroServiceStack
+} from '../../src/models/component'
 
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -24,7 +28,7 @@ describe('bundle-descriptor-converter-service', () => {
       microservices: [
         {
           name: 'test-ms',
-          stack: 'spring-boot',
+          stack: MicroServiceStack.SpringBoot,
           image: 'test-docker-image',
           dbms: 'postgres',
           ingressPath: '/path/to/service',
@@ -49,7 +53,7 @@ describe('bundle-descriptor-converter-service', () => {
         {
           name: 'test-mfe',
           code: 'test-mfe-code',
-          stack: 'react',
+          stack: MicroFrontendStack.React,
           titles: {
             en: 'mfe title',
             it: 'titolo mfe'

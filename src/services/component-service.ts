@@ -31,11 +31,11 @@ export class ComponentService {
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 
-  public getComponents(type?: ComponentType): Component[] {
+  public getComponents(type?: ComponentType): Array<Component<ComponentType>> {
     const { microfrontends, microservices }: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
 
-    let components: Component[]
+    let components: Array<Component<ComponentType>>
 
     if (type === ComponentType.MICROFRONTEND) {
       components = microfrontends.map(
@@ -98,7 +98,7 @@ export class ComponentService {
     })
   }
 
-  getComponent(name: string): Component {
+  getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
       throw new CLIError(`Component ${name} not found`)
@@ -109,7 +109,7 @@ export class ComponentService {
 
   private mapComponentType(
     type: ComponentType
-  ): (compToMap: MicroFrontend | MicroService) => Component {
+  ): (compToMap: MicroFrontend | MicroService) => Component<ComponentType> {
     return ({ name, stack }) => ({ name, stack, type })
   }
 }
