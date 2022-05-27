@@ -1,4 +1,7 @@
-import { ProcessExecutorService } from './process-executor-service'
+import {
+  ProcessExecutionResult,
+  ProcessExecutorService
+} from './process-executor-service'
 import { debugFactory } from './debug-factory-service'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
@@ -19,7 +22,7 @@ export class DockerService {
 
   public static async buildDockerImage(
     options: DockerBuildOptions
-  ): Promise<any> {
+  ): Promise<ProcessExecutionResult> {
     const dockerfile = options.dockerfile ?? DEFAULT_DOCKERFILE_NAME
     const dockerImageName = `${options.organization}/${options.name}:${options.tag}`
 

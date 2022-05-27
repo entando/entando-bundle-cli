@@ -83,48 +83,32 @@ describe('ProcessExecutorService', () => {
     })
     .it('Execute process ignoring streams')
 
-  test
-    .do(async () => {
-      const stubProcess = getStubProcess()
-      sinon.stub(cp, 'spawn').returns(stubProcess)
-      const promise = ProcessExecutorService.executeProcess(options)
-      stubProcess.emit('exit', 1, null)
-      await promise
-    })
-    .catch(error => {
-      expect(error.message).to.contain('Process exited with code 1')
-    })
-    .it(
-      'Reject promise if child process exits with status code different than 0'
-    )
+  test.it('Promise returns process exit status code', async () => {
+    const stubProcess = getStubProcess()
+    sinon.stub(cp, 'spawn').returns(stubProcess)
+    const promise = ProcessExecutorService.executeProcess(options)
+    stubProcess.emit('exit', 1, null)
+    const result = await promise
+    expect(result).to.equal(1)
+  })
 
-  test
-    .do(async () => {
-      const stubProcess = getStubProcess()
-      sinon.stub(cp, 'spawn').returns(stubProcess)
-      const promise = ProcessExecutorService.executeProcess(options)
-      stubProcess.emit('exit', null, SIGKILL)
-      await promise
-    })
-    .catch(error => {
-      expect(error.message).to.contain('Process killed by signal SIGKILL')
-    })
-    .it('Reject promise if child process is killed')
+  test.it('Promise returns signal that killed the process', async () => {
+    const stubProcess = getStubProcess()
+    sinon.stub(cp, 'spawn').returns(stubProcess)
+    const promise = ProcessExecutorService.executeProcess(options)
+    stubProcess.emit('exit', null, SIGKILL)
+    const result = await promise
+    expect(result).to.equal(SIGKILL)
+  })
 
-  test
-    .do(async () => {
-      const stubProcess = getStubProcess()
-      sinon.stub(cp, 'spawn').returns(stubProcess)
-      const promise = ProcessExecutorService.executeProcess(options)
-      stubProcess.emit('error', CMD_NOT_FOUND_ERROR)
-      await promise
-    })
-    .catch(error => {
-      expect(error.message).to.contain(
-        'Command failed due to error: ' + CMD_NOT_FOUND_ERROR.message
-      )
-    })
-    .it('Reject promise if error event is emitted by spawn')
+  test.it('Promise returns error that prevented process to start', async () => {
+    const stubProcess = getStubProcess()
+    sinon.stub(cp, 'spawn').returns(stubProcess)
+    const promise = ProcessExecutorService.executeProcess(options)
+    stubProcess.emit('error', CMD_NOT_FOUND_ERROR)
+    const result = await promise
+    expect(result).to.equal(CMD_NOT_FOUND_ERROR)
+  })
 
   test
     .do(async () => {
