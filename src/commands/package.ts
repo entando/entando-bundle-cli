@@ -1,4 +1,4 @@
-import { CliUx, Command, Flags } from '@oclif/core'
+import { CliUx, Flags } from '@oclif/core'
 import { BundleDescriptorConverterService } from '../services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import { BundleService } from '../services/bundle-service'
@@ -7,8 +7,9 @@ import {
   DOCKER_ORGANIZATION_PROPERTY
 } from '../services/config-service'
 import { DockerService } from '../services/docker-service'
+import { BaseBuildCommand } from './base-build'
 
-export default class Package extends Command {
+export default class Package extends BaseBuildCommand {
   static description = 'Generates the bundle Docker image'
 
   static examples = [
@@ -36,27 +37,17 @@ export default class Package extends Command {
 
     const { flags } = await this.parse(Package)
 
+    const needsBuild = process.stdout.isTTY
+      ? await CliUx.ux.confirm('Rebuild components?')
+      : true
+
+    if (needsBuild) {
+      await this.buildAllComponents()
+    }
+
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    CliUx.ux.action.start('Creating bundle package')
-
-    // TODO: build all components
-
-    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
-    const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-
-    const bundleDescriptorConverterService =
-      new BundleDescriptorConverterService(bundleDir)
-    bundleDescriptorConverterService.generateYamlDescriptors()
-
-    DockerService.buildDockerImage({
-      name: bundleDescriptor.name,
-      organization: dockerOrganization,
-      path: '.',
-      tag: bundleDescriptor.version
-    })
-
-    CliUx.ux.action.stop()
+    await this.buildBundleDockerImage(bundleDir, dockerOrganization)
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {
@@ -84,5 +75,40 @@ export default class Package extends Command {
       newOrganization
     )
     return newOrganization
+  }
+
+  private async buildBundleDockerImage(
+    bundleDir: string,
+    dockerOrganization: string
+  ) {
+    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
+    const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+
+    CliUx.ux.action.start('Creating bundle package')
+
+    const bundleDescriptorConverterService =
+      new BundleDescriptorConverterService(bundleDir)
+    bundleDescriptorConverterService.generateYamlDescriptors()
+
+    const result = await DockerService.buildDockerImage({
+      name: bundleDescriptor.name,
+      organization: dockerOrganization,
+      path: '.',
+      tag: bundleDescriptor.version
+    })
+
+    if (result !== 0) {
+      if (typeof result === 'number') {
+        this.error(
+          `Docker build failed with exit code ${result}. Enable debug mode to see docker build output`,
+          { exit: false }
+        )
+        this.exit(result as number)
+      } else {
+        this.error(
+          `Docker build failed with cause: ${this.getErrorMessage(result)}`
+        )
+      }
+    }
   }
 }
