@@ -88,7 +88,7 @@ describe('fs-service', () => {
         const placeholder = '%BUNDLENAME%'
         filesys.createFileFromTemplate(
           [AUX_FOLDER, 'mysql.yml'],
-          path.join(AUX_FOLDER, 'mysql-yml-template'),
+          path.join(AUX_FOLDER, 'default-mysql.yml'),
           { [placeholder]: defaultBundleName }
         )
         const filePath = path.resolve(
@@ -104,7 +104,7 @@ describe('fs-service', () => {
             '..',
             RESOURCES_FOLDER,
             AUX_FOLDER,
-            'mysql-yml-template'
+            'default-mysql.yml'
           ),
           'utf8'
         ) as string
