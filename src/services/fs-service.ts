@@ -7,6 +7,10 @@ import { RESOURCES_FOLDER } from '../paths'
 const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 const JSON_INDENTATION_SPACES = 4
 
+interface TemplateVariables {
+  [key: string]: string
+}
+
 export class FSService {
   private static debug = debugFactory(FSService)
 
@@ -53,12 +57,24 @@ export class FSService {
 
   public createFileFromTemplate(
     pathSegments: string[],
-    templateFileName: string
+    templateFileName: string,
+    templateVariables?: TemplateVariables
   ): void {
     const filePath = this.getBundleFilePath(...pathSegments)
-    const templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName)
-    )
+    let templateFileContent = fs.readFileSync(
+      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName),
+      templateVariables ? 'utf8' : null
+    ) as string
+    if (templateVariables) {
+      const placeholders: string[] = Object.keys(templateVariables)
+      for (const placeholder of placeholders) {
+        templateFileContent = templateFileContent.replace(
+          new RegExp(placeholder, 'g'),
+          templateVariables[placeholder]
+        )
+      }
+    }
+
     fs.writeFileSync(filePath, templateFileContent)
   }
 

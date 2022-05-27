@@ -1,7 +1,18 @@
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { debugFactory } from './debug-factory-service'
-import { CONFIG_FILE, CONFIG_FOLDER, DEFAULT_CONFIG_FILE } from '../paths'
+import {
+  AUX_FOLDER,
+  CONFIG_FILE,
+  CONFIG_FOLDER,
+  RESOURCES_FOLDER,
+  DEFAULT_CONFIG_FILE,
+  OUTPUT_FOLDER,
+  MICROFRONTENDS_FOLDER,
+  MICROSERVICES_FOLDER,
+  EPC_FOLDER
+} from '../paths'
 
 import { FSService } from './fs-service'
 import { GitService } from './git-service'
@@ -38,6 +49,7 @@ export class InitializerService {
     this.createDockerfile()
     this.createGitignore()
     this.createConfigJson()
+    this.createDefaultAuxFiles()
     this.git.initRepo()
   }
 
@@ -49,11 +61,13 @@ export class InitializerService {
     const bundleDir = this.filesys.getBundleDirectory()
 
     fs.mkdirSync(bundleDir)
-    fs.mkdirSync(this.filesys.getBundleFilePath('.ent'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('.ent', 'output'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('microservices'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('microfrontends'))
-    fs.mkdirSync(this.filesys.getBundleFilePath('epc'))
+    fs.mkdirSync(this.filesys.getBundleFilePath(OUTPUT_FOLDER), {
+      recursive: true
+    })
+    fs.mkdirSync(this.filesys.getBundleFilePath(MICROSERVICES_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(MICROFRONTENDS_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(EPC_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(AUX_FOLDER))
   }
 
   public async performBundleInitFromGit(
@@ -81,10 +95,11 @@ export class InitializerService {
   }
 
   private async createDefaultDirectories() {
-    this.filesys.createSubDirectoryIfNotExist('microservices')
-    this.filesys.createSubDirectoryIfNotExist('microfrontends')
-    this.filesys.createSubDirectoryIfNotExist('.ent')
-    this.filesys.createSubDirectoryIfNotExist('.ent', 'output')
+    this.filesys.createSubDirectoryIfNotExist(MICROSERVICES_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(MICROFRONTENDS_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(OUTPUT_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(AUX_FOLDER)
   }
 
   private createBundleDescriptor() {
@@ -104,12 +119,33 @@ export class InitializerService {
 
   public createGitignore(): void {
     InitializerService.debug('creating .gitignore')
-    this.filesys.createFileFromTemplate(['.gitignore'], 'gitignore-template')
+    this.filesys.createFileFromTemplate(['.gitignore'], 'default-gitignore')
   }
 
   private createDockerfile() {
     InitializerService.debug('creating Dockerfile')
-    this.filesys.createFileFromTemplate(['Dockerfile'], 'Dockerfile-template')
+    this.filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
+  }
+
+  public createDefaultAuxFiles(): void {
+    InitializerService.debug('creating aux files')
+
+    const defaultPrefix = 'default-'
+    const templateVariables = { '%BUNDLENAME%': this.options.name }
+    const defaultYamls = fs
+      .readdirSync(
+        path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, AUX_FOLDER)
+      )
+      .filter(filename => filename.slice(-3) === 'yml')
+      .map(filename => filename.replace(defaultPrefix, ''))
+
+    for (const defaultYaml of defaultYamls) {
+      this.filesys.createFileFromTemplate(
+        [AUX_FOLDER, defaultYaml],
+        path.join(AUX_FOLDER, `${defaultPrefix}${defaultYaml}`),
+        templateVariables
+      )
+    }
   }
 
   private createConfigJson() {

@@ -3,6 +3,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { AUX_FOLDER, RESOURCES_FOLDER } from '../../src/paths'
 import { FSService } from '../../src/services/fs-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 
@@ -64,7 +65,7 @@ describe('fs-service', () => {
     })
     .it('run createFileFromTemplate', () => {
       const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
-      filesys.createFileFromTemplate(['Dockerfile'], 'Dockerfile-template')
+      filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
       const filePath = path.resolve(
         tempDirHelper.tmpDir,
         defaultBundleName,
@@ -72,6 +73,49 @@ describe('fs-service', () => {
       )
       expect(fs.existsSync(filePath)).to.eq(true)
     })
+
+  test
+    .do(() => {
+      fs.mkdirSync(
+        path.resolve(tempDirHelper.tmpDir, defaultBundleName, AUX_FOLDER),
+        { recursive: true }
+      )
+    })
+    .it(
+      'run createFileFromTemplate with replaces from placeholder to bundle name',
+      () => {
+        const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
+        const placeholder = '%BUNDLENAME%'
+        filesys.createFileFromTemplate(
+          [AUX_FOLDER, 'mysql.yml'],
+          path.join(AUX_FOLDER, 'default-mysql.yml'),
+          { [placeholder]: defaultBundleName }
+        )
+        const filePath = path.resolve(
+          tempDirHelper.tmpDir,
+          defaultBundleName,
+          AUX_FOLDER,
+          'mysql.yml'
+        )
+        const templateFileContent = fs.readFileSync(
+          path.resolve(
+            __dirname,
+            '..',
+            '..',
+            RESOURCES_FOLDER,
+            AUX_FOLDER,
+            'default-mysql.yml'
+          ),
+          'utf8'
+        ) as string
+        const convertedContent = templateFileContent.replace(
+          new RegExp(placeholder, 'g'),
+          defaultBundleName
+        )
+        expect(fs.existsSync(filePath)).to.eq(true)
+        expect(fs.readFileSync(filePath, 'utf-8')).to.eq(convertedContent)
+      }
+    )
 
   test
     .do(() => {
