@@ -9,7 +9,6 @@
     "object-curly-spacing": "off",
     "comma-dangle": "off",
     "unicorn/prefer-module": "off",
-    "unicorn/no-array-reduce": "off",
     "node/no-extraneous-import": [
       "error",
       {

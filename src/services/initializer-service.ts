@@ -127,24 +127,17 @@ export class InitializerService {
     InitializerService.debug('creating aux files')
 
     const replaceDict = { '%BUNDLENAME%': this.options.name }
-    const templateFilenameTail = 'yml-template'
     const defaultYamls = fs
       .readdirSync(
         path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, AUX_FOLDER)
       )
-      .filter(
-        filename =>
-          filename.slice(-1 * templateFilenameTail.length) ===
-          templateFilenameTail
-      )
-      .map(filename =>
-        filename.slice(0, -1 * (templateFilenameTail.length + 1))
-      )
+      .filter(filename => filename.slice(-3) === 'yml')
+      .map(filename => filename.slice(8))
 
     for (const defaultYaml of defaultYamls) {
       this.filesys.createFileFromTemplate(
-        [AUX_FOLDER, `${defaultYaml}.yml`],
-        path.join(AUX_FOLDER, `${defaultYaml}-${templateFilenameTail}`),
+        [AUX_FOLDER, defaultYaml],
+        path.join(AUX_FOLDER, `default-${defaultYaml}`),
         replaceDict
       )
     }
