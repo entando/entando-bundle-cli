@@ -19,6 +19,7 @@ describe('mfe rm', () => {
         titles: { en: 'Default Stack MFE' },
         stack: 'stack',
         group: 'group',
+        publicFolder: 'public',
         customUiPath: ''
       }
     ]

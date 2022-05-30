@@ -55,6 +55,7 @@ describe('bundle-descriptor-converter-service', () => {
             it: 'titolo mfe'
           },
           group: 'free',
+          publicFolder: 'public',
           customUiPath: 'path/to/ui',
           configUi: {
             customElement: 'test-config',

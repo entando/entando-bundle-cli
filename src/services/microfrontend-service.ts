@@ -3,8 +3,8 @@ import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
+import { MICROFRONTENDS_FOLDER } from '../paths'
 
-const MICROFRONTENDS_DIRNAME = 'microfrontends'
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 
 export class MicroFrontendService {
@@ -12,10 +12,7 @@ export class MicroFrontendService {
   private readonly bundleDescriptorService: BundleDescriptorService
 
   constructor() {
-    this.microfrontendsPath = path.resolve(
-      process.cwd(),
-      MICROFRONTENDS_DIRNAME
-    )
+    this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
   }
 
@@ -31,12 +28,8 @@ export class MicroFrontendService {
     this.addMicroFrontendDescriptor(mfe)
   }
 
-  public findMicroFrontend(mfeName: string): MicroFrontend {
-    const bundleDescriptor: BundleDescriptor =
-      this.bundleDescriptorService.getBundleDescriptor()
-    const { microfrontends } = bundleDescriptor
-
-    const mfe = microfrontends.find(({ name }) => name === mfeName)
+  public getMicroFrontend(mfeName: string): MicroFrontend {
+    const mfe = this.findMicroFrontend(mfeName)
 
     if (!mfe) {
       throw new CLIError(
@@ -47,19 +40,36 @@ export class MicroFrontendService {
     return mfe
   }
 
-  public removeMicroFrontend(mfeName: string): void {
+  public findMicroFrontend(mfeName: string): MicroFrontend | undefined {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
     const { microfrontends } = bundleDescriptor
 
+    return microfrontends.find(({ name }) => name === mfeName)
+  }
+
+  public removeMicroFrontend(mfeName: string): void {
+    const mfe: MicroFrontend = this.getMicroFrontend(mfeName)
+
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+
     const updatedBundleDescriptor: BundleDescriptor = {
       ...bundleDescriptor,
-      microfrontends: microfrontends.filter(({ name }) => name !== mfeName),
+      microfrontends: bundleDescriptor.microfrontends.filter(
+        ({ name }) => name !== mfe.name
+      )
     }
 
     this.removeMicroFrontendDirectory(mfeName)
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
+  }
+
+  public getPublicFolderPath(mfeName: string): string {
+    const mfe: MicroFrontend = this.getMicroFrontend(mfeName)
+
+    return path.resolve(this.microfrontendsPath, mfeName, mfe.publicFolder)
   }
 
   private createMicroFrontendDirectory(name: string) {
@@ -79,7 +89,7 @@ export class MicroFrontendService {
       throw new CLIError(`Directory ${mfedir} does not exist`)
     }
 
-    fs.rmSync(mfedir, { recursive: true, force: true });
+    fs.rmSync(mfedir, { recursive: true, force: true })
   }
 
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {
