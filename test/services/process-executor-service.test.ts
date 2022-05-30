@@ -46,7 +46,6 @@ describe('ProcessExecutorService', () => {
 
   const optionsWithStream = {
     command: 'test',
-    arguments: ['arg1', 'arg2'],
     outputStream: outputStream,
     errorStream: errorStream
   }
@@ -67,8 +66,7 @@ describe('ProcessExecutorService', () => {
     })
 
   const options = {
-    command: 'test',
-    arguments: ['arg1', 'arg2']
+    command: 'test'
   }
 
   test

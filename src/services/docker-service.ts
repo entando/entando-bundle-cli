@@ -25,7 +25,7 @@ export class DockerService {
     options: DockerBuildOptions
   ): Promise<ProcessExecutionResult> {
     return ProcessExecutorService.executeProcess({
-      ...DockerService.getDockerBuildCommand(options),
+      command: DockerService.getDockerBuildCommand(options),
       outputStream: options.outputStream,
       errorStream: options.outputStream,
       workDir: options.path
@@ -39,7 +39,7 @@ export class DockerService {
 
     for (const options of dockerOptions) {
       executionOptions.push({
-        ...DockerService.getDockerBuildCommand(options),
+        command: DockerService.getDockerBuildCommand(options),
         outputStream: options.outputStream,
         errorStream: options.outputStream,
         workDir: options.path
@@ -49,13 +49,10 @@ export class DockerService {
     return new ParallelProcessExecutorService(executionOptions)
   }
 
-  private static getDockerBuildCommand(options: DockerBuildOptions) {
+  private static getDockerBuildCommand(options: DockerBuildOptions): string {
     const dockerfile = options.dockerfile ?? DEFAULT_DOCKERFILE_NAME
     const dockerImageName = `${options.organization}/${options.name}:${options.tag}`
-    return {
-      command: 'docker',
-      arguments: ['build', '-f', dockerfile, '-t', dockerImageName, '.']
-    }
+    return `docker build -f ${dockerfile} -t ${dockerImageName} .`
   }
 
   public static addMicroFrontEndToDockerfile(

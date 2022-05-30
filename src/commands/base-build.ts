@@ -48,10 +48,7 @@ export abstract class BaseBuildCommand extends Command {
     const executionOptions: ProcessExecutionOptions[] = []
 
     for (const component of components) {
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        commandPhase
-      )
+      const command = CommandFactoryService.getCommand(component, commandPhase)
 
       const componentTypeFolder =
         component.type === ComponentType.MICROFRONTEND
@@ -62,8 +59,7 @@ export abstract class BaseBuildCommand extends Command {
       const logFile = this.getBuildOutputLogFile(component, componentTypeFolder)
 
       executionOptions.push({
-        command: commandOptions.command,
-        arguments: commandOptions.arguments,
+        command: command,
         workDir,
         outputStream: logFile,
         errorStream: logFile

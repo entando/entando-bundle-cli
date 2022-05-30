@@ -6,7 +6,6 @@ const DEFAULT_PARALLEL_PROCESSES_SIZE = 2
 
 export type ProcessExecutionOptions = {
   command: string
-  arguments?: string[]
   /** Child process working directory (same as caller process working directory if not specified) */
   workDir?: string
   /**
@@ -139,8 +138,9 @@ export class ParallelProcessExecutorService extends EventEmitter {
 }
 
 function setUpProcess(options: ProcessExecutionOptions) {
-  const process = spawn(options.command, options.arguments, {
-    cwd: options.workDir
+  const process = spawn(options.command, {
+    cwd: options.workDir,
+    shell: true
   })
 
   process.stdout.on('data', chunk => {

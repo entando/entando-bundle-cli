@@ -71,19 +71,15 @@ export class ComponentService {
 
     let componentPath: string
     let buildCmd = ''
-    let buildCmdArgs: string[] = []
 
     if (type === 'microservice' && stack === 'spring-boot') {
       componentPath = path.resolve(MICROSERVICES_FOLDER, name)
-      buildCmd = 'mvn'
-      buildCmdArgs = ['clean', 'test']
+      buildCmd = 'mvn clean test'
     } else {
       throw new CLIError(`${stack} ${type} build not implemented`)
     }
 
-    ComponentService.debug(
-      `Building ${name} using ${buildCmd} ${buildCmdArgs.join(' ').trim()}`
-    )
+    ComponentService.debug(`Building ${name} using ${buildCmd}`)
 
     if (!fs.existsSync(componentPath)) {
       throw new CLIError(`Directory ${componentPath} not exists`)
@@ -91,7 +87,6 @@ export class ComponentService {
 
     return ProcessExecutorService.executeProcess({
       command: buildCmd,
-      arguments: buildCmdArgs,
       outputStream: process.stdout,
       errorStream: process.stdout,
       workDir: componentPath

@@ -51,8 +51,7 @@ describe('Build command', () => {
       sinon.assert.calledWith(
         executeProcessStub,
         sinon.match({
-          command: 'mvn',
-          arguments: ['clean', 'test']
+          command: 'mvn clean test'
         })
       )
     })
