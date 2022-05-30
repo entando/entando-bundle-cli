@@ -7,7 +7,7 @@ import {
 import { Writable } from 'node:stream'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { DIST_FOLDER, MICROFRONTENDS_FOLDER, WIDGETS_FOLDER } from '../paths'
+import { BUILD_FOLDER, MICROFRONTENDS_FOLDER, WIDGETS_FOLDER } from '../paths'
 
 const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 
@@ -96,7 +96,7 @@ export class DockerService {
     const microFrontendFromPath = path.posix.join(
       MICROFRONTENDS_FOLDER,
       microFrontEndName,
-      DIST_FOLDER
+      BUILD_FOLDER
     )
     const microFrontendToPath = path.posix.join(
       WIDGETS_FOLDER,

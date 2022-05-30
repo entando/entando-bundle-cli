@@ -15,6 +15,7 @@ import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
+import { color } from '@oclif/color'
 
 export default class Package extends BaseBuildCommand {
   static description = 'Generates the bundle Docker image'
@@ -31,7 +32,7 @@ export default class Package extends BaseBuildCommand {
     }),
     file: Flags.string({
       char: 'f',
-      description: 'Name of the Dockerfile (default is Dockerfile)',
+      description: 'Bundle Dockerfile (default is Dockerfile)',
       required: false
     })
   }
@@ -107,7 +108,7 @@ export default class Package extends BaseBuildCommand {
       ComponentType.MICROSERVICE
     )
 
-    this.log('Building microservices Docker images...')
+    this.log(color.bold.blue('Building microservices Docker images...'))
 
     const buildOptions: DockerBuildOptions[] = []
 
@@ -139,7 +140,8 @@ export default class Package extends BaseBuildCommand {
     bundleDescriptor: BundleDescriptor,
     dockerOrganization: string
   ) {
-    CliUx.ux.action.start('Creating bundle package')
+    this.log(color.bold.blue('Creating bundle package...'))
+    CliUx.ux.action.start('Building Bundle Docker image')
 
     const bundleDescriptorConverterService =
       new BundleDescriptorConverterService(bundleDir)
@@ -154,18 +156,20 @@ export default class Package extends BaseBuildCommand {
       outputStream: Package.debug.outputStream
     })
 
-    if (result !== 0) {
-      if (typeof result === 'number') {
-        this.error(
-          `Docker build failed with exit code ${result}. Enable debug mode to see docker build output`,
-          { exit: false }
-        )
-        this.exit(result as number)
-      } else {
-        this.error(
-          `Docker build failed with cause: ${this.getErrorMessage(result)}`
-        )
-      }
+    if (result === 0) {
+      CliUx.ux.action.stop(
+        `Docker image ${dockerOrganization}/${bundleDescriptor.name}:${bundleDescriptor.version} built`
+      )
+    } else if (typeof result === 'number') {
+      this.error(
+        `Docker build failed with exit code ${result}. Enable debug mode to see docker build output`,
+        { exit: false }
+      )
+      this.exit(result as number)
+    } else {
+      this.error(
+        `Docker build failed with cause: ${this.getErrorMessage(result)}`
+      )
     }
   }
 }

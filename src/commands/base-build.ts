@@ -18,10 +18,15 @@ import {
   OUTPUT_FOLDER
 } from '../paths'
 import { mkdirSync } from 'node:fs'
+import { color } from '@oclif/color'
 
 export abstract class BaseBuildCommand extends Command {
+  static get hidden(): boolean {
+    return this.name === BaseBuildCommand.name
+  }
+
   public async buildAllComponents(commandPhase: Phase): Promise<void> {
-    this.log('Building packages...')
+    this.log(color.bold.blue('Building components...'))
 
     const componentService = new ComponentService()
     const components = componentService.getComponents()
@@ -39,7 +44,7 @@ export abstract class BaseBuildCommand extends Command {
   private buildExecutionOptions(
     components: Array<Component<ComponentType>>,
     commandPhase: Phase
-  ) {
+  ): ProcessExecutionOptions[] {
     const executionOptions: ProcessExecutionOptions[] = []
 
     for (const component of components) {
@@ -101,19 +106,19 @@ export abstract class BaseBuildCommand extends Command {
     this.checkBuildResults(results, components)
   }
 
-  public checkBuildResults(
+  private checkBuildResults(
     results: ProcessExecutionResult[],
     components: Array<Component<ComponentType>>
   ): void {
     if (results.some(result => result !== 0)) {
-      let errorMessage = 'Following components failed to build:\n'
+      let errorMessage = 'The following components failed to build:\n'
 
-      for (const [i, result] of results
-        .filter(result => result !== 0)
-        .entries()) {
-        errorMessage += `- ${components[i].name}: ${this.getErrorMessage(
-          result
-        )}\n`
+      for (const [i, result] of results.entries()) {
+        if (result !== 0) {
+          errorMessage += `- ${components[i].name}: ${this.getErrorMessage(
+            result
+          )}\n`
+        }
       }
 
       errorMessage += 'See log files for more information'

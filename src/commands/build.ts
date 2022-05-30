@@ -4,7 +4,7 @@ import { ComponentService } from '../services/component-service'
 import { BaseBuildCommand } from './base-build'
 
 export default class Build extends BaseBuildCommand {
-  static description = 'Build the component'
+  static description = 'Build bundle components'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-component']
 
@@ -25,15 +25,16 @@ export default class Build extends BaseBuildCommand {
     const result = await componentService.build(args.name)
     if (result !== 0) {
       if (typeof result === 'number') {
-        console.error(`Build failed, exit with code ${result}`)
-        this.exit(result as number)
+        this.error(`Build failed, exit with code ${result}`, {
+          exit: result as number
+        })
       } else {
-        console.error(
+        this.error(
           `Build failed, exit with code 1 and message ${this.getErrorMessage(
             result
-          )}`
+          )}`,
+          { exit: 1 }
         )
-        this.exit(1)
       }
     }
 

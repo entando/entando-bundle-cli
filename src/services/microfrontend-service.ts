@@ -86,7 +86,7 @@ export class MicroFrontendService {
       throw new CLIError(`Directory ${mfedir} does not exist`)
     }
 
-    fs.rmSync(mfedir, { recursive: true, force: true })
+    fs.rmSync(mfedir, { recursive: true })
   }
 
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {
