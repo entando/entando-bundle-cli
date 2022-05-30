@@ -17,7 +17,7 @@ import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
 
-export default class Package extends BaseBuildCommand {
+export default class Pack extends BaseBuildCommand {
   static description = 'Generates the bundle Docker image'
 
   static examples = [
@@ -37,7 +37,7 @@ export default class Package extends BaseBuildCommand {
     })
   }
 
-  private static debug = debugFactory(Package)
+  private static debug = debugFactory(Pack)
 
   configService = new ConfigService()
 
@@ -45,7 +45,7 @@ export default class Package extends BaseBuildCommand {
     const bundleDir = process.cwd()
     BundleService.verifyBundleInitialized(bundleDir)
 
-    const { flags } = await this.parse(Package)
+    const { flags } = await this.parse(Pack)
 
     const bundleDescriptorService = new BundleDescriptorService(bundleDir)
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
@@ -153,7 +153,7 @@ export default class Package extends BaseBuildCommand {
       path: '.',
       tag: bundleDescriptor.version,
       // Docker build output will be visible only in debug mode
-      outputStream: Package.debug.outputStream
+      outputStream: Pack.debug.outputStream
     })
 
     if (result === 0) {

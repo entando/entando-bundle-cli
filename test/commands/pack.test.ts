@@ -20,7 +20,7 @@ import {
 } from '../../src/services/process-executor-service'
 import * as executors from '../../src/services/process-executor-service'
 
-describe('package', () => {
+describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
   afterEach(() => {
@@ -52,7 +52,7 @@ describe('package', () => {
     .stub(CliUx.ux, 'prompt', () =>
       sinon.stub().resolves('prompted-organization')
     )
-    .command(['package'])
+    .command(['pack'])
     .it('runs package asking the organization', () => {
       const configService = new ConfigService()
       expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
@@ -72,7 +72,7 @@ describe('package', () => {
       )
     })
     .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
-    .command(['package'])
+    .command(['pack'])
     .it(
       'runs package using the organization stored in config file',
       function () {
@@ -92,9 +92,9 @@ describe('package', () => {
       )
     )
     .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
-    .command(['package', '--org', 'flag-organization'])
+    .command(['pack', '--org', 'flag-organization'])
     .it(
-      'runs package --org flag-organization without existing configuration',
+      'runs pack --org flag-organization without existing configuration',
       () => {
         const configService = new ConfigService()
         expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
@@ -115,16 +115,13 @@ describe('package', () => {
       )
     })
     .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
-    .command(['package', '--org', 'flag-organization'])
-    .it(
-      'runs package --org flag-organization with existing configuration',
-      () => {
-        const configService = new ConfigService()
-        expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
-          'flag-organization'
-        )
-      }
-    )
+    .command(['pack', '--org', 'flag-organization'])
+    .it('runs pack --org flag-organization with existing configuration', () => {
+      const configService = new ConfigService()
+      expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
+        'flag-organization'
+      )
+    })
 
   let getComponentsStub: sinon.SinonStub
 
@@ -171,7 +168,7 @@ describe('package', () => {
         .returns(stubParallelProcessExecutorService)
     })
     .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(true))
-    .command(['package'])
+    .command(['pack'])
     .catch(error => {
       expect(error.message).to.contain('components failed to build')
       sinon.assert.calledOnce(getComponentsStub)
@@ -188,7 +185,7 @@ describe('package', () => {
         .resolves(42)
     })
     .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
-    .command(['package', '--org', 'flag-organization'])
+    .command(['pack', '--org', 'flag-organization'])
     .exit(42)
     .it('Docker build failure forwards exit code', ctx => {
       sinon.assert.calledOnce(stubBuildDockerImage)
@@ -204,7 +201,7 @@ describe('package', () => {
         .resolves(new Error('command not found'))
     })
     .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
-    .command(['package', '--org', 'flag-organization'])
+    .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       sinon.assert.calledOnce(stubBuildDockerImage)
       expect(error.message).to.contain('Docker build failed with cause')
@@ -240,7 +237,7 @@ describe('package', () => {
 
       process.stdout.isTTY = false
     })
-    .command(['package', '--org', 'flag-organization'])
+    .command(['pack', '--org', 'flag-organization'])
     .it(
       'Build successfully and completes packaging, in non-TTY mode it builds by default',
       () => {
