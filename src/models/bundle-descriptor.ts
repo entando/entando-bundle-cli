@@ -59,7 +59,7 @@ export type BundleDescriptor = {
   description?: string
   microservices: MicroService[]
   microfrontends: MicroFrontend[]
-  aux?: string[]
+  svc?: string[]
 }
 
 export type BundleGroup = {

@@ -18,7 +18,7 @@ import {
   CONFIG_FOLDER,
   CONFIG_FILE,
   BUNDLE_DESCRIPTOR_FILE_NAME,
-  AUX_FOLDER
+  SVC_FOLDER
 } from '../../src/paths'
 
 describe('init', () => {
@@ -158,10 +158,10 @@ describe('init', () => {
     checkBundleFile(bundleName, 'microfrontends')
     checkBundleFile(bundleName, 'Dockerfile')
     checkBundleFile(bundleName, '.gitignore')
-    checkBundleFile(bundleName, AUX_FOLDER)
-    checkBundleFile(bundleName, AUX_FOLDER, 'mysql.yml')
-    checkBundleFile(bundleName, AUX_FOLDER, 'postgresql.yml')
-    checkBundleFile(bundleName, AUX_FOLDER, 'keycloak.yml')
+    checkBundleFile(bundleName, SVC_FOLDER)
+    checkBundleFile(bundleName, SVC_FOLDER, 'mysql.yml')
+    checkBundleFile(bundleName, SVC_FOLDER, 'postgresql.yml')
+    checkBundleFile(bundleName, SVC_FOLDER, 'keycloak.yml')
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
