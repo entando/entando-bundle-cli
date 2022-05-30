@@ -6,6 +6,7 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
+const DEFAULT_PUBLIC_FOLDER = 'public'
 
 export class MicroFrontendService {
   private readonly microfrontendsPath: string
@@ -25,7 +26,10 @@ export class MicroFrontendService {
 
     this.createMicroFrontendDirectory(mfe.name)
 
-    this.addMicroFrontendDescriptor(mfe)
+    this.addMicroFrontendDescriptor({
+      ...mfe,
+      publicFolder: DEFAULT_PUBLIC_FOLDER
+    })
   }
 
   public getMicroFrontend(mfeName: string): MicroFrontend {
