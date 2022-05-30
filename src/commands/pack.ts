@@ -157,7 +157,7 @@ export default class Pack extends BaseBuildCommand {
     CliUx.ux.action.start('Building Bundle Docker image')
 
     const bundleDescriptorConverterService =
-      new BundleDescriptorConverterService(bundleDir)
+      new BundleDescriptorConverterService(bundleDir, dockerOrganization)
     bundleDescriptorConverterService.generateYamlDescriptors()
 
     const result = await DockerService.buildDockerImage({
@@ -171,7 +171,11 @@ export default class Pack extends BaseBuildCommand {
 
     if (result === 0) {
       CliUx.ux.action.stop(
-        `Docker image ${dockerOrganization}/${bundleDescriptor.name}:${bundleDescriptor.version} built`
+        `Docker image ${DockerService.getDockerImageName(
+          dockerOrganization,
+          bundleDescriptor.name,
+          bundleDescriptor.version
+        )} built`
       )
     } else if (typeof result === 'number') {
       this.error(

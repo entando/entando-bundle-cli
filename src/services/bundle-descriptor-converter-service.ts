@@ -13,6 +13,9 @@ import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../paths'
+import { ComponentService } from './component-service'
+import { ComponentType } from '../models/component'
+import { DockerService } from './docker-service'
 
 const DESCRIPTOR_VERSION = 'v4'
 const DESCRIPTOR_EXTENSION = '.yaml'
@@ -23,10 +26,14 @@ const PLUGINS_DESCRIPTORS_FOLDER = 'plugins'
 export class BundleDescriptorConverterService {
   private readonly bundleDirectory: string
   private readonly bundleDescriptorService: BundleDescriptorService
+  private readonly componentService: ComponentService
+  private readonly dockerOrganization: string
 
-  constructor(bundleDirectory: string) {
+  constructor(bundleDirectory: string, dockerOrganization: string) {
     this.bundleDirectory = bundleDirectory
     this.bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
+    this.componentService = new ComponentService()
+    this.dockerOrganization = dockerOrganization
   }
 
   public generateYamlDescriptors(): void {
@@ -36,8 +43,18 @@ export class BundleDescriptorConverterService {
       this.generateMicroFrontendYamlDescriptor(microFrontend)
     }
 
+    const versionedMicroServices = this.componentService.getVersionedComponents(
+      ComponentType.MICROSERVICE
+    )
+
     for (const microService of bundleDescriptor.microservices) {
-      this.generateMicroServiceYamlDescriptor(microService)
+      const versionedMicroService = versionedMicroServices.find(
+        ms => ms.name === microService.name
+      )!
+      this.generateMicroServiceYamlDescriptor(
+        microService,
+        versionedMicroService.version!
+      )
     }
 
     this.generateBundleYamlDescriptor(bundleDescriptor)
@@ -45,7 +62,7 @@ export class BundleDescriptorConverterService {
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
     const widgetDescriptor: YamlWidgetDescriptor = {
-      code: microFrontend.code,
+      code: microFrontend.code ?? microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
       customUiPath: microFrontend.customUiPath,
@@ -58,11 +75,18 @@ export class BundleDescriptorConverterService {
     this.writeYamlFile(filePath, widgetDescriptor)
   }
 
-  private generateMicroServiceYamlDescriptor(microService: MicroService) {
+  private generateMicroServiceYamlDescriptor(
+    microService: MicroService,
+    version: string
+  ) {
     const pluginDescriptor: YamlPluginDescriptor = {
       descriptorVersion: DESCRIPTOR_VERSION,
       dbms: microService.dbms,
-      image: microService.image,
+      image: DockerService.getDockerImageName(
+        this.dockerOrganization,
+        microService.name,
+        version
+      ),
       deploymentBaseName: microService.deploymentBaseName,
       ingressPath: microService.ingressPath,
       healthCheckPath: microService.healthCheckPath,

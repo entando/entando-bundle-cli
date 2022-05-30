@@ -13,7 +13,6 @@ describe('Remove MicroService', () => {
       tempDirHelper.createInitializedBundleDir('test-bundle-existing-ms')
       const ms: MicroService = {
         name: 'test-ms',
-        image: 'test-image',
         dbms: 'mysql',
         stack: MicroServiceStack.SpringBoot
       }

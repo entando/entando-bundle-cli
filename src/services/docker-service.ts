@@ -51,8 +51,20 @@ export class DockerService {
 
   private static getDockerBuildCommand(options: DockerBuildOptions): string {
     const dockerfile = options.dockerfile ?? DEFAULT_DOCKERFILE_NAME
-    const dockerImageName = `${options.organization}/${options.name}:${options.tag}`
+    const dockerImageName = DockerService.getDockerImageName(
+      options.organization,
+      options.name,
+      options.tag
+    )
     return `docker build -f ${dockerfile} -t ${dockerImageName} .`
+  }
+
+  public static getDockerImageName(
+    organization: string,
+    name: string,
+    tag: string
+  ): string {
+    return `${organization}/${name}:${tag}`
   }
 
   public static addMicroFrontEndToDockerfile(

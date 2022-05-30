@@ -25,8 +25,6 @@ export type MicroService = {
   name: string
   /** Tech stack. It could be guessed from folder content or forced by the user */
   stack: MicroServiceStack
-  /** Docker image name. This field is computed at packaging phase */
-  image: string
   /** Value used for defining custom pod names */
   deploymentBaseName?: string
   dbms: string
@@ -41,7 +39,7 @@ export type MicroService = {
 export type MicroFrontend = {
   name: string
   stack: MicroFrontendStack
-  code: string
+  code?: string
   titles: { [lang: string]: string }
   group: string
   customUiPath: string

@@ -2,14 +2,17 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as YAML from 'yaml'
+import * as sinon from 'sinon'
 import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { OUTPUT_FOLDER } from '../../src/paths'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import {
+  ComponentType,
   MicroFrontendStack,
   MicroServiceStack
 } from '../../src/models/component'
+import { ComponentService } from '../../src/services/component-service'
 
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -29,7 +32,6 @@ describe('bundle-descriptor-converter-service', () => {
         {
           name: 'test-ms',
           stack: MicroServiceStack.SpringBoot,
-          image: 'test-docker-image',
           dbms: 'postgres',
           ingressPath: '/path/to/service',
           healthCheckPath: '/path/to/check',
@@ -64,11 +66,32 @@ describe('bundle-descriptor-converter-service', () => {
             customElement: 'test-config',
             resources: ['path/to/test-config.js']
           }
+        },
+        {
+          name: 'test-mfe-no-code',
+          stack: MicroFrontendStack.React,
+          titles: {},
+          group: 'free',
+          customUiPath: 'path/to/ui'
         }
       ]
     })
 
-    const converterService = new BundleDescriptorConverterService(bundleDir)
+    sinon
+      .stub(ComponentService.prototype, 'getVersionedComponents')
+      .returns([
+        {
+          name: 'test-ms',
+          version: '0.0.5',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroServiceStack.SpringBoot
+        }
+      ])
+
+    const converterService = new BundleDescriptorConverterService(
+      bundleDir,
+      'docker-org'
+    )
 
     converterService.generateYamlDescriptors()
 
@@ -94,6 +117,21 @@ describe('bundle-descriptor-converter-service', () => {
       }
     })
 
+    const mfeNoCodeDescriptorPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      'widgets',
+      'test-mfe-no-code',
+      'test-mfe-no-code.yaml'
+    )
+    checkYamlFile(mfeNoCodeDescriptorPath, {
+      code: 'test-mfe-no-code',
+      titles: {},
+      group: 'free',
+      customUiPath: 'path/to/ui'
+    })
+
     const msDescriptorPath = path.resolve(
       bundleDir,
       ...OUTPUT_FOLDER,
@@ -103,7 +141,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(msDescriptorPath, {
       descriptorVersion: 'v4',
-      image: 'test-docker-image',
+      image: 'docker-org/test-ms:0.0.5',
       dbms: 'postgres',
       ingressPath: '/path/to/service',
       healthCheckPath: '/path/to/check',
@@ -134,7 +172,10 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml'],
-        widgets: ['widgets/test-mfe/test-mfe.yaml']
+        widgets: [
+          'widgets/test-mfe/test-mfe.yaml',
+          'widgets/test-mfe-no-code/test-mfe-no-code.yaml'
+        ]
       }
     })
   })
