@@ -26,6 +26,10 @@ export default class Pack extends BaseBuildCommand {
   ]
 
   static flags = {
+    build: Flags.boolean({
+      char: 'b',
+      description: 'Builds all bundle components before creating the package'
+    }),
     org: Flags.string({
       char: 'o',
       description: 'Docker organization name'
@@ -50,11 +54,7 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorService = new BundleDescriptorService(bundleDir)
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
-    const needsBuild = process.stdout.isTTY
-      ? await CliUx.ux.confirm('Rebuild components?')
-      : true
-
-    if (needsBuild) {
+    if (flags.build) {
       await this.buildAllComponents(Phase.Package)
     }
 

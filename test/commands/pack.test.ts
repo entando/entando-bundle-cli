@@ -28,10 +28,6 @@ describe('pack', () => {
   })
 
   beforeEach(() => {
-    // setting process.stdout.isTTY value here because it is different when tests
-    // are executed with npm run test or inside husky git hooks
-    process.stdout.isTTY = true
-
     stubGenerateYamlDescriptors = sinon.stub(
       BundleDescriptorConverterService.prototype,
       'generateYamlDescriptors'
@@ -48,7 +44,6 @@ describe('pack', () => {
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-org-prompt')
     })
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
     .stub(CliUx.ux, 'prompt', () =>
       sinon.stub().resolves('prompted-organization')
     )
@@ -71,7 +66,6 @@ describe('pack', () => {
         'configured-organization'
       )
     })
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
     .command(['pack'])
     .it(
       'runs package using the organization stored in config file',
@@ -91,7 +85,6 @@ describe('pack', () => {
         'test-bundle-org-flag-no-existing-conf'
       )
     )
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
     .command(['pack', '--org', 'flag-organization'])
     .it(
       'runs pack --org flag-organization without existing configuration',
@@ -114,7 +107,6 @@ describe('pack', () => {
         'configured-organization'
       )
     })
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
     .command(['pack', '--org', 'flag-organization'])
     .it('runs pack --org flag-organization with existing configuration', () => {
       const configService = new ConfigService()
@@ -167,8 +159,7 @@ describe('pack', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(true))
-    .command(['pack'])
+    .command(['pack', '-b'])
     .catch(error => {
       expect(error.message).to.contain('components failed to build')
       sinon.assert.calledOnce(getComponentsStub)
@@ -184,7 +175,6 @@ describe('pack', () => {
         .stub(DockerService, 'buildDockerImage')
         .resolves(42)
     })
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
     .command(['pack', '--org', 'flag-organization'])
     .exit(42)
     .it('Docker build failure forwards exit code', ctx => {
@@ -200,7 +190,6 @@ describe('pack', () => {
         .stub(DockerService, 'buildDockerImage')
         .resolves(new Error('command not found'))
     })
-    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       sinon.assert.calledOnce(stubBuildDockerImage)
@@ -234,18 +223,13 @@ describe('pack', () => {
       sinon
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
-
-      process.stdout.isTTY = false
     })
-    .command(['pack', '--org', 'flag-organization'])
-    .it(
-      'Build successfully and completes packaging, in non-TTY mode it builds by default',
-      () => {
-        sinon.assert.called(getComponentsStub)
-        sinon.assert.calledOnce(stubGenerateYamlDescriptors)
-        sinon.assert.calledOnce(stubBuildDockerImage)
-      }
-    )
+    .command(['pack', '-b', '--org', 'flag-organization'])
+    .it('Build successfully and completes packaging', () => {
+      sinon.assert.called(getComponentsStub)
+      sinon.assert.calledOnce(stubGenerateYamlDescriptors)
+      sinon.assert.calledOnce(stubBuildDockerImage)
+    })
 })
 
 class StubParallelProcessExecutorService extends ParallelProcessExecutorService {
