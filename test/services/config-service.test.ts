@@ -109,4 +109,12 @@ describe('config-service', () => {
     const value = 'test-value'
     expect(() => configService.updateProperty(key, value)).to.throw()
   })
+
+  test.it(
+    "get property when config file doesn't exist returns undefined",
+    () => {
+      tempDirHelper.createUninitializedBundleDir()
+      expect(new ConfigService().getProperty('test-key')).to.be.undefined
+    }
+  )
 })
