@@ -25,20 +25,13 @@ describe('svc-service', () => {
     })
   })
 
-  after(() => {
-    fs.rmSync(path.resolve(tempDirHelper.tmpDir), {
-      recursive: true,
-      force: true
-    })
-  })
-
   test.it('run getAvailableServices method', () => {
     const svcService: SvcService = new SvcService(bundleDirectory)
     const services = svcService.getAvailableServices()
     expect(services).to.have.length(2)
-    expect(services.includes('keycloak')).to.eq(true)
-    expect(services.includes('postgresql')).to.eq(true)
-    expect(services.includes('mysql')).to.eq(false)
+    expect(services).to.includes('keycloak')
+    expect(services).to.includes('postgresql')
+    expect(services).to.not.includes('mysql')
   })
 
   test.it('enable a service successfully', () => {
