@@ -65,10 +65,7 @@ export default class Pack extends BaseBuildCommand {
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    await this.buildMicroServicesDockerImages(
-      dockerOrganization,
-      bundleDescriptor.version
-    )
+    await this.buildMicroServicesDockerImages(dockerOrganization)
 
     await this.buildBundleDockerImage(
       bundleDir,
@@ -104,12 +101,9 @@ export default class Pack extends BaseBuildCommand {
     return newOrganization
   }
 
-  private async buildMicroServicesDockerImages(
-    dockerOrganization: string,
-    tag: string
-  ) {
+  private async buildMicroServicesDockerImages(dockerOrganization: string) {
     const componentService = new ComponentService()
-    const microServices = componentService.getComponents(
+    const microServices = componentService.getVersionedComponents(
       ComponentType.MICROSERVICE
     )
 
@@ -133,11 +127,17 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
+      if (!microService.version) {
+        this.error(
+          `Unable to determine version for microservice ${microService.name}`
+        )
+      }
+
       buildOptions.push({
         name: microService.name,
         organization: dockerOrganization,
         path: msPath,
-        tag,
+        tag: microService.version,
         outputStream: logFile
       })
     }

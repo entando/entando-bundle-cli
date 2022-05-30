@@ -25,6 +25,7 @@ import * as executors from '../../src/services/process-executor-service'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
+import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -213,6 +214,10 @@ describe('pack', () => {
       fs.mkdirSync(ms1Dir, { recursive: true })
       fs.writeFileSync(ms1Dockerfile, '')
 
+      sinon
+        .stub(ComponentDescriptorService.prototype, 'getComponentVersion')
+        .returns('0.0.3')
+
       const stubComponents = [
         {
           name: 'ms1',
@@ -247,6 +252,42 @@ describe('pack', () => {
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
       sinon.assert.calledOnce(stubBuildDockerImage)
     })
+
+  test
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-build-no-version'
+      )
+      const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, 'ms1')
+      const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
+      fs.mkdirSync(ms1Dir, { recursive: true })
+      fs.writeFileSync(ms1Dockerfile, '')
+
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroServiceStack.SpringBoot
+        }
+      ]
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Unable to determine version for microservice ms1'
+      )
+    })
+    .it('Packaging stops if it is unable to retrieve microservice version')
 
   test
     .do(() => {
