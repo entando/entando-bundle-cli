@@ -9,13 +9,18 @@ import {
   DOCKER_ORGANIZATION_PROPERTY
 } from '../services/config-service'
 import { debugFactory } from '../services/debug-factory-service'
-import { DockerBuildOptions, DockerService } from '../services/docker-service'
+import {
+  DEFAULT_DOCKERFILE_NAME,
+  DockerBuildOptions,
+  DockerService
+} from '../services/docker-service'
 import { BaseBuildCommand } from './base-build'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
+import * as fs from 'node:fs'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generates the bundle Docker image'
@@ -119,6 +124,14 @@ export default class Pack extends BaseBuildCommand {
         microService,
         MICROSERVICES_FOLDER
       )
+
+      const msDockerfile = path.resolve(msPath, DEFAULT_DOCKERFILE_NAME)
+
+      if (!fs.existsSync(msDockerfile)) {
+        this.error(
+          `Dockerfile not found for microservice ${microService.name}. Please provide one in order to proceed with the bundle packaging`
+        )
+      }
 
       buildOptions.push({
         name: microService.name,

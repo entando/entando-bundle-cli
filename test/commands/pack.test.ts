@@ -6,7 +6,10 @@ import {
 } from '../../src/services/config-service'
 import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
 import { ComponentService } from '../../src/services/component-service'
-import { DockerService } from '../../src/services/docker-service'
+import {
+  DEFAULT_DOCKERFILE_NAME,
+  DockerService
+} from '../../src/services/docker-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as sinon from 'sinon'
 import {
@@ -19,6 +22,9 @@ import {
   ProcessExecutionResult
 } from '../../src/services/process-executor-service'
 import * as executors from '../../src/services/process-executor-service'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
+import { MICROSERVICES_FOLDER } from '../../src/paths'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -199,7 +205,13 @@ describe('pack', () => {
 
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-bundle-build-success')
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-build-success'
+      )
+      const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, 'ms1')
+      const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
+      fs.mkdirSync(ms1Dir, { recursive: true })
+      fs.writeFileSync(ms1Dockerfile, '')
 
       const stubComponents = [
         {
@@ -215,7 +227,12 @@ describe('pack', () => {
       ]
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
+        .onFirstCall()
         .returns(stubComponents)
+        .onSecondCall()
+        .returns(
+          stubComponents.filter(c => c.type === ComponentType.MICROSERVICE)
+        )
 
       const stubResults: ProcessExecutionResult[] = [0, 0]
       const stubParallelProcessExecutorService =
@@ -230,6 +247,39 @@ describe('pack', () => {
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
       sinon.assert.calledOnce(stubBuildDockerImage)
     })
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir(
+        'test-bundle-build-no-dockerfile'
+      )
+
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroServiceStack.SpringBoot
+        }
+      ]
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .onFirstCall()
+        .returns(stubComponents)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Dockerfile not found for microservice ms1'
+      )
+    })
+    .it("Packaging stops if a microservice folder doesn't contain a Dockerfile")
 })
 
 class StubParallelProcessExecutorService extends ParallelProcessExecutorService {

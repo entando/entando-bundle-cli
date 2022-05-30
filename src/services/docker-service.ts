@@ -9,7 +9,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { BUILD_FOLDER, MICROFRONTENDS_FOLDER, WIDGETS_FOLDER } from '../paths'
 
-const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
+export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 
 export type DockerBuildOptions = {
   path: string
