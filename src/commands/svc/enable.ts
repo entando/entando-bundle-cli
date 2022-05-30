@@ -3,8 +3,7 @@ import { BundleService } from '../../services/bundle-service'
 import { SvcService } from '../../services/svc-service'
 
 export default class Enable extends Command {
-  static description =
-    'Enables an available docker services found in services folder'
+  static description = 'Enable auxiliary services'
 
   static examples = ['<%= config.bin %> <%= command.id %> external-service']
 
