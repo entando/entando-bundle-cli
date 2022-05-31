@@ -74,4 +74,47 @@ describe('svc-service', () => {
         expect(bundleDescriptor).to.haveOwnProperty('svc')
       }
     )
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['postgresql']
+      })
+    })
+    .it('disable a service successfully', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.disableService('postgresql')).to.not.throw(
+        CLIError
+      )
+    })
+
+  test.it('disable a service that does not exist in svc folder', () => {
+    const svcService: SvcService = new SvcService(bundleDirectory)
+    expect(() => svcService.disableService('win98')).to.throw(CLIError)
+  })
+
+  test.it('disable a service that is not enabled', () => {
+    const svcService: SvcService = new SvcService(bundleDirectory)
+    expect(() => svcService.disableService('keycloak')).to.throw(CLIError)
+  })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      delete bundleDescriptor.svc
+      bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+    })
+    .it(
+      'svc that is non-existent in bundle descriptor creates svc attribute',
+      () => {
+        const svcService: SvcService = new SvcService(bundleDirectory)
+        expect(() => svcService.enableService('keycloak')).to.not.throw(
+          CLIError
+        )
+        const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+        expect(bundleDescriptor).to.haveOwnProperty('svc')
+      }
+    )
 })

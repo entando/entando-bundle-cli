@@ -50,6 +50,29 @@ export class SvcService {
     })
   }
 
+  public disableService(service: string): void {
+    if (!this.isServiceAvailable(service)) {
+      throw new CLIError(
+        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> list --available`
+      )
+    }
+
+    const activeServices = this.bundleDescriptor.svc || []
+
+    if (!activeServices.includes(service)) {
+      throw new CLIError(`Service ${service} is not enabled`)
+    }
+
+    const svc = activeServices.filter(
+      currentService => currentService !== service
+    )
+
+    this.bundleDescriptorService.writeBundleDescriptor({
+      ...this.bundleDescriptor,
+      svc
+    })
+  }
+
   private isServiceAvailable(service: string): boolean {
     return this.getAvailableServices().includes(service)
   }
