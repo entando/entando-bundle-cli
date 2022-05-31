@@ -30,11 +30,7 @@ export class SvcService {
   }
 
   public enableService(service: string): void {
-    if (!this.isServiceAvailable(service)) {
-      throw new CLIError(
-        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> list --available`
-      )
-    }
+    this.isServiceAvailable(service)
 
     const svc = this.bundleDescriptor.svc || []
 
@@ -51,11 +47,7 @@ export class SvcService {
   }
 
   public disableService(service: string): void {
-    if (!this.isServiceAvailable(service)) {
-      throw new CLIError(
-        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> list --available`
-      )
-    }
+    this.isServiceAvailable(service)
 
     const activeServices = this.bundleDescriptor.svc || []
 
@@ -73,7 +65,11 @@ export class SvcService {
     })
   }
 
-  private isServiceAvailable(service: string): boolean {
-    return this.getAvailableServices().includes(service)
+  private isServiceAvailable(service: string): void {
+    if (!this.getAvailableServices().includes(service)) {
+      throw new CLIError(
+        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> list --available`
+      )
+    }
   }
 }

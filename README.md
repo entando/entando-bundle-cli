@@ -47,6 +47,8 @@ USAGE
 - [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
 - [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
 - [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
+- [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
+- [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -314,6 +316,42 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/pack.ts)_
+
+## `entando-bundle-cli svc disable SERVICENAME`
+
+Disable auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc disable [SERVICENAME]
+
+ARGUMENTS
+  SERVICENAME  Name of an available service
+
+DESCRIPTION
+  Disable auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc disable external-service
+```
+
+## `entando-bundle-cli svc enable SERVICENAME`
+
+Enable auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc enable [SERVICENAME]
+
+ARGUMENTS
+  SERVICENAME  Name of an available service
+
+DESCRIPTION
+  Enable auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc enable external-service
+```
 
 <!-- commandsstop -->
 
