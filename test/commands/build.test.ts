@@ -6,24 +6,23 @@ import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { ComponentService } from '../../src/services/component-service'
-import { Component } from '../../src/models/component'
+import { Component, MicroServiceStack } from '../../src/models/component'
 import { ComponentType } from '../../src/models/component'
-import { ExecutionError } from '../../src/services/process-executor-service'
 
 describe('Build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
   const msNameSpringBoot = 'test-ms-spring-boot'
   const msNameNotImplementedStack = 'test-not-implemented-stack'
 
-  const microserviceSpringBoot: Component = {
+  const microserviceSpringBoot: Component<ComponentType> = {
     name: msNameSpringBoot,
-    stack: 'spring-boot',
+    stack: MicroServiceStack.SpringBoot,
     type: ComponentType.MICROSERVICE
   }
 
-  const microserviceNotImplementedStack: Component = {
+  const microserviceNotImplementedStack: Component<ComponentType> = {
     name: msNameNotImplementedStack,
-    stack: 'test',
+    stack: MicroServiceStack.Node,
     type: ComponentType.MICROSERVICE
   }
   let executeProcessStub: sinon.SinonStub
@@ -40,7 +39,9 @@ describe('Build command', () => {
         path.resolve(bundleDir, MICROSERVICES_FOLDER, msNameSpringBoot),
         { recursive: true }
       )
-      executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
       sinon
         .stub(ComponentService.prototype, 'getComponent')
         .returns(microserviceSpringBoot)
@@ -50,8 +51,7 @@ describe('Build command', () => {
       sinon.assert.calledWith(
         executeProcessStub,
         sinon.match({
-          command: 'mvn',
-          arguments: ['clean', 'test']
+          command: 'mvn clean test'
         })
       )
     })
@@ -88,9 +88,7 @@ describe('Build command', () => {
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command')
       executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
-      sinon
-        .stub(ComponentService.prototype, 'build')
-        .rejects(new ExecutionError(5))
+      sinon.stub(ComponentService.prototype, 'build').resolves(5)
     })
     .command(['build', msNameSpringBoot])
     .exit(5)
@@ -102,7 +100,7 @@ describe('Build command', () => {
       executeProcessStub = sinon.stub(ProcessExecutorService, 'executeProcess')
       sinon
         .stub(ComponentService.prototype, 'build')
-        .rejects(new ExecutionError(new Error('Command not found')))
+        .resolves(new Error('Command not found'))
     })
     .command(['build', msNameSpringBoot])
     .exit(1)

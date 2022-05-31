@@ -1,10 +1,10 @@
-import { CliUx, Command } from '@oclif/core'
+import { CliUx } from '@oclif/core'
 import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
-import { ExecutionError } from '../services/process-executor-service'
+import { BaseBuildCommand } from './base-build'
 
-export default class Build extends Command {
-  static description = 'Build the component'
+export default class Build extends BaseBuildCommand {
+  static description = 'Build bundle components'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-component']
 
@@ -22,21 +22,19 @@ export default class Build extends Command {
 
     CliUx.ux.action.start(`Building component ${args.name}`)
     const componentService = new ComponentService()
-    try {
-      await componentService.build(args.name)
-    } catch (error) {
-      if (error instanceof ExecutionError) {
-        if (typeof error.executionResult === 'number') {
-          console.error(`Build failed, exit with code ${error.executionResult}`)
-          this.exit(error.executionResult as number)
-        } else {
-          console.error(
-            `Build failed, exit with code 1 and message ${error.message}`
-          )
-          this.exit(1)
-        }
+    const result = await componentService.build(args.name)
+    if (result !== 0) {
+      if (typeof result === 'number') {
+        this.error(`Build failed, exit with code ${result}`, {
+          exit: result as number
+        })
       } else {
-        throw error
+        this.error(
+          `Build failed, exit with code 1 and message ${this.getErrorMessage(
+            result
+          )}`,
+          { exit: 1 }
+        )
       }
     }
 

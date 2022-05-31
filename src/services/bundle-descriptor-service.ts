@@ -4,7 +4,7 @@ import * as fs from 'node:fs'
 import { FSService } from './fs-service'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../paths'
 
-type MandatoryBundleFields = { name: string; version: string, type: string }
+type MandatoryBundleFields = { name: string; version: string; type: string }
 
 export class BundleDescriptorService {
   private readonly bundleFilePath: string
@@ -21,7 +21,8 @@ export class BundleDescriptorService {
   ): void {
     const defaultValues = {
       microservices: [],
-      microfrontends: []
+      microfrontends: [],
+      svc: []
     }
     const bundleDescriptor = { ...defaultValues, ...fieldsToAdd }
     this.writeBundleDescriptor(bundleDescriptor)

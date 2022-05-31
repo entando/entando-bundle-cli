@@ -1,12 +1,8 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { MicroFrontend } from '../../models/bundle-descriptor'
+import { MicroFrontendStack } from '../../models/component'
 import { BundleService } from '../../services/bundle-service'
 import { MicroFrontendService } from '../../services/microfrontend-service'
-
-enum Stack {
-  React = 'react',
-  Angular = 'angular'
-}
 
 export default class Add extends Command {
   static description = 'Adds a Micro Frontend component to the bundle'
@@ -19,8 +15,8 @@ export default class Add extends Command {
   static flags = {
     stack: Flags.string({
       description: 'Micro Frontend stack',
-      options: [Stack.React, Stack.Angular],
-      default: Stack.React
+      options: [MicroFrontendStack.React, MicroFrontendStack.Angular],
+      default: MicroFrontendStack.React
     })
   }
 

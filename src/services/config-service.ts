@@ -10,10 +10,13 @@ export class ConfigService {
   private config: { [key: string]: string } = {}
 
   private readConfigFile = (): void => {
-    const configFile = fs.readFileSync(path.join(CONFIG_FOLDER, CONFIG_FILE), {
-      encoding: 'utf-8'
-    })
-    this.config = JSON.parse(configFile)
+    const configFilePath = path.join(CONFIG_FOLDER, CONFIG_FILE)
+    if (fs.existsSync(configFilePath)) {
+      const configFile = fs.readFileSync(configFilePath, {
+        encoding: 'utf-8'
+      })
+      this.config = JSON.parse(configFile)
+    }
   }
 
   private writeConfigFile = (): void => {

@@ -3,6 +3,7 @@ import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MicroServiceService } from '../../../src/services/microservice-service'
 import { MicroService } from '../../../src/models/bundle-descriptor'
+import { MicroServiceStack } from '../../../src/models/component'
 
 describe('Remove MicroService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -12,9 +13,8 @@ describe('Remove MicroService', () => {
       tempDirHelper.createInitializedBundleDir('test-bundle-existing-ms')
       const ms: MicroService = {
         name: 'test-ms',
-        image: 'test-image',
         dbms: 'mysql',
-        stack: 'spring-boot'
+        stack: MicroServiceStack.SpringBoot
       }
       const microServiceService = new MicroServiceService()
       microServiceService.addMicroService(ms)

@@ -4,15 +4,18 @@ import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
+import { DockerService } from './docker-service'
 
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 const DEFAULT_PUBLIC_FOLDER = 'public'
 
 export class MicroFrontendService {
+  private readonly bundleDir: string
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
 
   constructor() {
+    this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
   }
@@ -25,6 +28,8 @@ export class MicroFrontendService {
     }
 
     this.createMicroFrontendDirectory(mfe.name)
+
+    DockerService.addMicroFrontEndToDockerfile(this.bundleDir, mfe.name)
 
     this.addMicroFrontendDescriptor({
       ...mfe,
@@ -67,6 +72,8 @@ export class MicroFrontendService {
 
     this.removeMicroFrontendDirectory(mfeName)
 
+    DockerService.removeMicroFrontendFromDockerfile(this.bundleDir, mfeName)
+
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
   }
 
@@ -93,7 +100,7 @@ export class MicroFrontendService {
       throw new CLIError(`Directory ${mfedir} does not exist`)
     }
 
-    fs.rmSync(mfedir, { recursive: true, force: true })
+    fs.rmSync(mfedir, { recursive: true })
   }
 
   private addMicroFrontendDescriptor(mfe: MicroFrontend): void {

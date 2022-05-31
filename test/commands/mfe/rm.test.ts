@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
+import { MicroFrontendStack } from '../../../src/models/component'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
@@ -17,7 +18,7 @@ describe('mfe rm', () => {
         name: 'default-stack-mfe',
         code: '123',
         titles: { en: 'Default Stack MFE' },
-        stack: 'stack',
+        stack: MicroFrontendStack.React,
         group: 'group',
         publicFolder: 'public',
         customUiPath: ''

@@ -17,7 +17,8 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import {
   CONFIG_FOLDER,
   CONFIG_FILE,
-  BUNDLE_DESCRIPTOR_FILE_NAME
+  BUNDLE_DESCRIPTOR_FILE_NAME,
+  SVC_FOLDER
 } from '../../src/paths'
 
 describe('init', () => {
@@ -157,6 +158,10 @@ describe('init', () => {
     checkBundleFile(bundleName, 'microfrontends')
     checkBundleFile(bundleName, 'Dockerfile')
     checkBundleFile(bundleName, '.gitignore')
+    checkBundleFile(bundleName, SVC_FOLDER)
+    checkBundleFile(bundleName, SVC_FOLDER, 'mysql.yml')
+    checkBundleFile(bundleName, SVC_FOLDER, 'postgresql.yml')
+    checkBundleFile(bundleName, SVC_FOLDER, 'keycloak.yml')
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
