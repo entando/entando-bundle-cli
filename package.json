@@ -57,6 +57,9 @@
       },
       "api": {
         "description": "Manage API claims"
+      },
+      "svc": {
+        "description": "Manage auxiliary services"
       }
     }
   },
