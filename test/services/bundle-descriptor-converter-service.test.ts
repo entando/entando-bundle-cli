@@ -13,6 +13,7 @@ import {
   MicroServiceStack
 } from '../../src/models/component'
 import { ComponentService } from '../../src/services/component-service'
+import { ApiType } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -65,7 +66,10 @@ describe('bundle-descriptor-converter-service', () => {
           configUi: {
             customElement: 'test-config',
             resources: ['path/to/test-config.js']
-          }
+          },
+          apiClaims: [
+            { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+          ]
         },
         {
           name: 'test-mfe-no-code',
@@ -77,16 +81,14 @@ describe('bundle-descriptor-converter-service', () => {
       ]
     })
 
-    sinon
-      .stub(ComponentService.prototype, 'getVersionedComponents')
-      .returns([
-        {
-          name: 'test-ms',
-          version: '0.0.5',
-          type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.SpringBoot
-        }
-      ])
+    sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+      {
+        name: 'test-ms',
+        version: '0.0.5',
+        type: ComponentType.MICROSERVICE,
+        stack: MicroServiceStack.SpringBoot
+      }
+    ])
 
     const converterService = new BundleDescriptorConverterService(
       bundleDir,
@@ -110,11 +112,15 @@ describe('bundle-descriptor-converter-service', () => {
         it: 'titolo mfe'
       },
       group: 'free',
+      version: 'v2',
       customUiPath: 'path/to/ui',
       configUi: {
         customElement: 'test-config',
         resources: ['path/to/test-config.js']
-      }
+      },
+      apiClaims: [
+        { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+      ]
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(
@@ -129,6 +135,7 @@ describe('bundle-descriptor-converter-service', () => {
       code: 'test-mfe-no-code',
       titles: {},
       group: 'free',
+      version: 'v2',
       customUiPath: 'path/to/ui'
     })
 
