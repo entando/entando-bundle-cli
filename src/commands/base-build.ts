@@ -28,6 +28,9 @@ export abstract class BaseBuildCommand extends Command {
   public async buildAllComponents(commandPhase: Phase): Promise<void> {
     this.log(color.bold.blue('Building components...'))
 
+    // Output directory cleanup
+    fs.rmSync(path.resolve(...OUTPUT_FOLDER), { recursive: true })
+
     const componentService = new ComponentService()
     const components = componentService.getComponents()
 
