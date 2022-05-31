@@ -30,7 +30,7 @@ const DEFAULT_COMMANDS: CommandsDefinition = {
   microservice: {
     'spring-boot': {
       clean: 'mvn clean',
-      build: 'mvn clean test',
+      build: 'mvn test',
       package: 'mvn clean package -DskipTests'
     },
     node: {
