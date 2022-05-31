@@ -3,7 +3,7 @@ import * as path from 'node:path'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { debugFactory } from './debug-factory-service'
 import {
-  AUX_FOLDER,
+  SVC_FOLDER,
   CONFIG_FILE,
   CONFIG_FOLDER,
   RESOURCES_FOLDER,
@@ -49,7 +49,7 @@ export class InitializerService {
     this.createDockerfile()
     this.createGitignore()
     this.createConfigJson()
-    this.createDefaultAuxFiles()
+    this.createDefaultSvcFiles()
     this.git.initRepo()
   }
 
@@ -67,7 +67,7 @@ export class InitializerService {
     fs.mkdirSync(this.filesys.getBundleFilePath(MICROSERVICES_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(MICROFRONTENDS_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(EPC_FOLDER))
-    fs.mkdirSync(this.filesys.getBundleFilePath(AUX_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(SVC_FOLDER))
   }
 
   public async performBundleInitFromGit(
@@ -99,7 +99,7 @@ export class InitializerService {
     this.filesys.createSubDirectoryIfNotExist(MICROFRONTENDS_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(...OUTPUT_FOLDER)
-    this.filesys.createSubDirectoryIfNotExist(AUX_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(SVC_FOLDER)
   }
 
   private createBundleDescriptor() {
@@ -127,22 +127,22 @@ export class InitializerService {
     this.filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
   }
 
-  public createDefaultAuxFiles(): void {
-    InitializerService.debug('creating aux files')
+  public createDefaultSvcFiles(): void {
+    InitializerService.debug('creating svc files')
 
     const defaultPrefix = 'default-'
     const templateVariables = { '%BUNDLENAME%': this.options.name }
     const defaultYamls = fs
       .readdirSync(
-        path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, AUX_FOLDER)
+        path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, SVC_FOLDER)
       )
       .filter(filename => filename.slice(-3) === 'yml')
       .map(filename => filename.replace(defaultPrefix, ''))
 
     for (const defaultYaml of defaultYamls) {
       this.filesys.createFileFromTemplate(
-        [AUX_FOLDER, defaultYaml],
-        path.join(AUX_FOLDER, `${defaultPrefix}${defaultYaml}`),
+        [SVC_FOLDER, defaultYaml],
+        path.join(SVC_FOLDER, `${defaultPrefix}${defaultYaml}`),
         templateVariables
       )
     }

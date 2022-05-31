@@ -22,7 +22,7 @@ export class BundleDescriptorService {
     const defaultValues = {
       microservices: [],
       microfrontends: [],
-      aux: []
+      svc: []
     }
     const bundleDescriptor = { ...defaultValues, ...fieldsToAdd }
     this.writeBundleDescriptor(bundleDescriptor)

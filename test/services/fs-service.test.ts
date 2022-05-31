@@ -3,7 +3,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { AUX_FOLDER, RESOURCES_FOLDER } from '../../src/paths'
+import { SVC_FOLDER, RESOURCES_FOLDER } from '../../src/paths'
 import { FSService } from '../../src/services/fs-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 
@@ -77,7 +77,7 @@ describe('fs-service', () => {
   test
     .do(() => {
       fs.mkdirSync(
-        path.resolve(tempDirHelper.tmpDir, defaultBundleName, AUX_FOLDER),
+        path.resolve(tempDirHelper.tmpDir, defaultBundleName, SVC_FOLDER),
         { recursive: true }
       )
     })
@@ -87,14 +87,14 @@ describe('fs-service', () => {
         const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
         const placeholder = '%BUNDLENAME%'
         filesys.createFileFromTemplate(
-          [AUX_FOLDER, 'mysql.yml'],
-          path.join(AUX_FOLDER, 'default-mysql.yml'),
+          [SVC_FOLDER, 'mysql.yml'],
+          path.join(SVC_FOLDER, 'default-mysql.yml'),
           { [placeholder]: defaultBundleName }
         )
         const filePath = path.resolve(
           tempDirHelper.tmpDir,
           defaultBundleName,
-          AUX_FOLDER,
+          SVC_FOLDER,
           'mysql.yml'
         )
         const templateFileContent = fs.readFileSync(
@@ -103,7 +103,7 @@ describe('fs-service', () => {
             '..',
             '..',
             RESOURCES_FOLDER,
-            AUX_FOLDER,
+            SVC_FOLDER,
             'default-mysql.yml'
           ),
           'utf8'
