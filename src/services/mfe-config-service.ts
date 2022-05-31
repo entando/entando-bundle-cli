@@ -32,7 +32,7 @@ export class MfeConfigService {
     return fs.existsSync(this.getMfeConfigPath(mfeName))
   }
 
-  private getMfeConfigPath(mfeName: string): string {
+  public getMfeConfigPath(mfeName: string): string {
     const mfePublicFolderPath: string =
       this.microFrontendService.getPublicFolderPath(mfeName)
 

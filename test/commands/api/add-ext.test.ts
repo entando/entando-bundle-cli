@@ -155,9 +155,7 @@ describe('api add-ext', () => {
 
   test
     .do(() => {
-      fs.rmSync(
-        path.resolve('microfrontends', 'mfe1', 'public', 'mfe-config.json')
-      )
+      fs.rmSync(mfeConfigService.getMfeConfigPath('mfe1'))
     })
     .command([
       'api add-ext',
