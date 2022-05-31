@@ -6,7 +6,6 @@ const DEFAULT_PARALLEL_PROCESSES_SIZE = 2
 
 export type ProcessExecutionOptions = {
   command: string
-  arguments?: string[]
   /** Child process working directory (same as caller process working directory if not specified) */
   workDir?: string
   /**
@@ -25,24 +24,7 @@ export type ProcessExecutionOptions = {
 
 export type ProcessExecutionResult = number | Error | NodeJS.Signals
 
-export class ExecutionError extends Error {
-  readonly executionResult: ProcessExecutionResult
-
-  constructor(executionResult: ProcessExecutionResult) {
-    if (typeof executionResult === 'number') {
-      super(`Process exited with code ${executionResult}`)
-    } else if (executionResult instanceof Error) {
-      super(`Command failed due to error: ${executionResult.message}`)
-    } else {
-      super(`Process killed by signal ${executionResult}`)
-    }
-
-    this.executionResult = executionResult
-  }
-}
-
 export class ProcessExecutorService {
-  private static debug = debugFactory(ProcessExecutorService)
   /**
    * Executes a long running child process and handles its output streams.
    * @param options parameters for underlying spawn function and output configuration
@@ -51,19 +33,19 @@ export class ProcessExecutorService {
   public static async executeProcess(
     options: ProcessExecutionOptions
   ): Promise<ProcessExecutionResult> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const process = setUpProcess(options)
 
       process.on('exit', (code, signal) => {
         if (code !== 0) {
-          reject(new ExecutionError(code ?? signal!))
+          resolve(code ?? signal!)
         }
 
         resolve(code!)
       })
 
       process.on('error', function (error) {
-        reject(new ExecutionError(error))
+        resolve(error)
       })
     })
   }
@@ -156,8 +138,9 @@ export class ParallelProcessExecutorService extends EventEmitter {
 }
 
 function setUpProcess(options: ProcessExecutionOptions) {
-  const process = spawn(options.command, options.arguments, {
-    cwd: options.workDir
+  const process = spawn(options.command, {
+    cwd: options.workDir,
+    shell: true
   })
 
   process.stdout.on('data', chunk => {

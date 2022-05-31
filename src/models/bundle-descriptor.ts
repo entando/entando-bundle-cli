@@ -1,3 +1,5 @@
+import { MicroFrontendStack, MicroServiceStack } from './component'
+
 export type EnvironmentVariable =
   | {
       name: string
@@ -22,9 +24,7 @@ export type MicroService = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
   /** Tech stack. It could be guessed from folder content or forced by the user */
-  stack: string
-  /** Docker image name. This field is computed at packaging phase */
-  image: string
+  stack: MicroServiceStack
   /** Value used for defining custom pod names */
   deploymentBaseName?: string
   dbms: string
@@ -38,8 +38,8 @@ export type MicroService = {
 
 export type MicroFrontend = {
   name: string
-  stack: string
-  code: string
+  stack: MicroFrontendStack
+  code?: string
   titles: { [lang: string]: string }
   group: string
   customUiPath: string

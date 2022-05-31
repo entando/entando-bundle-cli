@@ -1,12 +1,8 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { MicroService } from '../../models/bundle-descriptor'
+import { MicroServiceStack } from '../../models/component'
 import { BundleService } from '../../services/bundle-service'
 import { MicroServiceService } from '../../services/microservice-service'
-
-enum Stack {
-  SpringBoot = 'spring-boot',
-  Node = 'node'
-}
 
 export default class Add extends Command {
   static description = 'Adds a microservice component to the bundle'
@@ -19,8 +15,8 @@ export default class Add extends Command {
   static flags = {
     stack: Flags.string({
       description: 'Microservice stack',
-      options: [Stack.SpringBoot, Stack.Node],
-      default: Stack.SpringBoot
+      options: [MicroServiceStack.SpringBoot, MicroServiceStack.Node],
+      default: MicroServiceStack.SpringBoot
     })
   }
 

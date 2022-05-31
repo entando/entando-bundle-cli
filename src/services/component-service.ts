@@ -31,11 +31,11 @@ export class ComponentService {
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 
-  public getComponents(type?: ComponentType): Component[] {
+  public getComponents(type?: ComponentType): Array<Component<ComponentType>> {
     const { microfrontends, microservices }: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
 
-    let components: Component[]
+    let components: Array<Component<ComponentType>>
 
     if (type === ComponentType.MICROFRONTEND) {
       components = microfrontends.map(
@@ -71,19 +71,15 @@ export class ComponentService {
 
     let componentPath: string
     let buildCmd = ''
-    let buildCmdArgs: string[] = []
 
     if (type === 'microservice' && stack === 'spring-boot') {
       componentPath = path.resolve(MICROSERVICES_FOLDER, name)
-      buildCmd = 'mvn'
-      buildCmdArgs = ['clean', 'test']
+      buildCmd = 'mvn clean test'
     } else {
       throw new CLIError(`${stack} ${type} build not implemented`)
     }
 
-    ComponentService.debug(
-      `Building ${name} using ${buildCmd} ${buildCmdArgs.join(' ').trim()}`
-    )
+    ComponentService.debug(`Building ${name} using ${buildCmd}`)
 
     if (!fs.existsSync(componentPath)) {
       throw new CLIError(`Directory ${componentPath} not exists`)
@@ -91,14 +87,13 @@ export class ComponentService {
 
     return ProcessExecutorService.executeProcess({
       command: buildCmd,
-      arguments: buildCmdArgs,
       outputStream: process.stdout,
       errorStream: process.stdout,
       workDir: componentPath
     })
   }
 
-  getComponent(name: string): Component {
+  getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
       throw new CLIError(`Component ${name} not found`)
@@ -109,7 +104,7 @@ export class ComponentService {
 
   private mapComponentType(
     type: ComponentType
-  ): (compToMap: MicroFrontend | MicroService) => Component {
+  ): (compToMap: MicroFrontend | MicroService) => Component<ComponentType> {
     return ({ name, stack }) => ({ name, stack, type })
   }
 }

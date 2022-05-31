@@ -26,8 +26,12 @@ export class TempDirHelper {
     tempDirName += path.basename(testFile).replace('.test.ts', '-test')
 
     before(() => {
-      // creating a temporary directory
+      // defining temporary directory for test
       this.tmpDir = path.resolve(os.tmpdir(), tempDirName)
+      // removing the temporary directory if it already exists (this could happen if a previous
+      // test was forcibly stopped using Ctrl+C and it didn't clean its folder properly)
+      this.rmTmpDir()
+      // creating a new temporary directory
       fs.mkdirSync(this.tmpDir)
     })
 
@@ -40,8 +44,12 @@ export class TempDirHelper {
       // prevents locking of temporary directory so it can be cleaned up
       process.chdir(path.resolve(this.tmpDir, '..'))
       // temporary directory cleanup
-      fs.rmSync(path.resolve(this.tmpDir), { recursive: true, force: true })
+      this.rmTmpDir()
     })
+  }
+
+  private rmTmpDir() {
+    fs.rmSync(path.resolve(this.tmpDir), { recursive: true, force: true })
   }
 
   public createInitializedBundleDir(bundleName = 'test-bundle'): string {

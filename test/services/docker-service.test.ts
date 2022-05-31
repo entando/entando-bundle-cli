@@ -27,15 +27,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: 'docker',
-        arguments: [
-          'build',
-          '-f',
-          'Dockerfile',
-          '-t',
-          'my-org/bundle-name:0.0.1',
-          '.'
-        ]
+        command: 'docker build -f Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -57,15 +49,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: 'docker',
-        arguments: [
-          'build',
-          '-f',
-          'my-Dockerfile',
-          '-t',
-          'my-org/bundle-name:0.0.1',
-          '.'
-        ]
+        command: 'docker build -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
