@@ -107,8 +107,7 @@ export class ComponentService {
   }
 
   componentExists(name: string): boolean {
-    const component = this.getComponents().find(comp => comp.name === name)
-    return component !== undefined
+    return this.getComponents().some(comp => comp.name === name)
   }
 
   getComponent(name: string): Component<ComponentType> {
@@ -121,7 +120,7 @@ export class ComponentService {
   }
 
   // eslint-disable-next-line no-warning-comments
-  // TODO: Move the component validation to the Bundle validator
+  // TODO: ENG-3788 Move the component validation to the Bundle validator
   validateComponent(component: Component<ComponentType>): void {
     const { type, stack, name } = component
     if (type === ComponentType.MICROFRONTEND) {
