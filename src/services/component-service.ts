@@ -69,10 +69,17 @@ export class ComponentService {
 
   public static getComponentPath(component: Component<ComponentType>): string {
     const { name, type } = component
-    const componentPath =
-      type === ComponentType.MICROSERVICE
-        ? path.resolve(MICROSERVICES_FOLDER, name)
-        : path.resolve(MICROFRONTENDS_FOLDER, name)
+    let componentPath
+
+    switch (type) {
+      case ComponentType.MICROSERVICE:
+        componentPath = path.resolve(MICROSERVICES_FOLDER, name)
+        break
+      case ComponentType.MICROFRONTEND:
+        componentPath = path.resolve(MICROFRONTENDS_FOLDER, name)
+        break
+    }
+
     return componentPath
   }
 
@@ -113,7 +120,8 @@ export class ComponentService {
     return component
   }
 
-  // TODO Move the component validation to the Bundle validator
+  // eslint-disable-next-line no-warning-comments
+  // TODO: Move the component validation to the Bundle validator
   validateComponent(component: Component<ComponentType>): void {
     const { type, stack, name } = component
     if (type === ComponentType.MICROFRONTEND) {
