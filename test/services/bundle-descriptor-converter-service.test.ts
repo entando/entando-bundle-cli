@@ -104,7 +104,6 @@ describe('bundle-descriptor-converter-service', () => {
       ...OUTPUT_FOLDER,
       'descriptors',
       'widgets',
-      'test-mfe',
       'test-mfe.yaml'
     )
     checkYamlFile(mfeDescriptorPath, {
@@ -130,7 +129,6 @@ describe('bundle-descriptor-converter-service', () => {
       ...OUTPUT_FOLDER,
       'descriptors',
       'widgets',
-      'test-mfe-no-code',
       'test-mfe-no-code.yaml'
     )
     checkYamlFile(mfeNoCodeDescriptorPath, {
@@ -181,10 +179,7 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml'],
-        widgets: [
-          'widgets/test-mfe/test-mfe.yaml',
-          'widgets/test-mfe-no-code/test-mfe-no-code.yaml'
-        ]
+        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml']
       }
     })
   })

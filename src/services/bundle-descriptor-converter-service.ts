@@ -136,7 +136,6 @@ export class BundleDescriptorConverterService {
   private getMicroFrontendDescriptorRelativePath(microFrontend: MicroFrontend) {
     return path.posix.join(
       WIDGETS_DESCRIPTORS_FOLDER,
-      microFrontend.name,
       microFrontend.name + DESCRIPTOR_EXTENSION
     )
   }
