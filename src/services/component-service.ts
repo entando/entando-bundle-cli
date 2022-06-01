@@ -113,6 +113,7 @@ export class ComponentService {
     return component
   }
 
+  // TODO Move the component validation to the Bundle validator
   validateComponent(component: Component<ComponentType>): void {
     const { type, stack, name } = component
     if (type === ComponentType.MICROFRONTEND) {
