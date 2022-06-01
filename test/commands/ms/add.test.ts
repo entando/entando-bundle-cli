@@ -4,11 +4,11 @@ import * as path from 'node:path'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
-  MicroService
+  MicroService,
+  MicroFrontend
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
-import { MicroFrontend } from '../../../dist/models/bundle-descriptor'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
