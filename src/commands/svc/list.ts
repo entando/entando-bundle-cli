@@ -27,12 +27,18 @@ export default class List extends Command {
 
     const columns = {
       service: {
-        header: flags.available ? 'Available Services' : 'Enabled Services'
+        header: flags.available
+          ? '\n Available Services'
+          : '\n Enabled Services'
       }
     }
     CliUx.ux.table(serviceData, columns)
     if (flags.available) {
-      this.log(color.bold.blue('\nHint: you can add an auxiliary service by just dropping a Docker Compose file in the svc folder (e.g. svc/my-service.yml)\n'))
+      this.log(
+        color.bold.blue(
+          '\nHint: you can add an auxiliary service by just dropping a Docker Compose file in the svc folder (e.g. svc/my-service.yml)\n'
+        )
+      )
     }
   }
 }
