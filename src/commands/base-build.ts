@@ -58,7 +58,7 @@ export abstract class BaseBuildCommand extends Command {
           ? MICROFRONTENDS_FOLDER
           : MICROSERVICES_FOLDER
 
-      const workDir = path.resolve(componentTypeFolder, component.name)
+      const workDir = ComponentService.getComponentPath(component)
       const logFile = this.getBuildOutputLogFile(component, componentTypeFolder)
 
       executionOptions.push({
