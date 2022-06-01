@@ -25,14 +25,31 @@ describe('svc-service', () => {
     })
   })
 
-  test.it('run getAvailableServices method', () => {
+  test.it('run getAllServices method', () => {
     const svcService: SvcService = new SvcService(bundleDirectory)
-    const services = svcService.getAvailableServices()
+    const services = svcService.getAllServices()
     expect(services).to.have.length(2)
     expect(services).to.includes('keycloak')
     expect(services).to.includes('postgresql')
     expect(services).to.not.includes('mysql')
   })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['keycloak']
+      })
+    })
+    .it('run getAvailableServices method', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      const services = svcService.getAvailableServices()
+      expect(services).to.have.length(1)
+      expect(services).to.includes('postgresql')
+      expect(services).to.not.includes('keycloak')
+      expect(services).to.not.includes('mysql')
+    })
 
   test.it('enable a service successfully', () => {
     const svcService: SvcService = new SvcService(bundleDirectory)

@@ -53,7 +53,9 @@ describe('mfe add', () => {
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
-        microfrontends: [{ name: mfeName, stack: 'react' }]
+        microfrontends: [
+          { name: mfeName, stack: 'react', publicFolder: 'public' }
+        ]
       })
     })
 
@@ -72,7 +74,9 @@ describe('mfe add', () => {
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
-        microfrontends: [{ name: mfeName, stack: 'angular' }]
+        microfrontends: [
+          { name: mfeName, stack: 'angular', publicFolder: 'public' }
+        ]
       })
     })
 

@@ -5,9 +5,7 @@ import { MicroFrontendService } from '../../services/microfrontend-service'
 export default class Rm extends Command {
   static description = 'Removes a Micro Frontend component to the bundle'
 
-  static examples = [
-    '<%= config.bin %> <%= command.id %> my-mfe'
-  ]
+  static examples = ['<%= config.bin %> <%= command.id %> my-mfe']
 
   static args = [
     {
@@ -25,10 +23,8 @@ export default class Rm extends Command {
     const microFrontendService: MicroFrontendService =
       new MicroFrontendService()
 
-    const mfe = microFrontendService.findMicroFrontend(args.name)
-
     CliUx.ux.action.start(`Removing Micro Frontend ${args.name}`)
-    microFrontendService.removeMicroFrontend(mfe.name)
+    microFrontendService.removeMicroFrontend(args.name)
     CliUx.ux.action.stop()
   }
 }
