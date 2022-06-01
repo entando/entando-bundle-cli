@@ -3,6 +3,7 @@ import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroService } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
+import { ComponentService } from './component-service'
 
 const MICROSERVICES_DIRNAME = 'microservices'
 const ALLOWED_MS_NAME_REGEXP = /^[\w-]+$/
@@ -17,6 +18,14 @@ export class MicroServiceService {
   }
 
   public addMicroService(ms: MicroService): void {
+    const componentService = new ComponentService()
+
+    if (componentService.componentExists(ms.name)) {
+      throw new CLIError(
+        `A component (microservice or micro frontend) with name ${ms.name} already exists`
+      )
+    }
+
     if (!ALLOWED_MS_NAME_REGEXP.test(ms.name)) {
       throw new CLIError(
         `'${ms.name}' is not a valid microservice name. Only alphanumeric characters, underscore and dash are allowed`
@@ -61,12 +70,6 @@ export class MicroServiceService {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
     const { microservices } = bundleDescriptor
-
-    if (microservices.some(({ name }) => name === ms.name)) {
-      throw new CLIError(
-        `${ms.name} already exists in the microservices section of the Bundle descriptor`
-      )
-    }
 
     const updatedBundleDescriptor: BundleDescriptor = {
       ...bundleDescriptor,

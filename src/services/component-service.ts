@@ -99,6 +99,11 @@ export class ComponentService {
     })
   }
 
+  componentExists(name: string): boolean {
+    const component = this.getComponents().find(comp => comp.name === name)
+    return component !== undefined
+  }
+
   getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
