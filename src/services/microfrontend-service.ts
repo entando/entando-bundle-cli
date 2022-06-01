@@ -5,6 +5,7 @@ import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 import { DockerService } from './docker-service'
+import { ComponentService } from './component-service'
 
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 const DEFAULT_PUBLIC_FOLDER = 'public'
@@ -21,6 +22,14 @@ export class MicroFrontendService {
   }
 
   public addMicroFrontend(mfe: MicroFrontend): void {
+    const componentService = new ComponentService()
+
+    if (componentService.componentExists(mfe.name)) {
+      throw new CLIError(
+        `A component (microservice or micro frontend) with name ${mfe.name} already exists`
+      )
+    }
+
     if (!ALLOWED_MFE_NAME_REGEXP.test(mfe.name)) {
       throw new CLIError(
         `'${mfe.name}' is not a valid Micro Frontend name. Only alphanumeric characters, underscore and dash are allowed`
@@ -107,12 +116,6 @@ export class MicroFrontendService {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
     const { microfrontends } = bundleDescriptor
-
-    if (microfrontends.some(({ name }) => name === mfe.name)) {
-      throw new CLIError(
-        `${mfe.name} already exists in the microfrontends section of the Bundle descriptor`
-      )
-    }
 
     const updatedBundleDescriptor: BundleDescriptor = {
       ...bundleDescriptor,

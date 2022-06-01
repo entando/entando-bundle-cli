@@ -6,19 +6,22 @@ import {
 import {
   Component,
   ComponentType,
+  MicroFrontendStack,
+  MicroServiceStack,
   VersionedComponent
 } from '../models/component'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 import { CLIError } from '@oclif/errors'
 import * as path from 'node:path'
-import { MICROSERVICES_FOLDER } from '../paths'
+import { MICROFRONTENDS_FOLDER, MICROSERVICES_FOLDER } from '../paths'
 import * as fs from 'node:fs'
 import {
   ProcessExecutionResult,
   ProcessExecutorService
 } from './process-executor-service'
 import { debugFactory } from './debug-factory-service'
+import { CommandFactoryService, Phase } from './command-factory-service'
 
 export class ComponentService {
   private static debug = debugFactory(ComponentService)
@@ -64,26 +67,36 @@ export class ComponentService {
     }))
   }
 
+  public static getComponentPath(component: Component<ComponentType>): string {
+    const { name, type } = component
+    let componentPath
+
+    switch (type) {
+      case ComponentType.MICROSERVICE:
+        componentPath = path.resolve(MICROSERVICES_FOLDER, name)
+        break
+      case ComponentType.MICROFRONTEND:
+        componentPath = path.resolve(MICROFRONTENDS_FOLDER, name)
+        break
+    }
+
+    return componentPath
+  }
+
   public async build(name: string): Promise<ProcessExecutionResult> {
     const component = this.getComponent(name)
 
-    const { type, stack } = component
+    this.validateComponent(component)
 
-    let componentPath: string
-    let buildCmd = ''
-
-    if (type === 'microservice' && stack === 'spring-boot') {
-      componentPath = path.resolve(MICROSERVICES_FOLDER, name)
-      buildCmd = 'mvn clean test'
-    } else {
-      throw new CLIError(`${stack} ${type} build not implemented`)
-    }
-
-    ComponentService.debug(`Building ${name} using ${buildCmd}`)
+    const componentPath = ComponentService.getComponentPath(component)
 
     if (!fs.existsSync(componentPath)) {
       throw new CLIError(`Directory ${componentPath} not exists`)
     }
+
+    const buildCmd = CommandFactoryService.getCommand(component, Phase.Build)
+
+    ComponentService.debug(`Building ${name} using ${buildCmd}`)
 
     return ProcessExecutorService.executeProcess({
       command: buildCmd,
@@ -93,6 +106,10 @@ export class ComponentService {
     })
   }
 
+  componentExists(name: string): boolean {
+    return this.getComponents().some(comp => comp.name === name)
+  }
+
   getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
@@ -100,6 +117,31 @@ export class ComponentService {
     }
 
     return component
+  }
+
+  // eslint-disable-next-line no-warning-comments
+  // TODO: ENG-3788 Move the component validation to the Bundle validator
+  validateComponent(component: Component<ComponentType>): void {
+    const { type, stack, name } = component
+    if (type === ComponentType.MICROFRONTEND) {
+      if (
+        !Object.values(MicroFrontendStack).includes(stack as MicroFrontendStack)
+      ) {
+        throw new CLIError(
+          `Component ${name} of type ${type} has an invalid stack ${stack}`
+        )
+      }
+    } else if (type === ComponentType.MICROSERVICE) {
+      if (
+        !Object.values(MicroServiceStack).includes(stack as MicroServiceStack)
+      ) {
+        throw new CLIError(
+          `Component ${name} of type ${type} has an invalid stack ${stack}`
+        )
+      }
+    } else {
+      throw new CLIError(`Invalid component type ${type}`)
+    }
   }
 
   private mapComponentType(

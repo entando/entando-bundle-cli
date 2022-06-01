@@ -1,5 +1,4 @@
 import { expect, test } from '@oclif/test'
-
 import { BaseBuildCommand } from '../../src/commands/base-build'
 import Build from '../../src/commands/build'
 import Pack from '../../src/commands/pack'

@@ -24,7 +24,7 @@ describe('CommandFactoryService', () => {
       Phase.Build
     )
 
-    expect(commandOptions).to.eql('mvn clean test')
+    expect(commandOptions).to.eql('mvn test')
   })
 
   test.it('React build command', () => {

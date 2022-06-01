@@ -4,7 +4,8 @@ import * as path from 'node:path'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
-  MicroService
+  MicroService,
+  MicroFrontend
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
@@ -77,9 +78,7 @@ describe('ms add', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microservices', 'ms1'))
-      const microservices: MicroService[] = <MicroService[]>[
-        { name: 'ms1' }
-      ]
+      const microservices: MicroService[] = <MicroService[]>[{ name: 'ms1' }]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
         microservices
@@ -145,4 +144,24 @@ describe('ms add', () => {
       expect(error.message).to.contain('not an initialized Bundle project')
     })
     .it('exits with an error if current folder is not a Bundle project')
+
+  test
+    .do(() => {
+      const microfrontends: MicroFrontend[] = <MicroFrontend[]>[
+        { name: 'component1' }
+      ]
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        microfrontends
+      })
+    })
+    .command(['ms add', 'component1'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'A component (microservice or micro frontend) with name component1 already exists'
+      )
+    })
+    .it(
+      'exits with an error if another component with the same name already exists'
+    )
 })

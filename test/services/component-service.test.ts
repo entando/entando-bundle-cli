@@ -99,7 +99,7 @@ describe('component-service', () => {
       sinon.assert.calledWith(
         executeProcessStub,
         sinon.match({
-          command: 'mvn clean test'
+          command: 'mvn test'
         })
       )
     })
