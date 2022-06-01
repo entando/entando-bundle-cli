@@ -1,13 +1,26 @@
 import * as path from 'node:path'
 import * as fs from 'node:fs'
-import { MICROFRONTENDS_FOLDER } from '../paths'
 import { MfeConfig } from '../models/mfe-config'
 import { FSService } from './fs-service'
+import { MicroFrontendService } from './microfrontend-service'
 
 const MFE_CONFIG_FILE_NAME = 'mfe-config.json'
 
 export class MfeConfigService {
+  private readonly microFrontendService: MicroFrontendService
+
+  constructor() {
+    this.microFrontendService = new MicroFrontendService()
+  }
+
   public writeMfeConfig(mfeName: string, mfeConfig: MfeConfig): void {
+    const mfePublicFolderPath: string =
+      this.microFrontendService.getPublicFolderPath(mfeName)
+
+    if (!fs.existsSync(mfePublicFolderPath)) {
+      fs.mkdirSync(mfePublicFolderPath, { recursive: true })
+    }
+
     FSService.writeJSON(this.getMfeConfigPath(mfeName), mfeConfig)
   }
 
@@ -19,7 +32,10 @@ export class MfeConfigService {
     return fs.existsSync(this.getMfeConfigPath(mfeName))
   }
 
-  private getMfeConfigPath(mfeName: string): string {
-    return path.resolve(MICROFRONTENDS_FOLDER, mfeName, MFE_CONFIG_FILE_NAME)
+  public getMfeConfigPath(mfeName: string): string {
+    const mfePublicFolderPath: string =
+      this.microFrontendService.getPublicFolderPath(mfeName)
+
+    return path.resolve(mfePublicFolderPath, MFE_CONFIG_FILE_NAME)
   }
 }

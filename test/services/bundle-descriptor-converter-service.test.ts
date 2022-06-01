@@ -61,6 +61,7 @@ describe('bundle-descriptor-converter-service', () => {
             it: 'titolo mfe'
           },
           group: 'free',
+          publicFolder: 'public',
           customUiPath: 'path/to/ui',
           configUi: {
             customElement: 'test-config',
@@ -72,21 +73,20 @@ describe('bundle-descriptor-converter-service', () => {
           stack: MicroFrontendStack.React,
           titles: {},
           group: 'free',
+          publicFolder: 'public',
           customUiPath: 'path/to/ui'
         }
       ]
     })
 
-    sinon
-      .stub(ComponentService.prototype, 'getVersionedComponents')
-      .returns([
-        {
-          name: 'test-ms',
-          version: '0.0.5',
-          type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.SpringBoot
-        }
-      ])
+    sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+      {
+        name: 'test-ms',
+        version: '0.0.5',
+        type: ComponentType.MICROSERVICE,
+        stack: MicroServiceStack.SpringBoot
+      }
+    ])
 
     const converterService = new BundleDescriptorConverterService(
       bundleDir,

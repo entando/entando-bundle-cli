@@ -43,6 +43,7 @@ export type MicroFrontend = {
   titles: { [lang: string]: string }
   group: string
   customUiPath: string
+  publicFolder: string
   configUi?: {
     customElement: string
     resources: string[]

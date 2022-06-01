@@ -59,6 +59,7 @@ export const bundleDescriptor = {
         it: 'titolo mfe 1'
       },
       group: 'free',
+      publicFolder: 'public',
       customUiPath: 'path/to/ui',
       configUi: {
         customElement: 'test-config',
@@ -74,6 +75,7 @@ export const bundleDescriptor = {
         it: 'titolo mfe 2'
       },
       group: 'free',
+      publicFolder: 'public',
       customUiPath: 'path/to/ui',
       configUi: {
         customElement: 'test-config',
