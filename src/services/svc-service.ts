@@ -18,7 +18,7 @@ export class SvcService {
     this.bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
   }
 
-  public getAvailableServices(): string[] {
+  public getAllServices(): string[] {
     return fs
       .readdirSync(path.resolve(this.parentDirectory, SVC_FOLDER))
       .filter(
@@ -29,10 +29,20 @@ export class SvcService {
       .map(filename => filename.slice(0, -4))
   }
 
+  public getAvailableServices(): string[] {
+    const activeServices = this.getActiveServices()
+    const allServices = this.getAllServices()
+    return allServices.filter(service => !activeServices.includes(service))
+  }
+
+  public getActiveServices(): string[] {
+    return this.bundleDescriptor.svc || []
+  }
+
   public enableService(service: string): void {
     this.isServiceAvailable(service)
 
-    const svc = this.bundleDescriptor.svc || []
+    const svc = this.getActiveServices()
 
     if (svc.includes(service)) {
       throw new CLIError(`Service ${service} is already enabled`)
@@ -49,7 +59,7 @@ export class SvcService {
   public disableService(service: string): void {
     this.isServiceAvailable(service)
 
-    const activeServices = this.bundleDescriptor.svc || []
+    const activeServices = this.getActiveServices()
 
     if (!activeServices.includes(service)) {
       throw new CLIError(`Service ${service} is not enabled`)
@@ -66,7 +76,7 @@ export class SvcService {
   }
 
   private isServiceAvailable(service: string): void {
-    if (!this.getAvailableServices().includes(service)) {
+    if (!this.getAllServices().includes(service)) {
       throw new CLIError(
         `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> list --available`
       )
