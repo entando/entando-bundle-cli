@@ -33,7 +33,9 @@ describe('api add-ext', () => {
       version: '0.0.1',
       type: 'bundle',
       microservices: <MicroService[]>[{ name: 'ms1', stack: 'spring-boot' }],
-      microfrontends: <MicroFrontend[]>[{ name: 'mfe1', stack: 'react' }]
+      microfrontends: <MicroFrontend[]>[
+        { name: 'mfe1', stack: 'react', publicFolder: 'public' }
+      ]
     }
 
     process.chdir(tempBundleDir)
@@ -153,7 +155,7 @@ describe('api add-ext', () => {
 
   test
     .do(() => {
-      fs.rmSync(path.resolve('microfrontends', 'mfe1', 'mfe-config.json'))
+      fs.rmSync(mfeConfigService.getMfeConfigPath('mfe1'))
     })
     .command([
       'api add-ext',

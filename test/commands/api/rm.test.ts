@@ -34,6 +34,7 @@ describe('api rm', () => {
         {
           name: 'mfe1',
           stack: 'react',
+          publicFolder: 'public',
           apiClaims: [
             {
               name: 'ms1-api',
@@ -77,6 +78,7 @@ describe('api rm', () => {
           {
             name: 'mfe1',
             stack: 'react',
+            publicFolder: 'public',
             apiClaims: [
               {
                 name: 'ms2-api',
