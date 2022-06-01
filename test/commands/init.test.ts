@@ -48,6 +48,10 @@ describe('init', () => {
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
       expect(bundleDescriptor.version).to.eq('0.0.2')
+      expect(bundleDescriptor.description).to.eq(
+        'bundle-with-version description'
+      )
+      expect(bundleDescriptor.type).to.eq('bundle')
     })
 
   test
@@ -62,6 +66,10 @@ describe('init', () => {
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
       expect(bundleDescriptor.version).to.eq('0.0.1')
+      expect(bundleDescriptor.description).to.eq(
+        'bundle-no-version description'
+      )
+      expect(bundleDescriptor.type).to.eq('bundle')
     })
 
   test

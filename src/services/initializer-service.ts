@@ -113,6 +113,7 @@ export class InitializerService {
     bundleDescriptorService.createBundleDescriptor({
       name,
       version,
+      description: `${name} description`,
       type: 'bundle'
     })
   }
