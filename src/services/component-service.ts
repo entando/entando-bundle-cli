@@ -14,7 +14,7 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 import { CLIError } from '@oclif/errors'
 import * as path from 'node:path'
-import { MICROFRONTENDS_FOLDER, MICROSERVICES_FOLDER } from '../paths'
+import { DESCRIPTORS_OUTPUT_FOLDER, MICROSERVICES_FOLDER, MICROFRONTENDS_FOLDER, PLUGINS_FOLDER, WIDGETS_FOLDER } from '../paths'
 import * as fs from 'node:fs'
 import {
   ProcessExecutionResult,
@@ -22,6 +22,11 @@ import {
 } from './process-executor-service'
 import { debugFactory } from './debug-factory-service'
 import { CommandFactoryService, Phase } from './command-factory-service'
+
+const COMPTYPE_OUTPUT_FOLDER_MAP = {
+  [ComponentType.MICROFRONTEND]: WIDGETS_FOLDER,
+  [ComponentType.MICROSERVICE]: PLUGINS_FOLDER
+}
 
 export class ComponentService {
   private static debug = debugFactory(ComponentService)
@@ -106,11 +111,11 @@ export class ComponentService {
     })
   }
 
-  componentExists(name: string): boolean {
+  public componentExists(name: string): boolean {
     return this.getComponents().some(comp => comp.name === name)
   }
 
-  getComponent(name: string): Component<ComponentType> {
+  public getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
       throw new CLIError(`Component ${name} not found`)
@@ -142,6 +147,16 @@ export class ComponentService {
     } else {
       throw new CLIError(`Invalid component type ${type}`)
     }
+  }
+
+  public removeOutputDirectory(component: Component<ComponentType>): void {
+    const outputPath = path.resolve(
+      ...DESCRIPTORS_OUTPUT_FOLDER,
+      COMPTYPE_OUTPUT_FOLDER_MAP[component.type],
+      component.name
+    )
+
+    fs.rmSync(outputPath, { recursive: true, force: true })
   }
 
   private mapComponentType(
