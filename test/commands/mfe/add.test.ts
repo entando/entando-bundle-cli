@@ -54,7 +54,13 @@ describe('mfe add', () => {
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: [
-          { name: mfeName, stack: 'react', publicFolder: 'public' }
+          {
+            name: mfeName,
+            stack: 'react',
+            group: 'free',
+            titles: { en: mfeName, it: mfeName },
+            publicFolder: 'public'
+          }
         ]
       })
     })
@@ -75,7 +81,13 @@ describe('mfe add', () => {
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: [
-          { name: mfeName, stack: 'angular', publicFolder: 'public' }
+          {
+            name: mfeName,
+            stack: 'angular',
+            group: 'free',
+            titles: { en: mfeName, it: mfeName },
+            publicFolder: 'public'
+          }
         ]
       })
     })

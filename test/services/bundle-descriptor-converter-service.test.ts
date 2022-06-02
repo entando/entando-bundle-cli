@@ -13,6 +13,7 @@ import {
   MicroServiceStack
 } from '../../src/models/component'
 import { ComponentService } from '../../src/services/component-service'
+import { ApiType } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -66,7 +67,10 @@ describe('bundle-descriptor-converter-service', () => {
           configUi: {
             customElement: 'test-config',
             resources: ['path/to/test-config.js']
-          }
+          },
+          apiClaims: [
+            { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+          ]
         },
         {
           name: 'test-mfe-no-code',
@@ -100,7 +104,6 @@ describe('bundle-descriptor-converter-service', () => {
       ...OUTPUT_FOLDER,
       'descriptors',
       'widgets',
-      'test-mfe',
       'test-mfe.yaml'
     )
     checkYamlFile(mfeDescriptorPath, {
@@ -110,11 +113,10 @@ describe('bundle-descriptor-converter-service', () => {
         it: 'titolo mfe'
       },
       group: 'free',
-      customUiPath: 'path/to/ui',
-      configUi: {
-        customElement: 'test-config',
-        resources: ['path/to/test-config.js']
-      }
+      version: 'v2',
+      apiClaims: [
+        { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+      ]
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(
@@ -122,14 +124,13 @@ describe('bundle-descriptor-converter-service', () => {
       ...OUTPUT_FOLDER,
       'descriptors',
       'widgets',
-      'test-mfe-no-code',
       'test-mfe-no-code.yaml'
     )
     checkYamlFile(mfeNoCodeDescriptorPath, {
       code: 'test-mfe-no-code',
       titles: {},
       group: 'free',
-      customUiPath: 'path/to/ui'
+      version: 'v2'
     })
 
     const msDescriptorPath = path.resolve(
@@ -172,10 +173,7 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml'],
-        widgets: [
-          'widgets/test-mfe/test-mfe.yaml',
-          'widgets/test-mfe-no-code/test-mfe-no-code.yaml'
-        ]
+        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml']
       }
     })
   })

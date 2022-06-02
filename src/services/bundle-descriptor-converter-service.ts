@@ -17,7 +17,8 @@ import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
 
-const DESCRIPTOR_VERSION = 'v4'
+const PLUGIN_DESCRIPTOR_VERSION = 'v4'
+const WIDGET_DESCRIPTOR_VERSION = 'v2'
 const DESCRIPTOR_EXTENSION = '.yaml'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 const WIDGETS_DESCRIPTORS_FOLDER = 'widgets'
@@ -65,8 +66,8 @@ export class BundleDescriptorConverterService {
       code: microFrontend.code ?? microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
-      customUiPath: microFrontend.customUiPath,
-      configUi: microFrontend.configUi
+      version: WIDGET_DESCRIPTOR_VERSION,
+      apiClaims: microFrontend.apiClaims
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
@@ -80,7 +81,7 @@ export class BundleDescriptorConverterService {
     version: string
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
-      descriptorVersion: DESCRIPTOR_VERSION,
+      descriptorVersion: PLUGIN_DESCRIPTOR_VERSION,
       dbms: microService.dbms,
       image: DockerService.getDockerImageName(
         this.dockerOrganization,
@@ -133,7 +134,6 @@ export class BundleDescriptorConverterService {
   private getMicroFrontendDescriptorRelativePath(microFrontend: MicroFrontend) {
     return path.posix.join(
       WIDGETS_DESCRIPTORS_FOLDER,
-      microFrontend.name,
       microFrontend.name + DESCRIPTOR_EXTENSION
     )
   }

@@ -9,6 +9,7 @@ import { ComponentService } from './component-service'
 
 const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 const DEFAULT_PUBLIC_FOLDER = 'public'
+const DEFAULT_GROUP = 'free'
 
 export class MicroFrontendService {
   private readonly bundleDir: string
@@ -42,7 +43,9 @@ export class MicroFrontendService {
 
     this.addMicroFrontendDescriptor({
       ...mfe,
-      publicFolder: DEFAULT_PUBLIC_FOLDER
+      group: DEFAULT_GROUP,
+      publicFolder: DEFAULT_PUBLIC_FOLDER,
+      titles: this.getDefaultTitles(mfe.name)
     })
   }
 
@@ -123,5 +126,9 @@ export class MicroFrontendService {
     }
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
+  }
+
+  private getDefaultTitles(mfeName: string): { [lang: string]: string } {
+    return { en: mfeName, it: mfeName }
   }
 }

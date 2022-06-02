@@ -1,14 +1,16 @@
-import { EnvironmentVariable, Permission } from './bundle-descriptor'
+import {
+  ApiClaim,
+  EnvironmentVariable,
+  ExternalApiClaim,
+  Permission
+} from './bundle-descriptor'
 
 export type YamlWidgetDescriptor = {
   code: string
   titles: { [lang: string]: string }
   group: string
-  customUiPath: string
-  configUi?: {
-    customElement: string
-    resources: string[]
-  }
+  version: string
+  apiClaims?: Array<ApiClaim | ExternalApiClaim>
 }
 
 export type YamlPluginDescriptor = {
