@@ -1,6 +1,6 @@
 import { CliUx, Command } from '@oclif/core'
 import { BundleService } from '../../services/bundle-service'
-import { MicroServiceService } from '../../services/microservice-service'
+import { MicroserviceService } from '../../services/microservice-service'
 
 export default class Rm extends Command {
   static description =
@@ -17,10 +17,10 @@ export default class Rm extends Command {
 
     const { args } = await this.parse(Rm)
 
-    const microServiceService = new MicroServiceService()
+    const microserviceService = new MicroserviceService()
 
     CliUx.ux.action.start(`Removing microservice ${args.name}`)
-    microServiceService.removeMicroService(args.name)
+    microserviceService.removeMicroservice(args.name)
     CliUx.ux.action.stop()
   }
 }

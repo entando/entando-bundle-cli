@@ -4,7 +4,7 @@ import * as path from 'node:path'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
-  MicroService,
+  Microservice,
   MicroFrontend
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
@@ -78,7 +78,7 @@ describe('ms add', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microservices', 'ms1'))
-      const microservices: MicroService[] = <MicroService[]>[{ name: 'ms1' }]
+      const microservices: Microservice[] = <Microservice[]>[{ name: 'ms1' }]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
         microservices
@@ -118,7 +118,7 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      const microservices: MicroService[] = <MicroService[]>[
+      const microservices: Microservice[] = <Microservice[]>[
         { name: 'existing-ms-desc' }
       ]
       bundleDescriptorService.writeBundleDescriptor({

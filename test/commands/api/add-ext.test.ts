@@ -6,7 +6,7 @@ import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
@@ -32,7 +32,7 @@ describe('api add-ext', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: <MicroService[]>[{ name: 'ms1', stack: 'spring-boot' }],
+      microservices: <Microservice[]>[{ name: 'ms1', stack: 'spring-boot' }],
       microfrontends: <MicroFrontend[]>[
         { name: 'mfe1', stack: 'react', publicFolder: 'public' }
       ]

@@ -1,20 +1,26 @@
 import {
   BundleDescriptor,
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../models/bundle-descriptor'
 import {
   Component,
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack,
+  MicroserviceStack,
   VersionedComponent
 } from '../models/component'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentDescriptorService } from './component-descriptor-service'
 import { CLIError } from '@oclif/errors'
 import * as path from 'node:path'
-import { DESCRIPTORS_OUTPUT_FOLDER, MICROSERVICES_FOLDER, MICROFRONTENDS_FOLDER, PLUGINS_FOLDER, WIDGETS_FOLDER } from '../paths'
+import {
+  DESCRIPTORS_OUTPUT_FOLDER,
+  MICROSERVICES_FOLDER,
+  MICROFRONTENDS_FOLDER,
+  PLUGINS_FOLDER,
+  WIDGETS_FOLDER
+} from '../paths'
 import * as fs from 'node:fs'
 import {
   ProcessExecutionResult,
@@ -138,7 +144,7 @@ export class ComponentService {
       }
     } else if (type === ComponentType.MICROSERVICE) {
       if (
-        !Object.values(MicroServiceStack).includes(stack as MicroServiceStack)
+        !Object.values(MicroserviceStack).includes(stack as MicroserviceStack)
       ) {
         throw new CLIError(
           `Component ${name} of type ${type} has an invalid stack ${stack}`
@@ -161,7 +167,7 @@ export class ComponentService {
 
   private mapComponentType(
     type: ComponentType
-  ): (compToMap: MicroFrontend | MicroService) => Component<ComponentType> {
+  ): (compToMap: MicroFrontend | Microservice) => Component<ComponentType> {
     return ({ name, stack }) => ({ name, stack, type })
   }
 }

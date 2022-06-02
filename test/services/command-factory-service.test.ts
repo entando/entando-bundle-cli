@@ -3,7 +3,7 @@ import {
   Component,
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../src/models/component'
 
 import {
@@ -15,7 +15,7 @@ describe('CommandFactoryService', () => {
   test.it('Maven build command', () => {
     const component: Component<ComponentType.MICROSERVICE> = {
       name: 'test-ms',
-      stack: MicroServiceStack.SpringBoot,
+      stack: MicroserviceStack.SpringBoot,
       type: ComponentType.MICROSERVICE
     }
 
