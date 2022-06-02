@@ -4,6 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroService } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentService } from './component-service'
+import { ComponentType } from '../models/component'
 
 const MICROSERVICES_DIRNAME = 'microservices'
 const ALLOWED_MS_NAME_REGEXP = /^[\w-]+$/
@@ -11,10 +12,12 @@ const ALLOWED_MS_NAME_REGEXP = /^[\w-]+$/
 export class MicroServiceService {
   private readonly microservicesPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
+  private readonly componentService: ComponentService
 
   constructor() {
     this.microservicesPath = path.resolve(process.cwd(), MICROSERVICES_DIRNAME)
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.componentService = new ComponentService()
   }
 
   public addMicroService(ms: MicroService): void {
@@ -48,12 +51,18 @@ export class MicroServiceService {
       throw new CLIError(`Microservice ${name} not found in Bundle descriptor`)
     }
 
+    const ms = microservices[msIndex]
     const msDir = path.resolve(this.microservicesPath, name)
     fs.rmSync(msDir, { recursive: true, force: true })
 
     microservices.splice(msIndex, 1)
 
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+
+    this.componentService.removeOutputDirectory({
+      ...ms,
+      type: ComponentType.MICROSERVICE
+    })
   }
 
   private createMicroServiceDirectory(name: string) {
