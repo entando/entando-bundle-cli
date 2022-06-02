@@ -114,11 +114,6 @@ describe('bundle-descriptor-converter-service', () => {
       },
       group: 'free',
       version: 'v2',
-      customUiPath: 'path/to/ui',
-      configUi: {
-        customElement: 'test-config',
-        resources: ['path/to/test-config.js']
-      },
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
       ]
@@ -135,8 +130,7 @@ describe('bundle-descriptor-converter-service', () => {
       code: 'test-mfe-no-code',
       titles: {},
       group: 'free',
-      version: 'v2',
-      customUiPath: 'path/to/ui'
+      version: 'v2'
     })
 
     const msDescriptorPath = path.resolve(

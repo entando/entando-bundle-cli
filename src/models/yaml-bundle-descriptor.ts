@@ -9,12 +9,7 @@ export type YamlWidgetDescriptor = {
   code: string
   titles: { [lang: string]: string }
   group: string
-  customUiPath: string
   version: string
-  configUi?: {
-    customElement: string
-    resources: string[]
-  }
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
 }
 

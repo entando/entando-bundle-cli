@@ -66,8 +66,6 @@ export class BundleDescriptorConverterService {
       code: microFrontend.code ?? microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
-      customUiPath: microFrontend.customUiPath,
-      configUi: microFrontend.configUi,
       version: WIDGET_DESCRIPTOR_VERSION,
       apiClaims: microFrontend.apiClaims
     }
