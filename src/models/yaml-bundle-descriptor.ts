@@ -2,6 +2,7 @@ import {
   ApiClaim,
   EnvironmentVariable,
   ExternalApiClaim,
+  Nav,
   Permission
 } from './bundle-descriptor'
 
@@ -11,6 +12,7 @@ export type YamlWidgetDescriptor = {
   group: string
   version: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
+  nav?: Nav[]
 }
 
 export type YamlPluginDescriptor = {
@@ -32,5 +34,8 @@ export type YamlBundleDescriptor = {
   components: {
     plugins: string[]
     widgets: string[]
+  }
+  global?: {
+    nav: Nav[]
   }
 }

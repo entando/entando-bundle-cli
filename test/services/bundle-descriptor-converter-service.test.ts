@@ -29,6 +29,11 @@ describe('bundle-descriptor-converter-service', () => {
       version: '0.0.1',
       type: 'bundle',
       description: 'test description',
+      global: {
+        nav: [
+          { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
+        ]
+      },
       microservices: [
         {
           name: 'test-ms',
@@ -70,6 +75,13 @@ describe('bundle-descriptor-converter-service', () => {
           },
           apiClaims: [
             { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+          ],
+          nav: [
+            {
+              label: { en: 'test', it: 'test' },
+              target: 'target',
+              url: '/test'
+            }
           ]
         },
         {
@@ -116,6 +128,9 @@ describe('bundle-descriptor-converter-service', () => {
       version: 'v2',
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+      ],
+      nav: [
+        { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
       ]
     })
 
@@ -174,6 +189,11 @@ describe('bundle-descriptor-converter-service', () => {
       components: {
         plugins: ['plugins/test-ms.yaml'],
         widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml']
+      },
+      global: {
+        nav: [
+          { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
+        ]
       }
     })
   })
