@@ -4,9 +4,12 @@ import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, MicroService } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentService } from './component-service'
+import {
+  ALLOWED_NAME_REGEXP,
+  INVALID_NAME_MESSAGE
+} from '../models/bundle-descriptor-constraints'
 
 const MICROSERVICES_DIRNAME = 'microservices'
-const ALLOWED_MS_NAME_REGEXP = /^[\w-]+$/
 
 export class MicroServiceService {
   private readonly microservicesPath: string
@@ -26,9 +29,9 @@ export class MicroServiceService {
       )
     }
 
-    if (!ALLOWED_MS_NAME_REGEXP.test(ms.name)) {
+    if (!ALLOWED_NAME_REGEXP.test(ms.name)) {
       throw new CLIError(
-        `'${ms.name}' is not a valid microservice name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${ms.name}' is not a valid microservice name. ${INVALID_NAME_MESSAGE}`
       )
     }
 

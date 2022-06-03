@@ -20,6 +20,11 @@ export type Permission = {
   role: string
 }
 
+export enum SecurityLevel {
+  Strict = 'strict',
+  Lenient = 'lenient'
+}
+
 export type MicroService = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
@@ -32,7 +37,7 @@ export type MicroService = {
   healthCheckPath?: string
   roles?: string[]
   permissions?: Permission[]
-  securityLevel?: 'strict' | 'lenient'
+  securityLevel?: SecurityLevel
   env?: EnvironmentVariable[]
 }
 

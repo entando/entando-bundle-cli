@@ -13,7 +13,7 @@ import {
   MicroServiceStack
 } from '../../src/models/component'
 import { ComponentService } from '../../src/services/component-service'
-import { ApiType } from '../../src/models/bundle-descriptor'
+import { ApiType, SecurityLevel } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -43,7 +43,7 @@ describe('bundle-descriptor-converter-service', () => {
               role: 'manage-users'
             }
           ],
-          securityLevel: 'lenient',
+          securityLevel: SecurityLevel.Lenient,
           env: [
             {
               name: 'test-env1',

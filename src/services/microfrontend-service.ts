@@ -6,8 +6,11 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 import { DockerService } from './docker-service'
 import { ComponentService } from './component-service'
+import {
+  ALLOWED_NAME_REGEXP,
+  INVALID_NAME_MESSAGE
+} from '../models/bundle-descriptor-constraints'
 
-const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
 
@@ -31,9 +34,9 @@ export class MicroFrontendService {
       )
     }
 
-    if (!ALLOWED_MFE_NAME_REGEXP.test(mfe.name)) {
+    if (!ALLOWED_NAME_REGEXP.test(mfe.name)) {
       throw new CLIError(
-        `'${mfe.name}' is not a valid Micro Frontend name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${mfe.name}' is not a valid Micro Frontend name. ${INVALID_NAME_MESSAGE}`
       )
     }
 
