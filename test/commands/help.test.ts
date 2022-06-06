@@ -14,6 +14,7 @@ describe('Help command', () => {
       // command classes inheriting from base-build should be displayed in help
       expect(help).contain('build')
       expect(help).contain('pack')
+      expect(help).contain('$ entando-bundle-cli [COMMAND]')
     })
 
   test.it('Test commands visibility in help', () => {
@@ -21,4 +22,13 @@ describe('Help command', () => {
     expect(Build.hidden).false
     expect(Pack.hidden).false
   })
+
+  test
+    .stdout()
+    .env({ ENTANDO_BUNDLE_CLI_BIN_NAME: 'custom-cli-name' })
+    .command('help')
+    .it('Display helps with customized CLI name', ctx => {
+      const help = ctx.stdout
+      expect(help).contain('$ custom-cli-name [COMMAND]', help)
+    })
 })

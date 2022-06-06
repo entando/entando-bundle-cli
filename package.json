@@ -61,6 +61,9 @@
       "svc": {
         "description": "Manage auxiliary services"
       }
+    },
+    "hooks": {
+      "init": "./src/hooks/init/cli-name-hook"
     }
   },
   "dependencies": {
