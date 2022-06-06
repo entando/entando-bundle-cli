@@ -1,5 +1,4 @@
 import { CLIError } from '@oclif/errors'
-import { BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/bundle-descriptor-constraints'
 
 // Extracts the type wrapped by an array type
 type TypeOfArray<T> = T extends Array<infer A> ? A : never
@@ -92,9 +91,13 @@ type ArrayConstraints<T, K extends keyof T> =
   | PrimitiveArrayConstraints<T, K>
   | ObjectArrayConstraints<T, K>
 
-export class BundleDescriptorValidatorService {
-  public static validateParsedBundleDescriptor(parsedObject: unknown): void {
-    validateConstraints(parsedObject, BUNDLE_DESCRIPTOR_CONSTRAINTS)
+export class ConstraintsValidatorService {
+  public static validateObjectConstraints<T>(
+    parsedObject: unknown,
+    constraints: ObjectConstraints<T>
+  ): T {
+    validateConstraints(parsedObject, constraints)
+    return parsedObject as T
   }
 }
 

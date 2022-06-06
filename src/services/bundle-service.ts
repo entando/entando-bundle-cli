@@ -1,8 +1,9 @@
 import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/bundle-descriptor-constraints'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../paths'
-import { BundleDescriptorValidatorService } from './bundle-descriptor-validator-service'
+import { ConstraintsValidatorService } from './constraints-validator-service'
 
 export class BundleService {
   public static isBundleInitialized(bundleDir: string): boolean {
@@ -30,8 +31,9 @@ export class BundleService {
     const descriptorFileContent = fs.readFileSync(descriptorPath, 'utf-8')
     const parsedDescriptor: any = JSON.parse(descriptorFileContent)
     try {
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        parsedDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        parsedDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     } catch (error) {
       throw new CLIError(

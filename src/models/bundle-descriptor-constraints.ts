@@ -15,7 +15,7 @@ import {
   ObjectConstraints,
   UnionTypeConstraints,
   Validator
-} from '../services/bundle-descriptor-validator-service'
+} from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
 export const INVALID_NAME_MESSAGE =

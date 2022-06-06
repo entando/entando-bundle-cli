@@ -9,7 +9,7 @@ import {
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
-import { BundleDescriptorValidatorService } from '../../../src/services/bundle-descriptor-validator-service'
+import { ConstraintsValidatorService } from '../../../src/services/constraints-validator-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
@@ -24,10 +24,7 @@ describe('api rm', () => {
   before(() => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir('bundle-api-test')
     fs.mkdirSync(path.resolve(tempBundleDir, 'microfrontends', 'mfe1'))
-    sinon.stub(
-      BundleDescriptorValidatorService,
-      'validateParsedBundleDescriptor'
-    )
+    sinon.stub(ConstraintsValidatorService, 'validateObjectConstraints')
   })
 
   after(() => {

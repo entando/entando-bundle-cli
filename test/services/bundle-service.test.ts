@@ -2,9 +2,9 @@ import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
 import {
-  BundleDescriptorValidatorService,
+  ConstraintsValidatorService,
   JsonValidationError
-} from '../../src/services/bundle-descriptor-validator-service'
+} from '../../src/services/constraints-validator-service'
 import { BundleService } from '../../src/services/bundle-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 
@@ -27,10 +27,7 @@ describe('BundleService', () => {
   test
     .do(() => {
       sinon
-        .stub(
-          BundleDescriptorValidatorService,
-          'validateParsedBundleDescriptor'
-        )
+        .stub(ConstraintsValidatorService, 'validateObjectConstraints')
         .throws(
           new JsonValidationError('validation message', [
             'microservices',

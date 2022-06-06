@@ -10,7 +10,7 @@ import {
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as sinon from 'sinon'
-import { BundleDescriptorValidatorService } from '../../src/services/bundle-descriptor-validator-service'
+import { ConstraintsValidatorService } from '../../src/services/constraints-validator-service'
 
 describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -32,10 +32,7 @@ describe('list', () => {
   let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
-    sinon.stub(
-      BundleDescriptorValidatorService,
-      'validateParsedBundleDescriptor'
-    )
+    sinon.stub(ConstraintsValidatorService, 'validateObjectConstraints')
 
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name

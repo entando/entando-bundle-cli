@@ -1,15 +1,19 @@
 import { expect, test } from '@oclif/test'
 import { bundleDescriptor } from '../helpers/mocks/component-service-test/bundle-descriptor'
 import {
-  BundleDescriptorValidatorService,
+  ConstraintsValidatorService,
   JsonValidationError
-} from '../../src/services/bundle-descriptor-validator-service'
-import { INVALID_NAME_MESSAGE } from '../../src/models/bundle-descriptor-constraints'
+} from '../../src/services/constraints-validator-service'
+import {
+  BUNDLE_DESCRIPTOR_CONSTRAINTS,
+  INVALID_NAME_MESSAGE
+} from '../../src/models/bundle-descriptor-constraints'
 
 describe('BundleDescriptorValidatorService', () => {
   test.it('No error thrown with valid object', () => {
-    BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-      bundleDescriptor
+    ConstraintsValidatorService.validateObjectConstraints(
+      bundleDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
     )
   })
 
@@ -17,8 +21,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any = getNewBundleDescriptor()
       invalidDescriptor.microservices[0].name = undefined
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
@@ -39,8 +44,9 @@ describe('BundleDescriptorValidatorService', () => {
           serviceId: 'service-id'
         }
       ]
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
@@ -57,8 +63,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any = getNewBundleDescriptor()
       invalidDescriptor.microfrontends[1].apiClaims = {}
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
@@ -73,8 +80,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any = getNewBundleDescriptor()
       invalidDescriptor.microservices = undefined
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
@@ -91,8 +99,9 @@ describe('BundleDescriptorValidatorService', () => {
           not: 'valid'
         }
       }
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
@@ -109,8 +118,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any = getNewBundleDescriptor()
       invalidDescriptor.description = []
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
@@ -125,8 +135,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any = getNewBundleDescriptor()
       invalidDescriptor.microfrontends[1].name = 'invalid mfe name'
-      BundleDescriptorValidatorService.validateParsedBundleDescriptor(
-        invalidDescriptor
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
