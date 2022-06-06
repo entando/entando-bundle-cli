@@ -6,8 +6,6 @@ import {
 import {
   Component,
   ComponentType,
-  MicroFrontendStack,
-  MicroServiceStack,
   VersionedComponent
 } from '../models/component'
 import { BundleDescriptorService } from './bundle-descriptor-service'
@@ -86,8 +84,6 @@ export class ComponentService {
   public async build(name: string): Promise<ProcessExecutionResult> {
     const component = this.getComponent(name)
 
-    this.validateComponent(component)
-
     const componentPath = ComponentService.getComponentPath(component)
 
     if (!fs.existsSync(componentPath)) {
@@ -117,31 +113,6 @@ export class ComponentService {
     }
 
     return component
-  }
-
-  // eslint-disable-next-line no-warning-comments
-  // TODO: ENG-3788 Move the component validation to the Bundle validator
-  validateComponent(component: Component<ComponentType>): void {
-    const { type, stack, name } = component
-    if (type === ComponentType.MICROFRONTEND) {
-      if (
-        !Object.values(MicroFrontendStack).includes(stack as MicroFrontendStack)
-      ) {
-        throw new CLIError(
-          `Component ${name} of type ${type} has an invalid stack ${stack}`
-        )
-      }
-    } else if (type === ComponentType.MICROSERVICE) {
-      if (
-        !Object.values(MicroServiceStack).includes(stack as MicroServiceStack)
-      ) {
-        throw new CLIError(
-          `Component ${name} of type ${type} has an invalid stack ${stack}`
-        )
-      }
-    } else {
-      throw new CLIError(`Invalid component type ${type}`)
-    }
   }
 
   private mapComponentType(
