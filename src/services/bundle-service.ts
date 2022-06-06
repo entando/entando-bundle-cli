@@ -1,6 +1,7 @@
 import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/bundle-descriptor-constraints'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../paths'
 import { ConstraintsValidatorService } from './constraints-validator-service'
@@ -29,17 +30,39 @@ export class BundleService {
   private static verifyBundleDescriptorStructure(bundleDir: string): void {
     const descriptorPath = path.resolve(bundleDir, BUNDLE_DESCRIPTOR_FILE_NAME)
     const descriptorFileContent = fs.readFileSync(descriptorPath, 'utf-8')
-    const parsedDescriptor: any = JSON.parse(descriptorFileContent)
     try {
-      ConstraintsValidatorService.validateObjectConstraints(
-        parsedDescriptor,
-        BUNDLE_DESCRIPTOR_CONSTRAINTS
-      )
+      const parsedDescriptor: any = JSON.parse(descriptorFileContent)
+      const bundleDescriptor =
+        ConstraintsValidatorService.validateObjectConstraints(
+          parsedDescriptor,
+          BUNDLE_DESCRIPTOR_CONSTRAINTS
+        )
+      BundleService.checkDuplicatedComponentNames(bundleDescriptor)
     } catch (error) {
       throw new CLIError(
         BUNDLE_DESCRIPTOR_FILE_NAME +
           ' is not valid.\n' +
           (error as Error).message
+      )
+    }
+  }
+
+  private static checkDuplicatedComponentNames(
+    bundleDescriptor: BundleDescriptor
+  ) {
+    const allNames = [
+      ...bundleDescriptor.microfrontends.map(mfe => mfe.name),
+      ...bundleDescriptor.microservices.map(ms => ms.name)
+    ]
+
+    const duplicates = allNames.filter(
+      (item, index) => allNames.indexOf(item) !== index
+    )
+
+    if (duplicates.length > 0) {
+      throw new Error(
+        'Components names should be unique. Duplicates found: ' +
+          [...new Set(duplicates)].join(', ')
       )
     }
   }

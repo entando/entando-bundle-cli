@@ -24,10 +24,9 @@ describe('api rm', () => {
   before(() => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir('bundle-api-test')
     fs.mkdirSync(path.resolve(tempBundleDir, 'microfrontends', 'mfe1'))
-    sinon.stub(ConstraintsValidatorService, 'validateObjectConstraints')
   })
 
-  after(() => {
+  afterEach(() => {
     sinon.restore()
   })
 
@@ -58,6 +57,10 @@ describe('api rm', () => {
         }
       ]
     }
+
+    sinon
+      .stub(ConstraintsValidatorService, 'validateObjectConstraints')
+      .returns(bundleDescriptor)
 
     process.chdir(tempBundleDir)
 

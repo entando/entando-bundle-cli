@@ -32,8 +32,6 @@ describe('list', () => {
   let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
-    sinon.stub(ConstraintsValidatorService, 'validateObjectConstraints')
-
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
     )
@@ -44,6 +42,10 @@ describe('list', () => {
     fs.mkdirSync(path.resolve('microservices', 'ms2'))
 
     bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
+
+    sinon
+      .stub(ConstraintsValidatorService, 'validateObjectConstraints')
+      .returns(bundleDescriptor)
   })
 
   beforeEach(() => {
