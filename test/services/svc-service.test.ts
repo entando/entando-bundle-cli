@@ -1,7 +1,9 @@
 import { expect, test } from '@oclif/test'
 import { CLIError } from '@oclif/errors'
+import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { SvcService } from '../../src/services/svc-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
@@ -134,4 +136,83 @@ describe('svc-service', () => {
         expect(bundleDescriptor).to.haveOwnProperty('svc')
       }
     )
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .stub(cp, 'execSync', sinon.stub().returns('docker-compose executed'))
+    .it('start an enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      svcService.startServices(['mysql'])
+      const runStub = cp.execSync as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(2)
+      expect(runStub.args[0][0]).to.eq(
+        `docker-compose -p sample-bundle -f ${bundleDirectory}/svc/mysql.yml up --build -d`
+      )
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: []
+      })
+    })
+    .it('start with no enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.startServices([])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .it('start with disabled/unlisted service', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.startServices(['postgresql'])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .it('start with disabled/unlisted services', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.startServices(['macosx', 'win98'])).to.throw(
+        CLIError
+      )
+    })
+
+  test
+    .stub(
+      cp,
+      'execSync',
+      sinon.stub().throws(new Error('docker-compose error'))
+    )
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .it('start with docker error', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.startServices(['mysql'])).to.throw(CLIError)
+    })
 })

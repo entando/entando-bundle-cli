@@ -19,7 +19,13 @@ export default class Start extends Command {
 
     const svcService: SvcService = new SvcService(process.cwd())
 
-    CliUx.ux.action.start(`Enabling service ${argv.length > 0 ? argv.join(', ') : svcService.getActiveServices().join(', ')}`)
+    CliUx.ux.action.start(
+      `Starting service ${
+        argv.length > 0
+          ? argv.join(', ')
+          : svcService.getActiveServices().join(', ')
+      }`
+    )
     svcService.startServices(argv)
     CliUx.ux.action.stop()
   }
