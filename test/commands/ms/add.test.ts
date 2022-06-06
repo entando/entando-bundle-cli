@@ -9,6 +9,7 @@ import {
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
+import { ComponentHelper } from '../../helpers/mocks/components'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -78,7 +79,9 @@ describe('ms add', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microservices', 'ms1'))
-      const microservices: MicroService[] = <MicroService[]>[{ name: 'ms1' }]
+      const microservices: MicroService[] = [
+        ComponentHelper.newMicroService('ms1')
+      ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
         microservices
@@ -118,8 +121,8 @@ describe('ms add', () => {
   test
     .stderr()
     .do(() => {
-      const microservices: MicroService[] = <MicroService[]>[
-        { name: 'existing-ms-desc' }
+      const microservices: MicroService[] = [
+        ComponentHelper.newMicroService('existing-ms-desc')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -147,8 +150,8 @@ describe('ms add', () => {
 
   test
     .do(() => {
-      const microfrontends: MicroFrontend[] = <MicroFrontend[]>[
-        { name: 'component1' }
+      const microfrontends: MicroFrontend[] = [
+        ComponentHelper.newMicroFrontEnd('component1')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,

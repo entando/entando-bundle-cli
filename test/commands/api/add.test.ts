@@ -3,6 +3,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
+  ApiType,
   BundleDescriptor,
   MicroFrontend,
   MicroService
@@ -11,6 +12,7 @@ import { BundleDescriptorService } from '../../../src/services/bundle-descriptor
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
+import { ComponentHelper } from '../../helpers/mocks/components'
 
 describe('api add', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -30,10 +32,8 @@ describe('api add', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: <MicroService[]>[{ name: 'ms1', stack: 'spring-boot' }],
-      microfrontends: <MicroFrontend[]>[
-        { name: 'mfe1', stack: 'react', publicFolder: 'public' }
-      ]
+      microservices: [ComponentHelper.newMicroService('ms1')],
+      microfrontends: [ComponentHelper.newMicroFrontEnd('mfe1')]
     }
 
     process.chdir(tempBundleDir)
@@ -76,14 +76,16 @@ describe('api add', () => {
 
   test
     .do(() => {
-      const microservices = <MicroService[]>[
+      const microservices: MicroService[] = [
         ...bundleDescriptor.microservices,
-        { name: 'ms2', stack: 'node' }
+        ComponentHelper.newMicroService('ms2')
       ]
-      const microfrontends = <MicroFrontend[]>[
+      const microfrontends: MicroFrontend[] = [
         {
           ...bundleDescriptor.microfrontends[0],
-          apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
+          apiClaims: [
+            { name: 'ms1-api', type: ApiType.Internal, serviceId: 'ms1' }
+          ]
         }
       ]
       bundleDescriptor = { ...bundleDescriptor, microfrontends, microservices }

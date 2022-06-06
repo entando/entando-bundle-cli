@@ -1,4 +1,13 @@
-export const bundleDescriptor = {
+import {
+  BundleDescriptor,
+  SecurityLevel
+} from '../../../../src/models/bundle-descriptor'
+import {
+  MicroFrontendStack,
+  MicroServiceStack
+} from '../../../../src/models/component'
+
+export const bundleDescriptor: BundleDescriptor = {
   name: 'test-bundle',
   version: '0.0.1',
   type: 'bundle',
@@ -6,8 +15,7 @@ export const bundleDescriptor = {
   microservices: [
     {
       name: 'test-ms-spring-boot-1',
-      stack: 'spring-boot',
-      image: 'test-spring-boot-image',
+      stack: MicroServiceStack.SpringBoot,
       dbms: 'postgres',
       ingressPath: '/path/to/service',
       healthCheckPath: '/path/to/check',
@@ -18,7 +26,7 @@ export const bundleDescriptor = {
           role: 'manage-users'
         }
       ],
-      securityLevel: 'lenient',
+      securityLevel: SecurityLevel.Lenient,
       env: [
         {
           name: 'test-env-1',
@@ -28,8 +36,7 @@ export const bundleDescriptor = {
     },
     {
       name: 'test-ms-spring-boot-2',
-      stack: 'spring-boot',
-      image: 'test-spring-boot-image-2',
+      stack: MicroServiceStack.SpringBoot,
       dbms: 'postgres',
       ingressPath: '/path/to/service',
       healthCheckPath: '/path/to/check',
@@ -40,7 +47,7 @@ export const bundleDescriptor = {
           role: 'manage-users'
         }
       ],
-      securityLevel: 'lenient',
+      securityLevel: SecurityLevel.Lenient,
       env: [
         {
           name: 'test-env-2',
@@ -53,7 +60,7 @@ export const bundleDescriptor = {
     {
       name: 'test-mfe-1',
       code: 'test-mfe-code-1',
-      stack: 'react',
+      stack: MicroFrontendStack.React,
       titles: {
         en: 'mfe title 1',
         it: 'titolo mfe 1'
@@ -69,7 +76,7 @@ export const bundleDescriptor = {
     {
       name: 'test-mfe-2',
       code: 'test-mfe-code-2',
-      stack: 'react',
+      stack: MicroFrontendStack.React,
       titles: {
         en: 'mfe title 2',
         it: 'titolo mfe 2'

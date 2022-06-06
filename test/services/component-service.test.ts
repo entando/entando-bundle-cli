@@ -20,9 +20,7 @@ describe('component-service', () => {
   before(() => {
     const bundleDir = tempDirHelper.createInitializedBundleDir()
     const bundleDescriptorService = new BundleDescriptorService(bundleDir)
-    bundleDescriptorService.createBundleDescriptor(
-      bundleDescriptor as BundleDescriptor
-    )
+    bundleDescriptorService.createBundleDescriptor(bundleDescriptor)
   })
 
   afterEach(function () {
@@ -33,7 +31,7 @@ describe('component-service', () => {
     .do(() => {
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+        .returns(bundleDescriptor)
     })
     .it('get component', () => {
       componentService = new ComponentService()

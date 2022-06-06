@@ -9,6 +9,8 @@ import {
 } from '../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import * as sinon from 'sinon'
+import { BundleDescriptorValidatorService } from '../../src/services/bundle-descriptor-validator-service'
 
 describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -30,6 +32,11 @@ describe('list', () => {
   let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
+    sinon.stub(
+      BundleDescriptorValidatorService,
+      'validateParsedBundleDescriptor'
+    )
+
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
     )
@@ -64,6 +71,10 @@ describe('list', () => {
       path.resolve('microservices', 'ms2', 'package.json'),
       ms2PackageJSON
     )
+  })
+
+  after(() => {
+    sinon.restore()
   })
 
   test
