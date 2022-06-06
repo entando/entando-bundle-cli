@@ -26,7 +26,7 @@ describe('svc start', () => {
   test
     .stdout()
     .stub(cp, 'execSync', sinon.stub().returns('docker-compose executed'))
-    .command(['svc start'])
+    .command(['svc start', '--all'])
     .it('start active services successfully', () => {
       const runStub = cp.execSync as sinon.SinonStub
       expect(runStub.called).to.equal(true)
@@ -53,6 +53,14 @@ describe('svc start', () => {
         `${bundleDirectory}/svc/mysql.yml up --build -d`
       )
     })
+
+  test
+    .stderr()
+    .command(['svc start'])
+    .catch(error => {
+      expect(error.message).to.contain('At least 1 service name is required.')
+    })
+    .it('start without any arguments and flags')
 
   test
     .stderr()
