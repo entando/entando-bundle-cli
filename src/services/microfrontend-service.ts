@@ -91,7 +91,10 @@ export class MicroFrontendService {
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
 
-    this.componentService.removeOutputDirectory({ ...mfe, type: ComponentType.MICROFRONTEND })
+    this.componentService.removeOutputDirectory({
+      ...mfe,
+      type: ComponentType.MICROFRONTEND
+    })
   }
 
   public getPublicFolderPath(mfeName: string): string {

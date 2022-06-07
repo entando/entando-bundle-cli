@@ -10,6 +10,7 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 - [entando-bundle-cli](#entando-bundle-cli)
 - [Usage](#usage)
 - [Commands](#commands)
+- [Environment variables](#environment-variables)
 - [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
@@ -22,7 +23,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
+entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -259,14 +260,14 @@ Adds a microservice component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli ms add [NAME] [--stack spring-boot|node]
+  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot]
 
 ARGUMENTS
   NAME  Name of the microservice component
 
 FLAGS
   --stack=<option>  [default: spring-boot] Microservice stack
-                    <options: spring-boot|node>
+                    <options: node|spring-boot>
 
 DESCRIPTION
   Adds a microservice component to the bundle
@@ -382,7 +383,7 @@ USAGE
   $ entando-bundle-cli svc start [--all]
 
 FLAGS
-  --all  Starts all enabled services listed in entando.json
+  --all  Starts all enabled services in the bundle descriptor
 
 DESCRIPTION
   Start enabled auxiliary services
@@ -396,6 +397,11 @@ EXAMPLES
 ```
 
 <!-- commandsstop -->
+
+# Environment variables
+
+- `ENTANDO_BUNDLE_CLI_DEBUG`: boolean flag (`true`|`false`) used to enable debug logging (`false` by default)
+- `ENTANDO_BUNDLE_CLI_BIN_NAME`: customizes CLI name that appears in `USAGE` and `EXAMPLES` sections of the help (`entando-bundle-cli` by default)
 
 # Development environment setup
 
