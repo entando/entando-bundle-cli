@@ -58,12 +58,12 @@ describe('build command', () => {
   const msListSpringBoot: Array<Component<ComponentType>> = [
     {
       name: 'test-ms-spring-boot-1',
-      stack: MicroServiceStack.SpringBoot,
+      stack: MicroserviceStack.SpringBoot,
       type: ComponentType.MICROSERVICE
     },
     {
       name: 'test-ms-spring-boot-2',
-      stack: MicroServiceStack.SpringBoot,
+      stack: MicroserviceStack.SpringBoot,
       type: ComponentType.MICROSERVICE
     }
   ]
