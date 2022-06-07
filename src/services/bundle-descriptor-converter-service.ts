@@ -67,7 +67,8 @@ export class BundleDescriptorConverterService {
       titles: microFrontend.titles,
       group: microFrontend.group,
       version: WIDGET_DESCRIPTOR_VERSION,
-      apiClaims: microFrontend.apiClaims
+      apiClaims: microFrontend.apiClaims,
+      nav: microFrontend.nav
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
@@ -110,7 +111,8 @@ export class BundleDescriptorConverterService {
       components: {
         plugins: [],
         widgets: []
-      }
+      },
+      global: bundleDescriptor.global
     }
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =

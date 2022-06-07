@@ -49,6 +49,7 @@ export type MicroFrontend = {
     resources: string[]
   }
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
+  nav?: Nav[]
 }
 
 export type BundleDescriptor = {
@@ -61,6 +62,9 @@ export type BundleDescriptor = {
   microservices: Microservice[]
   microfrontends: MicroFrontend[]
   svc?: string[]
+  global?: {
+    nav: Nav[]
+  }
 }
 
 export type BundleGroup = {
@@ -90,4 +94,10 @@ export interface ApiClaim {
 
 export interface ExternalApiClaim extends ApiClaim {
   bundleId: string
+}
+
+export type Nav = {
+  label: { [lang: string]: string }
+  target: string
+  url: string
 }
