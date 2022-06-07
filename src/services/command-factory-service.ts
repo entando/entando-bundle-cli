@@ -1,4 +1,6 @@
+import { MicroFrontend, Microservice } from '../models/bundle-descriptor'
 import { Component, ComponentType, StackFor } from '../models/component'
+import { BundleDescriptorService } from './bundle-descriptor-service'
 
 export enum Phase {
   Clean = 'clean',
@@ -46,6 +48,25 @@ export class CommandFactoryService {
     component: Component<T>,
     phase: Phase
   ): string {
-    return DEFAULT_COMMANDS[component.type][component.stack][phase]
+    const customCommand: string | undefined =
+      CommandFactoryService.getCustomCommand(component, phase)
+
+    return (
+      customCommand || DEFAULT_COMMANDS[component.type][component.stack][phase]
+    )
+  }
+
+  private static getCustomCommand<T extends ComponentType>(
+    component: Component<T>,
+    phase: Phase
+  ): string | undefined {
+    const bundleDescriptorService: BundleDescriptorService =
+      new BundleDescriptorService(process.cwd())
+    const comps: Array<Microservice | MicroFrontend> =
+      bundleDescriptorService.getBundleDescriptor()[`${component.type}s`]
+    const commands = comps.find(({ name }) => name === component.name)?.commands
+
+    // Currently, only `build` is a property of `commands`
+    return commands && commands[phase as Phase.Build]
   }
 }
