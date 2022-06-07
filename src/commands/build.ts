@@ -6,7 +6,7 @@ import { Phase } from '../services/command-factory-service'
 import { ComponentType } from '../models/component'
 
 export default class Build extends BaseBuildCommand {
-  static description = 'Build bundle components'
+  static description = 'Builds bundle components'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-component']
 
@@ -19,7 +19,7 @@ export default class Build extends BaseBuildCommand {
 
   static flags = {
     'all-ms': Flags.boolean({
-      description: 'Build all the bundle microservices'
+      description: 'Builds all the bundle microservices'
     })
   }
 
