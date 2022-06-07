@@ -87,7 +87,7 @@ export class SvcService {
 
     if (services.length === 0) {
       throw new CLIError(
-        'There are no enabled services. Please activate a service using the command: <%= config.bin %> enable <your_service_yml>'
+        'There are no enabled services. Please enable a service using the command: <%= config.bin %> svc enable <your_service_yml>'
       )
     }
 
@@ -99,7 +99,7 @@ export class SvcService {
       throw new CLIError(
         `Service${addS ? 's' : ''} ${serviceNotFound.join(', ')} ${
           addS ? 'are' : 'is'
-        } not enabled. Please check the enabled services with command: <%= config.bin %> list`
+        } not enabled. Please check the enabled services with command: <%= config.bin %> svc list`
       )
     }
 
@@ -124,7 +124,7 @@ export class SvcService {
   private isServiceAvailable(service: string): void {
     if (!this.getAllServices().includes(service)) {
       throw new CLIError(
-        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> list --available`
+        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> svc list --available`
       )
     }
   }
