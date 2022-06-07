@@ -52,6 +52,7 @@ USAGE
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
 - [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
+- [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -394,6 +395,28 @@ EXAMPLES
   $ entando-bundle-cli svc start ext-service
 
   $ entando-bundle-cli svc start ext-service1 ext-service2
+```
+
+## `entando-bundle-cli svc stop`
+
+Stop running enabled auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc stop [--all]
+
+FLAGS
+  --all  Stops all running enabled services in the bundle descriptor
+
+DESCRIPTION
+  Stop running enabled auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc stop --all
+
+  $ entando-bundle-cli svc stop ext-service
+
+  $ entando-bundle-cli svc stop ext-service1 ext-service2
 ```
 
 <!-- commandsstop -->

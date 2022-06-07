@@ -83,6 +83,48 @@ export class SvcService {
   }
 
   public startServices(services: string[]): void {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`starting service ${services.join(', ')}`)
+
+    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
+      .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
+      .join(' ')} up --build -d`
+
+    try {
+      ProcessExecutorService.executeProcess({
+        command: cmd,
+        outputStream: process.stdout,
+        errorStream: process.stdout,
+        workDir: this.parentDirectory
+      })
+    } catch (error) {
+      throw new CLIError(error as Error)
+    }
+  }
+
+  public stopServices(services: string[]): void {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`stopping service ${services.join(', ')}`)
+
+    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
+      .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
+      .join(' ')} stop`
+
+    try {
+      ProcessExecutorService.executeProcess({
+        command: cmd,
+        outputStream: process.stdout,
+        errorStream: process.stdout,
+        workDir: this.parentDirectory
+      })
+    } catch (error) {
+      throw new CLIError(error as Error)
+    }
+  }
+
+  private precheckEnabledServices(services: string[]): void {
     const activeServices = this.getEnabledServices()
 
     if (services.length === 0) {
@@ -101,23 +143,6 @@ export class SvcService {
           addS ? 'are' : 'is'
         } not enabled. Please check the enabled services with command: <%= config.bin %> svc list`
       )
-    }
-
-    SvcService.debug(`starting service ${services.join(', ')}`)
-
-    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
-      .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
-      .join(' ')} up --build -d`
-
-    try {
-      ProcessExecutorService.executeProcess({
-        command: cmd,
-        outputStream: process.stdout,
-        errorStream: process.stdout,
-        workDir: this.parentDirectory
-      })
-    } catch (error) {
-      throw new CLIError(error as Error)
     }
   }
 

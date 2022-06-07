@@ -220,4 +220,86 @@ describe('svc-service', () => {
       const svcService: SvcService = new SvcService(bundleDirectory)
       expect(() => svcService.startServices(['mysql'])).to.throw(CLIError)
     })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .stub(
+      ProcessExecutorService,
+      'executeProcess',
+      sinon.stub().returns('docker-compose executed')
+    )
+    .it('stop an enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      svcService.stopServices(['mysql'])
+      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml stop'
+      )
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: []
+      })
+    })
+    .it('stop with no enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.stopServices([])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['keycloak']
+      })
+    })
+    .it('stop with disabled/unlisted service', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.stopServices(['mysql'])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['postgresql']
+      })
+    })
+    .it('stop with disabled/unlisted services', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.stopServices(['macosx'])).to.throw(CLIError)
+    })
+
+  test
+    .stub(
+      ProcessExecutorService,
+      'executeProcess',
+      sinon.stub().throws(new Error('docker-compose error'))
+    )
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .it('stop with docker error', () => {
+      const svcService: SvcService = new SvcService(bundleDirectory)
+      expect(() => svcService.stopServices(['mysql'])).to.throw(CLIError)
+    })
 })
