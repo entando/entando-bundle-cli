@@ -3,7 +3,7 @@ export enum MicroFrontendStack {
   Angular = 'angular'
 }
 
-export enum MicroServiceStack {
+export enum MicroserviceStack {
   Node = 'node',
   SpringBoot = 'spring-boot'
 }
@@ -17,7 +17,7 @@ export type StackFor<T extends ComponentType> =
   T extends ComponentType.MICROFRONTEND
     ? MicroFrontendStack
     : T extends ComponentType.MICROSERVICE
-    ? MicroServiceStack
+    ? MicroserviceStack
     : never
 
 export type Component<T extends ComponentType> = {
