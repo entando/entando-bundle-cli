@@ -17,15 +17,13 @@ import {
   MicroFrontendStack,
   MicroServiceStack
 } from '../../src/models/component'
-import {
-  ParallelProcessExecutorService,
-  ProcessExecutionResult
-} from '../../src/services/process-executor-service'
+import { ProcessExecutionResult } from '../../src/services/process-executor-service'
 import * as executors from '../../src/services/process-executor-service'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -322,20 +320,3 @@ describe('pack', () => {
     })
     .it("Packaging stops if a microservice folder doesn't contain a Dockerfile")
 })
-
-class StubParallelProcessExecutorService extends ParallelProcessExecutorService {
-  private readonly stubResults: ProcessExecutionResult[]
-
-  constructor(stubResults: ProcessExecutionResult[]) {
-    super([])
-    this.stubResults = stubResults
-  }
-
-  public async execute(): Promise<ProcessExecutionResult[]> {
-    for (const [i, result] of this.stubResults.entries()) {
-      this.emit('done', i, result)
-    }
-
-    return this.stubResults
-  }
-}
