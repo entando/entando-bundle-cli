@@ -15,7 +15,7 @@ export default class Add extends Command {
   static flags = {
     stack: Flags.string({
       description: 'Microservice stack',
-      options: [MicroserviceStack.SpringBoot, MicroserviceStack.Node],
+      options: Object.values(MicroserviceStack),
       default: MicroserviceStack.SpringBoot
     })
   }
