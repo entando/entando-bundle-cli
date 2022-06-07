@@ -28,7 +28,7 @@ export default class Start extends Command {
 
     if (flags.all) {
       CliUx.ux.action.start(`Starting all enabled services`)
-      svcService.startServices([])
+      svcService.startServices(svcService.getActiveServices())
       CliUx.ux.action.stop()
     } else if (argv.length > 0) {
       CliUx.ux.action.start(`Starting services: ${argv.join(', ')}`)

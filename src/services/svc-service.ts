@@ -84,28 +84,43 @@ export class SvcService {
 
   public startServices(services: string[]): void {
     const activeServices = this.getActiveServices()
-    const servicesToRun = services.length > 0 ? services : activeServices
 
-    if (servicesToRun.length === 0) {
+    if (services.length === 0) {
       throw new CLIError(
         'There are no enabled services. Please activate a service using the command: <%= config.bin %> enable <your_service_yml>'
       )
     }
 
-    const serviceNotFound = servicesToRun.filter(service => !activeServices.includes(service))
+    const serviceNotFound = services.filter(
+      service => !activeServices.includes(service)
+    )
     if (serviceNotFound.length > 0) {
       const addS = serviceNotFound.length > 1
       throw new CLIError(
-        `Service${addS ? 's' : ''} ${serviceNotFound.join(', ')} ${addS ? 'are' : 'is'} not enabled. Please check the enabled services with command: <%= config.bin %> list`
+        `Service${addS ? 's' : ''} ${serviceNotFound.join(', ')} ${
+          addS ? 'are' : 'is'
+        } not enabled. Please check the enabled services with command: <%= config.bin %> list`
       )
     }
 
-    SvcService.debug(`starting service ${servicesToRun.join(', ')}`)
+    SvcService.debug(`starting service ${services.join(', ')}`)
 
     try {
-      cp.execSync(`docker-compose -p ${this.bundleDescriptor.name} ${servicesToRun.map(service => `-f ${path.resolve(this.parentDirectory, SVC_FOLDER, `${service}.yml`)}`).join(' ')} up --build -d`, {
-        stdio: 'pipe'
-      })
+      cp.execSync(
+        `docker-compose -p ${this.bundleDescriptor.name} ${services
+          .map(
+            service =>
+              `-f ${path.resolve(
+                this.parentDirectory,
+                SVC_FOLDER,
+                `${service}.yml`
+              )}`
+          )
+          .join(' ')} up --build -d`,
+        {
+          stdio: 'pipe'
+        }
+      )
     } catch (error) {
       throw new CLIError(error as Error)
     }
