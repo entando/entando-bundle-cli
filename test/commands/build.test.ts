@@ -10,7 +10,7 @@ import {
   Component,
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../src/models/component'
 
 describe('build command', () => {
@@ -22,7 +22,7 @@ describe('build command', () => {
 
   const msSpringBoot: Component<ComponentType> = {
     name: msNameSpringBoot,
-    stack: MicroServiceStack.SpringBoot,
+    stack: MicroserviceStack.SpringBoot,
     type: ComponentType.MICROSERVICE
   }
 

@@ -260,14 +260,14 @@ Adds a microservice component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli ms add [NAME] [--stack spring-boot|node]
+  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot]
 
 ARGUMENTS
   NAME  Name of the microservice component
 
 FLAGS
   --stack=<option>  [default: spring-boot] Microservice stack
-                    <options: spring-boot|node>
+                    <options: node|spring-boot>
 
 DESCRIPTION
   Adds a microservice component to the bundle
@@ -383,7 +383,7 @@ USAGE
   $ entando-bundle-cli svc start [--all]
 
 FLAGS
-  --all  Starts all enabled services listed in entando.json
+  --all  Starts all enabled services in the bundle descriptor
 
 DESCRIPTION
   Start enabled auxiliary services

@@ -5,7 +5,7 @@ import {
   Component,
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../models/component'
 
 export class ComponentDescriptorService {
@@ -20,7 +20,7 @@ export class ComponentDescriptorService {
     )
 
     const version: string | undefined =
-      stack === MicroServiceStack.Node ||
+      stack === MicroserviceStack.Node ||
       stack === MicroFrontendStack.React ||
       stack === MicroFrontendStack.Angular
         ? this.parsePackageJSON(compPath)?.version

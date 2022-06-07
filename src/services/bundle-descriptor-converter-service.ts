@@ -1,7 +1,7 @@
 import {
   BundleDescriptor,
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../models/bundle-descriptor'
 import {
   YamlBundleDescriptor,
@@ -44,17 +44,17 @@ export class BundleDescriptorConverterService {
       this.generateMicroFrontendYamlDescriptor(microFrontend)
     }
 
-    const versionedMicroServices = this.componentService.getVersionedComponents(
+    const versionedMicroservices = this.componentService.getVersionedComponents(
       ComponentType.MICROSERVICE
     )
 
-    for (const microService of bundleDescriptor.microservices) {
-      const versionedMicroService = versionedMicroServices.find(
-        ms => ms.name === microService.name
+    for (const microservice of bundleDescriptor.microservices) {
+      const versionedMicroservice = versionedMicroservices.find(
+        ms => ms.name === microservice.name
       )!
-      this.generateMicroServiceYamlDescriptor(
-        microService,
-        versionedMicroService.version!
+      this.generateMicroserviceYamlDescriptor(
+        microservice,
+        versionedMicroservice.version!
       )
     }
 
@@ -76,29 +76,29 @@ export class BundleDescriptorConverterService {
     this.writeYamlFile(filePath, widgetDescriptor)
   }
 
-  private generateMicroServiceYamlDescriptor(
-    microService: MicroService,
+  private generateMicroserviceYamlDescriptor(
+    microservice: Microservice,
     version: string
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
       descriptorVersion: PLUGIN_DESCRIPTOR_VERSION,
-      dbms: microService.dbms,
+      dbms: microservice.dbms,
       image: DockerService.getDockerImageName(
         this.dockerOrganization,
-        microService.name,
+        microservice.name,
         version
       ),
-      deploymentBaseName: microService.deploymentBaseName,
-      ingressPath: microService.ingressPath,
-      healthCheckPath: microService.healthCheckPath,
-      roles: microService.roles,
-      permissions: microService.permissions,
-      securityLevel: microService.securityLevel,
-      environmentVariables: microService.env
+      deploymentBaseName: microservice.deploymentBaseName,
+      ingressPath: microservice.ingressPath,
+      healthCheckPath: microservice.healthCheckPath,
+      roles: microservice.roles,
+      permissions: microservice.permissions,
+      securityLevel: microservice.securityLevel,
+      environmentVariables: microservice.env
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
-      this.getMicroServiceDescriptorRelativePath(microService)
+      this.getMicroserviceDescriptorRelativePath(microservice)
     )
     this.writeYamlFile(filePath, pluginDescriptor)
   }
@@ -118,9 +118,9 @@ export class BundleDescriptorConverterService {
       yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
     }
 
-    for (const microService of bundleDescriptor.microservices) {
+    for (const microservice of bundleDescriptor.microservices) {
       const msDescriptorPath =
-        this.getMicroServiceDescriptorRelativePath(microService)
+        this.getMicroserviceDescriptorRelativePath(microservice)
       yamlBundleDescriptor.components.plugins.push(msDescriptorPath)
     }
 
@@ -138,10 +138,10 @@ export class BundleDescriptorConverterService {
     )
   }
 
-  private getMicroServiceDescriptorRelativePath(microService: MicroService) {
+  private getMicroserviceDescriptorRelativePath(microservice: Microservice) {
     return path.posix.join(
       PLUGINS_DESCRIPTORS_FOLDER,
-      microService.name + DESCRIPTOR_EXTENSION
+      microservice.name + DESCRIPTOR_EXTENSION
     )
   }
 

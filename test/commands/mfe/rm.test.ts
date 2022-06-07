@@ -3,6 +3,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
 import { MicroFrontendStack } from '../../../src/models/component'
+import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
@@ -58,12 +59,19 @@ describe('mfe rm', () => {
       )
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
+      const outputPath: string = path.resolve(
+        tempBundleDir,
+        ...DESCRIPTORS_OUTPUT_FOLDER,
+        'widgets',
+        defaultMfeName
+      )
 
       expect(fs.existsSync(filePath)).to.eq(false)
       expect(bundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: []
       })
+      expect(fs.existsSync(outputPath)).to.eq(false)
     })
 
   test

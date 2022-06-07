@@ -10,7 +10,7 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import {
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../src/models/component'
 import { ComponentService } from '../../src/services/component-service'
 import { ApiType } from '../../src/models/bundle-descriptor'
@@ -32,7 +32,7 @@ describe('bundle-descriptor-converter-service', () => {
       microservices: [
         {
           name: 'test-ms',
-          stack: MicroServiceStack.SpringBoot,
+          stack: MicroserviceStack.SpringBoot,
           dbms: 'postgres',
           ingressPath: '/path/to/service',
           healthCheckPath: '/path/to/check',
@@ -88,7 +88,7 @@ describe('bundle-descriptor-converter-service', () => {
         name: 'test-ms',
         version: '0.0.5',
         type: ComponentType.MICROSERVICE,
-        stack: MicroServiceStack.SpringBoot
+        stack: MicroserviceStack.SpringBoot
       }
     ])
 

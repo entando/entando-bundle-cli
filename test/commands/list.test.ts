@@ -5,7 +5,7 @@ import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
 import {
   BundleDescriptor,
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
@@ -19,7 +19,7 @@ describe('list', () => {
       { name: 'mfe1', stack: 'react' },
       { name: 'mfe2', stack: 'angular' }
     ],
-    microservices: <MicroService[]>[
+    microservices: <Microservice[]>[
       { name: 'ms1', stack: 'spring-boot' },
       { name: 'ms2', stack: 'node' }
     ]

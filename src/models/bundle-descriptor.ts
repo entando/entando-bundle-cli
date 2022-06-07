@@ -1,4 +1,4 @@
-import { MicroFrontendStack, MicroServiceStack } from './component'
+import { MicroFrontendStack, MicroserviceStack } from './component'
 
 export type EnvironmentVariable =
   | {
@@ -20,11 +20,11 @@ export type Permission = {
   role: string
 }
 
-export type MicroService = {
+export type Microservice = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
   /** Tech stack. It could be guessed from folder content or forced by the user */
-  stack: MicroServiceStack
+  stack: MicroserviceStack
   /** Value used for defining custom pod names */
   deploymentBaseName?: string
   dbms: string
@@ -58,7 +58,7 @@ export type BundleDescriptor = {
   version: string
   type: string
   description?: string
-  microservices: MicroService[]
+  microservices: Microservice[]
   microfrontends: MicroFrontend[]
   svc?: string[]
 }

@@ -15,7 +15,7 @@ import * as sinon from 'sinon'
 import {
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../src/models/component'
 import {
   ParallelProcessExecutorService,
@@ -132,12 +132,12 @@ describe('pack', () => {
         {
           name: 'ms1',
           type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.SpringBoot
+          stack: MicroserviceStack.SpringBoot
         },
         {
           name: 'ms2',
           type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.Node
+          stack: MicroserviceStack.Node
         },
         {
           name: 'mfe1',
@@ -222,7 +222,7 @@ describe('pack', () => {
         {
           name: 'ms1',
           type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.SpringBoot
+          stack: MicroserviceStack.SpringBoot
         },
         {
           name: 'mfe2',
@@ -267,7 +267,7 @@ describe('pack', () => {
         {
           name: 'ms1',
           type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.SpringBoot
+          stack: MicroserviceStack.SpringBoot
         }
       ]
       getComponentsStub = sinon
@@ -299,7 +299,7 @@ describe('pack', () => {
         {
           name: 'ms1',
           type: ComponentType.MICROSERVICE,
-          stack: MicroServiceStack.SpringBoot
+          stack: MicroserviceStack.SpringBoot
         }
       ]
       getComponentsStub = sinon
