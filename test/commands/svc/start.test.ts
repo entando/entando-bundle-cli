@@ -1,8 +1,8 @@
 import { expect, test } from '@oclif/test'
-import * as cp from 'node:child_process'
 import * as sinon from 'sinon'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 
 describe('svc start', () => {
   let bundleDirectory: string
@@ -25,32 +25,37 @@ describe('svc start', () => {
 
   test
     .stdout()
-    .stub(cp, 'execSync', sinon.stub().returns('docker-compose executed'))
+    .stub(
+      ProcessExecutorService,
+      'executeProcess',
+      sinon.stub().returns('docker-compose executed')
+    )
     .command(['svc start', '--all'])
     .it('start active services successfully', () => {
-      const runStub = cp.execSync as sinon.SinonStub
+      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(2)
-      expect(runStub.args[0][0]).to.contain('docker-compose -p sample-bundle')
-      expect(runStub.args[0][0]).to.contain(
-        `${bundleDirectory}/svc/postgresql.yml`
-      )
-      expect(runStub.args[0][0]).to.contain(
-        `${bundleDirectory}/svc/mysql.yml up --build -d`
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/postgresql.yml -f svc/mysql.yml up --build -d'
       )
     })
 
   test
     .stdout()
-    .stub(cp, 'execSync', sinon.stub().returns('docker-compose executed'))
+    .stub(
+      ProcessExecutorService,
+      'executeProcess',
+      sinon.stub().returns('docker-compose executed')
+    )
     .command(['svc start', 'mysql'])
     .it('start specific service mysql', () => {
-      const runStub = cp.execSync as sinon.SinonStub
+      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(2)
-      expect(runStub.args[0][0]).to.contain('docker-compose -p sample-bundle')
-      expect(runStub.args[0][0]).to.contain(
-        `${bundleDirectory}/svc/mysql.yml up --build -d`
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d'
       )
     })
 
@@ -58,7 +63,7 @@ describe('svc start', () => {
     .stderr()
     .command(['svc start'])
     .catch(error => {
-      expect(error.message).to.contain('At least 1 service name is required.')
+      expect(error.message).to.contain('At least one service name is required.')
     })
     .it('start without any arguments and flags')
 

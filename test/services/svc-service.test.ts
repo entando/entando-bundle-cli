@@ -1,12 +1,12 @@
 import { expect, test } from '@oclif/test'
 import { CLIError } from '@oclif/errors'
-import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { SvcService } from '../../src/services/svc-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import { ProcessExecutorService } from '../../src/services/process-executor-service'
 
 describe('svc-service', () => {
   let bundleDirectory: string
@@ -145,15 +145,20 @@ describe('svc-service', () => {
         svc: ['mysql']
       })
     })
-    .stub(cp, 'execSync', sinon.stub().returns('docker-compose executed'))
+    .stub(
+      ProcessExecutorService,
+      'executeProcess',
+      sinon.stub().returns('docker-compose executed')
+    )
     .it('start an enabled service listed in descriptor', () => {
       const svcService: SvcService = new SvcService(bundleDirectory)
       svcService.startServices(['mysql'])
-      const runStub = cp.execSync as sinon.SinonStub
+      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(2)
-      expect(runStub.args[0][0]).to.eq(
-        `docker-compose -p sample-bundle -f ${bundleDirectory}/svc/mysql.yml up --build -d`
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d'
       )
     })
 
@@ -200,8 +205,8 @@ describe('svc-service', () => {
 
   test
     .stub(
-      cp,
-      'execSync',
+      ProcessExecutorService,
+      'executeProcess',
       sinon.stub().throws(new Error('docker-compose error'))
     )
     .do(() => {

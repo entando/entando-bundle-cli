@@ -1,10 +1,10 @@
 import { CLIError } from '@oclif/errors'
-import * as cp from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { SVC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
+import { ProcessExecutorService } from './process-executor-service'
 
 import { debugFactory } from './debug-factory-service'
 
@@ -35,12 +35,12 @@ export class SvcService {
   }
 
   public getAvailableServices(): string[] {
-    const activeServices = this.getActiveServices()
+    const activeServices = this.getEnabledServices()
     const allServices = this.getAllServices()
     return allServices.filter(service => !activeServices.includes(service))
   }
 
-  public getActiveServices(): string[] {
+  public getEnabledServices(): string[] {
     return this.bundleDescriptor.svc || []
   }
 
@@ -48,7 +48,7 @@ export class SvcService {
     SvcService.debug(`enabling service ${service}`)
     this.isServiceAvailable(service)
 
-    const svc = this.getActiveServices()
+    const svc = this.getEnabledServices()
 
     if (svc.includes(service)) {
       throw new CLIError(`Service ${service} is already enabled`)
@@ -66,7 +66,7 @@ export class SvcService {
     SvcService.debug(`disabling service ${service}`)
     this.isServiceAvailable(service)
 
-    const activeServices = this.getActiveServices()
+    const activeServices = this.getEnabledServices()
 
     if (!activeServices.includes(service)) {
       throw new CLIError(`Service ${service} is not enabled`)
@@ -83,7 +83,7 @@ export class SvcService {
   }
 
   public startServices(services: string[]): void {
-    const activeServices = this.getActiveServices()
+    const activeServices = this.getEnabledServices()
 
     if (services.length === 0) {
       throw new CLIError(
@@ -105,22 +105,17 @@ export class SvcService {
 
     SvcService.debug(`starting service ${services.join(', ')}`)
 
+    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
+      .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
+      .join(' ')} up --build -d`
+
     try {
-      cp.execSync(
-        `docker-compose -p ${this.bundleDescriptor.name} ${services
-          .map(
-            service =>
-              `-f ${path.resolve(
-                this.parentDirectory,
-                SVC_FOLDER,
-                `${service}.yml`
-              )}`
-          )
-          .join(' ')} up --build -d`,
-        {
-          stdio: 'pipe'
-        }
-      )
+      ProcessExecutorService.executeProcess({
+        command: cmd,
+        outputStream: process.stdout,
+        errorStream: process.stdout,
+        workDir: this.parentDirectory
+      })
     } catch (error) {
       throw new CLIError(error as Error)
     }

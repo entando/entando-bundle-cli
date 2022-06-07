@@ -15,7 +15,7 @@ export default class Start extends Command {
 
   static flags = {
     all: Flags.boolean({
-      description: 'Starts all enabled services listed in entando.json'
+      description: 'Starts all enabled services in the bundle descriptor'
     })
   }
 
@@ -27,8 +27,11 @@ export default class Start extends Command {
     const svcService: SvcService = new SvcService(process.cwd())
 
     if (flags.all) {
-      CliUx.ux.action.start(`Starting all enabled services`)
-      svcService.startServices(svcService.getActiveServices())
+      const enabledServices = svcService.getEnabledServices()
+      CliUx.ux.action.start(
+        `Starting all enabled services: ${enabledServices.join(', ')}`
+      )
+      svcService.startServices(enabledServices)
       CliUx.ux.action.stop()
     } else if (argv.length > 0) {
       CliUx.ux.action.start(`Starting services: ${argv.join(', ')}`)
@@ -36,7 +39,7 @@ export default class Start extends Command {
       CliUx.ux.action.stop()
     } else {
       throw new CLIError(
-        'At least 1 service name is required. You can also use `--all` flag to start all enabled services'
+        'At least one service name is required. You can also use `--all` flag to start all enabled services'
       )
     }
   }
