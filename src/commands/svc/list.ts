@@ -22,7 +22,7 @@ export default class List extends Command {
     const svcService: SvcService = new SvcService(process.cwd())
     const services: string[] = flags.available
       ? svcService.getAvailableServices()
-      : svcService.getActiveServices()
+      : svcService.getEnabledServices()
     const serviceData = services.map(service => ({ service }))
 
     const columns = {
