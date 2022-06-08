@@ -1,7 +1,7 @@
 import { CliUx, Flags } from '@oclif/core'
 import { BundleService } from '../../services/bundle-service'
 import { SvcService } from '../../services/svc-service'
-import { SvcProcessResult, ServiceTypes } from './svc-process'
+import { SvcProcessResult, ServiceTypes } from './svc-process-result'
 
 export default class Start extends SvcProcessResult {
   static strict = false

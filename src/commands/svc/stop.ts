@@ -1,11 +1,11 @@
 import { CliUx, Flags } from '@oclif/core'
 import { BundleService } from '../../services/bundle-service'
 import { SvcService } from '../../services/svc-service'
-import { SvcProcessResult, ServiceTypes } from './svc-process'
+import { SvcProcessResult, ServiceTypes } from './svc-process-result'
 
 export default class Stop extends SvcProcessResult {
   static strict = false
-  static description = 'Stop running enabled auxiliary services'
+  static description = 'Stop running auxiliary services'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> --all',
@@ -15,7 +15,7 @@ export default class Stop extends SvcProcessResult {
 
   static flags = {
     all: Flags.boolean({
-      description: 'Stops all running enabled services in the bundle descriptor'
+      description: 'Stops all enabled services in the bundle descriptor'
     })
   }
 
