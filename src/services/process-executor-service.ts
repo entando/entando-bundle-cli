@@ -28,7 +28,7 @@ export class ProcessExecutorService {
   /**
    * Executes a long running child process and handles its output streams.
    * @param options parameters for underlying spawn function and output configuration
-   * @returns a Promise that resolves when the process completes successfully or rejects when it fails
+   * @returns a Promise will only returns a resolve whether the process completes successfully or fails
    */
   public static async executeProcess(
     options: ProcessExecutionOptions

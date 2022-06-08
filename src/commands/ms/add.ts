@@ -5,7 +5,7 @@ import { BundleService } from '../../services/bundle-service'
 import { MicroserviceService } from '../../services/microservice-service'
 
 export default class Add extends Command {
-  static description = 'Adds a microservice component to the bundle'
+  static description = 'Add a microservice component to the bundle'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-ms',

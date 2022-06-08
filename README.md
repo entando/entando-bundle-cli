@@ -23,7 +23,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -52,10 +52,11 @@ USAGE
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
 - [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
+- [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
-Adds an internal API claim to the specified MFE component
+Add an internal API claim to the specified MFE component
 
 ```
 USAGE
@@ -70,7 +71,7 @@ FLAGS
   --serviceUrl=<value>  (required) Local microservice URL
 
 DESCRIPTION
-  Adds an internal API claim to the specified MFE component
+  Add an internal API claim to the specified MFE component
 
 EXAMPLES
   $ entando-bundle-cli api add mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080
@@ -78,7 +79,7 @@ EXAMPLES
 
 ## `entando-bundle-cli api add-ext MFENAME CLAIMNAME`
 
-Adds an external API claim to the specified MFE component
+Add an external API claim to the specified MFE component
 
 ```
 USAGE
@@ -93,7 +94,7 @@ FLAGS
   --serviceId=<value>  (required) Microservice name within the target Bundle
 
 DESCRIPTION
-  Adds an external API claim to the specified MFE component
+  Add an external API claim to the specified MFE component
 
 EXAMPLES
   $ entando-bundle-cli api add-ext mfe1 ms1-api --bundleId my-bundle --serviceId ms1
@@ -101,7 +102,7 @@ EXAMPLES
 
 ## `entando-bundle-cli api rm MFENAME CLAIMNAME`
 
-Removes an API claim from the specified MFE component
+Remove an API claim from the specified MFE component
 
 ```
 USAGE
@@ -112,7 +113,7 @@ ARGUMENTS
   CLAIMNAME  Name of the API claim
 
 DESCRIPTION
-  Removes an API claim from the specified MFE component
+  Remove an API claim from the specified MFE component
 
 EXAMPLES
   $ entando-bundle-cli api rm my-mfe my-api-claim
@@ -168,7 +169,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `entando-bundle-cli init NAME`
 
-Performs the scaffolding of a Bundle project
+Perform the scaffolding of a Bundle project
 
 ```
 USAGE
@@ -183,7 +184,7 @@ FLAGS
   --version=<value>  Project version
 
 DESCRIPTION
-  Performs the scaffolding of a Bundle project
+  Perform the scaffolding of a Bundle project
 
 EXAMPLES
   $ entando-bundle-cli init my-bundle
@@ -197,7 +198,7 @@ _See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli
 
 ## `entando-bundle-cli list`
 
-Lists the available components in the bundle
+List the available components in the bundle
 
 ```
 USAGE
@@ -208,7 +209,7 @@ FLAGS
   --ms   List only microservice components
 
 DESCRIPTION
-  Lists the available components in the bundle
+  List the available components in the bundle
 
 EXAMPLES
   $ entando-bundle-cli list
@@ -222,7 +223,7 @@ _See code: [dist/commands/list.ts](https://github.com/entando/entando-bundle-cli
 
 ## `entando-bundle-cli mfe add NAME`
 
-Adds a Micro Frontend component to the bundle
+Add a Micro Frontend component to the bundle
 
 ```
 USAGE
@@ -236,7 +237,7 @@ FLAGS
                     <options: react|angular>
 
 DESCRIPTION
-  Adds a Micro Frontend component to the bundle
+  Add a Micro Frontend component to the bundle
 
 EXAMPLES
   $ entando-bundle-cli mfe add my-mfe
@@ -246,7 +247,7 @@ EXAMPLES
 
 ## `entando-bundle-cli mfe rm NAME`
 
-Removes a Micro Frontend component to the bundle
+Remove a Micro Frontend component to the bundle
 
 ```
 USAGE
@@ -256,7 +257,7 @@ ARGUMENTS
   NAME  Name of the Micro Frontend component
 
 DESCRIPTION
-  Removes a Micro Frontend component to the bundle
+  Remove a Micro Frontend component to the bundle
 
 EXAMPLES
   $ entando-bundle-cli mfe rm my-mfe
@@ -264,7 +265,7 @@ EXAMPLES
 
 ## `entando-bundle-cli ms add NAME`
 
-Adds a microservice component to the bundle
+Add a microservice component to the bundle
 
 ```
 USAGE
@@ -278,7 +279,7 @@ FLAGS
                     <options: node|spring-boot>
 
 DESCRIPTION
-  Adds a microservice component to the bundle
+  Add a microservice component to the bundle
 
 EXAMPLES
   $ entando-bundle-cli ms add my-ms
@@ -288,7 +289,7 @@ EXAMPLES
 
 ## `entando-bundle-cli ms rm NAME`
 
-Removes a microservice component from the current bundle
+Remove a microservice component from the current bundle
 
 ```
 USAGE
@@ -298,7 +299,7 @@ ARGUMENTS
   NAME  Microservice name
 
 DESCRIPTION
-  Removes a microservice component from the current bundle
+  Remove a microservice component from the current bundle
 
 EXAMPLES
   $ entando-bundle-cli ms rm my-microservice
@@ -306,7 +307,7 @@ EXAMPLES
 
 ## `entando-bundle-cli pack`
 
-Generates the bundle Docker image
+Generate the bundle Docker image
 
 ```
 USAGE
@@ -318,7 +319,7 @@ FLAGS
   -o, --org=<value>   Docker organization name
 
 DESCRIPTION
-  Generates the bundle Docker image
+  Generate the bundle Docker image
 
 EXAMPLES
   $ entando-bundle-cli pack
@@ -402,6 +403,28 @@ EXAMPLES
   $ entando-bundle-cli svc start ext-service
 
   $ entando-bundle-cli svc start ext-service1 ext-service2
+```
+
+## `entando-bundle-cli svc stop`
+
+Stop running enabled auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc stop [--all]
+
+FLAGS
+  --all  Stops all running enabled services in the bundle descriptor
+
+DESCRIPTION
+  Stop running enabled auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc stop --all
+
+  $ entando-bundle-cli svc stop ext-service
+
+  $ entando-bundle-cli svc stop ext-service1 ext-service2
 ```
 
 <!-- commandsstop -->

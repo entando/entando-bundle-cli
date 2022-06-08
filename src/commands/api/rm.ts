@@ -3,7 +3,7 @@ import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
 
 export default class Rm extends Command {
-  static description = 'Removes an API claim from the specified MFE component'
+  static description = 'Remove an API claim from the specified MFE component'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-mfe my-api-claim']
 
