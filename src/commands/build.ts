@@ -47,10 +47,8 @@ export default class Build extends BaseBuildCommand {
     }
 
     if (flags['all-mfe']) {
-      CliUx.ux.action.start(`Building all microfrontends`)
       await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
     } else if (flags['all-ms']) {
-      CliUx.ux.action.start(`Building all microservices`)
       await this.buildAllComponents(Phase.Build, ComponentType.MICROSERVICE)
     } else {
       if (args.name === undefined) {
