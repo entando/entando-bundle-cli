@@ -39,7 +39,7 @@ USAGE
 - [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
 - [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
 - [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-- [`entando-bundle-cli build NAME`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 - [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
 - [`entando-bundle-cli list`](#entando-bundle-cli-list)
@@ -118,22 +118,30 @@ EXAMPLES
   $ entando-bundle-cli api rm my-mfe my-api-claim
 ```
 
-## `entando-bundle-cli build NAME`
+## `entando-bundle-cli build [NAME]`
 
-Build bundle components
+Builds bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME]
+  $ entando-bundle-cli build [NAME] [--all-ms] [--all-mfe]
 
 ARGUMENTS
   NAME  The name of the component to build
 
+FLAGS
+  --all-mfe  Builds all the bundle micro frontends
+  --all-ms   Builds all the bundle microservices
+
 DESCRIPTION
-  Build bundle components
+  Builds bundle components
 
 EXAMPLES
   $ entando-bundle-cli build my-component
+
+  $ entando-bundle-cli build --all-ms
+
+  $ entando-bundle-cli build --all-mfe
 ```
 
 _See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/build.ts)_

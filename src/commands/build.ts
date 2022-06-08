@@ -8,7 +8,11 @@ import { ComponentType } from '../models/component'
 export default class Build extends BaseBuildCommand {
   static description = 'Builds bundle components'
 
-  static examples = ['<%= config.bin %> <%= command.id %> my-component']
+  static examples = [
+    '<%= config.bin %> <%= command.id %> my-component',
+    '<%= config.bin %> <%= command.id %> --all-ms',
+    '<%= config.bin %> <%= command.id %> --all-mfe'
+  ]
 
   static args = [
     {
@@ -20,15 +24,32 @@ export default class Build extends BaseBuildCommand {
   static flags = {
     'all-ms': Flags.boolean({
       description: 'Builds all the bundle microservices'
+    }),
+    'all-mfe': Flags.boolean({
+      description: 'Builds all the bundle micro frontends'
     })
   }
 
   public async run(): Promise<void> {
     BundleService.verifyBundleInitialized(process.cwd())
     const { args, flags } = await this.parse(Build)
-
     const componentService = new ComponentService()
-    if (flags['all-ms']) {
+
+    if (Object.keys(flags).length > 1) {
+      this.error(`Build failed, please use only one flag`, { exit: 1 })
+    }
+
+    if (Object.keys(flags).length > 0 && args.name !== undefined) {
+      this.error(
+        `Build failed, please use one flag or write the component name as argument`,
+        { exit: 1 }
+      )
+    }
+
+    if (flags['all-mfe']) {
+      CliUx.ux.action.start(`Building all microfrontends`)
+      await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
+    } else if (flags['all-ms']) {
       CliUx.ux.action.start(`Building all microservices`)
       await this.buildAllComponents(Phase.Build, ComponentType.MICROSERVICE)
     } else {
