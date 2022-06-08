@@ -22,7 +22,10 @@ export default class Enable extends Command {
 
     const { args } = await this.parse(Enable)
 
-    const svcService: SvcService = new SvcService(process.cwd())
+    const svcService: SvcService = new SvcService(
+      process.cwd(),
+      this.config.bin
+    )
 
     CliUx.ux.action.start(`Enabling service ${args.serviceName}`)
     svcService.enableService(args.serviceName)

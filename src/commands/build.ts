@@ -6,7 +6,7 @@ import { Phase } from '../services/command-factory-service'
 import { ComponentType } from '../models/component'
 
 export default class Build extends BaseBuildCommand {
-  static description = 'Builds bundle components'
+  static description = 'Build bundle components'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-component']
 

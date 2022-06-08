@@ -28,7 +28,10 @@ describe('svc-service', () => {
   })
 
   test.it('run getAllServices method', () => {
-    const svcService: SvcService = new SvcService(bundleDirectory)
+    const svcService: SvcService = new SvcService(
+      bundleDirectory,
+      'entando-bundle-cli'
+    )
     const services = svcService.getAllServices()
     expect(services).to.have.length(2)
     expect(services).to.includes('keycloak')
@@ -45,7 +48,10 @@ describe('svc-service', () => {
       })
     })
     .it('run getAvailableServices method', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       const services = svcService.getAvailableServices()
       expect(services).to.have.length(1)
       expect(services).to.includes('postgresql')
@@ -54,12 +60,18 @@ describe('svc-service', () => {
     })
 
   test.it('enable a service successfully', () => {
-    const svcService: SvcService = new SvcService(bundleDirectory)
+    const svcService: SvcService = new SvcService(
+      bundleDirectory,
+      'entando-bundle-cli'
+    )
     expect(() => svcService.enableService('keycloak')).to.not.throw(CLIError)
   })
 
   test.it('enable a service that does not exist in svc folder', () => {
-    const svcService: SvcService = new SvcService(bundleDirectory)
+    const svcService: SvcService = new SvcService(
+      bundleDirectory,
+      'entando-bundle-cli'
+    )
     expect(() => svcService.enableService('macosx')).to.throw(CLIError)
   })
 
@@ -72,7 +84,10 @@ describe('svc-service', () => {
       })
     })
     .it('enable a service that is already enabled', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       expect(() => svcService.enableService('postgresql')).to.throw(CLIError)
     })
 
@@ -85,7 +100,10 @@ describe('svc-service', () => {
     .it(
       'svc that is non-existent in bundle descriptor creates svc attribute',
       () => {
-        const svcService: SvcService = new SvcService(bundleDirectory)
+        const svcService: SvcService = new SvcService(
+          bundleDirectory,
+          'entando-bundle-cli'
+        )
         expect(() => svcService.enableService('keycloak')).to.not.throw(
           CLIError
         )
@@ -103,19 +121,28 @@ describe('svc-service', () => {
       })
     })
     .it('disable a service successfully', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       expect(() => svcService.disableService('postgresql')).to.not.throw(
         CLIError
       )
     })
 
   test.it('disable a service that does not exist in svc folder', () => {
-    const svcService: SvcService = new SvcService(bundleDirectory)
+    const svcService: SvcService = new SvcService(
+      bundleDirectory,
+      'entando-bundle-cli'
+    )
     expect(() => svcService.disableService('win98')).to.throw(CLIError)
   })
 
   test.it('disable a service that is not enabled', () => {
-    const svcService: SvcService = new SvcService(bundleDirectory)
+    const svcService: SvcService = new SvcService(
+      bundleDirectory,
+      'entando-bundle-cli'
+    )
     expect(() => svcService.disableService('keycloak')).to.throw(CLIError)
   })
 
@@ -128,7 +155,10 @@ describe('svc-service', () => {
     .it(
       'svc that is non-existent in bundle descriptor creates svc attribute',
       () => {
-        const svcService: SvcService = new SvcService(bundleDirectory)
+        const svcService: SvcService = new SvcService(
+          bundleDirectory,
+          'entando-bundle-cli'
+        )
         expect(() => svcService.enableService('keycloak')).to.not.throw(
           CLIError
         )
@@ -145,13 +175,12 @@ describe('svc-service', () => {
         svc: ['mysql']
       })
     })
-    .stub(
-      ProcessExecutorService,
-      'executeProcess',
-      sinon.stub().returns('docker-compose executed')
-    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .it('start an enabled service listed in descriptor', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       svcService.startServices(['mysql'])
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
@@ -171,7 +200,10 @@ describe('svc-service', () => {
       })
     })
     .it('start with no enabled service listed in descriptor', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       expect(() => svcService.startServices([])).to.throw(CLIError)
     })
 
@@ -184,7 +216,10 @@ describe('svc-service', () => {
       })
     })
     .it('start with disabled/unlisted service', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       expect(() => svcService.startServices(['postgresql'])).to.throw(CLIError)
     })
 
@@ -197,18 +232,17 @@ describe('svc-service', () => {
       })
     })
     .it('start with disabled/unlisted services', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
       expect(() => svcService.startServices(['macosx', 'win98'])).to.throw(
         CLIError
       )
     })
 
   test
-    .stub(
-      ProcessExecutorService,
-      'executeProcess',
-      sinon.stub().throws(new Error('docker-compose error'))
-    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(404))
     .do(() => {
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
       bundleDescriptorService.writeBundleDescriptor({
@@ -216,8 +250,102 @@ describe('svc-service', () => {
         svc: ['mysql']
       })
     })
-    .it('start with docker error', () => {
-      const svcService: SvcService = new SvcService(bundleDirectory)
-      expect(() => svcService.startServices(['mysql'])).to.throw(CLIError)
+    .it('start with error number', async () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      const result = await svcService.startServices(['mysql'])
+      expect(result).to.not.eq(0)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .it('stop an enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      svcService.stopServices(['mysql'])
+      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml stop'
+      )
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: []
+      })
+    })
+    .it('stop with no enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      expect(() => svcService.stopServices([])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['keycloak']
+      })
+    })
+    .it('stop with disabled/unlisted service', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      expect(() => svcService.stopServices(['mysql'])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['postgresql']
+      })
+    })
+    .it('stop with disabled/unlisted services', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      expect(() => svcService.stopServices(['macosx'])).to.throw(CLIError)
+    })
+
+  test
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(404))
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .it('stop with error', async () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      const result = await svcService.stopServices(['mysql'])
+      expect(result).to.not.eq(0)
     })
 })
