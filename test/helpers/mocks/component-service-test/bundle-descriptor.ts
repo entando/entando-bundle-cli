@@ -4,7 +4,7 @@ import {
 } from '../../../../src/models/bundle-descriptor'
 import {
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../../../src/models/component'
 
 export const bundleDescriptor: BundleDescriptor = {
@@ -15,7 +15,7 @@ export const bundleDescriptor: BundleDescriptor = {
   microservices: [
     {
       name: 'test-ms-spring-boot-1',
-      stack: MicroServiceStack.SpringBoot,
+      stack: MicroserviceStack.SpringBoot,
       dbms: 'postgres',
       ingressPath: '/path/to/service',
       healthCheckPath: '/path/to/check',
@@ -36,7 +36,7 @@ export const bundleDescriptor: BundleDescriptor = {
     },
     {
       name: 'test-ms-spring-boot-2',
-      stack: MicroServiceStack.SpringBoot,
+      stack: MicroserviceStack.SpringBoot,
       dbms: 'postgres',
       ingressPath: '/path/to/service',
       healthCheckPath: '/path/to/check',

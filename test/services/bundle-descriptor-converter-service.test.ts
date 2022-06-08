@@ -10,7 +10,7 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import {
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../src/models/component'
 import { ComponentService } from '../../src/services/component-service'
 import { ApiType, SecurityLevel } from '../../src/models/bundle-descriptor'
@@ -29,10 +29,15 @@ describe('bundle-descriptor-converter-service', () => {
       version: '0.0.1',
       type: 'bundle',
       description: 'test description',
+      global: {
+        nav: [
+          { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
+        ]
+      },
       microservices: [
         {
           name: 'test-ms',
-          stack: MicroServiceStack.SpringBoot,
+          stack: MicroserviceStack.SpringBoot,
           dbms: 'postgres',
           ingressPath: '/path/to/service',
           healthCheckPath: '/path/to/check',
@@ -70,6 +75,13 @@ describe('bundle-descriptor-converter-service', () => {
           },
           apiClaims: [
             { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+          ],
+          nav: [
+            {
+              label: { en: 'test', it: 'test' },
+              target: 'target',
+              url: '/test'
+            }
           ]
         },
         {
@@ -88,7 +100,7 @@ describe('bundle-descriptor-converter-service', () => {
         name: 'test-ms',
         version: '0.0.5',
         type: ComponentType.MICROSERVICE,
-        stack: MicroServiceStack.SpringBoot
+        stack: MicroserviceStack.SpringBoot
       }
     ])
 
@@ -116,6 +128,9 @@ describe('bundle-descriptor-converter-service', () => {
       version: 'v2',
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+      ],
+      nav: [
+        { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
       ]
     })
 
@@ -174,6 +189,11 @@ describe('bundle-descriptor-converter-service', () => {
       components: {
         plugins: ['plugins/test-ms.yaml'],
         widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml']
+      },
+      global: {
+        nav: [
+          { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
+        ]
       }
     })
   })

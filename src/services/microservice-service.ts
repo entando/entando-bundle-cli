@@ -1,9 +1,10 @@
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
-import { BundleDescriptor, MicroService } from '../models/bundle-descriptor'
+import { BundleDescriptor, Microservice } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentService } from './component-service'
+import { ComponentType } from '../models/component'
 import {
   ALLOWED_NAME_REGEXP,
   INVALID_NAME_MESSAGE
@@ -11,16 +12,18 @@ import {
 
 const MICROSERVICES_DIRNAME = 'microservices'
 
-export class MicroServiceService {
+export class MicroserviceService {
   private readonly microservicesPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
+  private readonly componentService: ComponentService
 
   constructor() {
     this.microservicesPath = path.resolve(process.cwd(), MICROSERVICES_DIRNAME)
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.componentService = new ComponentService()
   }
 
-  public addMicroService(ms: MicroService): void {
+  public addMicroservice(ms: Microservice): void {
     const componentService = new ComponentService()
 
     if (componentService.componentExists(ms.name)) {
@@ -35,12 +38,12 @@ export class MicroServiceService {
       )
     }
 
-    this.createMicroServiceDirectory(ms.name)
+    this.createMicroserviceDirectory(ms.name)
 
-    this.addMicroServiceDescriptor(ms)
+    this.addMicroserviceDescriptor(ms)
   }
 
-  public removeMicroService(name: string): void {
+  public removeMicroservice(name: string): void {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
 
@@ -51,15 +54,21 @@ export class MicroServiceService {
       throw new CLIError(`Microservice ${name} not found in Bundle descriptor`)
     }
 
+    const ms = microservices[msIndex]
     const msDir = path.resolve(this.microservicesPath, name)
     fs.rmSync(msDir, { recursive: true, force: true })
 
     microservices.splice(msIndex, 1)
 
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+
+    this.componentService.removeOutputDirectory({
+      ...ms,
+      type: ComponentType.MICROSERVICE
+    })
   }
 
-  private createMicroServiceDirectory(name: string) {
+  private createMicroserviceDirectory(name: string) {
     const newMsDir: string = path.resolve(this.microservicesPath, name)
 
     if (fs.existsSync(newMsDir)) {
@@ -69,7 +78,7 @@ export class MicroServiceService {
     fs.mkdirSync(newMsDir)
   }
 
-  private addMicroServiceDescriptor(ms: MicroService): void {
+  private addMicroserviceDescriptor(ms: Microservice): void {
     const bundleDescriptor: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
     const { microservices } = bundleDescriptor

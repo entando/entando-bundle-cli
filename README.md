@@ -6,46 +6,52 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-* [entando-bundle-cli](#entando-bundle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-* [Development environment setup](#development-environment-setup)
+
+- [entando-bundle-cli](#entando-bundle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+- [Environment variables](#environment-variables)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
+entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
-* [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
-* [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-* [`entando-bundle-cli build NAME`](#entando-bundle-cli-build-name)
-* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-* [`entando-bundle-cli list`](#entando-bundle-cli-list)
-* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-* [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
-* [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
-* [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
-* [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
-* [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+
+- [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+- [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
+- [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
+- [`entando-bundle-cli build NAME`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+- [`entando-bundle-cli list`](#entando-bundle-cli-list)
+- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+- [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
+- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+- [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+- [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
+- [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
+- [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
+- [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+- [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -254,14 +260,14 @@ Adds a microservice component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli ms add [NAME] [--stack spring-boot|node]
+  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot]
 
 ARGUMENTS
   NAME  Name of the microservice component
 
 FLAGS
   --stack=<option>  [default: spring-boot] Microservice stack
-                    <options: spring-boot|node>
+                    <options: node|spring-boot>
 
 DESCRIPTION
   Adds a microservice component to the bundle
@@ -367,7 +373,35 @@ DESCRIPTION
 EXAMPLES
   $ entando-bundle-cli svc list
 ```
+
+## `entando-bundle-cli svc start`
+
+Start enabled auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc start [--all]
+
+FLAGS
+  --all  Starts all enabled services in the bundle descriptor
+
+DESCRIPTION
+  Start enabled auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc start --all
+
+  $ entando-bundle-cli svc start ext-service
+
+  $ entando-bundle-cli svc start ext-service1 ext-service2
+```
+
 <!-- commandsstop -->
+
+# Environment variables
+
+- `ENTANDO_BUNDLE_CLI_DEBUG`: boolean flag (`true`|`false`) used to enable debug logging (`false` by default)
+- `ENTANDO_BUNDLE_CLI_BIN_NAME`: customizes CLI name that appears in `USAGE` and `EXAMPLES` sections of the help (`entando-bundle-cli` by default)
 
 # Development environment setup
 

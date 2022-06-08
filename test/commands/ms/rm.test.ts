@@ -1,23 +1,29 @@
 import { expect, test } from '@oclif/test'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
-import { MicroServiceService } from '../../../src/services/microservice-service'
-import { MicroService } from '../../../src/models/bundle-descriptor'
-import { MicroServiceStack } from '../../../src/models/component'
+import { MicroserviceService } from '../../../src/services/microservice-service'
+import { Microservice } from '../../../src/models/bundle-descriptor'
+import { MicroserviceStack } from '../../../src/models/component'
+import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
 
-describe('Remove MicroService', () => {
+describe('Remove Microservice', () => {
   const tempDirHelper = new TempDirHelper(__filename)
+  let tempBundleDir: string
 
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-bundle-existing-ms')
-      const ms: MicroService = {
+      tempBundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-existing-ms'
+      )
+      const ms: Microservice = {
         name: 'test-ms',
         dbms: 'mysql',
-        stack: MicroServiceStack.SpringBoot
+        stack: MicroserviceStack.SpringBoot
       }
-      const microServiceService = new MicroServiceService()
-      microServiceService.addMicroService(ms)
+      const microserviceService = new MicroserviceService()
+      microserviceService.addMicroservice(ms)
       const bundleDescriptorService = new BundleDescriptorService(process.cwd())
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
       expect(
@@ -25,12 +31,20 @@ describe('Remove MicroService', () => {
       ).to.be.equal(true)
     })
     .command(['ms rm', 'test-ms'])
-    .it('Removes an existing MicroService', function () {
+    .it('Removes an existing Microservice', function () {
       const bundleDescriptorService = new BundleDescriptorService(process.cwd())
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      const outputPath: string = path.resolve(
+        tempBundleDir,
+        ...DESCRIPTORS_OUTPUT_FOLDER,
+        'plugins',
+        'test-ms'
+      )
+
       expect(
         bundleDescriptor.microservices.some(ms => ms.name === 'test-ms')
       ).to.be.equal(false)
+      expect(fs.existsSync(outputPath)).to.eq(false)
     })
 
   test
@@ -39,7 +53,7 @@ describe('Remove MicroService', () => {
     .catch(error => {
       expect(error.message).to.contain('not found')
     })
-    .it("Returns error if MicroService to remove doesn't exist")
+    .it("Returns error if Microservice to remove doesn't exist")
 
   test
     .do(() => tempDirHelper.createUninitializedBundleDir())

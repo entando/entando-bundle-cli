@@ -1,4 +1,4 @@
-import { MicroFrontendStack, MicroServiceStack } from './component'
+import { MicroFrontendStack, MicroserviceStack } from './component'
 
 export type EnvironmentVariable =
   | {
@@ -25,11 +25,11 @@ export enum SecurityLevel {
   Lenient = 'lenient'
 }
 
-export type MicroService = {
+export type Microservice = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
   /** Tech stack. It could be guessed from folder content or forced by the user */
-  stack: MicroServiceStack
+  stack: MicroserviceStack
   /** Value used for defining custom pod names */
   deploymentBaseName?: string
   dbms: string
@@ -54,6 +54,7 @@ export type MicroFrontend = {
     resources: string[]
   }
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
+  nav?: Nav[]
 }
 
 export type BundleDescriptor = {
@@ -63,9 +64,12 @@ export type BundleDescriptor = {
   version: string
   type: string
   description?: string
-  microservices: MicroService[]
+  microservices: Microservice[]
   microfrontends: MicroFrontend[]
   svc?: string[]
+  global?: {
+    nav: Nav[]
+  }
 }
 
 export type BundleGroup = {
@@ -95,4 +99,10 @@ export interface ApiClaim {
 
 export interface ExternalApiClaim extends ApiClaim {
   bundleId: string
+}
+
+export type Nav = {
+  label: { [lang: string]: string }
+  target: string
+  url: string
 }

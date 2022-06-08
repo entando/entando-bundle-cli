@@ -5,7 +5,7 @@ import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
@@ -167,7 +167,7 @@ describe('mfe add', () => {
 
   test
     .do(() => {
-      const microservices: MicroService[] = [
+      const microservices: Microservice[] = [
         ComponentHelper.newMicroService('component1')
       ]
 

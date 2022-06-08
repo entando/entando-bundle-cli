@@ -1,10 +1,10 @@
 import {
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../../../src/models/bundle-descriptor'
 import {
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../../src/models/component'
 
 /**
@@ -13,11 +13,11 @@ import {
 export class ComponentHelper {
   public static newMicroService(
     name: string,
-    partial: Partial<MicroService> = {}
-  ): MicroService {
+    partial: Partial<Microservice> = {}
+  ): Microservice {
     return {
       name: name,
-      stack: MicroServiceStack.SpringBoot,
+      stack: MicroserviceStack.SpringBoot,
       dbms: 'mysql',
       ...partial
     }

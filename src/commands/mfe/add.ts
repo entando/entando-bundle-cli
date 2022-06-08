@@ -15,7 +15,7 @@ export default class Add extends Command {
   static flags = {
     stack: Flags.string({
       description: 'Micro Frontend stack',
-      options: [MicroFrontendStack.React, MicroFrontendStack.Angular],
+      options: Object.values(MicroFrontendStack),
       default: MicroFrontendStack.React
     })
   }

@@ -65,7 +65,7 @@ export default class Pack extends BaseBuildCommand {
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    await this.buildMicroServicesDockerImages(dockerOrganization)
+    await this.buildMicroservicesDockerImages(dockerOrganization)
 
     await this.buildBundleDockerImage(
       bundleDir,
@@ -101,9 +101,9 @@ export default class Pack extends BaseBuildCommand {
     return newOrganization
   }
 
-  private async buildMicroServicesDockerImages(dockerOrganization: string) {
+  private async buildMicroservicesDockerImages(dockerOrganization: string) {
     const componentService = new ComponentService()
-    const microServices = componentService.getVersionedComponents(
+    const microservices = componentService.getVersionedComponents(
       ComponentType.MICROSERVICE
     )
 
@@ -111,11 +111,11 @@ export default class Pack extends BaseBuildCommand {
 
     const buildOptions: DockerBuildOptions[] = []
 
-    for (const microService of microServices) {
-      const msPath = path.resolve(MICROSERVICES_FOLDER, microService.name)
+    for (const microservice of microservices) {
+      const msPath = path.resolve(MICROSERVICES_FOLDER, microservice.name)
 
       const logFile = this.getBuildOutputLogFile(
-        microService,
+        microservice,
         MICROSERVICES_FOLDER
       )
 
@@ -123,21 +123,21 @@ export default class Pack extends BaseBuildCommand {
 
       if (!fs.existsSync(msDockerfile)) {
         this.error(
-          `Dockerfile not found for microservice ${microService.name}. Please provide one in order to proceed with the bundle packaging`
+          `Dockerfile not found for microservice ${microservice.name}. Please provide one in order to proceed with the bundle packaging`
         )
       }
 
-      if (!microService.version) {
+      if (!microservice.version) {
         this.error(
-          `Unable to determine version for microservice ${microService.name}`
+          `Unable to determine version for microservice ${microservice.name}`
         )
       }
 
       buildOptions.push({
-        name: microService.name,
+        name: microservice.name,
         organization: dockerOrganization,
         path: msPath,
-        tag: microService.version,
+        tag: microservice.version,
         outputStream: logFile
       })
     }
@@ -145,7 +145,7 @@ export default class Pack extends BaseBuildCommand {
     const executorService =
       DockerService.getDockerImagesExecutorService(buildOptions)
 
-    await this.parallelBuild(executorService, microServices)
+    await this.parallelBuild(executorService, microservices)
   }
 
   private async buildBundleDockerImage(

@@ -5,6 +5,7 @@ import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 import { DockerService } from './docker-service'
+import { ComponentType } from '../models/component'
 import { ComponentService } from './component-service'
 import {
   ALLOWED_NAME_REGEXP,
@@ -18,11 +19,13 @@ export class MicroFrontendService {
   private readonly bundleDir: string
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
+  private readonly componentService: ComponentService
 
   constructor() {
     this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
     this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.componentService = new ComponentService()
   }
 
   public addMicroFrontend(mfe: MicroFrontend): void {
@@ -90,6 +93,11 @@ export class MicroFrontendService {
     DockerService.removeMicroFrontendFromDockerfile(this.bundleDir, mfeName)
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
+
+    this.componentService.removeOutputDirectory({
+      ...mfe,
+      type: ComponentType.MICROFRONTEND
+    })
   }
 
   public getPublicFolderPath(mfeName: string): string {

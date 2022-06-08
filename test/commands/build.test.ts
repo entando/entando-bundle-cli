@@ -4,14 +4,19 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { MICROFRONTENDS_FOLDER, MICROSERVICES_FOLDER } from '../../src/paths'
-import { ProcessExecutorService } from '../../src/services/process-executor-service'
+import {
+  ProcessExecutionResult,
+  ProcessExecutorService
+} from '../../src/services/process-executor-service'
 import { ComponentService } from '../../src/services/component-service'
 import {
   Component,
   ComponentType,
   MicroFrontendStack,
-  MicroServiceStack
+  MicroserviceStack
 } from '../../src/models/component'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import * as executors from '../../src/services/process-executor-service'
 
 describe('build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -20,7 +25,7 @@ describe('build command', () => {
 
   const msSpringBoot: Component<ComponentType> = {
     name: msNameSpringBoot,
-    stack: MicroServiceStack.SpringBoot,
+    stack: MicroserviceStack.SpringBoot,
     type: ComponentType.MICROSERVICE
   }
 
@@ -29,6 +34,19 @@ describe('build command', () => {
     stack: MicroFrontendStack.React,
     type: ComponentType.MICROFRONTEND
   }
+
+  const msListSpringBoot: Array<Component<ComponentType>> = [
+    {
+      name: 'test-ms-spring-boot-1',
+      stack: MicroserviceStack.SpringBoot,
+      type: ComponentType.MICROSERVICE
+    },
+    {
+      name: 'test-ms-spring-boot-2',
+      stack: MicroserviceStack.SpringBoot,
+      type: ComponentType.MICROSERVICE
+    }
+  ]
 
   let executeProcessStub: sinon.SinonStub
 
@@ -51,6 +69,18 @@ describe('build command', () => {
 
   test
     .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command-ms')
+    })
+    .command(['build'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Build failed, missing required arg name'
+      )
+    })
+    .it('build with missing required arg name ')
+
+  test
+    .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-build-command-ms'
       )
@@ -66,7 +96,7 @@ describe('build command', () => {
         .returns(msSpringBoot)
     })
     .command(['build', msNameSpringBoot])
-    .it('build spring-boot Microservice', async () => {
+    .it('build spring-boot microservice', async () => {
       sinon.assert.calledWith(
         executeProcessStub,
         sinon.match({
@@ -149,4 +179,42 @@ describe('build command', () => {
     .command(['build', mfeNameReact])
     .exit(1)
     .it('build react micro frontend exits with code 1')
+
+  let getComponentsStub: sinon.SinonStub
+  let stubParallelProcessExecutorService: StubParallelProcessExecutorService
+
+  test
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-build-command-ms'
+      )
+      fs.mkdirSync(
+        path.resolve(bundleDir, MICROSERVICES_FOLDER, msListSpringBoot[0].name),
+        { recursive: true }
+      )
+      fs.mkdirSync(
+        path.resolve(bundleDir, MICROSERVICES_FOLDER, msListSpringBoot[1].name)
+      )
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(msListSpringBoot)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .command(['build', '--all-ms'])
+    .it('build all spring-boot microservices', async ctx => {
+      sinon.assert.called(getComponentsStub)
+      expect(ctx.stderr).contain('2/2')
+    })
 })

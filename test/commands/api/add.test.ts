@@ -6,7 +6,7 @@ import {
   ApiType,
   BundleDescriptor,
   MicroFrontend,
-  MicroService
+  Microservice
 } from '../../../src/models/bundle-descriptor'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
@@ -76,7 +76,7 @@ describe('api add', () => {
 
   test
     .do(() => {
-      const microservices: MicroService[] = [
+      const microservices: Microservice[] = [
         ...bundleDescriptor.microservices,
         ComponentHelper.newMicroService('ms2')
       ]
