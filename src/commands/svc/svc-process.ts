@@ -7,6 +7,10 @@ export enum ServiceTypes {
 }
 
 export abstract class SvcProcessResult extends Command {
+  static get hidden(): boolean {
+    return this.name === SvcProcessResult.name
+  }
+
   protected checkResult(
     result: ProcessExecutionResult,
     serviceType: ServiceTypes,

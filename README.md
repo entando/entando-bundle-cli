@@ -23,7 +23,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -39,7 +39,7 @@ USAGE
 - [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
 - [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
 - [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-- [`entando-bundle-cli build NAME`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 - [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
 - [`entando-bundle-cli list`](#entando-bundle-cli-list)
@@ -119,19 +119,22 @@ EXAMPLES
   $ entando-bundle-cli api rm my-mfe my-api-claim
 ```
 
-## `entando-bundle-cli build NAME`
+## `entando-bundle-cli build [NAME]`
 
-Build bundle components
+Builds bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME]
+  $ entando-bundle-cli build [NAME] [--all-ms]
 
 ARGUMENTS
   NAME  The name of the component to build
 
+FLAGS
+  --all-ms  Builds all the bundle microservices
+
 DESCRIPTION
-  Build bundle components
+  Builds bundle components
 
 EXAMPLES
   $ entando-bundle-cli build my-component
@@ -323,7 +326,7 @@ _See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli
 
 ## `entando-bundle-cli svc disable SERVICENAME`
 
-Disable auxiliary services
+Disables auxiliary services
 
 ```
 USAGE
@@ -333,7 +336,7 @@ ARGUMENTS
   SERVICENAME  Name of an available service
 
 DESCRIPTION
-  Disable auxiliary services
+  Disables auxiliary services
 
 EXAMPLES
   $ entando-bundle-cli svc disable external-service
@@ -341,7 +344,7 @@ EXAMPLES
 
 ## `entando-bundle-cli svc enable SERVICENAME`
 
-Enable auxiliary services
+Enables auxiliary services
 
 ```
 USAGE
@@ -351,7 +354,7 @@ ARGUMENTS
   SERVICENAME  Name of an available service
 
 DESCRIPTION
-  Enable auxiliary services
+  Enables auxiliary services
 
 EXAMPLES
   $ entando-bundle-cli svc enable external-service
@@ -377,7 +380,7 @@ EXAMPLES
 
 ## `entando-bundle-cli svc start`
 
-Start enabled auxiliary services
+Starts enabled auxiliary services
 
 ```
 USAGE
@@ -387,7 +390,7 @@ FLAGS
   --all  Starts all enabled services in the bundle descriptor
 
 DESCRIPTION
-  Start enabled auxiliary services
+  Starts enabled auxiliary services
 
 EXAMPLES
   $ entando-bundle-cli svc start --all
@@ -399,7 +402,7 @@ EXAMPLES
 
 ## `entando-bundle-cli svc stop`
 
-Stop running enabled auxiliary services
+Stops running enabled auxiliary services
 
 ```
 USAGE
@@ -409,7 +412,7 @@ FLAGS
   --all  Stops all running enabled services in the bundle descriptor
 
 DESCRIPTION
-  Stop running enabled auxiliary services
+  Stops running enabled auxiliary services
 
 EXAMPLES
   $ entando-bundle-cli svc stop --all

@@ -4,6 +4,7 @@ import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 import { SvcService } from '../../../src/services/svc-service'
+import { SvcProcessResult } from '../../../src/commands/svc/svc-process'
 
 describe('svc stop', () => {
   let bundleDirectory: string
@@ -121,4 +122,8 @@ describe('svc stop', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.deep.equal(['mysql'])
     })
+
+  test.it('Test commands visibility in svcprocess abstract class', () => {
+    expect(SvcProcessResult.hidden).true
+  })
 })
