@@ -3,7 +3,7 @@ import { BundleService } from '../../services/bundle-service'
 import { SvcService } from '../../services/svc-service'
 
 export default class Disable extends Command {
-  static description = 'Disables auxiliary services'
+  static description = 'Disable auxiliary services'
 
   static examples = ['<%= config.bin %> <%= command.id %> external-service']
 

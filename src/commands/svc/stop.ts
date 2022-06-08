@@ -5,7 +5,7 @@ import { SvcProcessResult, ServiceTypes } from './svc-process'
 
 export default class Stop extends SvcProcessResult {
   static strict = false
-  static description = 'Stops running enabled auxiliary services'
+  static description = 'Stop running enabled auxiliary services'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> --all',

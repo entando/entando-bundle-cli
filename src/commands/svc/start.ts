@@ -5,7 +5,7 @@ import { SvcProcessResult, ServiceTypes } from './svc-process'
 
 export default class Start extends SvcProcessResult {
   static strict = false
-  static description = 'Starts enabled auxiliary services'
+  static description = 'Start enabled auxiliary services'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> --all',
