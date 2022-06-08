@@ -74,7 +74,7 @@ describe('svc start', () => {
     .command(['svc start', 'mysql'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Starting service(s) mysql failed, exit with code 404'
+        'Starting service(s) mysql failed, exited with code 404'
       )
     })
     .it('start command unsuccessful - exits with error code', () => {

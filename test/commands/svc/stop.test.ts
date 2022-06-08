@@ -74,7 +74,7 @@ describe('svc stop', () => {
     .command(['svc stop', 'rabbitmq'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Stopping service(s) rabbitmq failed, exit with code 403'
+        'Stopping service(s) rabbitmq failed, exited with code 403'
       )
     })
     .it('stop command unsuccessful - exits with error code', () => {

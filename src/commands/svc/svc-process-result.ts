@@ -21,14 +21,14 @@ export abstract class SvcProcessResult extends Command {
         this.error(
           `${serviceType} service(s) ${services.join(
             ', '
-          )} failed, exit with code ${result}`,
+          )} failed, exited with code ${result}`,
           {
             exit: result as number
           }
         )
       } else {
         this.error(
-          `${serviceType} service failed, exit with code 1 and message ${this.getErrorMessage(
+          `${serviceType} service failed, exited with code 1 and message ${this.getErrorMessage(
             result
           )}`,
           { exit: 1 }
