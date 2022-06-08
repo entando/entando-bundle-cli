@@ -60,7 +60,7 @@ export type UnionTypeConstraints<T> = Array<ObjectConstraints<T>>
 // Constraints for nested object types
 type ChildObjectConstraints<T, K extends keyof T> = {
   required: IsRequired<T, K>
-  items: Exclude<
+  children: Exclude<
     ObjectConstraints<T[K]> | UnionTypeConstraints<T[K]>,
     undefined
   >
@@ -144,7 +144,7 @@ function validateObjectTypeConstraints<T>(
       validatePrimitiveConstraints(key, value, constraint, newJsonPath)
     } else {
       applyValidators(key, value, constraint, newJsonPath)
-      validateConstraints(value, constraint.items, newJsonPath)
+      validateConstraints(value, constraint.children, newJsonPath)
     }
   }
 }

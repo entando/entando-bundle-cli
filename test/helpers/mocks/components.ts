@@ -11,7 +11,7 @@ import {
  * Helper class for instantiating valid components to use in tests
  */
 export class ComponentHelper {
-  public static newMicroService(
+  public static newMicroservice(
     name: string,
     partial: Partial<Microservice> = {}
   ): Microservice {
@@ -23,7 +23,7 @@ export class ComponentHelper {
     }
   }
 
-  public static newMicroFrontEnd(
+  public static newMicroFrontend(
     name: string,
     partial: Partial<MicroFrontend> = {}
   ): MicroFrontend {

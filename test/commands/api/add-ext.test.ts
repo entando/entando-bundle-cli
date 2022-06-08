@@ -32,8 +32,8 @@ describe('api add-ext', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: [ComponentHelper.newMicroService('ms1')],
-      microfrontends: [ComponentHelper.newMicroFrontEnd('mfe1')]
+      microservices: [ComponentHelper.newMicroservice('ms1')],
+      microfrontends: [ComponentHelper.newMicroFrontend('mfe1')]
     }
 
     process.chdir(tempBundleDir)

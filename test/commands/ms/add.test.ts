@@ -80,7 +80,7 @@ describe('ms add', () => {
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microservices', 'ms1'))
       const microservices: Microservice[] = [
-        ComponentHelper.newMicroService('ms1')
+        ComponentHelper.newMicroservice('ms1')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -122,7 +122,7 @@ describe('ms add', () => {
     .stderr()
     .do(() => {
       const microservices: Microservice[] = [
-        ComponentHelper.newMicroService('existing-ms-desc')
+        ComponentHelper.newMicroservice('existing-ms-desc')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -151,7 +151,7 @@ describe('ms add', () => {
   test
     .do(() => {
       const microfrontends: MicroFrontend[] = [
-        ComponentHelper.newMicroFrontEnd('component1')
+        ComponentHelper.newMicroFrontend('component1')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,

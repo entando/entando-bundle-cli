@@ -32,8 +32,8 @@ describe('api add', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: [ComponentHelper.newMicroService('ms1')],
-      microfrontends: [ComponentHelper.newMicroFrontEnd('mfe1')]
+      microservices: [ComponentHelper.newMicroservice('ms1')],
+      microfrontends: [ComponentHelper.newMicroFrontend('mfe1')]
     }
 
     process.chdir(tempBundleDir)
@@ -78,7 +78,7 @@ describe('api add', () => {
     .do(() => {
       const microservices: Microservice[] = [
         ...bundleDescriptor.microservices,
-        ComponentHelper.newMicroService('ms2')
+        ComponentHelper.newMicroservice('ms2')
       ]
       const microfrontends: MicroFrontend[] = [
         {

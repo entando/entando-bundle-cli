@@ -55,10 +55,10 @@ describe('BundleService', () => {
       ).getBundleDescriptor()
 
       bundleDescriptor.microfrontends = [
-        ComponentHelper.newMicroFrontEnd('same-name')
+        ComponentHelper.newMicroFrontend('same-name')
       ]
       bundleDescriptor.microservices = [
-        ComponentHelper.newMicroService('same-name')
+        ComponentHelper.newMicroservice('same-name')
       ]
 
       sinon

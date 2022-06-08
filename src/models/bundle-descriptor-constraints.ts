@@ -82,10 +82,10 @@ const ENVIRONMENT_VARIABLE_CONSTRAINTS: UnionTypeConstraints<EnvironmentVariable
       },
       valueFrom: {
         required: true,
-        items: {
+        children: {
           secretKeyRef: {
             required: true,
-            items: {
+            children: {
               name: {
                 required: true,
                 type: 'string'
@@ -144,7 +144,7 @@ const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
   label: {
     required: true,
     validators: [isMapOfStrings],
-    items: {}
+    children: {}
   },
   target: {
     required: true,
@@ -232,7 +232,7 @@ const MICROFRONTEND_CONSTRAINTS: ObjectConstraints<MicroFrontend> = {
   titles: {
     required: true,
     validators: [isMapOfStrings],
-    items: {}
+    children: {}
   },
   publicFolder: {
     required: true,
@@ -244,7 +244,7 @@ const MICROFRONTEND_CONSTRAINTS: ObjectConstraints<MicroFrontend> = {
   },
   configUi: {
     required: false,
-    items: {
+    children: {
       customElement: {
         required: true,
         type: 'string'
@@ -309,7 +309,7 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
     },
     global: {
       required: false,
-      items: {
+      children: {
         nav: {
           isArray: true,
           required: true,

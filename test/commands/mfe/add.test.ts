@@ -97,7 +97,7 @@ describe('mfe add', () => {
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microfrontends', 'mfe1'))
       const microfrontends: MicroFrontend[] = [
-        ComponentHelper.newMicroFrontEnd('mfe1')
+        ComponentHelper.newMicroFrontend('mfe1')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -139,7 +139,7 @@ describe('mfe add', () => {
     .stderr()
     .do(() => {
       const microfrontends: MicroFrontend[] = [
-        ComponentHelper.newMicroFrontEnd('existing-mfe-desc')
+        ComponentHelper.newMicroFrontend('existing-mfe-desc')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -168,7 +168,7 @@ describe('mfe add', () => {
   test
     .do(() => {
       const microservices: Microservice[] = [
-        ComponentHelper.newMicroService('component1')
+        ComponentHelper.newMicroservice('component1')
       ]
 
       bundleDescriptorService.writeBundleDescriptor({
