@@ -94,6 +94,49 @@ type ArrayConstraints<T, K extends keyof T> =
   | PrimitiveArrayConstraints<T, K>
   | ObjectArrayConstraints<T, K>
 
+// Validators
+
+export function regexp(regexp: RegExp, message: string): Validator {
+  return function (key: string, field: any, jsonPath: JsonPath): void {
+    if (!regexp.test(field)) {
+      throw new JsonValidationError(
+        `Field "${key}" is not valid. ${message}`,
+        jsonPath
+      )
+    }
+  }
+}
+
+export function values(
+  iterable: { [s: string]: unknown } | ArrayLike<unknown>
+): Validator {
+  return function (key: string, field: any, jsonPath: JsonPath): void {
+    if (!Object.values(iterable).includes(field)) {
+      throw new JsonValidationError(
+        `Field "${key}" is not valid. Allowed values are: ${Object.values(
+          iterable
+        ).join(', ')}`,
+        jsonPath
+      )
+    }
+  }
+}
+
+export function isMapOfStrings(
+  key: string,
+  field: unknown,
+  jsonPath: JsonPath
+): void {
+  for (const [index, value] of Object.entries(field as any)) {
+    if (typeof index !== 'string' || typeof value !== 'string') {
+      throw new JsonValidationError(
+        `Field "${key}" is not valid. Should be a key-value map of strings`,
+        jsonPath
+      )
+    }
+  }
+}
+
 export class ConstraintsValidatorService {
   public static validateObjectConstraints<T>(
     parsedObject: unknown,

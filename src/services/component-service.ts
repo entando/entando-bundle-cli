@@ -117,6 +117,21 @@ export class ComponentService {
     return this.getComponents().some(comp => comp.name === name)
   }
 
+  public checkDuplicatedComponentNames(): void {
+    const allNames = this.getComponents().map(c => c.name)
+
+    const duplicates = allNames.filter(
+      (item, index) => allNames.indexOf(item) !== index
+    )
+
+    if (duplicates.length > 0) {
+      throw new Error(
+        'Components names should be unique. Duplicates found: ' +
+          [...new Set(duplicates)].join(', ')
+      )
+    }
+  }
+
   public getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {

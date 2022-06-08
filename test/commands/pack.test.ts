@@ -167,7 +167,7 @@ describe('pack', () => {
     .command(['pack', '-b'])
     .catch(error => {
       expect(error.message).to.contain('components failed to build')
-      sinon.assert.calledOnce(getComponentsStub)
+      sinon.assert.calledTwice(getComponentsStub)
     })
     .it('Build failure stops package command')
 
@@ -233,6 +233,8 @@ describe('pack', () => {
         .onFirstCall()
         .returns(stubComponents)
         .onSecondCall()
+        .returns(stubComponents)
+        .onThirdCall()
         .returns(
           stubComponents.filter(c => c.type === ComponentType.MICROSERVICE)
         )
@@ -302,7 +304,6 @@ describe('pack', () => {
       ]
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
-        .onFirstCall()
         .returns(stubComponents)
 
       const stubResults: ProcessExecutionResult[] = [0, 0]

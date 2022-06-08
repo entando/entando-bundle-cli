@@ -11,55 +11,18 @@ import {
 } from '../models/bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
-  JsonPath,
-  JsonValidationError,
+  isMapOfStrings,
   ObjectConstraints,
+  regexp,
   UnionTypeConstraints,
-  Validator
+  values
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
 export const INVALID_NAME_MESSAGE =
   'Only alphanumeric characters, underscore and dash are allowed'
 
-// Validators
-
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
-
-function regexp(regexp: RegExp, message: string): Validator {
-  return function (key: string, field: any, jsonPath: JsonPath): void {
-    if (!regexp.test(field)) {
-      throw new JsonValidationError(
-        `Field "${key}" is not valid. ${message}`,
-        jsonPath
-      )
-    }
-  }
-}
-
-function values(iterable: any): Validator {
-  return function (key: string, field: any, jsonPath: JsonPath): void {
-    if (!Object.values(iterable).includes(field)) {
-      throw new JsonValidationError(
-        `Field "${key}" is not valid. Allowed values are: ${Object.values(
-          iterable
-        ).join(', ')}`,
-        jsonPath
-      )
-    }
-  }
-}
-
-function isMapOfStrings(key: string, field: unknown, jsonPath: JsonPath): void {
-  for (const [index, value] of Object.entries(field as any)) {
-    if (typeof index !== 'string' || typeof value !== 'string') {
-      throw new JsonValidationError(
-        `Field "${key}" is not valid. Should be a key-value map of strings`,
-        jsonPath
-      )
-    }
-  }
-}
 
 // Constraints
 

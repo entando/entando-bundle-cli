@@ -21,7 +21,7 @@ export default class Rm extends Command {
   ]
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject(process.cwd())
 
     const { args } = await this.parse(Rm)
     const apiClaimService: ApiClaimService = new ApiClaimService()

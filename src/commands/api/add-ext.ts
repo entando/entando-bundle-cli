@@ -36,7 +36,7 @@ export default class AddExt extends Command {
   }
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject(process.cwd())
 
     const { args, flags } = await this.parse(AddExt)
 

@@ -1,5 +1,4 @@
 import { expect, test } from '@oclif/test'
-import { bundleDescriptor } from '../helpers/mocks/component-service-test/bundle-descriptor'
 import {
   ConstraintsValidatorService,
   JsonValidationError
@@ -8,18 +7,20 @@ import {
   BUNDLE_DESCRIPTOR_CONSTRAINTS,
   INVALID_NAME_MESSAGE
 } from '../../src/models/bundle-descriptor-constraints'
+import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 
 describe('BundleDescriptorValidatorService', () => {
   test.it('No error thrown with valid object', () => {
     ConstraintsValidatorService.validateObjectConstraints(
-      bundleDescriptor,
+      BundleDescriptorHelper.newBundleDescriptor(),
       BUNDLE_DESCRIPTOR_CONSTRAINTS
     )
   })
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microservices[0].name = undefined
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
@@ -36,7 +37,8 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[1].apiClaims = [
         {
           name: 'invalid-claim',
@@ -61,7 +63,8 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[1].apiClaims = {}
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
@@ -78,7 +81,8 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microservices = undefined
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
@@ -93,7 +97,8 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[0].titles = {
         en: {
           not: 'valid'
@@ -116,7 +121,8 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.description = []
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
@@ -133,7 +139,8 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const invalidDescriptor: any = getNewBundleDescriptor()
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[1].name = 'invalid mfe name'
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
@@ -150,8 +157,3 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .it('Validates name using RegExp')
 })
-
-function getNewBundleDescriptor(): any {
-  // mock descriptor deep clone
-  return JSON.parse(JSON.stringify(bundleDescriptor))
-}

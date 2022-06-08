@@ -20,7 +20,7 @@ export default class Start extends Command {
   }
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject(process.cwd())
 
     const { argv, flags } = await this.parse(Start)
 

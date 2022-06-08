@@ -52,7 +52,7 @@ export default class Pack extends BaseBuildCommand {
 
   public async run(): Promise<void> {
     const bundleDir = process.cwd()
-    BundleService.verifyBundleInitialized(bundleDir)
+    BundleService.isValidBundleProject(bundleDir)
 
     const { flags } = await this.parse(Pack)
 

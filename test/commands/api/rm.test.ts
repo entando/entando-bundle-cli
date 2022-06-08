@@ -8,7 +8,10 @@ import {
 } from '../../../src/models/bundle-descriptor'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
-import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../../src/services/bundle-descriptor-service'
 import { ConstraintsValidatorService } from '../../../src/services/constraints-validator-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
@@ -132,7 +135,7 @@ describe('api rm', () => {
     })
     .command(['api rm', 'mfe1', 'ms1-api'])
     .catch(error => {
-      expect(error.message).to.contain('not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with error if current folder is not a Bundle project')
 })

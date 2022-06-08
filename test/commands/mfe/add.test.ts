@@ -7,9 +7,12 @@ import {
   MicroFrontend,
   Microservice
 } from '../../../src/models/bundle-descriptor'
-import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
-import { ComponentHelper } from '../../helpers/mocks/components'
+import { ComponentHelper } from '../../helpers/mocks/component-helper'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -161,7 +164,7 @@ describe('mfe add', () => {
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {
-      expect(error.message).to.contain('not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with an error if current folder is not a Bundle project')
 

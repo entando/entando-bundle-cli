@@ -5,12 +5,11 @@ import {
   ConstraintsValidatorService,
   JsonValidationError
 } from '../../src/services/constraints-validator-service'
-import { BundleService } from '../../src/services/bundle-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
-import { ComponentHelper } from '../helpers/mocks/components'
+import { ComponentService } from '../../src/services/component-service'
 
-describe('BundleService', () => {
+describe('BundleDescriptorService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
   let bundleDir: string
@@ -37,7 +36,7 @@ describe('BundleService', () => {
             'name'
           ])
         )
-      BundleService.verifyBundleInitialized(bundleDir)
+      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
     })
     .catch(error => {
       expect(error.message).contain(
@@ -50,29 +49,13 @@ describe('BundleService', () => {
 
   test
     .do(() => {
-      const bundleDescriptor = new BundleDescriptorService(
-        process.cwd()
-      ).getBundleDescriptor()
-
-      bundleDescriptor.microfrontends = [
-        ComponentHelper.newMicroFrontend('same-name')
-      ]
-      bundleDescriptor.microservices = [
-        ComponentHelper.newMicroservice('same-name')
-      ]
-
-      sinon
-        .stub(ConstraintsValidatorService, 'validateObjectConstraints')
-        .returns(bundleDescriptor)
-      BundleService.verifyBundleInitialized(bundleDir)
+      sinon.stub(ConstraintsValidatorService, 'validateObjectConstraints')
+      sinon.stub(ComponentService.prototype, 'checkDuplicatedComponentNames')
+      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
     })
-    .catch(error => {
-      expect(error.message).contain(
-        BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
-      )
-      expect(error.message).contain(
-        'Components names should be unique. Duplicates found: same-name'
-      )
+    .it('Checks for duplicate component names', () => {
+      const checkStub = ComponentService.prototype
+        .checkDuplicatedComponentNames as sinon.SinonStub
+      expect(checkStub.called).to.equal(true)
     })
-    .it('Checks for duplicate component names')
 })

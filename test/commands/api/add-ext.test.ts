@@ -7,12 +7,15 @@ import {
   BundleDescriptor,
   MicroFrontend
 } from '../../../src/models/bundle-descriptor'
-import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { CMService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
-import { ComponentHelper } from '../../helpers/mocks/components'
+import { ComponentHelper } from '../../helpers/mocks/component-helper'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -282,7 +285,7 @@ describe('api add-ext', () => {
       'my-bundle'
     ])
     .catch(error => {
-      expect(error.message).to.contain('not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with error if current folder is not a Bundle project')
 })
