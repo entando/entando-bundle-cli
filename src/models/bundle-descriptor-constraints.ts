@@ -5,10 +5,11 @@ import {
   EnvironmentVariable,
   ExternalApiClaim,
   MicroFrontend,
-  MicroService,
+  Microservice,
+  Nav,
   SecurityLevel
 } from '../models/bundle-descriptor'
-import { MicroFrontendStack, MicroServiceStack } from '../models/component'
+import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
   JsonPath,
   JsonValidationError,
@@ -139,7 +140,23 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
   }
 ]
 
-const MICROSERVICE_CONSTRAINTS: ObjectConstraints<MicroService> = {
+const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
+  label: {
+    required: true,
+    validators: [isMapOfStrings],
+    items: {}
+  },
+  target: {
+    required: true,
+    type: 'string'
+  },
+  url: {
+    required: true,
+    type: 'string'
+  }
+}
+
+const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   name: {
     required: true,
     type: 'string',
@@ -148,7 +165,7 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<MicroService> = {
   stack: {
     required: true,
     type: 'string',
-    validators: [values(MicroServiceStack)]
+    validators: [values(MicroserviceStack)]
   },
   deploymentBaseName: {
     required: false,
@@ -247,6 +264,11 @@ const MICROFRONTEND_CONSTRAINTS: ObjectConstraints<MicroFrontend> = {
     isArray: true,
     required: false,
     children: API_CLAIMS_CONSTRAINTS
+  },
+  nav: {
+    isArray: true,
+    required: false,
+    children: NAV_CONSTRAINTS
   }
 }
 
@@ -284,5 +306,15 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
       isArray: true,
       required: false,
       type: 'string'
+    },
+    global: {
+      required: false,
+      items: {
+        nav: {
+          isArray: true,
+          required: true,
+          children: NAV_CONSTRAINTS
+        }
+      }
     }
   }

@@ -60,7 +60,10 @@ export type UnionTypeConstraints<T> = Array<ObjectConstraints<T>>
 // Constraints for nested object types
 type ChildObjectConstraints<T, K extends keyof T> = {
   required: IsRequired<T, K>
-  items: ObjectConstraints<T[K]> | UnionTypeConstraints<T[K]>
+  items: Exclude<
+    ObjectConstraints<T[K]> | UnionTypeConstraints<T[K]>,
+    undefined
+  >
   validators?: Validator[]
 }
 
