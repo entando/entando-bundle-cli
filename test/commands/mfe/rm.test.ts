@@ -21,8 +21,7 @@ describe('mfe rm', () => {
         titles: { en: 'Default Stack MFE' },
         stack: MicroFrontendStack.React,
         group: 'group',
-        publicFolder: 'public',
-        customUiPath: ''
+        publicFolder: 'public'
       }
     ]
   }

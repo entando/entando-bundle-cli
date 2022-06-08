@@ -30,7 +30,6 @@ export class ComponentHelper {
     return {
       name: name,
       stack: MicroFrontendStack.React,
-      customUiPath: 'path/to/ui',
       group: 'group',
       publicFolder: 'public',
       titles: {

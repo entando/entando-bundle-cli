@@ -68,12 +68,7 @@ export class BundleDescriptorHelper {
             it: 'titolo mfe 1'
           },
           group: 'free',
-          publicFolder: 'public',
-          customUiPath: 'path/to/ui',
-          configUi: {
-            customElement: 'test-config',
-            resources: ['path/to/test-config.js']
-          }
+          publicFolder: 'public'
         },
         {
           name: 'test-mfe-2',
@@ -84,12 +79,7 @@ export class BundleDescriptorHelper {
             it: 'titolo mfe 2'
           },
           group: 'free',
-          publicFolder: 'public',
-          customUiPath: 'path/to/ui',
-          configUi: {
-            customElement: 'test-config',
-            resources: ['path/to/test-config.js']
-          }
+          publicFolder: 'public'
         }
       ]
     }

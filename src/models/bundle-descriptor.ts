@@ -47,12 +47,7 @@ export type MicroFrontend = {
   code?: string
   titles: { [lang: string]: string }
   group: string
-  customUiPath: string
   publicFolder: string
-  configUi?: {
-    customElement: string
-    resources: string[]
-  }
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   nav?: Nav[]
 }

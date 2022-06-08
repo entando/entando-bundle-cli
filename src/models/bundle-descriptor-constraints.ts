@@ -201,24 +201,6 @@ const MICROFRONTEND_CONSTRAINTS: ObjectConstraints<MicroFrontend> = {
     required: true,
     type: 'string'
   },
-  customUiPath: {
-    required: true,
-    type: 'string'
-  },
-  configUi: {
-    required: false,
-    children: {
-      customElement: {
-        required: true,
-        type: 'string'
-      },
-      resources: {
-        isArray: true,
-        required: true,
-        type: 'string'
-      }
-    }
-  },
   group: {
     required: true,
     type: 'string'
