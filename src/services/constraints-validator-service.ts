@@ -77,19 +77,17 @@ type BaseArrayConstraints<T, K extends keyof T> = {
   isArray: true
   required: IsRequired<T, K>
 }
-type PrimitiveArrayConstraints<T, K extends keyof T> = BaseArrayConstraints<
-  T,
-  K
-> &
-  PrimitiveConstraints<T, K>
-type ObjectArrayConstraints<T, K extends keyof T> = BaseArrayConstraints<
-  T,
-  K
-> & {
-  children:
-    | ObjectConstraints<TypeOfArray<T[K]>>
-    | UnionTypeConstraints<TypeOfArray<T[K]>>
-}
+
+type PrimitiveArrayConstraints<T, K extends keyof T> =
+  | BaseArrayConstraints<T, K> & PrimitiveConstraints<T, K>
+
+type ObjectArrayConstraints<T, K extends keyof T> =
+  | BaseArrayConstraints<T, K> & {
+      children:
+        | ObjectConstraints<TypeOfArray<T[K]>>
+        | UnionTypeConstraints<TypeOfArray<T[K]>>
+    }
+
 type ArrayConstraints<T, K extends keyof T> =
   | PrimitiveArrayConstraints<T, K>
   | ObjectArrayConstraints<T, K>
