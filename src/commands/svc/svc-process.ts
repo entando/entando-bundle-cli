@@ -7,10 +7,9 @@ export enum ServiceTypes {
 }
 
 export abstract class SvcProcessResult extends Command {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   protected checkResult(
-    result: any,
-    serviceType: string,
+    result: ProcessExecutionResult,
+    serviceType: ServiceTypes,
     services: string[]
   ): void {
     if (result !== 0) {
