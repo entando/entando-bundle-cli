@@ -103,7 +103,11 @@ export class MicroFrontendService {
   public getPublicFolderPath(mfeName: string): string {
     const mfe: MicroFrontend = this.getMicroFrontend(mfeName)
 
-    return path.resolve(this.microfrontendsPath, mfeName, mfe.publicFolder)
+    return path.resolve(
+      this.microfrontendsPath,
+      mfeName,
+      mfe.publicFolder ?? DEFAULT_PUBLIC_FOLDER
+    )
   }
 
   private createMicroFrontendDirectory(name: string) {

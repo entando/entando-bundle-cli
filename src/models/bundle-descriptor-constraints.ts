@@ -200,7 +200,7 @@ const MICROFRONTEND_CONSTRAINTS: ObjectConstraints<MicroFrontend> = {
     children: {}
   },
   publicFolder: {
-    required: true,
+    required: false,
     type: 'string'
   },
   group: {

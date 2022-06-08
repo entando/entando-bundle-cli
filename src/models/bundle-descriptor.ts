@@ -54,7 +54,7 @@ export type MicroFrontend = {
   code?: string
   titles: { [lang: string]: string }
   group: string
-  publicFolder: string
+  publicFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   nav?: Nav[]
 }

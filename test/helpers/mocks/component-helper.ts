@@ -32,7 +32,6 @@ export class ComponentHelper {
       name: name,
       stack: MicroFrontendStack.React,
       group: 'group',
-      publicFolder: 'public',
       titles: {
         en: 'English Title'
       },
