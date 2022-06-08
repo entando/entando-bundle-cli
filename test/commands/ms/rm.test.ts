@@ -7,7 +7,7 @@ import {
   MISSING_DESCRIPTOR_ERROR
 } from '../../../src/services/bundle-descriptor-service'
 import { MicroserviceService } from '../../../src/services/microservice-service'
-import { Microservice } from '../../../src/models/bundle-descriptor'
+import { DBMS, Microservice } from '../../../src/models/bundle-descriptor'
 import { MicroserviceStack } from '../../../src/models/component'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
 
@@ -22,7 +22,7 @@ describe('Remove Microservice', () => {
       )
       const ms: Microservice = {
         name: 'test-ms',
-        dbms: 'mysql',
+        dbms: DBMS.MySQL,
         stack: MicroserviceStack.SpringBoot
       }
       const microserviceService = new MicroserviceService()

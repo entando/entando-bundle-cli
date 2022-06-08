@@ -1,5 +1,6 @@
 import {
   BundleDescriptor,
+  DBMS,
   SecurityLevel
 } from '../../../src/models/bundle-descriptor'
 import {
@@ -18,7 +19,7 @@ export class BundleDescriptorHelper {
         {
           name: 'test-ms-spring-boot-1',
           stack: MicroserviceStack.SpringBoot,
-          dbms: 'postgres',
+          dbms: DBMS.PostgreSQL,
           ingressPath: '/path/to/service',
           healthCheckPath: '/path/to/check',
           roles: ['test-role'],
@@ -39,7 +40,7 @@ export class BundleDescriptorHelper {
         {
           name: 'test-ms-spring-boot-2',
           stack: MicroserviceStack.SpringBoot,
-          dbms: 'postgres',
+          dbms: DBMS.PostgreSQL,
           ingressPath: '/path/to/service',
           healthCheckPath: '/path/to/check',
           roles: ['test-role'],

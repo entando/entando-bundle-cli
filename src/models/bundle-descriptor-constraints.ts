@@ -2,6 +2,7 @@ import {
   ApiClaim,
   ApiType,
   BundleDescriptor,
+  DBMS,
   EnvironmentVariable,
   ExternalApiClaim,
   MicroFrontend,
@@ -135,8 +136,9 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
     type: 'string'
   },
   dbms: {
-    required: true,
-    type: 'string'
+    required: false,
+    type: 'string',
+    validators: [values(DBMS)]
   },
   ingressPath: {
     required: false,

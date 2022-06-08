@@ -1,4 +1,5 @@
 import {
+  DBMS,
   MicroFrontend,
   Microservice
 } from '../../../src/models/bundle-descriptor'
@@ -18,7 +19,7 @@ export class ComponentHelper {
     return {
       name: name,
       stack: MicroserviceStack.SpringBoot,
-      dbms: 'mysql',
+      dbms: DBMS.MySQL,
       ...partial
     }
   }

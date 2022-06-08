@@ -20,6 +20,13 @@ export type Permission = {
   role: string
 }
 
+export enum DBMS {
+  None = 'none',
+  PostgreSQL = 'postgresql',
+  MySQL = 'mysql',
+  Embedded = 'embedded'
+}
+
 export enum SecurityLevel {
   Strict = 'strict',
   Lenient = 'lenient'
@@ -32,7 +39,7 @@ export type Microservice = {
   stack: MicroserviceStack
   /** Value used for defining custom pod names */
   deploymentBaseName?: string
-  dbms: string
+  dbms?: DBMS
   ingressPath?: string
   healthCheckPath?: string
   roles?: string[]
