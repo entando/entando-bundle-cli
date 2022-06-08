@@ -4,7 +4,7 @@ import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
 
 export default class List extends Command {
-  static description = 'Lists the available components in the bundle'
+  static description = 'List the available components in the bundle'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',

@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import { BaseBuildCommand } from '../../src/commands/base-build'
 import Build from '../../src/commands/build'
 import Pack from '../../src/commands/pack'
+import { SvcProcessResult } from '../../src/commands/svc/svc-process-result'
 
 describe('Help command', () => {
   test
@@ -11,6 +12,7 @@ describe('Help command', () => {
       const help = ctx.stdout
       // abstract base-build command should not be displayed in help
       expect(help).not.contain('base-build')
+      expect(help).not.contain('svc-process-result')
       // command classes inheriting from base-build should be displayed in help
       expect(help).contain('build')
       expect(help).contain('pack')
@@ -19,6 +21,7 @@ describe('Help command', () => {
 
   test.it('Test commands visibility in help', () => {
     expect(BaseBuildCommand.hidden).true
+    expect(SvcProcessResult.hidden).true
     expect(Build.hidden).false
     expect(Pack.hidden).false
   })

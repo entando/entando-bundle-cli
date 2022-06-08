@@ -3,8 +3,7 @@ import { BundleService } from '../../services/bundle-service'
 import { MicroserviceService } from '../../services/microservice-service'
 
 export default class Rm extends Command {
-  static description =
-    'Removes a microservice component from the current bundle'
+  static description = 'Remove a microservice component from the current bundle'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-microservice']
 

@@ -5,13 +5,13 @@ import { BundleDescriptorService } from '../../../src/services/bundle-descriptor
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 import { SvcService } from '../../../src/services/svc-service'
 
-describe('svc start', () => {
+describe('svc stop', () => {
   let bundleDirectory: string
   let bundleDescriptorService: BundleDescriptorService
   const tempDirHelper = new TempDirHelper(__filename)
 
   before(() => {
-    bundleDirectory = tempDirHelper.createInitializedBundleDir('sample-bundle')
+    bundleDirectory = tempDirHelper.createInitializedBundleDir('my-bundle')
   })
 
   beforeEach(() => {
@@ -20,85 +20,85 @@ describe('svc start', () => {
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
     bundleDescriptorService.writeBundleDescriptor({
       ...bundleDescriptor,
-      svc: ['postgresql', 'mysql']
+      svc: ['keycloak', 'mysql']
     })
   })
 
   test
     .stdout()
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .command(['svc start', '--all'])
-    .it('start active services successfully', () => {
+    .command(['svc stop', '--all'])
+    .it('stop active services successfully', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/postgresql.yml -f svc/mysql.yml up --build -d'
+        'docker-compose -p my-bundle -f svc/keycloak.yml -f svc/mysql.yml stop'
       )
     })
 
   test
     .stdout()
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .command(['svc start', 'mysql'])
-    .it('start specific service mysql', () => {
+    .command(['svc stop', 'keycloak'])
+    .it('stop specific service keycloak', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d'
+        'docker-compose -p my-bundle -f svc/keycloak.yml stop'
       )
     })
 
   test
     .stderr()
-    .command(['svc start'])
+    .command(['svc stop'])
     .catch(error => {
       expect(error.message).to.contain('At least one service name is required.')
     })
-    .it('start without any arguments and flags')
+    .it('stop without any arguments and flags')
 
   test
     .stderr()
-    .command(['svc start', 'win98'])
+    .command(['svc stop', 'macosx'])
     .catch(error => {
-      expect(error.message).to.contain('Service win98 is not enabled.')
+      expect(error.message).to.contain('Service macosx is not enabled.')
     })
-    .it('start an unlisted service')
+    .it('stop an unlisted service')
 
   test
     .stderr()
-    .stub(SvcService.prototype, 'startServices', sinon.stub().resolves(404))
-    .command(['svc start', 'mysql'])
+    .stub(SvcService.prototype, 'stopServices', sinon.stub().resolves(403))
+    .command(['svc stop', 'rabbitmq'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Starting service(s) mysql failed, exited with code 404'
+        'Stopping service(s) rabbitmq failed, exited with code 403'
       )
     })
-    .it('start command unsuccessful - exits with error code', () => {
-      const runStub = SvcService.prototype.startServices as sinon.SinonStub
+    .it('stop command unsuccessful - exits with error code', () => {
+      const runStub = SvcService.prototype.stopServices as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.deep.equal(['mysql'])
+      expect(runStub.args[0][0]).to.deep.equal(['rabbitmq'])
     })
 
   test
     .stderr()
     .stub(
       SvcService.prototype,
-      'startServices',
-      sinon.stub().resolves(new Error('an error you cannot refuse'))
+      'stopServices',
+      sinon.stub().resolves(new Error('an error who needs no intro'))
     )
-    .command(['svc start', 'postgresql'])
+    .command(['svc stop', 'postgresql'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Command failed due to error: an error you cannot refuse'
+        'Command failed due to error: an error who needs no intro'
       )
     })
-    .it('start command unsuccessful - exits with Error instance', () => {
-      const runStub = SvcService.prototype.startServices as sinon.SinonStub
+    .it('stop command unsuccessful - exits with Error instance', () => {
+      const runStub = SvcService.prototype.stopServices as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.deep.equal(['postgresql'])
@@ -108,19 +108,17 @@ describe('svc start', () => {
     .stderr()
     .stub(
       SvcService.prototype,
-      'startServices',
-      sinon.stub().resolves('antikeycloakhertz')
+      'stopServices',
+      sinon.stub().resolves('mysqueal')
     )
-    .command(['svc start', 'keycloak'])
+    .command(['svc stop', 'mysql'])
     .catch(error => {
-      expect(error.message).to.contain(
-        'Process killed by signal antikeycloakhertz'
-      )
+      expect(error.message).to.contain('Process killed by signal mysqueal')
     })
-    .it('start command unsuccessful - exits with signal', () => {
-      const runStub = SvcService.prototype.startServices as sinon.SinonStub
+    .it('stop command unsuccessful - exits with signal', () => {
+      const runStub = SvcService.prototype.stopServices as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.deep.equal(['keycloak'])
+      expect(runStub.args[0][0]).to.deep.equal(['mysql'])
     })
 })

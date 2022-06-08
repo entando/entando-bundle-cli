@@ -3,7 +3,7 @@ import { BundleService } from '../../services/bundle-service'
 import { MicroFrontendService } from '../../services/microfrontend-service'
 
 export default class Rm extends Command {
-  static description = 'Removes a Micro Frontend component to the bundle'
+  static description = 'Remove a Micro Frontend component to the bundle'
 
   static examples = ['<%= config.bin %> <%= command.id %> my-mfe']
 

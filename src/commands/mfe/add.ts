@@ -5,7 +5,7 @@ import { BundleService } from '../../services/bundle-service'
 import { MicroFrontendService } from '../../services/microfrontend-service'
 
 export default class Add extends Command {
-  static description = 'Adds a Micro Frontend component to the bundle'
+  static description = 'Add a Micro Frontend component to the bundle'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-mfe',

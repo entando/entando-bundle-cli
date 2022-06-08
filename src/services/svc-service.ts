@@ -4,20 +4,29 @@ import * as path from 'node:path'
 import { SVC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
-import { ProcessExecutorService } from './process-executor-service'
+import {
+  ProcessExecutorService,
+  ProcessExecutionResult
+} from './process-executor-service'
 
 import { debugFactory } from './debug-factory-service'
 
+enum DockerServiceType {
+  UP = 'up --build -d',
+  STOP = 'stop'
+}
 export class SvcService {
   private static debug = debugFactory(SvcService)
   private readonly parentDirectory: string
+  private readonly configBin: string
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly bundleDescriptor: BundleDescriptor
 
   private readonly serviceFileType = 'yml'
 
-  constructor(parentDirectory: string) {
+  constructor(parentDirectory: string, configBin: string) {
     this.parentDirectory = parentDirectory
+    this.configBin = configBin
     this.bundleDescriptorService = new BundleDescriptorService(parentDirectory)
     this.bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
   }
@@ -82,12 +91,44 @@ export class SvcService {
     })
   }
 
-  public startServices(services: string[]): void {
+  public startServices(services: string[]): Promise<ProcessExecutionResult> {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`starting service ${services.join(', ')}`)
+
+    return this.processDockerExecution(DockerServiceType.UP, services)
+  }
+
+  public stopServices(services: string[]): Promise<ProcessExecutionResult> {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`stopping service ${services.join(', ')}`)
+
+    return this.processDockerExecution(DockerServiceType.STOP, services)
+  }
+
+  private processDockerExecution(
+    serviceType: DockerServiceType,
+    services: string[]
+  ): Promise<ProcessExecutionResult> {
+    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
+      .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
+      .join(' ')} ${serviceType}`
+
+    return ProcessExecutorService.executeProcess({
+      command: cmd,
+      outputStream: process.stdout,
+      errorStream: process.stdout,
+      workDir: this.parentDirectory
+    })
+  }
+
+  private precheckEnabledServices(services: string[]): void {
     const activeServices = this.getEnabledServices()
 
     if (services.length === 0) {
       throw new CLIError(
-        'There are no enabled services. Please enable a service using the command: <%= config.bin %> svc enable <your_service_yml>'
+        `There are no enabled services. Please enable a service using the command: ${this.configBin} svc enable <your_service_yml>`
       )
     }
 
@@ -99,32 +140,17 @@ export class SvcService {
       throw new CLIError(
         `Service${addS ? 's' : ''} ${serviceNotFound.join(', ')} ${
           addS ? 'are' : 'is'
-        } not enabled. Please check the enabled services with command: <%= config.bin %> svc list`
+        } not enabled. Please check the enabled services with command: ${
+          this.configBin
+        } svc list`
       )
-    }
-
-    SvcService.debug(`starting service ${services.join(', ')}`)
-
-    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
-      .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
-      .join(' ')} up --build -d`
-
-    try {
-      ProcessExecutorService.executeProcess({
-        command: cmd,
-        outputStream: process.stdout,
-        errorStream: process.stdout,
-        workDir: this.parentDirectory
-      })
-    } catch (error) {
-      throw new CLIError(error as Error)
     }
   }
 
   private isServiceAvailable(service: string): void {
     if (!this.getAllServices().includes(service)) {
       throw new CLIError(
-        `Service ${service} does not exist. Please check the list available services with command: <%= config.bin %> svc list --available`
+        `Service ${service} does not exist. Please check the list available services with command: ${this.configBin} svc list --available`
       )
     }
   }

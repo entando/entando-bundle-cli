@@ -23,7 +23,7 @@ import { color } from '@oclif/color'
 import * as fs from 'node:fs'
 
 export default class Pack extends BaseBuildCommand {
-  static description = 'Generates the bundle Docker image'
+  static description = 'Generate the bundle Docker image'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',

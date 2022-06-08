@@ -5,7 +5,7 @@ import { BundleService } from '../../services/bundle-service'
 
 export default class AddExt extends Command {
   static description =
-    'Adds an external API claim to the specified MFE component'
+    'Add an external API claim to the specified MFE component'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> mfe1 ms1-api --bundleId my-bundle --serviceId ms1'
