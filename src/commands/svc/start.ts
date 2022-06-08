@@ -1,9 +1,9 @@
-import { CliUx, Command, Flags } from '@oclif/core'
-import { CLIError } from '@oclif/errors'
+import { CliUx, Flags } from '@oclif/core'
 import { BundleService } from '../../services/bundle-service'
 import { SvcService } from '../../services/svc-service'
+import { SvcProcessResult, ServiceTypes } from './svc-process'
 
-export default class Start extends Command {
+export default class Start extends SvcProcessResult {
   static strict = false
   static description = 'Start enabled auxiliary services'
 
@@ -24,23 +24,26 @@ export default class Start extends Command {
 
     const { argv, flags } = await this.parse(Start)
 
-    const svcService: SvcService = new SvcService(process.cwd())
+    const svcService: SvcService = new SvcService(
+      process.cwd(),
+      this.config.bin
+    )
 
-    if (flags.all) {
-      const enabledServices = svcService.getEnabledServices()
-      CliUx.ux.action.start(
-        `Starting all enabled services: ${enabledServices.join(', ')}`
-      )
-      svcService.startServices(enabledServices)
-      CliUx.ux.action.stop()
-    } else if (argv.length > 0) {
-      CliUx.ux.action.start(`Starting services: ${argv.join(', ')}`)
-      svcService.startServices(argv)
-      CliUx.ux.action.stop()
-    } else {
-      throw new CLIError(
-        'At least one service name is required. You can also use `--all` flag to start all enabled services'
+    if (!flags.all && argv.length === 0) {
+      this.error(
+        'At least one service name is required. You can also use `--all` flag to start all running enabled services',
+        { exit: 1 }
       )
     }
+
+    const services = flags.all ? svcService.getEnabledServices() : argv
+    const actionStartMsg = flags.all
+      ? `Starting all enabled services: (${services.join(', ')})`
+      : `Starting services: ${services.join(', ')}`
+
+    CliUx.ux.action.start(actionStartMsg)
+    const result = await svcService.startServices(services)
+    this.checkResult(result, ServiceTypes.START, services)
+    CliUx.ux.action.stop()
   }
 }

@@ -3,6 +3,7 @@ import * as sinon from 'sinon'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
+import { SvcService } from '../../../src/services/svc-service'
 
 describe('svc stop', () => {
   let bundleDirectory: string
@@ -25,11 +26,7 @@ describe('svc stop', () => {
 
   test
     .stdout()
-    .stub(
-      ProcessExecutorService,
-      'executeProcess',
-      sinon.stub().returns('docker-compose executed')
-    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .command(['svc stop', '--all'])
     .it('stop active services successfully', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
@@ -43,11 +40,7 @@ describe('svc stop', () => {
 
   test
     .stdout()
-    .stub(
-      ProcessExecutorService,
-      'executeProcess',
-      sinon.stub().returns('docker-compose executed')
-    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .command(['svc stop', 'keycloak'])
     .it('stop specific service keycloak', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
@@ -74,4 +67,58 @@ describe('svc stop', () => {
       expect(error.message).to.contain('Service macosx is not enabled.')
     })
     .it('stop an unlisted service')
+
+  test
+    .stderr()
+    .stub(SvcService.prototype, 'stopServices', sinon.stub().resolves(403))
+    .command(['svc stop', 'rabbitmq'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Stopping service(s) rabbitmq failed, exit with code 403'
+      )
+    })
+    .it('stop command unsuccessful - exits with error code', () => {
+      const runStub = SvcService.prototype.stopServices as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.deep.equal(['rabbitmq'])
+    })
+
+  test
+    .stderr()
+    .stub(
+      SvcService.prototype,
+      'stopServices',
+      sinon.stub().resolves(new Error('an error who needs no intro'))
+    )
+    .command(['svc stop', 'postgresql'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Command failed due to error: an error who needs no intro'
+      )
+    })
+    .it('stop command unsuccessful - exits with Error instance', () => {
+      const runStub = SvcService.prototype.stopServices as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.deep.equal(['postgresql'])
+    })
+
+  test
+    .stderr()
+    .stub(
+      SvcService.prototype,
+      'stopServices',
+      sinon.stub().resolves('mysqueal')
+    )
+    .command(['svc stop', 'mysql'])
+    .catch(error => {
+      expect(error.message).to.contain('Process killed by signal mysqueal')
+    })
+    .it('stop command unsuccessful - exits with signal', () => {
+      const runStub = SvcService.prototype.stopServices as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.deep.equal(['mysql'])
+    })
 })
