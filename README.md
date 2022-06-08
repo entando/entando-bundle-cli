@@ -121,7 +121,7 @@ EXAMPLES
 
 ## `entando-bundle-cli build [NAME]`
 
-Builds bundle components
+Build bundle components
 
 ```
 USAGE
@@ -131,11 +131,11 @@ ARGUMENTS
   NAME  The name of the component to build
 
 FLAGS
-  --all-mfe  Builds all the bundle micro frontends
-  --all-ms   Builds all the bundle microservices
+  --all-mfe  Build all the bundle micro frontends
+  --all-ms   Build all the bundle microservices
 
 DESCRIPTION
-  Builds bundle components
+  Build bundle components
 
 EXAMPLES
   $ entando-bundle-cli build my-component

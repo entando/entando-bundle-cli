@@ -23,10 +23,10 @@ export default class Build extends BaseBuildCommand {
 
   static flags = {
     'all-ms': Flags.boolean({
-      description: 'Builds all the bundle microservices'
+      description: 'Build all the bundle microservices'
     }),
     'all-mfe': Flags.boolean({
-      description: 'Builds all the bundle micro frontends'
+      description: 'Build all the bundle micro frontends'
     })
   }
 
