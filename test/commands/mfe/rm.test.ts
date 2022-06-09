@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
 import { MicroFrontendStack } from '../../../src/models/component'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
+import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
@@ -48,6 +49,10 @@ describe('mfe rm', () => {
       fs.mkdirSync(
         path.resolve(tempBundleDir, 'microfrontends', 'default-stack-mfe')
       )
+
+      const bundleDescriptorConverterService =
+        new BundleDescriptorConverterService(tempBundleDir, 'test-docker-org')
+      bundleDescriptorConverterService.generateYamlDescriptors()
     })
     .command(['mfe rm', defaultMfeName])
     .it('removes a micro frontend', () => {
@@ -58,11 +63,11 @@ describe('mfe rm', () => {
       )
       const bundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
-      const outputPath: string = path.resolve(
+      const outputDescriptorPath: string = path.resolve(
         tempBundleDir,
         ...DESCRIPTORS_OUTPUT_FOLDER,
         'widgets',
-        defaultMfeName
+        'default-stack-mfe.yaml'
       )
 
       expect(fs.existsSync(filePath)).to.eq(false)
@@ -70,7 +75,7 @@ describe('mfe rm', () => {
         ...bundleDescriptor,
         microfrontends: []
       })
-      expect(fs.existsSync(outputPath)).to.eq(false)
+      expect(fs.existsSync(outputDescriptorPath)).to.eq(false)
     })
 
   test

@@ -13,17 +13,19 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { DESCRIPTORS_OUTPUT_FOLDER } from '../paths'
+import {
+  DESCRIPTORS_OUTPUT_FOLDER,
+  DESCRIPTOR_EXTENSION,
+  PLUGINS_FOLDER,
+  WIDGETS_FOLDER
+} from '../paths'
 import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v4'
 const WIDGET_DESCRIPTOR_VERSION = 'v2'
-const DESCRIPTOR_EXTENSION = '.yaml'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
-const WIDGETS_DESCRIPTORS_FOLDER = 'widgets'
-const PLUGINS_DESCRIPTORS_FOLDER = 'plugins'
 
 export class BundleDescriptorConverterService {
   private readonly bundleDirectory: string
@@ -136,14 +138,14 @@ export class BundleDescriptorConverterService {
 
   private getMicroFrontendDescriptorRelativePath(microFrontend: MicroFrontend) {
     return path.posix.join(
-      WIDGETS_DESCRIPTORS_FOLDER,
+      WIDGETS_FOLDER,
       microFrontend.name + DESCRIPTOR_EXTENSION
     )
   }
 
   private getMicroserviceDescriptorRelativePath(microservice: Microservice) {
     return path.posix.join(
-      PLUGINS_DESCRIPTORS_FOLDER,
+      PLUGINS_FOLDER,
       microservice.name + DESCRIPTOR_EXTENSION
     )
   }

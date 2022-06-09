@@ -62,7 +62,7 @@ export class MicroserviceService {
 
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
 
-    this.componentService.removeOutputDirectory({
+    this.componentService.removeOutputDescriptor({
       ...ms,
       type: ComponentType.MICROSERVICE
     })

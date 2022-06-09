@@ -273,13 +273,6 @@ describe('pack', () => {
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
-
-      const stubResults: ProcessExecutionResult[] = [0, 0]
-      const stubParallelProcessExecutorService =
-        new StubParallelProcessExecutorService(stubResults)
-      sinon
-        .stub(executors, 'ParallelProcessExecutorService')
-        .returns(stubParallelProcessExecutorService)
     })
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
@@ -305,13 +298,6 @@ describe('pack', () => {
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
-
-      const stubResults: ProcessExecutionResult[] = [0, 0]
-      const stubParallelProcessExecutorService =
-        new StubParallelProcessExecutorService(stubResults)
-      sinon
-        .stub(executors, 'ParallelProcessExecutorService')
-        .returns(stubParallelProcessExecutorService)
     })
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {

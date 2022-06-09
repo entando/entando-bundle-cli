@@ -17,7 +17,8 @@ import {
   MICROSERVICES_FOLDER,
   MICROFRONTENDS_FOLDER,
   PLUGINS_FOLDER,
-  WIDGETS_FOLDER
+  WIDGETS_FOLDER,
+  DESCRIPTOR_EXTENSION
 } from '../paths'
 import * as fs from 'node:fs'
 import {
@@ -141,11 +142,11 @@ export class ComponentService {
     return component
   }
 
-  public removeOutputDirectory(component: Component<ComponentType>): void {
+  public removeOutputDescriptor(component: Component<ComponentType>): void {
     const outputPath = path.resolve(
       ...DESCRIPTORS_OUTPUT_FOLDER,
       COMPTYPE_OUTPUT_FOLDER_MAP[component.type],
-      component.name
+      component.name + DESCRIPTOR_EXTENSION
     )
 
     fs.rmSync(outputPath, { recursive: true, force: true })

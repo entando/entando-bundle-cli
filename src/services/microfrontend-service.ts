@@ -94,7 +94,7 @@ export class MicroFrontendService {
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
 
-    this.componentService.removeOutputDirectory({
+    this.componentService.removeOutputDescriptor({
       ...mfe,
       type: ComponentType.MICROFRONTEND
     })
