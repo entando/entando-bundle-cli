@@ -170,7 +170,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `entando-bundle-cli init NAME`
 
-Perform the scaffolding of a Bundle project
+Perform the scaffolding of a bundle project
 
 ```
 USAGE
@@ -185,7 +185,7 @@ FLAGS
   --version=<value>  Project version
 
 DESCRIPTION
-  Perform the scaffolding of a Bundle project
+  Perform the scaffolding of a bundle project
 
 EXAMPLES
   $ entando-bundle-cli init my-bundle
