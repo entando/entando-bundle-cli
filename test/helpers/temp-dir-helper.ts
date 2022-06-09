@@ -4,6 +4,9 @@ import * as path from 'node:path'
 import { InitializerService } from '../../src/services/initializer-service'
 import { GitService } from '../../src/services/git-service'
 import * as sinon from 'sinon'
+import { ComponentType } from '../../dist/models/component'
+import { Component } from '../../src/models/component'
+import { ComponentService } from '../../dist/services/component-service'
 
 /**
  * Helper class that can be used in tests to generate a temporary directory that
@@ -75,5 +78,21 @@ export class TempDirHelper {
     fs.mkdirSync(emtpyDir)
     process.chdir(emtpyDir)
     return emtpyDir
+  }
+
+  public static createComponentFolder(
+    component: Component<ComponentType>
+  ): void {
+    fs.mkdirSync(ComponentService.getComponentPath(component), {
+      recursive: true
+    })
+  }
+
+  public static createComponentsFolders(
+    components: Array<Component<ComponentType>>
+  ): void {
+    for (const comp of components) {
+      this.createComponentFolder(comp)
+    }
   }
 }
