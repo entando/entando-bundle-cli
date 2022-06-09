@@ -176,6 +176,15 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
     isArray: true,
     required: false,
     children: ENVIRONMENT_VARIABLE_CONSTRAINTS
+  },
+  commands: {
+    required: false,
+    children: {
+      build: {
+        required: false,
+        type: 'string'
+      }
+    }
   }
 }
 
@@ -216,6 +225,15 @@ const MICROFRONTEND_CONSTRAINTS: ObjectConstraints<MicroFrontend> = {
     isArray: true,
     required: false,
     children: NAV_CONSTRAINTS
+  },
+  commands: {
+    required: false,
+    children: {
+      build: {
+        required: false,
+        type: 'string'
+      }
+    }
   }
 }
 
