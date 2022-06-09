@@ -392,7 +392,7 @@ USAGE
   $ entando-bundle-cli svc restart [--all]
 
 FLAGS
-  --all  Stops all enabled services in the bundle descriptor
+  --all  Restarts all enabled services in the bundle descriptor
 
 DESCRIPTION
   Restart running auxiliary services
