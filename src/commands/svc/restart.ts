@@ -15,7 +15,7 @@ export default class Restart extends SvcProcessResult {
 
   static flags = {
     all: Flags.boolean({
-      description: 'Stops all enabled services in the bundle descriptor'
+      description: 'Restarts all enabled services in the bundle descriptor'
     })
   }
 
