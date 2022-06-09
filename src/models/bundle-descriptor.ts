@@ -34,6 +34,9 @@ export type Microservice = {
   permissions?: Permission[]
   securityLevel?: 'strict' | 'lenient'
   env?: EnvironmentVariable[]
+  commands?: {
+    build?: string
+  }
 }
 
 export type MicroFrontend = {
@@ -49,7 +52,10 @@ export type MicroFrontend = {
     resources: string[]
   }
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
-  nav?: Nav[]
+  nav?: Nav[],
+  commands?: {
+    build?: string
+  }
 }
 
 export type BundleDescriptor = {
