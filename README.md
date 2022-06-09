@@ -32,23 +32,25 @@ USAGE
 # Commands
 
 <!-- commands -->
-* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
-* [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
-* [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-* [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
-* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-* [`entando-bundle-cli list`](#entando-bundle-cli-list)
-* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-* [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
-* [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
-* [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
-* [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
-* [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
-* [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
-* [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
+
+- [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+- [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
+- [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
+- [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+- [`entando-bundle-cli list`](#entando-bundle-cli-list)
+- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+- [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
+- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+- [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+- [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
+- [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
+- [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
+- [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+- [`entando-bundle-cli svc restart`](#entando-bundle-cli-svc-restart)
+- [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
+- [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -379,6 +381,28 @@ DESCRIPTION
 
 EXAMPLES
   $ entando-bundle-cli svc list
+```
+
+## `entando-bundle-cli svc restart`
+
+Restart running auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc restart [--all]
+
+FLAGS
+  --all  Stops all enabled services in the bundle descriptor
+
+DESCRIPTION
+  Restart running auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc restart --all
+
+  $ entando-bundle-cli svc restart ext-service
+
+  $ entando-bundle-cli svc restart ext-service1 ext-service2
 ```
 
 ## `entando-bundle-cli svc start`

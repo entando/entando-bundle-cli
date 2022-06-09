@@ -3,7 +3,8 @@ import { ProcessExecutionResult } from '../../services/process-executor-service'
 
 export enum ServiceTypes {
   START = 'Starting',
-  STOP = 'Stopping'
+  STOP = 'Stopping',
+  RESTART = 'Restarting'
 }
 
 export abstract class SvcProcessResult extends Command {

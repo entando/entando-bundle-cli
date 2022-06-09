@@ -348,4 +348,94 @@ describe('svc-service', () => {
       const result = await svcService.stopServices(['mysql'])
       expect(result).to.not.eq(0)
     })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['postgresql']
+      })
+    })
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .it('restart an enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      svcService.restartServices(['postgresql'])
+      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      expect(runStub.called).to.equal(true)
+      expect(runStub.args[0]).to.have.length(1)
+      expect(runStub.args[0][0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/postgresql.yml restart'
+      )
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: []
+      })
+    })
+    .it('restart with no enabled service listed in descriptor', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      expect(() => svcService.restartServices([])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+    })
+    .it('restart with disabled/unlisted service', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      expect(() => svcService.stopServices(['keycloak'])).to.throw(CLIError)
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['postgresql']
+      })
+    })
+    .it('restart with disabled/unlisted services', () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      expect(() => svcService.stopServices(['macosx'])).to.throw(CLIError)
+    })
+
+  test
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(403))
+    .do(() => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['postgres']
+      })
+    })
+    .it('stop with error', async () => {
+      const svcService: SvcService = new SvcService(
+        bundleDirectory,
+        'entando-bundle-cli'
+      )
+      const result = await svcService.stopServices(['postgres'])
+      expect(result).to.not.eq(0)
+    })
 })

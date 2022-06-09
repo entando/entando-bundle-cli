@@ -13,7 +13,8 @@ import { debugFactory } from './debug-factory-service'
 
 enum DockerServiceType {
   UP = 'up --build -d',
-  STOP = 'stop'
+  STOP = 'stop',
+  RESTART = 'restart'
 }
 export class SvcService {
   private static debug = debugFactory(SvcService)
@@ -105,6 +106,14 @@ export class SvcService {
     SvcService.debug(`stopping service ${services.join(', ')}`)
 
     return this.processDockerExecution(DockerServiceType.STOP, services)
+  }
+
+  public restartServices(services: string[]): Promise<ProcessExecutionResult> {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`restarting service ${services.join(', ')}`)
+
+    return this.processDockerExecution(DockerServiceType.RESTART, services)
   }
 
   private processDockerExecution(
