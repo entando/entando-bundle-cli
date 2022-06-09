@@ -1,7 +1,12 @@
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
-import { BundleDescriptor, MicroFrontend } from '../models/bundle-descriptor'
+import {
+  BundleDescriptor,
+  MicroFrontend,
+  MicroFrontendAppBuilderSlot,
+  MicroFrontendType
+} from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
 import { DockerService } from './docker-service'
@@ -51,7 +56,9 @@ export class MicroFrontendService {
       ...mfe,
       group: DEFAULT_GROUP,
       publicFolder: DEFAULT_PUBLIC_FOLDER,
-      titles: this.getDefaultTitles(mfe.name)
+      titles: this.getDefaultTitles(mfe.name),
+      ...(mfe.type === MicroFrontendType.AppBuilder &&
+        this.getAppBuilderFields(mfe))
     })
   }
 
@@ -145,5 +152,18 @@ export class MicroFrontendService {
 
   private getDefaultTitles(mfeName: string): { [lang: string]: string } {
     return { en: mfeName, it: mfeName }
+  }
+
+  private getAppBuilderFields(mfe: MicroFrontend): {
+    slot: MicroFrontendAppBuilderSlot
+    paths?: string[]
+  } {
+    const slot: MicroFrontendAppBuilderSlot =
+      mfe.slot || MicroFrontendAppBuilderSlot.Content
+
+    return {
+      slot,
+      ...(slot === MicroFrontendAppBuilderSlot.Content && { paths: [] })
+    }
   }
 }

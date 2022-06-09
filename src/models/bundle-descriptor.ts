@@ -54,15 +54,18 @@ export type Microservice = {
 export type MicroFrontend = {
   name: string
   stack: MicroFrontendStack
+  type: MicroFrontendType
   code?: string
   titles: { [lang: string]: string }
   group: string
   publicFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
-  nav?: Nav[]
   commands?: {
     build?: string
   }
+  nav?: Nav[]
+  slot?: MicroFrontendAppBuilderSlot
+  paths?: string[]
 }
 
 export type BundleDescriptor = {
@@ -92,6 +95,18 @@ export type Bundle = {
   bundleGroupVersionId: number
   bundleGroupId: number
   bundleId: number
+}
+
+export enum MicroFrontendType {
+  AppBuilder = 'app-builder',
+  Widget = 'widget',
+  WidgetConfig = 'widget-config'
+}
+
+export enum MicroFrontendAppBuilderSlot {
+  PrimaryHeader = 'primary-header',
+  PrimaryMenu = 'primary-menu',
+  Content = 'content'
 }
 
 export enum ApiType {

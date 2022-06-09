@@ -1,7 +1,10 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { BundleDescriptor } from '../../../src/models/bundle-descriptor'
+import {
+  BundleDescriptor,
+  MicroFrontendType
+} from '../../../src/models/bundle-descriptor'
 import { MicroFrontendStack } from '../../../src/models/component'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
@@ -21,6 +24,7 @@ describe('mfe rm', () => {
         code: '123',
         titles: { en: 'Default Stack MFE' },
         stack: MicroFrontendStack.React,
+        type: MicroFrontendType.Widget,
         group: 'group',
         publicFolder: 'public'
       }

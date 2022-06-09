@@ -1,6 +1,8 @@
 import {
   BundleDescriptor,
   DBMS,
+  MicroFrontendAppBuilderSlot,
+  MicroFrontendType,
   SecurityLevel
 } from '../../../src/models/bundle-descriptor'
 import {
@@ -64,6 +66,7 @@ export class BundleDescriptorHelper {
           name: 'test-mfe-1',
           code: 'test-mfe-code-1',
           stack: MicroFrontendStack.React,
+          type: MicroFrontendType.Widget,
           titles: {
             en: 'mfe title 1',
             it: 'titolo mfe 1'
@@ -75,12 +78,15 @@ export class BundleDescriptorHelper {
           name: 'test-mfe-2',
           code: 'test-mfe-code-2',
           stack: MicroFrontendStack.React,
+          type: MicroFrontendType.AppBuilder,
           titles: {
             en: 'mfe title 2',
             it: 'titolo mfe 2'
           },
           group: 'free',
-          publicFolder: 'public'
+          publicFolder: 'public',
+          slot: MicroFrontendAppBuilderSlot.Content,
+          paths: []
         }
       ]
     }
