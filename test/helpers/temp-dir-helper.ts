@@ -4,9 +4,9 @@ import * as path from 'node:path'
 import { InitializerService } from '../../src/services/initializer-service'
 import { GitService } from '../../src/services/git-service'
 import * as sinon from 'sinon'
-import { ComponentType } from '../../dist/models/component'
+import { ComponentType } from '../../src/models/component'
 import { Component } from '../../src/models/component'
-import { ComponentService } from '../../dist/services/component-service'
+import { ComponentService } from '../../src/services/component-service'
 
 /**
  * Helper class that can be used in tests to generate a temporary directory that
