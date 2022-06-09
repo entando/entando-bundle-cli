@@ -20,7 +20,7 @@ export default class Stop extends SvcProcessResult {
   }
 
   public async run(): Promise<void> {
-    BundleService.isValidBundleProject(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { argv, flags } = await this.parse(Stop)
 

@@ -22,7 +22,7 @@ export default class List extends Command {
   }
 
   public async run(): Promise<void> {
-    BundleService.isValidBundleProject(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { flags } = await this.parse(List)
     const componentService = new ComponentService()

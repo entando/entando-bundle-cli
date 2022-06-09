@@ -24,7 +24,7 @@ export class MicroFrontendService {
   constructor() {
     this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
   }
 

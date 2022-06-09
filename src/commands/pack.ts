@@ -51,12 +51,11 @@ export default class Pack extends BaseBuildCommand {
   configService = new ConfigService()
 
   public async run(): Promise<void> {
-    const bundleDir = process.cwd()
-    BundleService.isValidBundleProject(bundleDir)
+    BundleService.isValidBundleProject()
 
     const { flags } = await this.parse(Pack)
 
-    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
+    const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
     if (flags.build) {
@@ -67,11 +66,7 @@ export default class Pack extends BaseBuildCommand {
 
     await this.buildMicroservicesDockerImages(dockerOrganization)
 
-    await this.buildBundleDockerImage(
-      bundleDir,
-      bundleDescriptor,
-      dockerOrganization
-    )
+    await this.buildBundleDockerImage(bundleDescriptor, dockerOrganization)
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {
@@ -149,7 +144,6 @@ export default class Pack extends BaseBuildCommand {
   }
 
   private async buildBundleDockerImage(
-    bundleDir: string,
     bundleDescriptor: BundleDescriptor,
     dockerOrganization: string
   ) {
@@ -157,7 +151,7 @@ export default class Pack extends BaseBuildCommand {
     CliUx.ux.action.start('Building Bundle Docker image')
 
     const bundleDescriptorConverterService =
-      new BundleDescriptorConverterService(bundleDir, dockerOrganization)
+      new BundleDescriptorConverterService(dockerOrganization)
     bundleDescriptorConverterService.generateYamlDescriptors()
 
     const result = await DockerService.buildDockerImage({

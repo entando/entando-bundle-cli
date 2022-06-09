@@ -40,7 +40,7 @@ describe('mfe rm', () => {
 
   beforeEach(() => {
     process.chdir(tempBundleDir)
-    bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    bundleDescriptorService = new BundleDescriptorService()
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
   })
 
@@ -51,7 +51,7 @@ describe('mfe rm', () => {
       )
 
       const bundleDescriptorConverterService =
-        new BundleDescriptorConverterService(tempBundleDir, 'test-docker-org')
+        new BundleDescriptorConverterService('test-docker-org')
       bundleDescriptorConverterService.generateYamlDescriptors()
     })
     .command(['mfe rm', defaultMfeName])

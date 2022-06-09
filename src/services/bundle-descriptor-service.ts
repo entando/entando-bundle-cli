@@ -16,7 +16,7 @@ type MandatoryBundleFields = { name: string; version: string; type: string }
 export class BundleDescriptorService {
   private readonly bundleFilePath: string
 
-  constructor(bundleDirectory: string) {
+  constructor(bundleDirectory: string = process.cwd()) {
     this.bundleFilePath = path.resolve(
       bundleDirectory,
       BUNDLE_DESCRIPTOR_FILE_NAME

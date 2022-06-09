@@ -33,9 +33,9 @@ export class BundleDescriptorConverterService {
   private readonly componentService: ComponentService
   private readonly dockerOrganization: string
 
-  constructor(bundleDirectory: string, dockerOrganization: string) {
-    this.bundleDirectory = bundleDirectory
-    this.bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
+  constructor(dockerOrganization: string) {
+    this.bundleDirectory = process.cwd()
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
     this.dockerOrganization = dockerOrganization
   }

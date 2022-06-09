@@ -26,7 +26,9 @@ describe('bundle-descriptor-converter-service', () => {
     const bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')
     fs.mkdirSync(bundleDir, { recursive: true })
 
-    const bundleDescriptorService = new BundleDescriptorService(bundleDir)
+    process.chdir(bundleDir)
+
+    const bundleDescriptorService = new BundleDescriptorService()
 
     bundleDescriptorService.createBundleDescriptor({
       name: 'test-bundle',
@@ -112,10 +114,7 @@ describe('bundle-descriptor-converter-service', () => {
       }
     ])
 
-    const converterService = new BundleDescriptorConverterService(
-      bundleDir,
-      'docker-org'
-    )
+    const converterService = new BundleDescriptorConverterService('docker-org')
 
     converterService.generateYamlDescriptors()
 

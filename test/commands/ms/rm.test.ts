@@ -28,11 +28,11 @@ describe('Remove Microservice', () => {
       }
       const microserviceService = new MicroserviceService()
       microserviceService.addMicroservice(ms)
-      const bundleDescriptorService = new BundleDescriptorService(process.cwd())
+      const bundleDescriptorService = new BundleDescriptorService()
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
       const bundleDescriptorConverterService =
-        new BundleDescriptorConverterService(tempBundleDir, 'test-docker-org')
+        new BundleDescriptorConverterService('test-docker-org')
       bundleDescriptorConverterService.generateYamlDescriptors()
 
       expect(
@@ -41,7 +41,7 @@ describe('Remove Microservice', () => {
     })
     .command(['ms rm', 'test-ms'])
     .it('Removes an existing Microservice', function () {
-      const bundleDescriptorService = new BundleDescriptorService(process.cwd())
+      const bundleDescriptorService = new BundleDescriptorService()
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
       const outputDescriptorPath: string = path.resolve(
         tempBundleDir,

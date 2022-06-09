@@ -12,7 +12,7 @@ export class ApiClaimService {
   private readonly cmService: CMService
 
   constructor() {
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.mfeConfigService = new MfeConfigService()
     this.cmService = new CMService()
   }

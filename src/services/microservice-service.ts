@@ -19,7 +19,7 @@ export class MicroserviceService {
 
   constructor() {
     this.microservicesPath = path.resolve(process.cwd(), MICROSERVICES_DIRNAME)
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
   }
 

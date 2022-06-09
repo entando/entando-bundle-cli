@@ -40,7 +40,7 @@ export class ComponentService {
   private readonly componentDescriptorService: ComponentDescriptorService
 
   constructor() {
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 

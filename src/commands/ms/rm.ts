@@ -12,7 +12,7 @@ export default class Rm extends Command {
   ]
 
   public async run(): Promise<void> {
-    BundleService.isValidBundleProject(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { args } = await this.parse(Rm)
 
