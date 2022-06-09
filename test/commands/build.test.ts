@@ -22,8 +22,6 @@ describe('build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
   const msNameSpringBoot = 'test-ms-spring-boot'
   const mfeNameReact = 'test-mfe-react'
-  const msNameNotImplementedStack = 'test-ms-not-implemented-stack'
-  const mfeNameNotImplementedStack = 'test-mfe-not-implemented-stack'
 
   const msSpringBoot: Component<ComponentType> = {
     name: msNameSpringBoot,
@@ -31,28 +29,10 @@ describe('build command', () => {
     type: ComponentType.MICROSERVICE
   }
 
-  const msNotImplementedStack: any = {
-    name: msNameNotImplementedStack,
-    stack: 'not-implemented',
-    type: ComponentType.MICROSERVICE
-  }
-
   const mfeReact: Component<ComponentType.MICROFRONTEND> = {
     name: mfeNameReact,
     stack: MicroFrontendStack.React,
     type: ComponentType.MICROFRONTEND
-  }
-
-  const mfeNotImplementedStack: any = {
-    name: mfeNameNotImplementedStack,
-    stack: 'not-implemented',
-    type: ComponentType.MICROFRONTEND
-  }
-
-  const notValidComponent: any = {
-    name: mfeNameReact,
-    stack: MicroFrontendStack.React,
-    type: 'not-valid'
   }
 
   const msListSpringBoot: Array<Component<ComponentType>> = [
@@ -165,32 +145,6 @@ describe('build command', () => {
   test
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
-      sinon
-        .stub(ComponentService.prototype, 'getComponent')
-        .returns(msNotImplementedStack)
-    })
-    .command(['build', msNameNotImplementedStack])
-    .catch(error => {
-      expect(error.message).to.contain('has an invalid stack')
-    })
-    .it('build microservice with not implemented build stack')
-
-  test
-    .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command-nv')
-      sinon
-        .stub(ComponentService.prototype, 'getComponent')
-        .returns(notValidComponent)
-    })
-    .command(['build', msNameNotImplementedStack])
-    .catch(error => {
-      expect(error.message).to.contain('Invalid component type')
-    })
-    .it('build component with not valid type')
-
-  test
-    .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command-ms')
       sinon.stub(ComponentService.prototype, 'build').resolves(5)
     })
     .command(['build', msNameSpringBoot])
@@ -242,19 +196,6 @@ describe('build command', () => {
         })
       )
     })
-
-  test
-    .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
-      sinon
-        .stub(ComponentService.prototype, 'getComponent')
-        .returns(mfeNotImplementedStack)
-    })
-    .command(['build', mfeNameNotImplementedStack])
-    .catch(error => {
-      expect(error.message).to.contain('has an invalid stack')
-    })
-    .it('build micro frontend with not implemented build stack')
 
   test
     .do(() => {

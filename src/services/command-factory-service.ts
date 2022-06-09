@@ -61,7 +61,7 @@ export class CommandFactoryService {
     phase: Phase
   ): string | undefined {
     const bundleDescriptorService: BundleDescriptorService =
-      new BundleDescriptorService(process.cwd())
+      new BundleDescriptorService()
     const comps: Array<Microservice | MicroFrontend> =
       bundleDescriptorService.getBundleDescriptor()[`${component.type}s`]
     const commands = comps.find(({ name }) => name === component.name)?.commands

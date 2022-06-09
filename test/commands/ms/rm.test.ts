@@ -2,9 +2,12 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
-import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../../src/services/bundle-descriptor-service'
 import { MicroserviceService } from '../../../src/services/microservice-service'
-import { Microservice } from '../../../src/models/bundle-descriptor'
+import { DBMS, Microservice } from '../../../src/models/bundle-descriptor'
 import { MicroserviceStack } from '../../../src/models/component'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
@@ -20,16 +23,16 @@ describe('Remove Microservice', () => {
       )
       const ms: Microservice = {
         name: 'test-ms',
-        dbms: 'mysql',
+        dbms: DBMS.MySQL,
         stack: MicroserviceStack.SpringBoot
       }
       const microserviceService = new MicroserviceService()
       microserviceService.addMicroservice(ms)
-      const bundleDescriptorService = new BundleDescriptorService(process.cwd())
+      const bundleDescriptorService = new BundleDescriptorService()
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
       const bundleDescriptorConverterService =
-        new BundleDescriptorConverterService(tempBundleDir, 'test-docker-org')
+        new BundleDescriptorConverterService('test-docker-org')
       bundleDescriptorConverterService.generateYamlDescriptors()
 
       expect(
@@ -38,7 +41,7 @@ describe('Remove Microservice', () => {
     })
     .command(['ms rm', 'test-ms'])
     .it('Removes an existing Microservice', function () {
-      const bundleDescriptorService = new BundleDescriptorService(process.cwd())
+      const bundleDescriptorService = new BundleDescriptorService()
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
       const outputDescriptorPath: string = path.resolve(
         tempBundleDir,
@@ -65,7 +68,7 @@ describe('Remove Microservice', () => {
     .do(() => tempDirHelper.createUninitializedBundleDir())
     .command(['ms rm', 'test-bundle'])
     .catch(error => {
-      expect(error.message).to.contain('is not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('Returns error if Bundle directory not initialized')
 })

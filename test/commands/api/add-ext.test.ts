@@ -5,14 +5,17 @@ import * as sinon from 'sinon'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
-  MicroFrontend,
-  Microservice
+  MicroFrontend
 } from '../../../src/models/bundle-descriptor'
-import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { CMService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
+import { ComponentHelper } from '../../helpers/mocks/component-helper'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -32,10 +35,8 @@ describe('api add-ext', () => {
       name: 'bundle-api-test',
       version: '0.0.1',
       type: 'bundle',
-      microservices: <Microservice[]>[{ name: 'ms1', stack: 'spring-boot' }],
-      microfrontends: <MicroFrontend[]>[
-        { name: 'mfe1', stack: 'react', publicFolder: 'public' }
-      ]
+      microservices: [ComponentHelper.newMicroservice('ms1')],
+      microfrontends: [ComponentHelper.newMicroFrontend('mfe1')]
     }
 
     process.chdir(tempBundleDir)
@@ -284,7 +285,7 @@ describe('api add-ext', () => {
       'my-bundle'
     ])
     .catch(error => {
-      expect(error.message).to.contain('not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with error if current folder is not a Bundle project')
 })

@@ -18,7 +18,7 @@ export default class Enable extends Command {
   static flags = {}
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { args } = await this.parse(Enable)
 

@@ -1,5 +1,6 @@
 import {
   ApiClaim,
+  DBMS,
   EnvironmentVariable,
   ExternalApiClaim,
   Nav,
@@ -19,7 +20,7 @@ export type YamlPluginDescriptor = {
   descriptorVersion: 'v4'
   image: string
   deploymentBaseName?: string
-  dbms: string
+  dbms: DBMS
   ingressPath?: string
   healthCheckPath?: string
   roles?: string[]

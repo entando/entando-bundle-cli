@@ -3,8 +3,11 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { debugFactory } from './debug-factory-service'
 import { RESOURCES_FOLDER } from '../paths'
+import {
+  ALLOWED_NAME_REGEXP,
+  INVALID_NAME_MESSAGE
+} from '../models/bundle-descriptor-constraints'
 
-const ALLOWED_BUNDLE_NAME_REGEXP = /^[\w-]+$/
 const JSON_INDENTATION_SPACES = 4
 
 interface TemplateVariables {
@@ -24,9 +27,9 @@ export class FSService {
 
   public checkBundleName(): void {
     FSService.debug('checking if bundle name is valid')
-    if (!ALLOWED_BUNDLE_NAME_REGEXP.test(this.bundleName)) {
+    if (!ALLOWED_NAME_REGEXP.test(this.bundleName)) {
       throw new CLIError(
-        `'${this.bundleName}' is not a valid bundle name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${this.bundleName}' is not a valid bundle name. ${INVALID_NAME_MESSAGE}`
       )
     }
   }

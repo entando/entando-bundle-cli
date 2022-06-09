@@ -20,6 +20,18 @@ export type Permission = {
   role: string
 }
 
+export enum DBMS {
+  None = 'none',
+  PostgreSQL = 'postgresql',
+  MySQL = 'mysql',
+  Embedded = 'embedded'
+}
+
+export enum SecurityLevel {
+  Strict = 'strict',
+  Lenient = 'lenient'
+}
+
 export type Microservice = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
@@ -27,12 +39,12 @@ export type Microservice = {
   stack: MicroserviceStack
   /** Value used for defining custom pod names */
   deploymentBaseName?: string
-  dbms: string
+  dbms?: DBMS
   ingressPath?: string
   healthCheckPath?: string
   roles?: string[]
   permissions?: Permission[]
-  securityLevel?: 'strict' | 'lenient'
+  securityLevel?: SecurityLevel
   env?: EnvironmentVariable[]
   commands?: {
     build?: string
@@ -45,14 +57,9 @@ export type MicroFrontend = {
   code?: string
   titles: { [lang: string]: string }
   group: string
-  customUiPath: string
-  publicFolder: string
-  configUi?: {
-    customElement: string
-    resources: string[]
-  }
+  publicFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
-  nav?: Nav[],
+  nav?: Nav[]
   commands?: {
     build?: string
   }

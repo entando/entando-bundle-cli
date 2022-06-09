@@ -7,8 +7,13 @@ import {
   MicroFrontend,
   Microservice
 } from '../../src/models/bundle-descriptor'
-import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import * as sinon from 'sinon'
+import { ConstraintsValidatorService } from '../../src/services/constraints-validator-service'
 
 describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -40,6 +45,10 @@ describe('list', () => {
     fs.mkdirSync(path.resolve('microservices', 'ms2'))
 
     bundleDescriptorService = new BundleDescriptorService(tempBundleDir)
+
+    sinon
+      .stub(ConstraintsValidatorService, 'validateObjectConstraints')
+      .returns(bundleDescriptor)
   })
 
   beforeEach(() => {
@@ -64,6 +73,10 @@ describe('list', () => {
       path.resolve('microservices', 'ms2', 'package.json'),
       ms2PackageJSON
     )
+  })
+
+  after(() => {
+    sinon.restore()
   })
 
   test
@@ -141,7 +154,7 @@ describe('list', () => {
     })
     .command(['list'])
     .catch(error => {
-      expect(error.message).to.contain('not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with an error if current folder is not a Bundle project')
 })

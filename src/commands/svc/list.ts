@@ -15,7 +15,7 @@ export default class List extends Command {
   }
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { flags } = await this.parse(List)
 

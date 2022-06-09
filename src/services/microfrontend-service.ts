@@ -7,8 +7,11 @@ import { MICROFRONTENDS_FOLDER } from '../paths'
 import { DockerService } from './docker-service'
 import { ComponentType } from '../models/component'
 import { ComponentService } from './component-service'
+import {
+  ALLOWED_NAME_REGEXP,
+  INVALID_NAME_MESSAGE
+} from '../models/bundle-descriptor-constraints'
 
-const ALLOWED_MFE_NAME_REGEXP = /^[\w-]+$/
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
 
@@ -21,7 +24,7 @@ export class MicroFrontendService {
   constructor() {
     this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
   }
 
@@ -34,9 +37,9 @@ export class MicroFrontendService {
       )
     }
 
-    if (!ALLOWED_MFE_NAME_REGEXP.test(mfe.name)) {
+    if (!ALLOWED_NAME_REGEXP.test(mfe.name)) {
       throw new CLIError(
-        `'${mfe.name}' is not a valid Micro Frontend name. Only alphanumeric characters, underscore and dash are allowed`
+        `'${mfe.name}' is not a valid Micro Frontend name. ${INVALID_NAME_MESSAGE}`
       )
     }
 
@@ -100,7 +103,11 @@ export class MicroFrontendService {
   public getPublicFolderPath(mfeName: string): string {
     const mfe: MicroFrontend = this.getMicroFrontend(mfeName)
 
-    return path.resolve(this.microfrontendsPath, mfeName, mfe.publicFolder)
+    return path.resolve(
+      this.microfrontendsPath,
+      mfeName,
+      mfe.publicFolder ?? DEFAULT_PUBLIC_FOLDER
+    )
   }
 
   private createMicroFrontendDirectory(name: string) {

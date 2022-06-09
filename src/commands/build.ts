@@ -31,7 +31,7 @@ export default class Build extends BaseBuildCommand {
   }
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject()
     const { args, flags } = await this.parse(Build)
     const componentService = new ComponentService()
 

@@ -2,27 +2,26 @@ import { expect, test } from '@oclif/test'
 
 import { ComponentService } from '../../src/services/component-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
-import { bundleDescriptor } from '../helpers/mocks/component-service-test/bundle-descriptor'
 import { CLIError } from '@oclif/errors'
-import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as sinon from 'sinon'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
+import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
+import { ComponentHelper } from '../helpers/mocks/component-helper'
 
 describe('component-service', () => {
   let componentService: ComponentService
   const tempDirHelper = new TempDirHelper(__filename)
   const msSpringBoot = 'test-ms-spring-boot-1'
+  const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
 
   before(() => {
     const bundleDir = tempDirHelper.createInitializedBundleDir()
     const bundleDescriptorService = new BundleDescriptorService(bundleDir)
-    bundleDescriptorService.createBundleDescriptor(
-      bundleDescriptor as BundleDescriptor
-    )
+    bundleDescriptorService.createBundleDescriptor(bundleDescriptor)
   })
 
   afterEach(function () {
@@ -33,7 +32,7 @@ describe('component-service', () => {
     .do(() => {
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+        .returns(bundleDescriptor)
     })
     .it('get component', () => {
       componentService = new ComponentService()
@@ -55,7 +54,7 @@ describe('component-service', () => {
     .do(() => {
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+        .returns(bundleDescriptor)
     })
     .it('get component that not exists', () => {
       componentService = new ComponentService()
@@ -68,7 +67,7 @@ describe('component-service', () => {
     .do(() => {
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+        .returns(bundleDescriptor)
     })
     .it('get all components', () => {
       componentService = new ComponentService()
@@ -86,7 +85,7 @@ describe('component-service', () => {
       )
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(bundleDescriptor as BundleDescriptor)
+        .returns(bundleDescriptor)
       sinon.stub(fs, 'existsSync').returns(true)
     })
     .it('Builds spring-boot Microservice', async () => {
@@ -103,4 +102,26 @@ describe('component-service', () => {
         })
       )
     })
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microfrontends = [
+        ComponentHelper.newMicroFrontend('same-name')
+      ]
+      bundleDescriptor.microservices = [
+        ComponentHelper.newMicroservice('same-name')
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      componentService.checkDuplicatedComponentNames()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Components names should be unique. Duplicates found: same-name'
+      )
+    })
+    .it('Checks for duplicate component names')
 })

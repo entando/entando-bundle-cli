@@ -6,8 +6,6 @@ import {
 import {
   Component,
   ComponentType,
-  MicroFrontendStack,
-  MicroserviceStack,
   VersionedComponent
 } from '../models/component'
 import { BundleDescriptorService } from './bundle-descriptor-service'
@@ -42,7 +40,7 @@ export class ComponentService {
   private readonly componentDescriptorService: ComponentDescriptorService
 
   constructor() {
-    this.bundleDescriptorService = new BundleDescriptorService(process.cwd())
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 
@@ -98,8 +96,6 @@ export class ComponentService {
   public async build(name: string): Promise<ProcessExecutionResult> {
     const component = this.getComponent(name)
 
-    this.validateComponent(component)
-
     const componentPath = ComponentService.getComponentPath(component)
 
     if (!fs.existsSync(componentPath)) {
@@ -122,6 +118,21 @@ export class ComponentService {
     return this.getComponents().some(comp => comp.name === name)
   }
 
+  public checkDuplicatedComponentNames(): void {
+    const allNames = this.getComponents().map(c => c.name)
+
+    const duplicates = allNames.filter(
+      (item, index) => allNames.indexOf(item) !== index
+    )
+
+    if (duplicates.length > 0) {
+      throw new Error(
+        'Components names should be unique. Duplicates found: ' +
+          [...new Set(duplicates)].join(', ')
+      )
+    }
+  }
+
   public getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
@@ -129,31 +140,6 @@ export class ComponentService {
     }
 
     return component
-  }
-
-  // eslint-disable-next-line no-warning-comments
-  // TODO: ENG-3788 Move the component validation to the Bundle validator
-  validateComponent(component: Component<ComponentType>): void {
-    const { type, stack, name } = component
-    if (type === ComponentType.MICROFRONTEND) {
-      if (
-        !Object.values(MicroFrontendStack).includes(stack as MicroFrontendStack)
-      ) {
-        throw new CLIError(
-          `Component ${name} of type ${type} has an invalid stack ${stack}`
-        )
-      }
-    } else if (type === ComponentType.MICROSERVICE) {
-      if (
-        !Object.values(MicroserviceStack).includes(stack as MicroserviceStack)
-      ) {
-        throw new CLIError(
-          `Component ${name} of type ${type} has an invalid stack ${stack}`
-        )
-      }
-    } else {
-      throw new CLIError(`Invalid component type ${type}`)
-    }
   }
 
   public removeOutputDescriptor(component: Component<ComponentType>): void {

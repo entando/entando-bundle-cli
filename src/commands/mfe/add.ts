@@ -29,7 +29,7 @@ export default class Add extends Command {
   ]
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { args, flags } = await this.parse(Add)
 

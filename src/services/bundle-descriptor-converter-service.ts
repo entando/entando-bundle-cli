@@ -1,5 +1,6 @@
 import {
   BundleDescriptor,
+  DBMS,
   MicroFrontend,
   Microservice
 } from '../models/bundle-descriptor'
@@ -32,9 +33,9 @@ export class BundleDescriptorConverterService {
   private readonly componentService: ComponentService
   private readonly dockerOrganization: string
 
-  constructor(bundleDirectory: string, dockerOrganization: string) {
-    this.bundleDirectory = bundleDirectory
-    this.bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
+  constructor(dockerOrganization: string) {
+    this.bundleDirectory = process.cwd()
+    this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
     this.dockerOrganization = dockerOrganization
   }
@@ -85,7 +86,7 @@ export class BundleDescriptorConverterService {
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
       descriptorVersion: PLUGIN_DESCRIPTOR_VERSION,
-      dbms: microservice.dbms,
+      dbms: microservice.dbms ?? DBMS.None,
       image: DockerService.getDockerImageName(
         this.dockerOrganization,
         microservice.name,

@@ -7,8 +7,12 @@ import {
   MicroFrontend,
   Microservice
 } from '../../../src/models/bundle-descriptor'
-import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import {
+  BundleDescriptorService,
+  MISSING_DESCRIPTOR_ERROR
+} from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
+import { ComponentHelper } from '../../helpers/mocks/component-helper'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -95,8 +99,8 @@ describe('mfe add', () => {
   test
     .do(() => {
       fs.mkdirSync(path.resolve(tempBundleDir, 'microfrontends', 'mfe1'))
-      const microfrontends: MicroFrontend[] = <MicroFrontend[]>[
-        { name: 'mfe1' }
+      const microfrontends: MicroFrontend[] = [
+        ComponentHelper.newMicroFrontend('mfe1')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -137,8 +141,8 @@ describe('mfe add', () => {
   test
     .stderr()
     .do(() => {
-      const microfrontends: MicroFrontend[] = <MicroFrontend[]>[
-        { name: 'existing-mfe-desc' }
+      const microfrontends: MicroFrontend[] = [
+        ComponentHelper.newMicroFrontend('existing-mfe-desc')
       ]
       bundleDescriptorService.writeBundleDescriptor({
         ...bundleDescriptor,
@@ -160,14 +164,14 @@ describe('mfe add', () => {
     })
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {
-      expect(error.message).to.contain('not an initialized Bundle project')
+      expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with an error if current folder is not a Bundle project')
 
   test
     .do(() => {
-      const microservices: Microservice[] = <Microservice[]>[
-        { name: 'component1' }
+      const microservices: Microservice[] = [
+        ComponentHelper.newMicroservice('component1')
       ]
 
       bundleDescriptorService.writeBundleDescriptor({
