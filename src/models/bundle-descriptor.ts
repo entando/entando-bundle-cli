@@ -51,10 +51,9 @@ export type Microservice = {
   }
 }
 
-export type MicroFrontend = {
+type BaseMicroFrontend = {
   name: string
   stack: MicroFrontendStack
-  type: MicroFrontendType
   code?: string
   titles: { [lang: string]: string }
   group: string
@@ -64,9 +63,25 @@ export type MicroFrontend = {
     build?: string
   }
   nav?: Nav[]
-  slot?: MicroFrontendAppBuilderSlot
-  paths?: string[]
 }
+
+export type AppBuilderMicroFrontend = BaseMicroFrontend & {
+  type: MicroFrontendType.AppBuilder
+} & (
+    | {
+        slot: Exclude<
+          MicroFrontendAppBuilderSlot,
+          MicroFrontendAppBuilderSlot.Content
+        >
+      }
+    | { slot: MicroFrontendAppBuilderSlot.Content; paths: string[] }
+  )
+
+export type MicroFrontend =
+  | (BaseMicroFrontend & {
+      type: Exclude<MicroFrontendType, MicroFrontendType.AppBuilder>
+    })
+  | AppBuilderMicroFrontend
 
 export type BundleDescriptor = {
   /** Bundle project name. It will be used as default Docker image name */

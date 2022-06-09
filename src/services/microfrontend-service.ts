@@ -2,6 +2,7 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
 import {
+  AppBuilderMicroFrontend,
   BundleDescriptor,
   MicroFrontend,
   MicroFrontendAppBuilderSlot,
@@ -154,16 +155,22 @@ export class MicroFrontendService {
     return { en: mfeName, it: mfeName }
   }
 
-  private getAppBuilderFields(mfe: MicroFrontend): {
-    slot: MicroFrontendAppBuilderSlot
-    paths?: string[]
-  } {
+  private getAppBuilderFields(mfe: AppBuilderMicroFrontend):
+    | {
+        slot: MicroFrontendAppBuilderSlot.Content
+        paths: string[]
+      }
+    | {
+        slot: Exclude<
+          MicroFrontendAppBuilderSlot,
+          MicroFrontendAppBuilderSlot.Content
+        >
+      } {
     const slot: MicroFrontendAppBuilderSlot =
       mfe.slot || MicroFrontendAppBuilderSlot.Content
 
-    return {
-      slot,
-      ...(slot === MicroFrontendAppBuilderSlot.Content && { paths: [] })
-    }
+    if (slot === MicroFrontendAppBuilderSlot.Content) return { slot, paths: [] }
+
+    return { slot }
   }
 }

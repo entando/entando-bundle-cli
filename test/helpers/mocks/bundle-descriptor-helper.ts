@@ -78,10 +78,22 @@ export class BundleDescriptorHelper {
           name: 'test-mfe-2',
           code: 'test-mfe-code-2',
           stack: MicroFrontendStack.React,
-          type: MicroFrontendType.AppBuilder,
+          type: MicroFrontendType.WidgetConfig,
           titles: {
             en: 'mfe title 2',
             it: 'titolo mfe 2'
+          },
+          group: 'free',
+          publicFolder: 'public'
+        },
+        {
+          name: 'test-mfe-3',
+          code: 'test-mfe-code-3',
+          stack: MicroFrontendStack.React,
+          type: MicroFrontendType.AppBuilder,
+          titles: {
+            en: 'mfe title 3',
+            it: 'titolo mfe 3'
           },
           group: 'free',
           publicFolder: 'public',

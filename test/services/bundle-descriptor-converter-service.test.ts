@@ -17,7 +17,8 @@ import {
   ApiType,
   DBMS,
   SecurityLevel,
-  MicroFrontendType
+  MicroFrontendType,
+  MicroFrontendAppBuilderSlot
 } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
@@ -98,6 +99,16 @@ describe('bundle-descriptor-converter-service', () => {
           titles: {},
           group: 'free',
           publicFolder: 'public'
+        },
+        {
+          name: 'test-app-builder-mfe',
+          stack: MicroFrontendStack.React,
+          type: MicroFrontendType.AppBuilder,
+          titles: {},
+          group: 'free',
+          publicFolder: 'public',
+          slot: MicroFrontendAppBuilderSlot.Content,
+          paths: []
         }
       ]
     })
@@ -160,6 +171,23 @@ describe('bundle-descriptor-converter-service', () => {
       type: 'widget'
     })
 
+    const appBuilderMfeDescriptorPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      'widgets',
+      'test-app-builder-mfe.yaml'
+    )
+    checkYamlFile(appBuilderMfeDescriptorPath, {
+      code: 'test-app-builder-mfe',
+      titles: {},
+      group: 'free',
+      version: 'v2',
+      type: 'app-builder',
+      slot: 'content',
+      paths: []
+    })
+
     const msDescriptorPath = path.resolve(
       bundleDir,
       ...OUTPUT_FOLDER,
@@ -214,7 +242,11 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
-        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml']
+        widgets: [
+          'widgets/test-mfe.yaml',
+          'widgets/test-mfe-no-code.yaml',
+          'widgets/test-app-builder-mfe.yaml'
+        ]
       },
       global: {
         nav: [
