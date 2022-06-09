@@ -10,6 +10,7 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 describe('fs-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
   const defaultBundleName = 'fs-mi'
+  const writeJSONtestFile = 'fs-service-writejson-test'
 
   before(() => {
     // creating a subfolder for testing the existing bundle case
@@ -23,6 +24,10 @@ describe('fs-service', () => {
         force: true
       })
     }
+  })
+
+  after(() => {
+    fs.rmSync(path.resolve(os.tmpdir(), writeJSONtestFile))
   })
 
   test.it('run checkBundleName', () => {
@@ -133,7 +138,7 @@ describe('fs-service', () => {
     })
 
   test.it('writeJSON writes JSON data to file', () => {
-    const tmpFilePath = path.resolve(os.tmpdir(), 'fs-service-writejson-test')
+    const tmpFilePath = path.resolve(os.tmpdir(), writeJSONtestFile)
 
     const filePath = path.resolve(os.tmpdir(), tmpFilePath)
     const data = { test: 'testvalue' }

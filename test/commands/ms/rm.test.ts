@@ -7,6 +7,7 @@ import { MicroserviceService } from '../../../src/services/microservice-service'
 import { Microservice } from '../../../src/models/bundle-descriptor'
 import { MicroserviceStack } from '../../../src/models/component'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
+import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 
 describe('Remove Microservice', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -26,6 +27,11 @@ describe('Remove Microservice', () => {
       microserviceService.addMicroservice(ms)
       const bundleDescriptorService = new BundleDescriptorService(process.cwd())
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+
+      const bundleDescriptorConverterService =
+        new BundleDescriptorConverterService(tempBundleDir, 'test-docker-org')
+      bundleDescriptorConverterService.generateYamlDescriptors()
+
       expect(
         bundleDescriptor.microservices.some(ms => ms.name === 'test-ms')
       ).to.be.equal(true)
@@ -34,17 +40,17 @@ describe('Remove Microservice', () => {
     .it('Removes an existing Microservice', function () {
       const bundleDescriptorService = new BundleDescriptorService(process.cwd())
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-      const outputPath: string = path.resolve(
+      const outputDescriptorPath: string = path.resolve(
         tempBundleDir,
         ...DESCRIPTORS_OUTPUT_FOLDER,
         'plugins',
-        'test-ms'
+        'test-ms.yaml'
       )
 
       expect(
         bundleDescriptor.microservices.some(ms => ms.name === 'test-ms')
       ).to.be.equal(false)
-      expect(fs.existsSync(outputPath)).to.eq(false)
+      expect(fs.existsSync(outputDescriptorPath)).to.eq(false)
     })
 
   test

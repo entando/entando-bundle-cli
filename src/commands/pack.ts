@@ -114,11 +114,6 @@ export default class Pack extends BaseBuildCommand {
     for (const microservice of microservices) {
       const msPath = path.resolve(MICROSERVICES_FOLDER, microservice.name)
 
-      const logFile = this.getBuildOutputLogFile(
-        microservice,
-        MICROSERVICES_FOLDER
-      )
-
       const msDockerfile = path.resolve(msPath, DEFAULT_DOCKERFILE_NAME)
 
       if (!fs.existsSync(msDockerfile)) {
@@ -132,6 +127,11 @@ export default class Pack extends BaseBuildCommand {
           `Unable to determine version for microservice ${microservice.name}`
         )
       }
+
+      const logFile = this.getBuildOutputLogFile(
+        microservice,
+        MICROSERVICES_FOLDER
+      )
 
       buildOptions.push({
         name: microservice.name,
