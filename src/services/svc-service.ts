@@ -11,7 +11,7 @@ import {
 
 import { debugFactory } from './debug-factory-service'
 
-enum DockerServiceType {
+enum DockerComposeCommand {
   UP = 'up --build -d',
   STOP = 'stop',
   RESTART = 'restart'
@@ -97,7 +97,7 @@ export class SvcService {
 
     SvcService.debug(`starting service ${services.join(', ')}`)
 
-    return this.processDockerExecution(DockerServiceType.UP, services)
+    return this.executeDockerComposeCommand(DockerComposeCommand.UP, services)
   }
 
   public stopServices(services: string[]): Promise<ProcessExecutionResult> {
@@ -105,7 +105,7 @@ export class SvcService {
 
     SvcService.debug(`stopping service ${services.join(', ')}`)
 
-    return this.processDockerExecution(DockerServiceType.STOP, services)
+    return this.executeDockerComposeCommand(DockerComposeCommand.STOP, services)
   }
 
   public restartServices(services: string[]): Promise<ProcessExecutionResult> {
@@ -113,11 +113,14 @@ export class SvcService {
 
     SvcService.debug(`restarting service ${services.join(', ')}`)
 
-    return this.processDockerExecution(DockerServiceType.RESTART, services)
+    return this.executeDockerComposeCommand(
+      DockerComposeCommand.RESTART,
+      services
+    )
   }
 
-  private processDockerExecution(
-    serviceType: DockerServiceType,
+  private executeDockerComposeCommand(
+    serviceType: DockerComposeCommand,
     services: string[]
   ): Promise<ProcessExecutionResult> {
     const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
