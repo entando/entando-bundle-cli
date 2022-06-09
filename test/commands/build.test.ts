@@ -68,6 +68,19 @@ describe('build command', () => {
     }
   ]
 
+  const mfeListReact: Array<Component<ComponentType>> = [
+    {
+      name: 'test-mfe-react-1',
+      stack: MicroFrontendStack.React,
+      type: ComponentType.MICROFRONTEND
+    },
+    {
+      name: 'test-mfe-react-2',
+      stack: MicroFrontendStack.React,
+      type: ComponentType.MICROFRONTEND
+    }
+  ]
+
   let executeProcessStub: sinon.SinonStub
 
   afterEach(function () {
@@ -86,6 +99,30 @@ describe('build command', () => {
       expect(error.message).to.contain('not exists')
     })
     .it('build spring-boot microservice folder not exists')
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command')
+    })
+    .command(['build', '--all-ms', '--all-mfe'])
+    .catch(error => {
+      console.log(error.message)
+      expect(error.message).to.contain('Build failed, please use only one flag')
+    })
+    .it('build command with multiple flags should return and error')
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command')
+    })
+    .command(['build', '--all-ms', 'my-component'])
+    .catch(error => {
+      console.log(error.message)
+      expect(error.message).to.contain(
+        'Build failed, please use one flag or write the component name as argument'
+      )
+    })
+    .it('build command with flag and name arg should return and error')
 
   test
     .do(() => {
@@ -273,6 +310,41 @@ describe('build command', () => {
     .stderr()
     .command(['build', '--all-ms'])
     .it('build all spring-boot microservices', async ctx => {
+      sinon.assert.called(getComponentsStub)
+      expect(ctx.stderr).contain('2/2')
+    })
+
+  test
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-build-command-mfe'
+      )
+      fs.mkdirSync(
+        path.resolve(bundleDir, MICROSERVICES_FOLDER, mfeListReact[0].name),
+        { recursive: true }
+      )
+      fs.mkdirSync(
+        path.resolve(bundleDir, MICROSERVICES_FOLDER, mfeListReact[1].name)
+      )
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(mfeListReact)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .command(['build', '--all-mfe'])
+    .it('build all react microfrontends', async ctx => {
       sinon.assert.called(getComponentsStub)
       expect(ctx.stderr).contain('2/2')
     })
