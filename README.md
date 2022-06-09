@@ -125,12 +125,13 @@ Build bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME] [--all-ms] [--all-mfe]
+  $ entando-bundle-cli build [NAME] [--all-ms] [--all-mfe] [--all]
 
 ARGUMENTS
   NAME  The name of the component to build
 
 FLAGS
+  --all      Build all the bundle components
   --all-mfe  Build all the bundle micro frontends
   --all-ms   Build all the bundle microservices
 
