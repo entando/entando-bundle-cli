@@ -11,7 +11,8 @@ export default class Build extends BaseBuildCommand {
   static examples = [
     '<%= config.bin %> <%= command.id %> my-component',
     '<%= config.bin %> <%= command.id %> --all-ms',
-    '<%= config.bin %> <%= command.id %> --all-mfe'
+    '<%= config.bin %> <%= command.id %> --all-mfe',
+    '<%= config.bin %> <%= command.id %> --all'
   ]
 
   static args = [
@@ -27,6 +28,9 @@ export default class Build extends BaseBuildCommand {
     }),
     'all-mfe': Flags.boolean({
       description: 'Build all the bundle micro frontends'
+    }),
+    all: Flags.boolean({
+      description: 'Build all the bundle components'
     })
   }
 
@@ -50,6 +54,8 @@ export default class Build extends BaseBuildCommand {
       await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
     } else if (flags['all-ms']) {
       await this.buildAllComponents(Phase.Build, ComponentType.MICROSERVICE)
+    } else if (flags.all) {
+      await this.buildAllComponents(Phase.Build)
     } else {
       if (args.name === undefined) {
         this.error(`Build failed, missing required arg name`, { exit: 1 })
@@ -73,8 +79,8 @@ export default class Build extends BaseBuildCommand {
           )
         }
       }
-    }
 
-    CliUx.ux.action.stop()
+      CliUx.ux.action.stop()
+    }
   }
 }

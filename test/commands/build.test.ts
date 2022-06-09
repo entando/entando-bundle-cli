@@ -3,63 +3,26 @@ import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { MICROFRONTENDS_FOLDER, MICROSERVICES_FOLDER } from '../../src/paths'
+import { MICROSERVICES_FOLDER } from '../../src/paths'
 import {
   ProcessExecutionResult,
   ProcessExecutorService
 } from '../../src/services/process-executor-service'
 import { ComponentService } from '../../src/services/component-service'
-import {
-  Component,
-  ComponentType,
-  MicroFrontendStack,
-  MicroserviceStack
-} from '../../src/models/component'
+import { Component, ComponentType } from '../../src/models/component'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import * as executors from '../../src/services/process-executor-service'
+import {
+  msSpringBoot,
+  mfeReact,
+  msListSpringBoot,
+  mfeListReact,
+  msNameSpringBoot,
+  mfeNameReact
+} from '../helpers/mocks/commands/build-mocks'
 
 describe('build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
-  const msNameSpringBoot = 'test-ms-spring-boot'
-  const mfeNameReact = 'test-mfe-react'
-
-  const msSpringBoot: Component<ComponentType> = {
-    name: msNameSpringBoot,
-    stack: MicroserviceStack.SpringBoot,
-    type: ComponentType.MICROSERVICE
-  }
-
-  const mfeReact: Component<ComponentType.MICROFRONTEND> = {
-    name: mfeNameReact,
-    stack: MicroFrontendStack.React,
-    type: ComponentType.MICROFRONTEND
-  }
-
-  const msListSpringBoot: Array<Component<ComponentType>> = [
-    {
-      name: 'test-ms-spring-boot-1',
-      stack: MicroserviceStack.SpringBoot,
-      type: ComponentType.MICROSERVICE
-    },
-    {
-      name: 'test-ms-spring-boot-2',
-      stack: MicroserviceStack.SpringBoot,
-      type: ComponentType.MICROSERVICE
-    }
-  ]
-
-  const mfeListReact: Array<Component<ComponentType>> = [
-    {
-      name: 'test-mfe-react-1',
-      stack: MicroFrontendStack.React,
-      type: ComponentType.MICROFRONTEND
-    },
-    {
-      name: 'test-mfe-react-2',
-      stack: MicroFrontendStack.React,
-      type: ComponentType.MICROFRONTEND
-    }
-  ]
 
   let executeProcessStub: sinon.SinonStub
 
@@ -86,7 +49,6 @@ describe('build command', () => {
     })
     .command(['build', '--all-ms', '--all-mfe'])
     .catch(error => {
-      console.log(error.message)
       expect(error.message).to.contain('Build failed, please use only one flag')
     })
     .it('build command with multiple flags should return and error')
@@ -97,7 +59,6 @@ describe('build command', () => {
     })
     .command(['build', '--all-ms', 'my-component'])
     .catch(error => {
-      console.log(error.message)
       expect(error.message).to.contain(
         'Build failed, please use one flag or write the component name as argument'
       )
@@ -175,13 +136,10 @@ describe('build command', () => {
 
   test
     .do(() => {
-      const bundleDir = tempDirHelper.createInitializedBundleDir(
-        'test-build-command-mfe'
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROFRONTENDS_FOLDER, mfeNameReact),
-        { recursive: true }
-      )
+      tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
+
+      TempDirHelper.createComponentFolder(mfeReact)
+
       executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(0)
@@ -222,16 +180,10 @@ describe('build command', () => {
 
   test
     .do(() => {
-      const bundleDir = tempDirHelper.createInitializedBundleDir(
-        'test-build-command-ms'
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, msListSpringBoot[0].name),
-        { recursive: true }
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, msListSpringBoot[1].name)
-      )
+      tempDirHelper.createInitializedBundleDir('test-build-command-ms')
+
+      TempDirHelper.createComponentsFolders(msListSpringBoot)
+
       executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(0)
@@ -257,16 +209,9 @@ describe('build command', () => {
 
   test
     .do(() => {
-      const bundleDir = tempDirHelper.createInitializedBundleDir(
-        'test-build-command-mfe'
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, mfeListReact[0].name),
-        { recursive: true }
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, mfeListReact[1].name)
-      )
+      tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
+      TempDirHelper.createComponentsFolders(mfeListReact)
+
       executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(0)
@@ -288,5 +233,38 @@ describe('build command', () => {
     .it('build all react microfrontends', async ctx => {
       sinon.assert.called(getComponentsStub)
       expect(ctx.stderr).contain('2/2')
+    })
+
+  const componentList: Array<Component<ComponentType>> = [
+    ...msListSpringBoot,
+    ...mfeListReact
+  ]
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command-all')
+      TempDirHelper.createComponentsFolders(componentList)
+
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(componentList)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0, 0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .command(['build', '--all'])
+    .it('build all componenents', async ctx => {
+      sinon.assert.called(getComponentsStub)
+      expect(ctx.stderr).contain('4/4')
     })
 })
