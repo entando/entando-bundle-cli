@@ -31,10 +31,6 @@ export default class Pack extends BaseBuildCommand {
   ]
 
   static flags = {
-    build: Flags.boolean({
-      char: 'b',
-      description: 'Builds all bundle components before creating the package'
-    }),
     org: Flags.string({
       char: 'o',
       description: 'Docker organization name'
@@ -58,9 +54,7 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
-    if (flags.build) {
-      await this.buildAllComponents(Phase.Package)
-    }
+    await this.buildAllComponents(Phase.Package)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
