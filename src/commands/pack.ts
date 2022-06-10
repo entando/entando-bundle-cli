@@ -117,10 +117,7 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      const logFile = this.getBuildOutputLogFile(
-        microservice,
-        MICROSERVICES_FOLDER
-      )
+      const logFile = this.getBuildOutputLogFile(microservice)
 
       buildOptions.push({
         name: microservice.name,
