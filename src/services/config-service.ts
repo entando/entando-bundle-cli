@@ -5,11 +5,12 @@ import { CLIError } from '@oclif/core/lib/errors'
 import { CONFIG_FOLDER, CONFIG_FILE } from '../paths'
 
 export const DOCKER_ORGANIZATION_PROPERTY = 'docker-organization'
+export const DOCKER_REGISTRY_PROPERTY = 'docker-registry'
 
 export class ConfigService {
   private config: { [key: string]: string } = {}
 
-  private readConfigFile = (): void => {
+  private readConfigFile(): void {
     const configFilePath = path.join(CONFIG_FOLDER, CONFIG_FILE)
     if (fs.existsSync(configFilePath)) {
       const configFile = fs.readFileSync(configFilePath, {
@@ -19,7 +20,7 @@ export class ConfigService {
     }
   }
 
-  private writeConfigFile = (): void => {
+  private writeConfigFile(): void {
     const filePath = path.join(CONFIG_FOLDER)
 
     fs.writeFileSync(

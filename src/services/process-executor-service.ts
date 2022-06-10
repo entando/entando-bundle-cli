@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { spawn, StdioOptions } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 
@@ -20,6 +20,7 @@ export type ProcessExecutionOptions = {
    * If the field is not defined the output will be ignored.
    */
   errorStream?: Writable
+  stdio?: StdioOptions
 }
 
 export type ProcessExecutionResult = number | Error | NodeJS.Signals
@@ -141,20 +142,25 @@ export class ParallelProcessExecutorService extends EventEmitter {
 function setUpProcess(options: ProcessExecutionOptions) {
   const process = spawn(options.command, {
     cwd: options.workDir,
-    shell: true
+    shell: true,
+    stdio: options.stdio
   })
 
-  process.stdout.on('data', chunk => {
-    if (options.outputStream) {
-      options.outputStream.write(chunk)
-    }
-  })
+  if (process.stdout) {
+    process.stdout.on('data', chunk => {
+      if (options.outputStream) {
+        options.outputStream.write(chunk)
+      }
+    })
+  }
 
-  process.stderr.on('data', chunk => {
-    if (options.errorStream) {
-      options.errorStream.write(chunk)
-    }
-  })
+  if (process.stderr) {
+    process.stderr.on('data', chunk => {
+      if (options.errorStream) {
+        options.errorStream.write(chunk)
+      }
+    })
+  }
 
   return process
 }

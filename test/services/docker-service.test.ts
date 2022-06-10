@@ -122,4 +122,29 @@ describe('DockerService', () => {
       expect(error.message).contain('Unable to check Docker images')
     })
     .it('Checks Docker images existence and docker ls command fails')
+
+  test.it('Perform docker login on default registry', async () => {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .resolves(1)
+      .onSecondCall()
+      .resolves(0)
+    await DockerService.login()
+  })
+
+  test.it('Perform docker login on custom registry', async () => {
+    sinon.stub(ProcessExecutorService, 'executeProcess').resolves(0)
+    await DockerService.login('my-registry')
+  })
+
+  test
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.login()
+    })
+    .catch(error => {
+      expect(error.message).contain('Docker login failed')
+    })
+    .it('Docker login fails')
 })

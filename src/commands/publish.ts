@@ -2,14 +2,22 @@ import { Command, Flags } from '@oclif/core'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import {
   ConfigService,
-  DOCKER_ORGANIZATION_PROPERTY
+  DOCKER_ORGANIZATION_PROPERTY,
+  DOCKER_REGISTRY_PROPERTY
 } from '../services/config-service'
-import { DockerService } from '../services/docker-service'
-
+import {
+  DEFAULT_DOCKER_REGISTRY,
+  DockerService
+} from '../services/docker-service'
 export default class Publish extends Command {
   static description = 'Publish bundle Docker images'
 
   static flags = {
+    'docker-registry': Flags.string({
+      char: 'r',
+      description: `Docker registry (default is ${DEFAULT_DOCKER_REGISTRY})`,
+      required: false
+    }),
     org: Flags.string({
       char: 'o',
       description: `Docker organization name`,
@@ -57,5 +65,17 @@ export default class Publish extends Command {
         'One or more Docker images are missing. Running pack command.'
       )
     }
+
+    let dockerRegistry = flags['docker-registry']
+    if (dockerRegistry) {
+      configService.addOrUpdateProperty(
+        DOCKER_REGISTRY_PROPERTY,
+        dockerRegistry
+      )
+    } else {
+      dockerRegistry = configService.getProperty(DOCKER_REGISTRY_PROPERTY)
+    }
+
+    await DockerService.login(dockerRegistry)
   }
 }

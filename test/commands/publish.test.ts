@@ -3,6 +3,7 @@ import * as sinon from 'sinon'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import {
   ConfigService,
+  DOCKER_REGISTRY_PROPERTY,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../../src/services/config-service'
 import { DockerService } from '../../src/services/docker-service'
@@ -11,6 +12,10 @@ import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helpe
 describe('publish', () => {
   afterEach(() => {
     sinon.restore()
+  })
+
+  beforeEach(() => {
+    sinon.stub(DockerService, 'login').resolves()
   })
 
   test
@@ -112,4 +117,41 @@ describe('publish', () => {
     })
     .command(['publish', '--org', 'flag-organization'])
     .it('Successfully publish Docker images using flag organization')
+
+  test
+    .do(() => {
+      sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
+      sinon
+        .stub(ConfigService.prototype, 'getProperty')
+        .withArgs(DOCKER_ORGANIZATION_PROPERTY)
+        .returns('myorganization')
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(BundleDescriptorHelper.newBundleDescriptor())
+    })
+    .command('publish')
+    .it('Successfully publish Docker images')
+
+  test
+    .do(() => {
+      sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
+      sinon
+        .stub(ConfigService.prototype, 'getProperty')
+        .withArgs(DOCKER_ORGANIZATION_PROPERTY)
+        .returns('myorganization')
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(BundleDescriptorHelper.newBundleDescriptor())
+      sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
+    })
+    .command(['publish', '--docker-registry', 'my-custom-registry'])
+    .it('Successfully publish Docker images on custom registry', () => {
+      const addOrUpdatePropertyStub = ConfigService.prototype
+        .addOrUpdateProperty as sinon.SinonStub
+      sinon.assert.calledWith(
+        addOrUpdatePropertyStub,
+        DOCKER_REGISTRY_PROPERTY,
+        'my-custom-registry'
+      )
+    })
 })
