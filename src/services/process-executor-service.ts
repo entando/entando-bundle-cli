@@ -25,6 +25,7 @@ export type ProcessExecutionOptions = {
 export type ProcessExecutionResult = number | Error | NodeJS.Signals
 
 export class ProcessExecutorService {
+  private static debug = debugFactory(ProcessExecutorService)
   /**
    * Executes a long running child process and handles its output streams.
    * @param options parameters for underlying spawn function and output configuration
@@ -33,6 +34,7 @@ export class ProcessExecutorService {
   public static async executeProcess(
     options: ProcessExecutionOptions
   ): Promise<ProcessExecutionResult> {
+    ProcessExecutorService.debug(`Running cmd ${options.command}`)
     return new Promise(resolve => {
       const process = setUpProcess(options)
 
