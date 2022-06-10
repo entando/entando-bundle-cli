@@ -37,7 +37,7 @@ describe('svc disable', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/keycloak.yml rm -f -s'
+        'docker-compose -p sample-bundle -f svc/keycloak.yml rm -f -s keycloak'
       )
     })
 

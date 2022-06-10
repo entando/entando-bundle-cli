@@ -15,7 +15,7 @@ enum DockerComposeCommand {
   UP = 'up --build -d',
   STOP = 'stop',
   RESTART = 'restart',
-  RM = 'rm -f -s'
+  RM = 'rm'
 }
 export class SvcService {
   private static debug = debugFactory(SvcService)
@@ -130,12 +130,16 @@ export class SvcService {
   ): Promise<ProcessExecutionResult> {
     const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
       .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
-      .join(' ')} ${serviceType}`
+      .join(' ')} ${serviceType}${
+      serviceType === DockerComposeCommand.RM
+        ? services.map(service => ` -f -s ${service}`).join('')
+        : ''
+    }`
 
     return ProcessExecutorService.executeProcess({
       command: cmd,
-      outputStream: process.stdout,
-      errorStream: process.stdout,
+      outputStream: SvcService.debug.outputStream,
+      errorStream: SvcService.debug.outputStream,
       workDir: this.parentDirectory
     })
   }
