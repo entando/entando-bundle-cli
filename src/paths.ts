@@ -5,6 +5,7 @@ export const BUNDLE_DESCRIPTOR_FILE_NAME = 'entando.json'
 export const CONFIG_FILE = 'config.json'
 export const DEFAULT_CONFIG_FILE = 'default-config.json'
 export const OUTPUT_FOLDER = [CONFIG_FOLDER, 'output']
+export const LOGS_FOLDER = [CONFIG_FOLDER, 'logs']
 export const DESCRIPTORS_OUTPUT_FOLDER = [...OUTPUT_FOLDER, 'descriptors']
 export const EPC_FOLDER = 'epc'
 export const MICROFRONTENDS_FOLDER = 'microfrontends'

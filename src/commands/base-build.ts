@@ -13,6 +13,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Component, ComponentType } from '../models/component'
 import {
+  LOGS_FOLDER,
   MICROFRONTENDS_FOLDER,
   MICROSERVICES_FOLDER,
   OUTPUT_FOLDER
@@ -31,8 +32,17 @@ export abstract class BaseBuildCommand extends Command {
   ): Promise<void> {
     this.log(color.bold.blue('Building components...'))
 
-    // Output directory cleanup
-    fs.rmSync(path.resolve(...OUTPUT_FOLDER), { recursive: true })
+    // Output and logs directories cleanup
+    const outputFolder = path.resolve(...OUTPUT_FOLDER)
+    const logsFolder = path.resolve(...LOGS_FOLDER)
+
+    if (fs.existsSync(logsFolder)) {
+      fs.rmSync(logsFolder, { recursive: true })
+    }
+
+    if (fs.existsSync(outputFolder)) {
+      fs.rmSync(outputFolder, { recursive: true })
+    }
 
     const componentService = new ComponentService()
     const components = componentService.getComponents(componentType)
@@ -79,7 +89,7 @@ export abstract class BaseBuildCommand extends Command {
     component: Component<ComponentType>,
     componentFolder: string
   ): fs.WriteStream {
-    const logDir = path.resolve(...OUTPUT_FOLDER, componentFolder)
+    const logDir = path.resolve(...LOGS_FOLDER, componentFolder)
     mkdirSync(logDir, { recursive: true })
     const logFilePath = path.resolve(logDir, component.name + '.log')
     const logFile = fs.createWriteStream(logFilePath)
