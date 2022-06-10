@@ -34,7 +34,7 @@ export class ProcessExecutorService {
   public static async executeProcess(
     options: ProcessExecutionOptions
   ): Promise<ProcessExecutionResult> {
-    ProcessExecutorService.debug(`Running cmd ${options.command}`)
+    ProcessExecutorService.debug(`Running command: ${options.command}`)
     return new Promise(resolve => {
       const process = setUpProcess(options)
 
@@ -114,8 +114,7 @@ export class ParallelProcessExecutorService extends EventEmitter {
 
     if (queuedExecution) {
       ParallelProcessExecutorService.debug(
-        'Started process',
-        queuedExecution.index
+        `Starting process ${queuedExecution.index} with command: ${queuedExecution.options.command}`
       )
       this.emit('start', queuedExecution.index)
 

@@ -34,7 +34,7 @@ describe('svc start', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/postgresql.yml -f svc/mysql.yml up --build -d'
+        'docker-compose -p sample-bundle -f svc/postgresql.yml -f svc/mysql.yml up --build -d postgresql mysql'
       )
     })
 
@@ -48,7 +48,7 @@ describe('svc start', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d'
+        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
       )
     })
 
