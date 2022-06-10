@@ -24,10 +24,7 @@ export default class Stop extends SvcProcessResult {
 
     const { argv, flags } = await this.parse(Stop)
 
-    const svcService: SvcService = new SvcService(
-      process.cwd(),
-      this.config.bin
-    )
+    const svcService: SvcService = new SvcService(this.config.bin)
 
     if (!flags.all && argv.length === 0) {
       this.error(

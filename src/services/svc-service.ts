@@ -14,7 +14,8 @@ import { debugFactory } from './debug-factory-service'
 enum DockerComposeCommand {
   UP = 'up --build -d',
   STOP = 'stop',
-  RESTART = 'restart'
+  RESTART = 'restart',
+  RM = 'rm -f -s'
 }
 export class SvcService {
   private static debug = debugFactory(SvcService)
@@ -25,10 +26,12 @@ export class SvcService {
 
   private readonly serviceFileType = 'yml'
 
-  constructor(parentDirectory: string, configBin: string) {
-    this.parentDirectory = parentDirectory
+  constructor(configBin: string) {
+    this.parentDirectory = process.cwd()
     this.configBin = configBin
-    this.bundleDescriptorService = new BundleDescriptorService(parentDirectory)
+    this.bundleDescriptorService = new BundleDescriptorService(
+      this.parentDirectory
+    )
     this.bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
   }
 
@@ -72,7 +75,7 @@ export class SvcService {
     })
   }
 
-  public disableService(service: string): void {
+  public disableService(service: string): Promise<ProcessExecutionResult> {
     SvcService.debug(`disabling service ${service}`)
     this.isServiceAvailable(service)
 
@@ -90,6 +93,8 @@ export class SvcService {
       ...this.bundleDescriptor,
       svc
     })
+
+    return this.executeDockerComposeCommand(DockerComposeCommand.RM, [service])
   }
 
   public startServices(services: string[]): Promise<ProcessExecutionResult> {
