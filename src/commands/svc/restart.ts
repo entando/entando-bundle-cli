@@ -20,7 +20,7 @@ export default class Restart extends SvcProcessResult {
   }
 
   public async run(): Promise<void> {
-    BundleService.verifyBundleInitialized(process.cwd())
+    BundleService.isValidBundleProject()
 
     const { argv, flags } = await this.parse(Restart)
 
