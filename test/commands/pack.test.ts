@@ -237,12 +237,17 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Unable to determine version for microservice ms1'
+        'Unable to determine version for component ms1'
       )
     })
-    .it('Packaging stops if it is unable to retrieve microservice version')
+    .it('Packaging stops if it is unable to retrieve component version')
 
   test
+    .stub(
+      ComponentDescriptorService.prototype,
+      'getComponentVersion',
+      () => '0.0.1'
+    )
     .do(() => {
       tempDirHelper.createInitializedBundleDir(
         'test-bundle-build-no-dockerfile'

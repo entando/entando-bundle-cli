@@ -111,12 +111,6 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      if (!microservice.version) {
-        this.error(
-          `Unable to determine version for microservice ${microservice.name}`
-        )
-      }
-
       const logFile = this.getBuildOutputLogFile(microservice)
 
       buildOptions.push({
