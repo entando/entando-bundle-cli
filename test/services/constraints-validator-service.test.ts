@@ -55,7 +55,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(
         'Field "type" is not valid. Allowed values are: internal'
       )
-      expect((error as JsonValidationError).jsonPath).eq(
+      expect(error.message).contain(
         '$.microfrontends[1].apiClaims[0].type'
       )
     })
@@ -73,7 +73,7 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain('Field "apiClaims" should be an array')
-      expect((error as JsonValidationError).jsonPath).eq(
+      expect(error.message).contain(
         '$.microfrontends[1].apiClaims'
       )
     })
@@ -113,7 +113,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(
         'Field "titles" is not valid. Should be a key-value map of strings'
       )
-      expect((error as JsonValidationError).jsonPath).eq(
+      expect(error.message).contain(
         '$.microfrontends[0].titles'
       )
     })
@@ -151,7 +151,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(
         'Field "name" is not valid. ' + INVALID_NAME_MESSAGE
       )
-      expect((error as JsonValidationError).jsonPath).eq(
+      expect(error.message).contain(
         '$.microfrontends[1].name'
       )
     })

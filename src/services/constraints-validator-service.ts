@@ -205,8 +205,13 @@ function validateUnionTypeConstraints<T>(
   }
 
   if (errors.length > 0 && errors.length === constraints.length) {
-    // validation failed for all allowed types, returning first error
-    throw errors[0]
+    // validation failed for all allowed types
+    let message = `Fix one of the following errors:`
+    for (const error of errors) {
+      message += `\n* ${error.message.split('\n').join('\n  ')}`
+    }
+
+    throw new CLIError(message)
   }
 }
 
