@@ -6,27 +6,30 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-* [entando-bundle-cli](#entando-bundle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-* [Environment variables](#environment-variables)
-* [Development environment setup](#development-environment-setup)
+
+- [entando-bundle-cli](#entando-bundle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+- [Environment variables](#environment-variables)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT win32-x64 node-v14.19.1
+entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
@@ -48,6 +51,7 @@ USAGE
 - [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+- [`entando-bundle-cli svc logs`](#entando-bundle-cli-svc-logs)
 - [`entando-bundle-cli svc restart`](#entando-bundle-cli-svc-restart)
 - [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
 - [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
@@ -383,6 +387,28 @@ EXAMPLES
   $ entando-bundle-cli svc list
 ```
 
+## `entando-bundle-cli svc logs`
+
+Display logs of running auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc logs [--all]
+
+FLAGS
+  --all  Display logs of all enabled services in the bundle descriptor
+
+DESCRIPTION
+  Display logs of running auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc logs --all
+
+  $ entando-bundle-cli svc logs ext-service
+
+  $ entando-bundle-cli svc logs ext-service1 ext-service2
+```
+
 ## `entando-bundle-cli svc restart`
 
 Restart running auxiliary services
@@ -448,6 +474,7 @@ EXAMPLES
 
   $ entando-bundle-cli svc stop ext-service1 ext-service2
 ```
+
 <!-- commandsstop -->
 
 # Environment variables
