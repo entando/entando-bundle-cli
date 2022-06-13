@@ -28,7 +28,7 @@ export default class Add extends Command {
       default: MicroFrontendType.Widget
     }),
     slot: Flags.string({
-      description: 'Micro Frontend app-builder slot',
+      description: 'Micro Frontend App Builder slot (only if type=app-builder)',
       options: Object.values(MicroFrontendAppBuilderSlot)
     })
   }
