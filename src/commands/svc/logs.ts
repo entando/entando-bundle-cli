@@ -5,7 +5,7 @@ import { SvcProcessResult, ServiceTypes } from './svc-process-result'
 
 export default class Logs extends SvcProcessResult {
   static strict = false
-  static description = 'Display logs of running auxiliary services'
+  static description = 'Display running auxiliary services logs'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> --all',
