@@ -11,12 +11,18 @@ import { DBMS, Microservice } from '../../../src/models/bundle-descriptor'
 import { MicroserviceStack } from '../../../src/models/component'
 import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
+import { ComponentDescriptorService } from '../../../src/services/component-descriptor-service'
 
 describe('Remove Microservice', () => {
   const tempDirHelper = new TempDirHelper(__filename)
   let tempBundleDir: string
 
   test
+    .stub(
+      ComponentDescriptorService.prototype,
+      'getComponentVersion',
+      () => '0.0.1'
+    )
     .do(() => {
       tempBundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-existing-ms'

@@ -57,7 +57,7 @@ export class BundleDescriptorConverterService {
       )!
       this.generateMicroserviceYamlDescriptor(
         microservice,
-        versionedMicroservice.version!
+        versionedMicroservice.version
       )
     }
 

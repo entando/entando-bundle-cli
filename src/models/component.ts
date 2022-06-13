@@ -26,7 +26,6 @@ export type Component<T extends ComponentType> = {
   type: T
 }
 
-export type VersionedComponent = Component<ComponentType> &
-  Record<string, unknown> & {
-    version?: string
-  }
+export type VersionedComponent = Component<ComponentType> & {
+  version: string
+}

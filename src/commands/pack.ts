@@ -23,7 +23,7 @@ import { color } from '@oclif/color'
 import * as fs from 'node:fs'
 
 export default class Pack extends BaseBuildCommand {
-  static description = 'Generate the bundle Docker image'
+  static description = 'Generate the bundle Docker images'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',
@@ -108,12 +108,6 @@ export default class Pack extends BaseBuildCommand {
       if (!fs.existsSync(msDockerfile)) {
         this.error(
           `Dockerfile not found for microservice ${microservice.name}. Please provide one in order to proceed with the bundle packaging`
-        )
-      }
-
-      if (!microservice.version) {
-        this.error(
-          `Unable to determine version for microservice ${microservice.name}`
         )
       }
 

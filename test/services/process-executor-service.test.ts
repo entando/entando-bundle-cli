@@ -2,21 +2,14 @@ import { expect, test } from '@oclif/test'
 import * as cp from 'node:child_process'
 import { ChildProcess } from 'node:child_process'
 import { EventEmitter } from 'node:events'
-import { PassThrough, Writable } from 'node:stream'
+import { PassThrough } from 'node:stream'
 import * as sinon from 'sinon'
+import { InMemoryWritable } from '../../src/utils'
 
 import {
   ProcessExecutorService,
   ParallelProcessExecutorService
 } from '../../src/services/process-executor-service'
-
-class TestOutputStream extends Writable {
-  data = ''
-  public _write = (chunk: any, encoding: BufferEncoding, next: () => void) => {
-    this.data += chunk + '\n'
-    next()
-  }
-}
 
 function getStubProcess() {
   const stubProcess = sinon.createStubInstance(ChildProcess)
@@ -41,8 +34,8 @@ describe('ProcessExecutorService', () => {
     sinon.restore()
   })
 
-  const outputStream = new TestOutputStream()
-  const errorStream = new TestOutputStream()
+  const outputStream = new InMemoryWritable()
+  const errorStream = new InMemoryWritable()
 
   const optionsWithStream = {
     command: 'test',
@@ -55,8 +48,8 @@ describe('ProcessExecutorService', () => {
       const stubProcess = getStubProcess()
       sinon.stub(cp, 'spawn').returns(stubProcess)
       const promise = ProcessExecutorService.executeProcess(optionsWithStream)
-      stubProcess.stdout!.emit('data', 'info message')
-      stubProcess.stderr!.emit('data', 'error message')
+      stubProcess.stdout!.emit('data', 'info message\n')
+      stubProcess.stderr!.emit('data', 'error message\n')
       stubProcess.emit('exit', 0, null)
       await promise
     })

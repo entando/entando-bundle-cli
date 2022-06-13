@@ -29,12 +29,12 @@ export class ConfigService {
     )
   }
 
-  getProperty = (key: string): string | undefined => {
+  getProperty(key: string): string | undefined {
     this.readConfigFile()
     return this.config[key]
   }
 
-  addProperty = (key: string, value: string): void => {
+  addProperty(key: string, value: string): void {
     this.readConfigFile()
 
     if (this.config[key] === undefined) {
@@ -46,7 +46,7 @@ export class ConfigService {
     this.writeConfigFile()
   }
 
-  updateProperty = (key: string, value: string): void => {
+  updateProperty(key: string, value: string): void {
     this.readConfigFile()
 
     if (this.config[key] === undefined) {
@@ -58,13 +58,13 @@ export class ConfigService {
     this.writeConfigFile()
   }
 
-  addOrUpdateProperty = (key: string, value: string): void => {
+  addOrUpdateProperty(key: string, value: string): void {
     this.readConfigFile()
     this.config[key] = value
     this.writeConfigFile()
   }
 
-  deleteProperty = (key: string): void => {
+  deleteProperty(key: string): void {
     this.readConfigFile()
 
     if (this.config[key] === undefined) {
