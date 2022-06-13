@@ -15,6 +15,7 @@ enum DockerComposeCommand {
   UP = 'up --build -d',
   STOP = 'stop',
   RESTART = 'restart',
+  LOGS = 'logs -f',
   RM = 'rm -f -s'
 }
 export class SvcService {
@@ -124,6 +125,14 @@ export class SvcService {
     )
   }
 
+  public logServices(services: string[]): Promise<ProcessExecutionResult> {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`logging service ${services.join(', ')}`)
+
+    return this.executeDockerComposeCommand(DockerComposeCommand.LOGS, services)
+  }
+
   private executeDockerComposeCommand(
     serviceType: DockerComposeCommand,
     services: string[]
@@ -136,8 +145,14 @@ export class SvcService {
 
     return ProcessExecutorService.executeProcess({
       command: cmd,
-      outputStream: SvcService.debug.outputStream,
-      errorStream: SvcService.debug.outputStream,
+      outputStream:
+        serviceType === DockerComposeCommand.LOGS
+          ? process.stdout
+          : SvcService.debug.outputStream,
+      errorStream:
+        serviceType === DockerComposeCommand.LOGS
+          ? process.stdout
+          : SvcService.debug.outputStream,
       workDir: this.parentDirectory
     })
   }
