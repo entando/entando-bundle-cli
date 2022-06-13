@@ -6,7 +6,10 @@ import {
   DOCKER_REGISTRY_PROPERTY,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../../src/services/config-service'
-import { DockerService } from '../../src/services/docker-service'
+import {
+  DEFAULT_DOCKER_REGISTRY,
+  DockerService
+} from '../../src/services/docker-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 
 describe('publish', () => {
@@ -19,13 +22,13 @@ describe('publish', () => {
   })
 
   test
-    .stderr()
     .command('publish')
-    .it('Exits if Docker organization is not found', ctx => {
-      expect(ctx.stderr).contain(
+    .catch(error => {
+      expect(error.message).contain(
         'No configured Docker organization found. Please run the command with --org flag.'
       )
     })
+    .it('Exits if Docker organization is not found')
 
   test
     .do(() => {
@@ -129,8 +132,13 @@ describe('publish', () => {
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
     })
+    .stdout()
     .command('publish')
-    .it('Successfully publish Docker images')
+    .it('Successfully publish Docker images', ctx => {
+      expect(ctx.stdout).contain(
+        'Login on Docker registry ' + DEFAULT_DOCKER_REGISTRY
+      )
+    })
 
   test
     .do(() => {
@@ -144,8 +152,10 @@ describe('publish', () => {
         .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
     })
+    .stdout()
     .command(['publish', '--docker-registry', 'my-custom-registry'])
-    .it('Successfully publish Docker images on custom registry', () => {
+    .it('Successfully publish Docker images on custom registry', ctx => {
+      expect(ctx.stdout).contain('Login on Docker registry my-custom-registry')
       const addOrUpdatePropertyStub = ConfigService.prototype
         .addOrUpdateProperty as sinon.SinonStub
       sinon.assert.calledWith(

@@ -35,10 +35,9 @@ export default class Publish extends Command {
     )
 
     if (!configuredOrganization && !flags.org) {
-      console.warn(
+      this.error(
         'No configured Docker organization found. Please run the command with --org flag.'
       )
-      return
     }
 
     const bundleDescriptor = new BundleDescriptorService().getBundleDescriptor()
@@ -55,15 +54,13 @@ export default class Publish extends Command {
           configuredOrganization
         ))
       if (imagesExists && flags.org) {
-        console.warn('Docker organization changed. Updating images names.')
+        this.warn('Docker organization changed. Updating images names.')
         // TODO: ENG-3816
       }
     }
 
     if (!imagesExists) {
-      console.warn(
-        'One or more Docker images are missing. Running pack command.'
-      )
+      this.warn('One or more Docker images are missing. Running pack command.')
     }
 
     let dockerRegistry = flags['docker-registry']
@@ -76,6 +73,9 @@ export default class Publish extends Command {
       dockerRegistry = configService.getProperty(DOCKER_REGISTRY_PROPERTY)
     }
 
+    this.log(
+      `Login on Docker registry ${dockerRegistry ?? DEFAULT_DOCKER_REGISTRY}`
+    )
     await DockerService.login(dockerRegistry)
   }
 }
