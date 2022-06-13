@@ -58,7 +58,7 @@ describe('svc logs', () => {
     .catch(error => {
       expect(error.message).to.contain('At least one service name is required.')
     })
-    .it('restart without any arguments and flags')
+    .it('display log command without any arguments and flags')
 
   test
     .stderr()
@@ -66,7 +66,7 @@ describe('svc logs', () => {
     .catch(error => {
       expect(error.message).to.contain('Service win2000 is not enabled.')
     })
-    .it('restart an unlisted service')
+    .it('display logs using an unlisted service')
 
   test
     .stderr()
@@ -77,7 +77,7 @@ describe('svc logs', () => {
         'Logs display service(s) rabbitmq failed, exited with code 403'
       )
     })
-    .it('restart command unsuccessful - exits with error code', () => {
+    .it('display logs command unsuccessful - exits with error code', () => {
       const runStub = SvcService.prototype.logServices as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
