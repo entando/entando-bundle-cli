@@ -2,14 +2,24 @@ import { Command, Flags } from '@oclif/core'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import {
   ConfigService,
-  DOCKER_ORGANIZATION_PROPERTY
+  DOCKER_ORGANIZATION_PROPERTY,
+  DOCKER_REGISTRY_PROPERTY
 } from '../services/config-service'
-import { DockerService } from '../services/docker-service'
+import {
+  DEFAULT_DOCKER_REGISTRY,
+  DockerService
+} from '../services/docker-service'
+import Pack from './pack'
 
 export default class Publish extends Command {
   static description = 'Publish bundle Docker images'
 
   static flags = {
+    registry: Flags.string({
+      char: 'r',
+      description: `Docker registry (default is ${DEFAULT_DOCKER_REGISTRY})`,
+      required: false
+    }),
     org: Flags.string({
       char: 'o',
       description: `Docker organization name`,
@@ -27,10 +37,13 @@ export default class Publish extends Command {
     )
 
     if (!configuredOrganization && !flags.org) {
-      console.warn(
+      this.error(
         'No configured Docker organization found. Please run the command with --org flag.'
       )
-      return
+    }
+
+    if (flags.org) {
+      configService.addOrUpdateProperty(DOCKER_ORGANIZATION_PROPERTY, flags.org)
     }
 
     const bundleDescriptor = new BundleDescriptorService().getBundleDescriptor()
@@ -47,15 +60,29 @@ export default class Publish extends Command {
           configuredOrganization
         ))
       if (imagesExists && flags.org) {
-        console.warn('Docker organization changed. Updating images names.')
+        this.warn('Docker organization changed. Updating images names.')
         // TODO: ENG-3816
       }
     }
 
     if (!imagesExists) {
-      console.warn(
-        'One or more Docker images are missing. Running pack command.'
-      )
+      this.warn('One or more Docker images are missing. Running pack command.')
+      await Pack.run(['--org', flags.org ?? configuredOrganization!])
     }
+
+    let dockerRegistry = flags.registry
+    if (dockerRegistry) {
+      configService.addOrUpdateProperty(
+        DOCKER_REGISTRY_PROPERTY,
+        dockerRegistry
+      )
+    } else {
+      dockerRegistry = configService.getProperty(DOCKER_REGISTRY_PROPERTY)
+    }
+
+    this.log(
+      `Login on Docker registry ${dockerRegistry ?? DEFAULT_DOCKER_REGISTRY}`
+    )
+    await DockerService.login(dockerRegistry)
   }
 }

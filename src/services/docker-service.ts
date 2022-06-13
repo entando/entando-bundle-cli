@@ -7,7 +7,12 @@ import {
 import { Writable } from 'node:stream'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { BUILD_FOLDER, MICROFRONTENDS_FOLDER, WIDGETS_FOLDER } from '../paths'
+import {
+  BUILD_FOLDER,
+  DOCKER_CONFIG_FOLDER,
+  MICROFRONTENDS_FOLDER,
+  WIDGETS_FOLDER
+} from '../paths'
 import { ComponentType } from '../models/component'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { ComponentService } from './component-service'
@@ -16,6 +21,7 @@ import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
+export const DEFAULT_DOCKER_REGISTRY = 'index.docker.io'
 export const DOCKER_COMMAND = 'docker'
 
 export type DockerBuildOptions = {
@@ -193,5 +199,32 @@ export class DockerService {
     }
 
     return images
+  }
+
+  public static async login(
+    dockerRegistry: string = DEFAULT_DOCKER_REGISTRY
+  ): Promise<void> {
+    const command =
+      DOCKER_COMMAND +
+      ' --config ' +
+      path.join(...DOCKER_CONFIG_FOLDER) +
+      ' login ' +
+      dockerRegistry
+
+    const tryLogin = await ProcessExecutorService.executeProcess({
+      command
+    })
+
+    if (tryLogin !== 0) {
+      const result = await ProcessExecutorService.executeProcess({
+        command,
+        // prompt is shown to the user
+        stdio: 'inherit'
+      })
+
+      if (result !== 0) {
+        throw new CLIError('Docker login failed')
+      }
+    }
   }
 }

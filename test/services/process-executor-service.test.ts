@@ -155,4 +155,17 @@ describe('ProcessExecutorService', () => {
     .it(
       'ParallelProcessExecutorService returns immediately if empty array is passed'
     )
+
+  test.it(
+    'Stream options are ignored if spwaned process has no streams',
+    async () => {
+      const stubProcess = getStubProcess()
+      stubProcess.stdout = null
+      stubProcess.stderr = null
+      sinon.stub(cp, 'spawn').returns(stubProcess)
+      const promise = ProcessExecutorService.executeProcess(options)
+      stubProcess.emit('exit', 0, null)
+      await promise
+    }
+  )
 })
