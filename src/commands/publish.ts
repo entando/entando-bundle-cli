@@ -15,7 +15,7 @@ export default class Publish extends Command {
   static description = 'Publish bundle Docker images'
 
   static flags = {
-    'docker-registry': Flags.string({
+    registry: Flags.string({
       char: 'r',
       description: `Docker registry (default is ${DEFAULT_DOCKER_REGISTRY})`,
       required: false
@@ -70,7 +70,7 @@ export default class Publish extends Command {
       await Pack.run(['--org', flags.org ?? configuredOrganization!])
     }
 
-    let dockerRegistry = flags['docker-registry']
+    let dockerRegistry = flags.registry
     if (dockerRegistry) {
       configService.addOrUpdateProperty(
         DOCKER_REGISTRY_PROPERTY,

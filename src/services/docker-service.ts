@@ -205,7 +205,8 @@ export class DockerService {
     dockerRegistry: string = DEFAULT_DOCKER_REGISTRY
   ): Promise<void> {
     const command =
-      'docker --config ' +
+      DOCKER_COMMAND +
+      ' --config ' +
       path.join(...DOCKER_CONFIG_FOLDER) +
       ' login ' +
       dockerRegistry

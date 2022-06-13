@@ -170,7 +170,7 @@ describe('publish', () => {
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
     })
     .stdout()
-    .command(['publish', '--docker-registry', 'my-custom-registry'])
+    .command(['publish', '--registry', 'my-custom-registry'])
     .it('Successfully publish Docker images on custom registry', ctx => {
       expect(ctx.stdout).contain('Login on Docker registry my-custom-registry')
       const addOrUpdatePropertyStub = ConfigService.prototype
