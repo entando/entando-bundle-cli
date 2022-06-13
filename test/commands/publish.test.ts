@@ -11,6 +11,7 @@ import {
   DockerService
 } from '../../src/services/docker-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
+import Pack from '../../src/commands/pack'
 
 describe('publish', () => {
   afterEach(() => {
@@ -36,10 +37,11 @@ describe('publish', () => {
       sinon
         .stub(ConfigService.prototype, 'getProperty')
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
-        .returns('myorganization')
+        .returns('configured-organization')
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
+      sinon.stub(Pack, 'run').resolves()
     })
     .stderr()
     .command('publish')
@@ -49,29 +51,43 @@ describe('publish', () => {
         expect(ctx.stderr).contain(
           'One or more Docker images are missing. Running pack command.'
         )
+        const packStub = Pack.run as sinon.SinonStub
+        sinon.assert.calledWith(packStub, ['--org', 'configured-organization'])
       }
     )
 
   test
     .do(() => {
+      sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon.stub(DockerService, 'bundleImagesExists').resolves(false)
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
+      sinon.stub(Pack, 'run').resolves()
     })
     .stderr()
-    .command(['publish', '--org', 'myorganization'])
+    .command(['publish', '--org', 'flag-organization'])
     .it(
       'Executes pack if Docker images from flag organization are not found',
       ctx => {
+        const addOrUpdatePropertyStub = ConfigService.prototype
+          .addOrUpdateProperty as sinon.SinonStub
+        sinon.assert.calledWith(
+          addOrUpdatePropertyStub,
+          DOCKER_ORGANIZATION_PROPERTY,
+          'flag-organization'
+        )
         expect(ctx.stderr).contain(
           'One or more Docker images are missing. Running pack command.'
         )
+        const packStub = Pack.run as sinon.SinonStub
+        sinon.assert.calledWith(packStub, ['--org', 'flag-organization'])
       }
     )
 
   test
     .do(() => {
+      sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon
         .stub(DockerService, 'bundleImagesExists')
         .onFirstCall()
@@ -113,6 +129,7 @@ describe('publish', () => {
 
   test
     .do(() => {
+      sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')

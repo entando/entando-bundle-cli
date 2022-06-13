@@ -9,6 +9,8 @@ import {
   DEFAULT_DOCKER_REGISTRY,
   DockerService
 } from '../services/docker-service'
+import Pack from './pack'
+
 export default class Publish extends Command {
   static description = 'Publish bundle Docker images'
 
@@ -40,6 +42,10 @@ export default class Publish extends Command {
       )
     }
 
+    if (flags.org) {
+      configService.addOrUpdateProperty(DOCKER_ORGANIZATION_PROPERTY, flags.org)
+    }
+
     const bundleDescriptor = new BundleDescriptorService().getBundleDescriptor()
 
     let imagesExists =
@@ -61,6 +67,7 @@ export default class Publish extends Command {
 
     if (!imagesExists) {
       this.warn('One or more Docker images are missing. Running pack command.')
+      await Pack.run(['--org', flags.org ?? configuredOrganization!])
     }
 
     let dockerRegistry = flags['docker-registry']
