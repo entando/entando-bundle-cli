@@ -16,6 +16,7 @@ import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
+const DOCKER_IMAGE_LS_COMMAND = 'docker image ls'
 
 export type DockerBuildOptions = {
   path: string
@@ -132,12 +133,12 @@ export class DockerService {
     )
 
     // Listing all the expected images
-    let command = 'docker image ls '
+    let command = DOCKER_IMAGE_LS_COMMAND
     for (const image of images) {
-      command += `--filter 'reference=${image}' `
+      command += ` --filter 'reference=${image}'`
     }
 
-    command += "--format='{{.Repository}}:{{.Tag}}'"
+    command += " --format='{{.Repository}}:{{.Tag}}'"
 
     const outputStream = new InMemoryWritable()
 
