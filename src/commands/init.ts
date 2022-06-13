@@ -7,7 +7,7 @@ import { Bundle, BundleGroup } from '../api/hub-api'
 const DEFAULT_VERSION = '0.0.1'
 
 export default class Init extends Command {
-  static description = 'Perform the scaffolding of a Bundle project'
+  static description = 'Perform the scaffolding of a bundle project'
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-bundle',

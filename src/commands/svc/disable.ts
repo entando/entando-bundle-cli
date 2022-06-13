@@ -22,13 +22,10 @@ export default class Disable extends Command {
 
     const { args } = await this.parse(Disable)
 
-    const svcService: SvcService = new SvcService(
-      process.cwd(),
-      this.config.bin
-    )
+    const svcService: SvcService = new SvcService(this.config.bin)
 
     CliUx.ux.action.start(`Disabling service ${args.serviceName}`)
-    svcService.disableService(args.serviceName)
+    await svcService.disableService(args.serviceName)
     CliUx.ux.action.stop()
   }
 }

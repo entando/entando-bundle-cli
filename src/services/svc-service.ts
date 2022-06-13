@@ -11,9 +11,11 @@ import {
 
 import { debugFactory } from './debug-factory-service'
 
-enum DockerServiceType {
+enum DockerComposeCommand {
   UP = 'up --build -d',
-  STOP = 'stop'
+  STOP = 'stop',
+  RESTART = 'restart',
+  RM = 'rm -f -s'
 }
 export class SvcService {
   private static debug = debugFactory(SvcService)
@@ -24,10 +26,12 @@ export class SvcService {
 
   private readonly serviceFileType = 'yml'
 
-  constructor(parentDirectory: string, configBin: string) {
-    this.parentDirectory = parentDirectory
+  constructor(configBin: string) {
+    this.parentDirectory = process.cwd()
     this.configBin = configBin
-    this.bundleDescriptorService = new BundleDescriptorService(parentDirectory)
+    this.bundleDescriptorService = new BundleDescriptorService(
+      this.parentDirectory
+    )
     this.bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
   }
 
@@ -71,7 +75,7 @@ export class SvcService {
     })
   }
 
-  public disableService(service: string): void {
+  public disableService(service: string): Promise<ProcessExecutionResult> {
     SvcService.debug(`disabling service ${service}`)
     this.isServiceAvailable(service)
 
@@ -89,6 +93,8 @@ export class SvcService {
       ...this.bundleDescriptor,
       svc
     })
+
+    return this.executeDockerComposeCommand(DockerComposeCommand.RM, [service])
   }
 
   public startServices(services: string[]): Promise<ProcessExecutionResult> {
@@ -96,7 +102,7 @@ export class SvcService {
 
     SvcService.debug(`starting service ${services.join(', ')}`)
 
-    return this.processDockerExecution(DockerServiceType.UP, services)
+    return this.executeDockerComposeCommand(DockerComposeCommand.UP, services)
   }
 
   public stopServices(services: string[]): Promise<ProcessExecutionResult> {
@@ -104,21 +110,34 @@ export class SvcService {
 
     SvcService.debug(`stopping service ${services.join(', ')}`)
 
-    return this.processDockerExecution(DockerServiceType.STOP, services)
+    return this.executeDockerComposeCommand(DockerComposeCommand.STOP, services)
   }
 
-  private processDockerExecution(
-    serviceType: DockerServiceType,
+  public restartServices(services: string[]): Promise<ProcessExecutionResult> {
+    this.precheckEnabledServices(services)
+
+    SvcService.debug(`restarting service ${services.join(', ')}`)
+
+    return this.executeDockerComposeCommand(
+      DockerComposeCommand.RESTART,
+      services
+    )
+  }
+
+  private executeDockerComposeCommand(
+    serviceType: DockerComposeCommand,
     services: string[]
   ): Promise<ProcessExecutionResult> {
     const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
       .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
-      .join(' ')} ${serviceType}`
+      .join(' ')} ${serviceType} ${services
+      .map(service => `${service}`)
+      .join(' ')}`
 
     return ProcessExecutorService.executeProcess({
       command: cmd,
-      outputStream: process.stdout,
-      errorStream: process.stdout,
+      outputStream: SvcService.debug.outputStream,
+      errorStream: SvcService.debug.outputStream,
       workDir: this.parentDirectory
     })
   }
