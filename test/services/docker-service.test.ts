@@ -1,7 +1,10 @@
 import { test, expect } from '@oclif/test'
 
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
-import { DockerService } from '../../src/services/docker-service'
+import {
+  DockerService,
+  DOCKER_COMMAND
+} from '../../src/services/docker-service'
 import * as sinon from 'sinon'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { ComponentService } from '../../src/services/component-service'
@@ -28,7 +31,8 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: 'docker build -f Dockerfile -t my-org/bundle-name:0.0.1 .'
+        command:
+          DOCKER_COMMAND + ' build -f Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -50,7 +54,9 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: 'docker build -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
+        command:
+          DOCKER_COMMAND +
+          ' build -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })

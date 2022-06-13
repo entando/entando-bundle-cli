@@ -16,7 +16,7 @@ import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
-const DOCKER_IMAGE_LS_COMMAND = 'docker image ls'
+export const DOCKER_COMMAND = 'docker'
 
 export type DockerBuildOptions = {
   path: string
@@ -65,7 +65,7 @@ export class DockerService {
       options.name,
       options.tag
     )
-    return `docker build -f ${dockerfile} -t ${dockerImageName} .`
+    return `${DOCKER_COMMAND} build -f ${dockerfile} -t ${dockerImageName} .`
   }
 
   public static getDockerImageName(
@@ -133,7 +133,7 @@ export class DockerService {
     )
 
     // Listing all the expected images
-    let command = DOCKER_IMAGE_LS_COMMAND
+    let command = DOCKER_COMMAND + ' image ls'
     for (const image of images) {
       command += ` --filter 'reference=${image}'`
     }
