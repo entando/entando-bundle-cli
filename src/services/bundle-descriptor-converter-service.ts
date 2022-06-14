@@ -67,7 +67,6 @@ export class BundleDescriptorConverterService {
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
     const widgetDescriptor: YamlWidgetDescriptor = {
-      code: microFrontend.code ?? microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
       version: WIDGET_DESCRIPTOR_VERSION,
@@ -113,7 +112,6 @@ export class BundleDescriptorConverterService {
 
   private generateBundleYamlDescriptor(bundleDescriptor: BundleDescriptor) {
     const yamlBundleDescriptor: YamlBundleDescriptor = {
-      code: bundleDescriptor.name,
       description: bundleDescriptor.description,
       components: {
         plugins: [],
