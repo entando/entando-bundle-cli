@@ -87,6 +87,7 @@ describe('publish', () => {
 
   test
     .do(() => {
+      sinon.stub(DockerService, 'updateImagesOrganization').resolves()
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon
         .stub(DockerService, 'bundleImagesExists')
@@ -109,6 +110,14 @@ describe('publish', () => {
       ctx => {
         expect(ctx.stderr).contain(
           'Docker organization changed. Updating images names.'
+        )
+        const updateImagesOrganizationStub =
+          DockerService.updateImagesOrganization as sinon.SinonStub
+        sinon.assert.calledWith(
+          updateImagesOrganizationStub,
+          sinon.match.any,
+          'configured-organization',
+          'flag-organization'
         )
       }
     )
@@ -168,6 +177,7 @@ describe('publish', () => {
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
+      sinon.stub(DockerService, 'setImagesRegistry').resolves()
     })
     .stdout()
     .command(['publish', '--registry', 'my-custom-registry'])
@@ -178,6 +188,14 @@ describe('publish', () => {
       sinon.assert.calledWith(
         addOrUpdatePropertyStub,
         DOCKER_REGISTRY_PROPERTY,
+        'my-custom-registry'
+      )
+      const setImagesRegistryStub =
+        DockerService.setImagesRegistry as sinon.SinonStub
+      sinon.assert.calledWith(
+        setImagesRegistryStub,
+        sinon.match.any,
+        'myorganization',
         'my-custom-registry'
       )
     })
