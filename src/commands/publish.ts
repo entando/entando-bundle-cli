@@ -62,7 +62,7 @@ export default class Publish extends Command {
       if (imagesExists && flags.org) {
         this.warn('Docker organization changed. Updating images names.')
         CliUx.ux.action.start(
-          'Creating tags using new organization ' + flags.org
+          'Creating Docker images tags using new organization ' + flags.org
         )
         await DockerService.updateImagesOrganization(
           bundleDescriptor,
@@ -96,7 +96,9 @@ export default class Publish extends Command {
     await DockerService.login(dockerRegistry)
 
     if (dockerRegistry && dockerRegistry !== DEFAULT_DOCKER_REGISTRY) {
-      CliUx.ux.action.start('Creating tags for registry ' + dockerRegistry)
+      CliUx.ux.action.start(
+        'Creating Docker images tags for registry ' + dockerRegistry
+      )
       await DockerService.setImagesRegistry(
         bundleDescriptor,
         organization,
