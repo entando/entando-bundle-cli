@@ -20,6 +20,7 @@ import {
   msNameSpringBoot,
   mfeNameReact
 } from '../helpers/mocks/commands/build-mocks'
+import { LOGS_FOLDER, OUTPUT_FOLDER } from '../../src/paths'
 
 describe('build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -207,11 +208,17 @@ describe('build command', () => {
       expect(ctx.stderr).contain('2/2')
     })
 
+  let bundleDir: string
+
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
+      bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-build-command-mfe'
+      )
       TempDirHelper.createComponentsFolders(mfeListReact)
-
+      fs.rmdirSync(path.resolve(bundleDir, ...OUTPUT_FOLDER), {
+        recursive: true
+      })
       executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(0)
@@ -233,6 +240,10 @@ describe('build command', () => {
     .it('build all react microfrontends', async ctx => {
       sinon.assert.called(getComponentsStub)
       expect(ctx.stderr).contain('2/2')
+      expect(fs.existsSync(path.resolve(bundleDir, ...LOGS_FOLDER))).to.eq(true)
+      expect(fs.existsSync(path.resolve(bundleDir, ...OUTPUT_FOLDER))).to.eq(
+        false
+      )
     })
 
   const componentList: Array<Component<ComponentType>> = [
@@ -242,7 +253,9 @@ describe('build command', () => {
 
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command-all')
+      bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-build-command-all'
+      )
       TempDirHelper.createComponentsFolders(componentList)
 
       executeProcessStub = sinon
@@ -252,6 +265,14 @@ describe('build command', () => {
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(componentList)
+
+      fs.mkdirSync(path.resolve(bundleDir, ...LOGS_FOLDER), {
+        recursive: true
+      })
+
+      fs.mkdirSync(path.resolve(bundleDir, ...OUTPUT_FOLDER), {
+        recursive: true
+      })
 
       const stubResults: ProcessExecutionResult[] = [0, 0, 0, 0]
 
@@ -266,5 +287,9 @@ describe('build command', () => {
     .it('build all componenents', async ctx => {
       sinon.assert.called(getComponentsStub)
       expect(ctx.stderr).contain('4/4')
+      expect(fs.existsSync(path.resolve(bundleDir, ...LOGS_FOLDER))).to.eq(true)
+      expect(fs.existsSync(path.resolve(bundleDir, ...OUTPUT_FOLDER))).to.eq(
+        false
+      )
     })
 })

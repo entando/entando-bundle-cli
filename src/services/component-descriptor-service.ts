@@ -7,11 +7,10 @@ import {
   MicroFrontendStack,
   MicroserviceStack
 } from '../models/component'
+import { CLIError } from '@oclif/errors'
 
 export class ComponentDescriptorService {
-  public getComponentVersion(
-    component: Component<ComponentType>
-  ): string | undefined {
+  public getComponentVersion(component: Component<ComponentType>): string {
     const { name, stack } = component
     const compPath: string = path.resolve(
       process.cwd(),
@@ -25,6 +24,10 @@ export class ComponentDescriptorService {
       stack === MicroFrontendStack.Angular
         ? this.parsePackageJSON(compPath)?.version
         : this.parsePomXML(compPath)?.project?.version?.[0]
+
+    if (!version) {
+      throw new CLIError(`Unable to determine version for component ${name}`)
+    }
 
     return version
   }

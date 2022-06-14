@@ -51,6 +51,8 @@ USAGE
 - [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+- [`entando-bundle-cli svc logs`](#entando-bundle-cli-svc-logs)
+- [`entando-bundle-cli svc restart`](#entando-bundle-cli-svc-restart)
 - [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
 - [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
 
@@ -144,6 +146,8 @@ EXAMPLES
   $ entando-bundle-cli build --all-ms
 
   $ entando-bundle-cli build --all-mfe
+
+  $ entando-bundle-cli build --all
 ```
 
 _See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/build.ts)_
@@ -170,7 +174,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `entando-bundle-cli init NAME`
 
-Perform the scaffolding of a Bundle project
+Perform the scaffolding of a bundle project
 
 ```
 USAGE
@@ -185,7 +189,7 @@ FLAGS
   --version=<value>  Project version
 
 DESCRIPTION
-  Perform the scaffolding of a Bundle project
+  Perform the scaffolding of a bundle project
 
 EXAMPLES
   $ entando-bundle-cli init my-bundle
@@ -312,10 +316,9 @@ Generate the bundle Docker image
 
 ```
 USAGE
-  $ entando-bundle-cli pack [-b] [-o <value>] [-f <value>]
+  $ entando-bundle-cli pack [-o <value>] [-f <value>]
 
 FLAGS
-  -b, --build         Builds all bundle components before creating the package
   -f, --file=<value>  Bundle Dockerfile (default is Dockerfile)
   -o, --org=<value>   Docker organization name
 
@@ -384,6 +387,50 @@ EXAMPLES
   $ entando-bundle-cli svc list
 ```
 
+## `entando-bundle-cli svc logs`
+
+Display logs of running auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc logs [--all]
+
+FLAGS
+  --all  Display logs of all enabled services in the bundle descriptor
+
+DESCRIPTION
+  Display logs of running auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc logs --all
+
+  $ entando-bundle-cli svc logs ext-service
+
+  $ entando-bundle-cli svc logs ext-service1 ext-service2
+```
+
+## `entando-bundle-cli svc restart`
+
+Restart running auxiliary services
+
+```
+USAGE
+  $ entando-bundle-cli svc restart [--all]
+
+FLAGS
+  --all  Restarts all enabled services in the bundle descriptor
+
+DESCRIPTION
+  Restart running auxiliary services
+
+EXAMPLES
+  $ entando-bundle-cli svc restart --all
+
+  $ entando-bundle-cli svc restart ext-service
+
+  $ entando-bundle-cli svc restart ext-service1 ext-service2
+```
+
 ## `entando-bundle-cli svc start`
 
 Start enabled auxiliary services
@@ -408,17 +455,17 @@ EXAMPLES
 
 ## `entando-bundle-cli svc stop`
 
-Stop running enabled auxiliary services
+Stop running auxiliary services
 
 ```
 USAGE
   $ entando-bundle-cli svc stop [--all]
 
 FLAGS
-  --all  Stops all running enabled services in the bundle descriptor
+  --all  Stops all enabled services in the bundle descriptor
 
 DESCRIPTION
-  Stop running enabled auxiliary services
+  Stop running auxiliary services
 
 EXAMPLES
   $ entando-bundle-cli svc stop --all

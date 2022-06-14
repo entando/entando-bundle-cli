@@ -23,7 +23,7 @@ import { color } from '@oclif/color'
 import * as fs from 'node:fs'
 
 export default class Pack extends BaseBuildCommand {
-  static description = 'Generate the bundle Docker image'
+  static description = 'Generate the bundle Docker images'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',
@@ -31,10 +31,6 @@ export default class Pack extends BaseBuildCommand {
   ]
 
   static flags = {
-    build: Flags.boolean({
-      char: 'b',
-      description: 'Builds all bundle components before creating the package'
-    }),
     org: Flags.string({
       char: 'o',
       description: 'Docker organization name'
@@ -58,9 +54,7 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
-    if (flags.build) {
-      await this.buildAllComponents(Phase.Package)
-    }
+    await this.buildAllComponents(Phase.Package)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
@@ -117,16 +111,7 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      if (!microservice.version) {
-        this.error(
-          `Unable to determine version for microservice ${microservice.name}`
-        )
-      }
-
-      const logFile = this.getBuildOutputLogFile(
-        microservice,
-        MICROSERVICES_FOLDER
-      )
+      const logFile = this.getBuildOutputLogFile(microservice)
 
       buildOptions.push({
         name: microservice.name,

@@ -24,14 +24,11 @@ export default class Start extends SvcProcessResult {
 
     const { argv, flags } = await this.parse(Start)
 
-    const svcService: SvcService = new SvcService(
-      process.cwd(),
-      this.config.bin
-    )
+    const svcService: SvcService = new SvcService(this.config.bin)
 
     if (!flags.all && argv.length === 0) {
       this.error(
-        'At least one service name is required. You can also use `--all` flag to start all running enabled services',
+        'At least one service name is required. You can also use `--all` flag to start all enabled services',
         { exit: 1 }
       )
     }

@@ -5,11 +5,12 @@ import { CLIError } from '@oclif/core/lib/errors'
 import { CONFIG_FOLDER, CONFIG_FILE } from '../paths'
 
 export const DOCKER_ORGANIZATION_PROPERTY = 'docker-organization'
+export const DOCKER_REGISTRY_PROPERTY = 'docker-registry'
 
 export class ConfigService {
   private config: { [key: string]: string } = {}
 
-  private readConfigFile = (): void => {
+  private readConfigFile(): void {
     const configFilePath = path.join(CONFIG_FOLDER, CONFIG_FILE)
     if (fs.existsSync(configFilePath)) {
       const configFile = fs.readFileSync(configFilePath, {
@@ -19,7 +20,7 @@ export class ConfigService {
     }
   }
 
-  private writeConfigFile = (): void => {
+  private writeConfigFile(): void {
     const filePath = path.join(CONFIG_FOLDER)
 
     fs.writeFileSync(
@@ -29,12 +30,12 @@ export class ConfigService {
     )
   }
 
-  getProperty = (key: string): string | undefined => {
+  getProperty(key: string): string | undefined {
     this.readConfigFile()
     return this.config[key]
   }
 
-  addProperty = (key: string, value: string): void => {
+  addProperty(key: string, value: string): void {
     this.readConfigFile()
 
     if (this.config[key] === undefined) {
@@ -46,7 +47,7 @@ export class ConfigService {
     this.writeConfigFile()
   }
 
-  updateProperty = (key: string, value: string): void => {
+  updateProperty(key: string, value: string): void {
     this.readConfigFile()
 
     if (this.config[key] === undefined) {
@@ -58,13 +59,13 @@ export class ConfigService {
     this.writeConfigFile()
   }
 
-  addOrUpdateProperty = (key: string, value: string): void => {
+  addOrUpdateProperty(key: string, value: string): void {
     this.readConfigFile()
     this.config[key] = value
     this.writeConfigFile()
   }
 
-  deleteProperty = (key: string): void => {
+  deleteProperty(key: string): void {
     this.readConfigFile()
 
     if (this.config[key] === undefined) {

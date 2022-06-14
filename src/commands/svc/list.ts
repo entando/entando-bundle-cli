@@ -19,10 +19,7 @@ export default class List extends Command {
 
     const { flags } = await this.parse(List)
 
-    const svcService: SvcService = new SvcService(
-      process.cwd(),
-      this.config.bin
-    )
+    const svcService: SvcService = new SvcService(this.config.bin)
     const services: string[] = flags.available
       ? svcService.getAvailableServices()
       : svcService.getEnabledServices()
