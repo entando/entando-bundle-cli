@@ -17,6 +17,7 @@ import {
   isMapOfStrings,
   ObjectConstraints,
   regexp,
+  required,
   UnionTypeConstraints,
   values
 } from '../services/constraints-validator-service'
@@ -93,7 +94,10 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
     type: {
       required: true,
       type: 'string',
-      validators: [values([ApiType.External])]
+      validators: [values([ApiType.External])],
+      dependsOn: {
+        bundleId: [required]
+      }
     },
     serviceId: {
       required: true,
@@ -101,7 +105,10 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
     },
     bundleId: {
       required: true,
-      type: 'string'
+      type: 'string',
+      dependsOn: {
+        type: [values([ApiType.External])]
+      }
     }
   }
 ]
@@ -296,7 +303,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = [
     type: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendType.AppBuilder])]
+      validators: [values([MicroFrontendType.AppBuilder])],
+      dependsOn: {
+        slot: [required]
+      }
     },
     slot: {
       required: true,
@@ -306,7 +316,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = [
           MicroFrontendAppBuilderSlot.PrimaryHeader,
           MicroFrontendAppBuilderSlot.PrimaryMenu
         ])
-      ]
+      ],
+      dependsOn: {
+        type: [values([MicroFrontendType.AppBuilder])]
+      }
     }
   },
   {
@@ -359,17 +372,27 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = [
     type: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendType.AppBuilder])]
+      validators: [values([MicroFrontendType.AppBuilder])],
+      dependsOn: {
+        slot: [required]
+      }
     },
     slot: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendAppBuilderSlot.Content])]
+      validators: [values([MicroFrontendAppBuilderSlot.Content])],
+      dependsOn: {
+        type: [values([MicroFrontendType.AppBuilder])],
+        paths: [required]
+      }
     },
     paths: {
       isArray: true,
       required: true,
-      type: 'string'
+      type: 'string',
+      dependsOn: {
+        slot: [values([MicroFrontendAppBuilderSlot.Content])]
+      }
     }
   }
 ]

@@ -37,10 +37,22 @@ export class JsonValidationError extends CLIError {
   }
 }
 
+class PropertyDependencyError extends JsonValidationError {
+  constructor(message: string, jsonPath: JsonPath) {
+    super(message.replace(/\n/g, '\n\t'), jsonPath)
+  }
+}
+
 // Type that is equal to true if an object property is required and false otherwise.
 // It is used to enforce the required value, so that it is not possible to set it to true
 // if the constrained property is optional and vice-versa
 type IsRequired<T, K extends keyof T> = undefined extends T[K] ? false : true
+
+// Type with each property having a key that exists in `T` except `K`, and each value a `Validator[]`.
+// i.e. `K` depends on one or more properties of `T` excluding itself
+type DependsOn<T, K extends keyof T> = {
+  [H in keyof Required<Omit<T, K>>]?: Validator[]
+}
 
 // function that throws a JsonValidationError if the field doesn't match the constraint
 export type Validator = (key: string, field: any, jsonPath: JsonPath) => void
@@ -65,17 +77,20 @@ type ChildObjectConstraints<T, K extends keyof T> = {
     undefined
   >
   validators?: Validator[]
+  dependsOn?: DependsOn<T, K>
 }
 
 type PrimitiveConstraints<T, K extends keyof T> = {
   required: IsRequired<T, K>
   type: TypeOf<T[K]>
   validators?: Validator[]
+  dependsOn?: DependsOn<T, K>
 }
 
 type BaseArrayConstraints<T, K extends keyof T> = {
   isArray: true
   required: IsRequired<T, K>
+  dependsOn?: DependsOn<T, K>
 }
 
 type PrimitiveArrayConstraints<T, K extends keyof T> =
@@ -102,6 +117,16 @@ export function regexp(regexp: RegExp, message: string): Validator {
         jsonPath
       )
     }
+  }
+}
+
+export function required(
+  key: string,
+  field: unknown,
+  jsonPath: JsonPath
+): void {
+  if (field === undefined) {
+    throw new JsonValidationError(`Field "${key}" is required`, jsonPath)
   }
 }
 
@@ -162,6 +187,8 @@ function validateObjectTypeConstraints<T>(
   constraints: ObjectConstraints<T>,
   jsonPath: JsonPath
 ): void {
+  const errors: JsonValidationError[] = []
+
   for (const [key, unknownConstraint] of Object.entries(constraints)) {
     const constraint = unknownConstraint as
       | PrimitiveConstraints<T, keyof T>
@@ -171,6 +198,7 @@ function validateObjectTypeConstraints<T>(
     const newJsonPath = [...jsonPath, key]
 
     const value: any = parsedObject[key]
+
     if (value === undefined) {
       if (constraint.required) {
         throw new JsonValidationError(`Field "${key}" is required`, newJsonPath)
@@ -179,15 +207,34 @@ function validateObjectTypeConstraints<T>(
       continue
     }
 
-    if (isArrayConstraints(constraint)) {
-      validateArrayConstraints(key, value, constraint, newJsonPath)
-    } else if (isPrimitiveConstraints(constraint)) {
-      validatePrimitiveConstraints(key, value, constraint, newJsonPath)
-    } else {
-      applyValidators(key, value, constraint, newJsonPath)
-      validateConstraints(value, constraint.children, newJsonPath)
+    try {
+      if (isArrayConstraints(constraint)) {
+        validateArrayConstraints(key, value, constraint, newJsonPath)
+      } else if (isPrimitiveConstraints(constraint)) {
+        validatePrimitiveConstraints(key, value, constraint, newJsonPath)
+      } else {
+        applyValidators(key, value, constraint, newJsonPath)
+        validateConstraints(value, constraint.children, newJsonPath)
+      }
+
+      if (constraint.dependsOn) {
+        applyDependsOnValidators(
+          parsedObject,
+          key,
+          constraint.dependsOn,
+          jsonPath
+        )
+      }
+    } catch (error) {
+      if (error instanceof PropertyDependencyError) {
+        throw error
+      }
+
+      errors.push(error as JsonValidationError)
     }
   }
+
+  if (errors.length > 0) throw errors[0]
 }
 
 function validateUnionTypeConstraints<T>(
@@ -196,22 +243,30 @@ function validateUnionTypeConstraints<T>(
   jsonPath: JsonPath
 ): void {
   const errors: JsonValidationError[] = []
+
   for (const constraint of constraints) {
     try {
       validateConstraints(parsedObject, constraint, jsonPath)
     } catch (error) {
+      if (error instanceof PropertyDependencyError) {
+        throw error
+      }
+
       errors.push(error as JsonValidationError)
     }
   }
 
   if (errors.length > 0 && errors.length === constraints.length) {
     // validation failed for all allowed types
-    let message = `Fix one of the following errors:`
+    const messageArr = [`Fix one of the following errors:`]
     for (const error of errors) {
-      message += `\n* ${error.message.split('\n').join('\n  ')}`
+      messageArr.push(`* ${error.message.split('\n').join('\n  ')}`)
     }
 
-    throw new CLIError(message)
+    // formats error message by removing duplicates
+    const formattedMessage = [...new Set(messageArr)].join('\n')
+
+    throw new CLIError(formattedMessage)
   }
 }
 
@@ -242,6 +297,34 @@ function applyValidators<T>(
   if (constraint.validators) {
     for (const validator of constraint.validators) {
       validator(key, value, jsonPath)
+    }
+  }
+}
+
+function applyDependsOnValidators<T>(
+  parsedObject: any,
+  key: string,
+  dependsOn: DependsOn<T, keyof T>,
+  jsonPath: JsonPath
+): void {
+  const dependsOnKeys = Object.keys(dependsOn) as Array<keyof typeof dependsOn>
+
+  for (const dependsOnKey of dependsOnKeys) {
+    const validators: Validator[] = dependsOn[dependsOnKey] || []
+    for (const validator of validators) {
+      try {
+        validator(dependsOnKey, parsedObject[dependsOnKey], [
+          ...jsonPath,
+          dependsOnKey
+        ])
+      } catch (error) {
+        throw new PropertyDependencyError(
+          `Field "${key}" depends on field "${dependsOnKey}" with validation:\n${
+            (error as JsonValidationError).message
+          }`,
+          [...jsonPath, key]
+        )
+      }
     }
   }
 }
