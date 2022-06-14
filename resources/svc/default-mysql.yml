@@ -1,18 +1,19 @@
-version: '3.1'
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+version: '3.7'
 
 services:
   mysql:
-    image: mysql
-    restart: always
+    image: mysql:8.0.26
+    # If you want to relocate the mysql data (volume) to your local directory, uncomment the lines below
+    # volumes:
+    #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/mysql/:/var/lib/mysql/
     environment:
-      - MYSQL_DATABASE=%BUNDLENAME%-db
-      - MYSQL_ROOT_PASSWORD=adminadmin
+      - MYSQL_ROOT_PASSWORD=%BUNDLENAME%-password
+      - MYSQL_USER=%BUNDLENAME%-user
+      - MYSQL_PASSWORD=%BUNDLENAME%-password
+      - MYSQL_DATABASE=%BUNDLENAME%
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
     ports:
-      - '3306:3306'
-    volumes:
-      - mysql:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --default-authentication-plugin=mysql_native_password
-volumes:
-  mysql:
-    driver: local
+      - 127.0.0.1:3306:3306
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
