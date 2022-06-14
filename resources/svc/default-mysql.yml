@@ -8,7 +8,9 @@ services:
     # volumes:
     #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/mysql/:/var/lib/mysql/
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_USER=%BUNDLENAME%-user
+      - MYSQL_PASSWORD=%BUNDLENAME%-password
       - MYSQL_DATABASE=%BUNDLENAME%
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
