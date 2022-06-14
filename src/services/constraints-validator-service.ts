@@ -226,6 +226,7 @@ function validateObjectTypeConstraints<T>(
         )
       }
     } catch (error) {
+      // Prioritizes throwing a PropertyDependencyError, which is a more specific error
       if (error instanceof PropertyDependencyError) {
         throw error
       }
@@ -257,13 +258,13 @@ function validateUnionTypeConstraints<T>(
   }
 
   if (errors.length > 0 && errors.length === constraints.length) {
-    // validation failed for all allowed types
+    // Validation failed for all allowed types
     const messageArr = [`Fix one of the following errors:`]
     for (const error of errors) {
       messageArr.push(`* ${error.message.split('\n').join('\n  ')}`)
     }
 
-    // formats error message by removing duplicates
+    // Formats error message by removing duplicates
     const formattedMessage = [...new Set(messageArr)].join('\n')
 
     throw new CLIError(formattedMessage)
