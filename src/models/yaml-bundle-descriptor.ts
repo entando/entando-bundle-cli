@@ -10,6 +10,7 @@ import {
 } from './bundle-descriptor'
 
 export type YamlWidgetDescriptor = {
+  name: string
   titles: { [lang: string]: string }
   group: string
   version: string
@@ -21,6 +22,7 @@ export type YamlWidgetDescriptor = {
 }
 
 export type YamlPluginDescriptor = {
+  name: string
   descriptorVersion: 'v5'
   image: string
   deploymentBaseName?: string
@@ -34,6 +36,7 @@ export type YamlPluginDescriptor = {
 }
 
 export type YamlBundleDescriptor = {
+  name: string
   version: string
   description?: string
   components: {

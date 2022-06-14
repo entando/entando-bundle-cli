@@ -67,6 +67,7 @@ export class BundleDescriptorConverterService {
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
     const widgetDescriptor: YamlWidgetDescriptor = {
+      name: microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
       version: WIDGET_DESCRIPTOR_VERSION,
@@ -88,6 +89,7 @@ export class BundleDescriptorConverterService {
     version: string
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
+      name: microservice.name,
       descriptorVersion: PLUGIN_DESCRIPTOR_VERSION,
       dbms: microservice.dbms ?? DBMS.None,
       image: DockerService.getDockerImageName(
@@ -112,6 +114,7 @@ export class BundleDescriptorConverterService {
 
   private generateBundleYamlDescriptor(bundleDescriptor: BundleDescriptor) {
     const yamlBundleDescriptor: YamlBundleDescriptor = {
+      name: bundleDescriptor.name,
       description: bundleDescriptor.description,
       components: {
         plugins: [],

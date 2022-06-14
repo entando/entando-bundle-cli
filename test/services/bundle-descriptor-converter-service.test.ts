@@ -139,6 +139,7 @@ describe('bundle-descriptor-converter-service', () => {
       'test-mfe.yaml'
     )
     checkYamlFile(mfeDescriptorPath, {
+      name: 'test-mfe',
       titles: {
         en: 'mfe title',
         it: 'titolo mfe'
@@ -162,6 +163,7 @@ describe('bundle-descriptor-converter-service', () => {
       'test-mfe-no-code.yaml'
     )
     checkYamlFile(mfeNoCodeDescriptorPath, {
+      name: 'test-mfe-no-code',
       titles: {},
       group: 'free',
       version: 'v5',
@@ -176,6 +178,7 @@ describe('bundle-descriptor-converter-service', () => {
       'test-app-builder-mfe.yaml'
     )
     checkYamlFile(appBuilderMfeDescriptorPath, {
+      name: 'test-app-builder-mfe',
       titles: {},
       group: 'free',
       version: 'v5',
@@ -192,6 +195,7 @@ describe('bundle-descriptor-converter-service', () => {
       'test-ms.yaml'
     )
     checkYamlFile(msDescriptorPath, {
+      name: 'test-ms',
       descriptorVersion: 'v5',
       image: 'docker-org/test-ms:0.0.5',
       dbms: 'postgresql',
@@ -221,6 +225,7 @@ describe('bundle-descriptor-converter-service', () => {
       'test-ms-no-dbms.yaml'
     )
     checkYamlFile(msNoDbmsDescriptorPath, {
+      name: 'test-ms-no-dbms',
       descriptorVersion: 'v5',
       image: 'docker-org/test-ms-no-dbms:0.0.1',
       dbms: DBMS.None
@@ -233,6 +238,7 @@ describe('bundle-descriptor-converter-service', () => {
       'descriptor.yaml'
     )
     checkYamlFile(bundleDescriptorPath, {
+      name: 'test-bundle',
       version: 'v5',
       description: 'test description',
       components: {
