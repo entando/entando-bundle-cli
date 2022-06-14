@@ -22,7 +22,7 @@ export type YamlWidgetDescriptor = {
 }
 
 export type YamlPluginDescriptor = {
-  descriptorVersion: 'v4'
+  descriptorVersion: 'v5'
   image: string
   deploymentBaseName?: string
   dbms: DBMS

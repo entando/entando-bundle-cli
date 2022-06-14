@@ -23,9 +23,9 @@ import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
 
-const PLUGIN_DESCRIPTOR_VERSION = 'v4'
-const WIDGET_DESCRIPTOR_VERSION = 'v2'
-const BUNDLE_DESCRIPTOR_VERSION = 'v2'
+const PLUGIN_DESCRIPTOR_VERSION = 'v5'
+const WIDGET_DESCRIPTOR_VERSION = 'v5'
+const BUNDLE_DESCRIPTOR_VERSION = 'v5'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 
 export class BundleDescriptorConverterService {
