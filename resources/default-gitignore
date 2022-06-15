@@ -17,5 +17,5 @@
 # Keycloak DB files
 ######################
 
-/svc/keycloak-db
+/svc/keycloak/keycloak-db
 
