@@ -21,7 +21,7 @@ import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
-export const DEFAULT_DOCKER_REGISTRY = 'index.docker.io'
+export const DEFAULT_DOCKER_REGISTRY = 'docker.io'
 export const DOCKER_COMMAND = 'docker'
 
 export type DockerBuildOptions = {
