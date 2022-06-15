@@ -1,5 +1,8 @@
+import color from '@oclif/color'
 import { CliUx, Command, Flags } from '@oclif/core'
+import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
+import { BundleService } from '../services/bundle-service'
 import {
   ConfigService,
   DOCKER_ORGANIZATION_PROPERTY,
@@ -28,6 +31,8 @@ export default class Publish extends Command {
   }
 
   public async run(): Promise<void> {
+    BundleService.isValidBundleProject()
+
     const configService = new ConfigService()
 
     const { flags } = await this.parse(Publish)
@@ -48,29 +53,16 @@ export default class Publish extends Command {
 
     const bundleDescriptor = new BundleDescriptorService().getBundleDescriptor()
 
-    let imagesExists =
-      flags.org &&
+    let imagesExists: boolean =
+      flags.org !== undefined &&
       (await DockerService.bundleImagesExists(bundleDescriptor, flags.org))
 
     if (!imagesExists) {
-      imagesExists =
-        configuredOrganization &&
-        (await DockerService.bundleImagesExists(
-          bundleDescriptor,
-          configuredOrganization
-        ))
-      if (imagesExists && flags.org) {
-        this.warn('Docker organization changed. Updating images names.')
-        CliUx.ux.action.start(
-          'Creating Docker images tags using new organization ' + flags.org
-        )
-        await DockerService.updateImagesOrganization(
-          bundleDescriptor,
-          configuredOrganization!,
-          flags.org
-        )
-        CliUx.ux.action.stop()
-      }
+      imagesExists = await this.checkImagesUsingConfiguredOrganization(
+        bundleDescriptor,
+        configuredOrganization,
+        flags.org
+      )
     }
 
     const organization = flags.org ?? configuredOrganization!
@@ -80,31 +72,116 @@ export default class Publish extends Command {
       await Pack.run(['--org', organization])
     }
 
-    let dockerRegistry = flags.registry
-    if (dockerRegistry) {
-      configService.addOrUpdateProperty(
-        DOCKER_REGISTRY_PROPERTY,
-        dockerRegistry
-      )
-    } else {
-      dockerRegistry = configService.getProperty(DOCKER_REGISTRY_PROPERTY)
-    }
+    const registry = await this.login(configService, flags.registry)
 
-    this.log(
-      `Login on Docker registry ${dockerRegistry ?? DEFAULT_DOCKER_REGISTRY}`
+    const images = await this.getImagesToPush(
+      bundleDescriptor,
+      organization,
+      registry
     )
-    await DockerService.login(dockerRegistry)
 
-    if (dockerRegistry && dockerRegistry !== DEFAULT_DOCKER_REGISTRY) {
-      CliUx.ux.action.start(
-        'Creating Docker images tags for registry ' + dockerRegistry
-      )
-      await DockerService.setImagesRegistry(
+    await this.pushImages(images, registry)
+  }
+
+  private async checkImagesUsingConfiguredOrganization(
+    bundleDescriptor: BundleDescriptor,
+    configuredOrganization: string | undefined,
+    organizationFlag: string | undefined
+  ): Promise<boolean> {
+    const imagesExists =
+      configuredOrganization !== undefined &&
+      (await DockerService.bundleImagesExists(
         bundleDescriptor,
-        organization,
-        dockerRegistry
+        configuredOrganization
+      ))
+    if (imagesExists && organizationFlag) {
+      this.warn('Docker organization changed. Updating images names.')
+      CliUx.ux.action.start(
+        'Creating Docker images tags using new organization ' + organizationFlag
+      )
+      await DockerService.updateImagesOrganization(
+        bundleDescriptor,
+        configuredOrganization!,
+        organizationFlag
       )
       CliUx.ux.action.stop()
     }
+
+    return imagesExists
+  }
+
+  private async login(
+    configService: ConfigService,
+    registryFlag: string | undefined
+  ): Promise<string> {
+    let registry = registryFlag
+    if (registry) {
+      configService.addOrUpdateProperty(DOCKER_REGISTRY_PROPERTY, registry)
+    } else {
+      registry = configService.getProperty(DOCKER_REGISTRY_PROPERTY)
+    }
+
+    registry = registry ?? DEFAULT_DOCKER_REGISTRY
+
+    this.log(color.bold.blue(`Login on Docker registry ${registry}`))
+    await DockerService.login(registry)
+
+    return registry
+  }
+
+  private async getImagesToPush(
+    bundleDescriptor: BundleDescriptor,
+    organization: string,
+    registry: string
+  ): Promise<string[]> {
+    let images: string[]
+    if (registry === DEFAULT_DOCKER_REGISTRY) {
+      images = DockerService.getBundleDockerImages(
+        bundleDescriptor,
+        organization
+      )
+    } else {
+      CliUx.ux.action.start(
+        'Creating Docker images tags for registry ' + registry
+      )
+      images = await DockerService.setImagesRegistry(
+        bundleDescriptor,
+        organization,
+        registry
+      )
+      CliUx.ux.action.stop()
+    }
+
+    return images
+  }
+
+  private async pushImages(images: string[], registry: string): Promise<void> {
+    this.log(color.bold.blue(`Pushing images to ${registry}`))
+
+    type DockerImage = {
+      name: string
+      digest?: string
+    }
+
+    const progress = CliUx.ux.progress()
+    progress.start(images.length, 0)
+    const results: DockerImage[] = []
+    /* eslint-disable no-await-in-loop */
+    try {
+      for (const image of images) {
+        const digest = await DockerService.pushImage(image)
+        results.push({ name: image, digest })
+        progress.update(progress.value + 1)
+      }
+    } finally {
+      progress.stop()
+    }
+
+    this.log(color.bold.blue('Images pushed successfully'))
+
+    CliUx.ux.table(results, {
+      name: {},
+      digest: {}
+    })
   }
 }
