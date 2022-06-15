@@ -77,10 +77,9 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "type" depends on field "bundleId" with validation'
+        'Field "type" with value "external" requires field "bundleId" to have a value'
       )
-      expect(error.message).contain('Field "bundleId" is required')
-      expect(error.message).contain('$.microfrontends[1].apiClaims[0].type')
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
       'Validates union type with a field that requires another field to exist'
@@ -105,12 +104,9 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "bundleId" depends on field "type" with validation'
+        'Field "bundleId" requires field "type" to have value: external'
       )
-      expect(error.message).contain(
-        'Field "type" is not valid. Allowed values are: external'
-      )
-      expect(error.message).contain('$.microfrontends[1].apiClaims[0].type')
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
       'Validates union type with a field that requires another field to have a specific value'

@@ -37,25 +37,19 @@ export class JsonValidationError extends CLIError {
   }
 }
 
-class PropertyDependencyError extends JsonValidationError {
-  constructor(message: string, jsonPath: JsonPath) {
-    super(message.replace(/\n/g, '\n\t'), jsonPath)
-  }
-}
+class PropertyDependencyError extends JsonValidationError {}
 
 // Type that is equal to true if an object property is required and false otherwise.
 // It is used to enforce the required value, so that it is not possible to set it to true
 // if the constrained property is optional and vice-versa
 type IsRequired<T, K extends keyof T> = undefined extends T[K] ? false : true
 
-// Type with each property having a key that exists in `T` except `K`, and each value a `Validator[]`.
-// i.e. `K` depends on one or more properties of `T` excluding itself
-type DependsOn<T, K extends keyof T> = {
-  [H in keyof Required<Omit<T, K>>]?: Validator[]
-}
+type Field = { key: string; value?: any }
 
 // function that throws a JsonValidationError if the field doesn't match the constraint
 export type Validator = (key: string, field: any, jsonPath: JsonPath) => void
+
+export type UnionTypeValidator = (object: any, jsonPath: JsonPath) => void
 
 // Represents validation constraints on a type
 export type ObjectConstraints<T = any> = {
@@ -67,7 +61,10 @@ export type ObjectConstraints<T = any> = {
 }
 
 // Constraints for union types (e.g. <A | B>)
-export type UnionTypeConstraints<T> = Array<ObjectConstraints<T>>
+export type UnionTypeConstraints<T> = {
+  constraints: Array<ObjectConstraints<T>>
+  validators?: UnionTypeValidator[]
+}
 
 // Constraints for nested object types
 type ChildObjectConstraints<T, K extends keyof T> = {
@@ -77,20 +74,17 @@ type ChildObjectConstraints<T, K extends keyof T> = {
     undefined
   >
   validators?: Validator[]
-  dependsOn?: DependsOn<T, K>
 }
 
 type PrimitiveConstraints<T, K extends keyof T> = {
   required: IsRequired<T, K>
   type: TypeOf<T[K]>
   validators?: Validator[]
-  dependsOn?: DependsOn<T, K>
 }
 
 type BaseArrayConstraints<T, K extends keyof T> = {
   isArray: true
   required: IsRequired<T, K>
-  dependsOn?: DependsOn<T, K>
 }
 
 type PrimitiveArrayConstraints<T, K extends keyof T> =
@@ -117,16 +111,6 @@ export function regexp(regexp: RegExp, message: string): Validator {
         jsonPath
       )
     }
-  }
-}
-
-export function required(
-  key: string,
-  field: unknown,
-  jsonPath: JsonPath
-): void {
-  if (field === undefined) {
-    throw new JsonValidationError(`Field "${key}" is required`, jsonPath)
   }
 }
 
@@ -160,6 +144,41 @@ export function isMapOfStrings(
   }
 }
 
+export function fieldDependsOn(
+  field: Field,
+  dependsOnField: Field
+): UnionTypeValidator {
+  return function (object: any, jsonPath: JsonPath) {
+    if (
+      (field.value !== undefined && object[field.key] === field.value) ||
+      (field.value === undefined && object[field.key] !== undefined)
+    ) {
+      let message = `Field "${field.key}"`
+      if (field.value) message += ` with value "${field.value}"`
+
+      if (dependsOnField.value === undefined) {
+        if (object[dependsOnField.key] === undefined) {
+          message += ` requires field "${dependsOnField.key}" to have a value`
+          throw new PropertyDependencyError(message, jsonPath)
+        }
+      } else if (object[dependsOnField.key] !== dependsOnField.value) {
+        message += ` requires field "${dependsOnField.key}" to have value: ${dependsOnField.value}`
+        throw new PropertyDependencyError(message, jsonPath)
+      }
+    }
+  }
+}
+
+export function mutualDependency(
+  field1: Field,
+  field2: Field
+): UnionTypeValidator {
+  return function (...args) {
+    fieldDependsOn(field1, field2)(...args)
+    fieldDependsOn(field2, field1)(...args)
+  }
+}
+
 export class ConstraintsValidatorService {
   public static validateObjectConstraints<T>(
     parsedObject: unknown,
@@ -187,8 +206,6 @@ function validateObjectTypeConstraints<T>(
   constraints: ObjectConstraints<T>,
   jsonPath: JsonPath
 ): void {
-  const errors: JsonValidationError[] = []
-
   for (const [key, unknownConstraint] of Object.entries(constraints)) {
     const constraint = unknownConstraint as
       | PrimitiveConstraints<T, keyof T>
@@ -207,43 +224,27 @@ function validateObjectTypeConstraints<T>(
       continue
     }
 
-    try {
-      if (isArrayConstraints(constraint)) {
-        validateArrayConstraints(key, value, constraint, newJsonPath)
-      } else if (isPrimitiveConstraints(constraint)) {
-        validatePrimitiveConstraints(key, value, constraint, newJsonPath)
-      } else {
-        applyValidators(key, value, constraint, newJsonPath)
-        validateConstraints(value, constraint.children, newJsonPath)
-      }
-
-      if (constraint.dependsOn) {
-        applyDependsOnValidators(
-          parsedObject,
-          key,
-          constraint.dependsOn,
-          jsonPath
-        )
-      }
-    } catch (error) {
-      // Prioritizes throwing a PropertyDependencyError, which is a more specific error
-      if (error instanceof PropertyDependencyError) {
-        throw error
-      }
-
-      errors.push(error as JsonValidationError)
+    if (isArrayConstraints(constraint)) {
+      validateArrayConstraints(key, value, constraint, newJsonPath)
+    } else if (isPrimitiveConstraints(constraint)) {
+      validatePrimitiveConstraints(key, value, constraint, newJsonPath)
+    } else {
+      applyValidators(key, value, constraint, newJsonPath)
+      validateConstraints(value, constraint.children, newJsonPath)
     }
   }
-
-  if (errors.length > 0) throw errors[0]
 }
 
 function validateUnionTypeConstraints<T>(
   parsedObject: any,
-  constraints: UnionTypeConstraints<T>,
+  { constraints, validators }: UnionTypeConstraints<T>,
   jsonPath: JsonPath
 ): void {
   const errors: JsonValidationError[] = []
+
+  if (validators) {
+    for (const validator of validators) validator(parsedObject, jsonPath)
+  }
 
   for (const constraint of constraints) {
     try {
@@ -302,34 +303,6 @@ function applyValidators<T>(
   }
 }
 
-function applyDependsOnValidators<T>(
-  parsedObject: any,
-  key: string,
-  dependsOn: DependsOn<T, keyof T>,
-  jsonPath: JsonPath
-): void {
-  const dependsOnKeys = Object.keys(dependsOn) as Array<keyof typeof dependsOn>
-
-  for (const dependsOnKey of dependsOnKeys) {
-    const validators: Validator[] = dependsOn[dependsOnKey] || []
-    for (const validator of validators) {
-      try {
-        validator(dependsOnKey, parsedObject[dependsOnKey], [
-          ...jsonPath,
-          dependsOnKey
-        ])
-      } catch (error) {
-        throw new PropertyDependencyError(
-          `Field "${key}" depends on field "${dependsOnKey}" with validation:\n${
-            (error as JsonValidationError).message
-          }`,
-          [...jsonPath, key]
-        )
-      }
-    }
-  }
-}
-
 function validateArrayConstraints<T>(
   key: string,
   value: any,
@@ -355,7 +328,7 @@ function validateArrayConstraints<T>(
 function isUnionTypeConstraints<T>(
   constraints: ObjectConstraints<T> | UnionTypeConstraints<T>
 ): constraints is UnionTypeConstraints<T> {
-  return Array.isArray(constraints as UnionTypeConstraints<T>)
+  return Array.isArray((constraints as UnionTypeConstraints<T>).constraints)
 }
 
 function isPrimitiveConstraints<T>(

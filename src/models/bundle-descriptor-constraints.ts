@@ -15,9 +15,9 @@ import {
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
   isMapOfStrings,
+  mutualDependency,
   ObjectConstraints,
   regexp,
-  required,
   UnionTypeConstraints,
   values
 } from '../services/constraints-validator-service'
@@ -31,87 +31,91 @@ const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
 // Constraints
 
 const ENVIRONMENT_VARIABLE_CONSTRAINTS: UnionTypeConstraints<EnvironmentVariable> =
-  [
-    {
-      name: {
-        required: true,
-        type: 'string'
+  {
+    constraints: [
+      {
+        name: {
+          required: true,
+          type: 'string'
+        },
+        value: {
+          required: true,
+          type: 'string'
+        }
       },
-      value: {
-        required: true,
-        type: 'string'
-      }
-    },
-    {
-      name: {
-        required: true,
-        type: 'string'
-      },
-      valueFrom: {
-        required: true,
-        children: {
-          secretKeyRef: {
-            required: true,
-            children: {
-              name: {
-                required: true,
-                type: 'string'
-              },
-              key: {
-                required: true,
-                type: 'string'
+      {
+        name: {
+          required: true,
+          type: 'string'
+        },
+        valueFrom: {
+          required: true,
+          children: {
+            secretKeyRef: {
+              required: true,
+              children: {
+                name: {
+                  required: true,
+                  type: 'string'
+                },
+                key: {
+                  required: true,
+                  type: 'string'
+                }
               }
             }
           }
         }
       }
-    }
-  ]
+    ]
+  }
 
 const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
   ApiClaim | ExternalApiClaim
-> = [
-  {
-    name: {
-      required: true,
-      type: 'string'
-    },
-    type: {
-      required: true,
-      type: 'string',
-      validators: [values([ApiType.Internal])]
-    },
-    serviceId: {
-      required: true,
-      type: 'string'
-    }
-  },
-  {
-    name: {
-      required: true,
-      type: 'string'
-    },
-    type: {
-      required: true,
-      type: 'string',
-      validators: [values([ApiType.External])],
-      dependsOn: {
-        bundleId: [required]
+> = {
+  constraints: [
+    {
+      name: {
+        required: true,
+        type: 'string'
+      },
+      type: {
+        required: true,
+        type: 'string',
+        validators: [values([ApiType.Internal])]
+      },
+      serviceId: {
+        required: true,
+        type: 'string'
       }
     },
-    serviceId: {
-      required: true,
-      type: 'string'
-    },
-    bundleId: {
-      required: true,
-      type: 'string',
-      dependsOn: {
-        type: [values([ApiType.External])]
+    {
+      name: {
+        required: true,
+        type: 'string'
+      },
+      type: {
+        required: true,
+        type: 'string',
+        validators: [values([ApiType.External])]
+      },
+      serviceId: {
+        required: true,
+        type: 'string'
+      },
+      bundleId: {
+        required: true,
+        type: 'string'
       }
     }
-  }
-]
+  ],
+  validators: [
+    mutualDependency(
+      { key: 'type', value: ApiType.External },
+      { key: 'bundleId' }
+    )
+  ]
+}
 
 const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
   label: {
@@ -197,205 +201,201 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   }
 }
 
-const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = [
-  {
-    name: {
-      required: true,
-      type: 'string',
-      validators: [nameRegExpValidator]
-    },
-    code: {
-      required: false,
-      type: 'string'
-    },
-    stack: {
-      required: true,
-      type: 'string',
-      validators: [values(MicroFrontendStack)]
-    },
-    type: {
-      required: true,
-      type: 'string',
-      validators: [
-        values([MicroFrontendType.Widget, MicroFrontendType.WidgetConfig])
-      ]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
-    },
-    publicFolder: {
-      required: false,
-      type: 'string'
-    },
-    group: {
-      required: true,
-      type: 'string'
-    },
-    apiClaims: {
-      isArray: true,
-      required: false,
-      children: API_CLAIMS_CONSTRAINTS
-    },
-    nav: {
-      isArray: true,
-      required: false,
-      children: NAV_CONSTRAINTS
-    },
-    commands: {
-      required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
-        }
-      }
-    }
-  },
-  {
-    name: {
-      required: true,
-      type: 'string',
-      validators: [nameRegExpValidator]
-    },
-    code: {
-      required: false,
-      type: 'string'
-    },
-    stack: {
-      required: true,
-      type: 'string',
-      validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
-    },
-    publicFolder: {
-      required: false,
-      type: 'string'
-    },
-    group: {
-      required: true,
-      type: 'string'
-    },
-    apiClaims: {
-      isArray: true,
-      required: false,
-      children: API_CLAIMS_CONSTRAINTS
-    },
-    nav: {
-      isArray: true,
-      required: false,
-      children: NAV_CONSTRAINTS
-    },
-    commands: {
-      required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
+const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
+  constraints: [
+    {
+      name: {
+        required: true,
+        type: 'string',
+        validators: [nameRegExpValidator]
+      },
+      code: {
+        required: false,
+        type: 'string'
+      },
+      stack: {
+        required: true,
+        type: 'string',
+        validators: [values(MicroFrontendStack)]
+      },
+      type: {
+        required: true,
+        type: 'string',
+        validators: [
+          values([MicroFrontendType.Widget, MicroFrontendType.WidgetConfig])
+        ]
+      },
+      titles: {
+        required: true,
+        validators: [isMapOfStrings],
+        children: {}
+      },
+      publicFolder: {
+        required: false,
+        type: 'string'
+      },
+      group: {
+        required: true,
+        type: 'string'
+      },
+      apiClaims: {
+        isArray: true,
+        required: false,
+        children: API_CLAIMS_CONSTRAINTS
+      },
+      nav: {
+        isArray: true,
+        required: false,
+        children: NAV_CONSTRAINTS
+      },
+      commands: {
+        required: false,
+        children: {
+          build: {
+            required: false,
+            type: 'string'
+          }
         }
       }
     },
-    type: {
-      required: true,
-      type: 'string',
-      validators: [values([MicroFrontendType.AppBuilder])],
-      dependsOn: {
-        slot: [required]
-      }
-    },
-    slot: {
-      required: true,
-      type: 'string',
-      validators: [
-        values([
-          MicroFrontendAppBuilderSlot.PrimaryHeader,
-          MicroFrontendAppBuilderSlot.PrimaryMenu
-        ])
-      ],
-      dependsOn: {
-        type: [values([MicroFrontendType.AppBuilder])]
-      }
-    }
-  },
-  {
-    name: {
-      required: true,
-      type: 'string',
-      validators: [nameRegExpValidator]
-    },
-    code: {
-      required: false,
-      type: 'string'
-    },
-    stack: {
-      required: true,
-      type: 'string',
-      validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
-    },
-    publicFolder: {
-      required: false,
-      type: 'string'
-    },
-    group: {
-      required: true,
-      type: 'string'
-    },
-    apiClaims: {
-      isArray: true,
-      required: false,
-      children: API_CLAIMS_CONSTRAINTS
-    },
-    nav: {
-      isArray: true,
-      required: false,
-      children: NAV_CONSTRAINTS
-    },
-    commands: {
-      required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
+    {
+      name: {
+        required: true,
+        type: 'string',
+        validators: [nameRegExpValidator]
+      },
+      code: {
+        required: false,
+        type: 'string'
+      },
+      stack: {
+        required: true,
+        type: 'string',
+        validators: [values(MicroFrontendStack)]
+      },
+      titles: {
+        required: true,
+        validators: [isMapOfStrings],
+        children: {}
+      },
+      publicFolder: {
+        required: false,
+        type: 'string'
+      },
+      group: {
+        required: true,
+        type: 'string'
+      },
+      apiClaims: {
+        isArray: true,
+        required: false,
+        children: API_CLAIMS_CONSTRAINTS
+      },
+      nav: {
+        isArray: true,
+        required: false,
+        children: NAV_CONSTRAINTS
+      },
+      commands: {
+        required: false,
+        children: {
+          build: {
+            required: false,
+            type: 'string'
+          }
         }
+      },
+      type: {
+        required: true,
+        type: 'string',
+        validators: [values([MicroFrontendType.AppBuilder])]
+      },
+      slot: {
+        required: true,
+        type: 'string',
+        validators: [
+          values([
+            MicroFrontendAppBuilderSlot.PrimaryHeader,
+            MicroFrontendAppBuilderSlot.PrimaryMenu
+          ])
+        ]
       }
     },
-    type: {
-      required: true,
-      type: 'string',
-      validators: [values([MicroFrontendType.AppBuilder])],
-      dependsOn: {
-        slot: [required]
-      }
-    },
-    slot: {
-      required: true,
-      type: 'string',
-      validators: [values([MicroFrontendAppBuilderSlot.Content])],
-      dependsOn: {
-        type: [values([MicroFrontendType.AppBuilder])],
-        paths: [required]
-      }
-    },
-    paths: {
-      isArray: true,
-      required: true,
-      type: 'string',
-      dependsOn: {
-        slot: [values([MicroFrontendAppBuilderSlot.Content])]
+    {
+      name: {
+        required: true,
+        type: 'string',
+        validators: [nameRegExpValidator]
+      },
+      code: {
+        required: false,
+        type: 'string'
+      },
+      stack: {
+        required: true,
+        type: 'string',
+        validators: [values(MicroFrontendStack)]
+      },
+      titles: {
+        required: true,
+        validators: [isMapOfStrings],
+        children: {}
+      },
+      publicFolder: {
+        required: false,
+        type: 'string'
+      },
+      group: {
+        required: true,
+        type: 'string'
+      },
+      apiClaims: {
+        isArray: true,
+        required: false,
+        children: API_CLAIMS_CONSTRAINTS
+      },
+      nav: {
+        isArray: true,
+        required: false,
+        children: NAV_CONSTRAINTS
+      },
+      commands: {
+        required: false,
+        children: {
+          build: {
+            required: false,
+            type: 'string'
+          }
+        }
+      },
+      type: {
+        required: true,
+        type: 'string',
+        validators: [values([MicroFrontendType.AppBuilder])]
+      },
+      slot: {
+        required: true,
+        type: 'string',
+        validators: [values([MicroFrontendAppBuilderSlot.Content])]
+      },
+      paths: {
+        isArray: true,
+        required: true,
+        type: 'string'
       }
     }
-  }
-]
+  ],
+  validators: [
+    mutualDependency(
+      { key: 'slot' },
+      { key: 'type', value: MicroFrontendType.AppBuilder }
+    ),
+    mutualDependency(
+      { key: 'paths' },
+      { key: 'slot', value: MicroFrontendAppBuilderSlot.Content }
+    )
+  ]
+}
 
 export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> =
   {
