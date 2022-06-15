@@ -294,7 +294,12 @@ export class DockerService {
   }
 
   public static async pushImage(image: string): Promise<string> {
-    const command = DOCKER_COMMAND + ' push ' + image
+    const command =
+      DOCKER_COMMAND +
+      ' --config ' +
+      path.join(...DOCKER_CONFIG_FOLDER) +
+      ' push ' +
+      image
     const outputStream = new InMemoryWritable()
     const result = await ProcessExecutorService.executeProcess({
       command,

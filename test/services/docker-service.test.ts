@@ -253,7 +253,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: DOCKER_COMMAND + ' push myimage'
+        command: DOCKER_COMMAND + ' --config .entando/docker push myimage'
       })
     )
     expect(sha).eq('sha256:52b239f9')
@@ -269,7 +269,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: DOCKER_COMMAND + ' push myimage'
+        command: DOCKER_COMMAND + ' --config .entando/docker push myimage'
       })
     )
     expect(sha).eq('')
