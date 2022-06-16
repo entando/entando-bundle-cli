@@ -21,7 +21,7 @@ import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
-export const DEFAULT_DOCKER_REGISTRY = 'docker.io'
+export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 export const DOCKER_COMMAND = 'docker'
 
 export type DockerBuildOptions = {
@@ -71,7 +71,7 @@ export class DockerService {
       options.name,
       options.tag
     )
-    return `${DOCKER_COMMAND} build -f ${dockerfile} -t ${dockerImageName} .`
+    return `${DOCKER_COMMAND} build --platform "linux/amd64" -f ${dockerfile} -t ${dockerImageName} .`
   }
 
   public static getDockerImageName(
