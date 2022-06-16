@@ -21,10 +21,12 @@ export class ConfigService {
   }
 
   private writeConfigFile(): void {
-    const filePath = path.join(CONFIG_FOLDER)
+    if (!fs.existsSync(CONFIG_FOLDER)) {
+      fs.mkdirSync(CONFIG_FOLDER)
+    }
 
     fs.writeFileSync(
-      path.join(filePath, CONFIG_FILE),
+      path.join(CONFIG_FOLDER, CONFIG_FILE),
       JSON.stringify(this.config, null, 2) + os.EOL,
       'utf8'
     )
