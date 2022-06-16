@@ -5,6 +5,7 @@ import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
   MicroFrontend,
+  MicroFrontendType,
   Microservice
 } from '../../../src/models/bundle-descriptor'
 import {
@@ -13,6 +14,7 @@ import {
 } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
+import { MicroFrontendStack } from '../../../src/models/component'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -21,6 +23,13 @@ describe('mfe add', () => {
     type: 'bundle',
     microservices: [],
     microfrontends: []
+  }
+
+  const defaultMfeValues: Partial<MicroFrontend> = {
+    stack: MicroFrontendStack.React,
+    type: MicroFrontendType.Widget,
+    group: 'free',
+    publicFolder: 'public'
   }
 
   const tempDirHelper = new TempDirHelper(__filename)
@@ -43,27 +52,20 @@ describe('mfe add', () => {
   })
 
   test
-    .command(['mfe add', 'default-stack-mfe'])
-    .it('adds a micro frontend with default stack', () => {
-      const mfeName = 'default-stack-mfe'
-      const filePath: string = path.resolve(
-        tempBundleDir,
-        'microfrontends',
-        mfeName
-      )
+    .command(['mfe add', 'default-mfe'])
+    .it('adds a micro frontend with default stack and type', () => {
+      const mfeName = 'default-mfe'
       const updatedBundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
-      expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+      expectMfePathExists(mfeName)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: [
           {
+            ...defaultMfeValues,
             name: mfeName,
-            stack: 'react',
-            group: 'free',
-            titles: { en: mfeName, it: mfeName },
-            publicFolder: 'public'
+            titles: { en: mfeName, it: mfeName }
           }
         ]
       })
@@ -73,24 +75,18 @@ describe('mfe add', () => {
     .command(['mfe add', 'angular-mfe', '--stack', 'angular'])
     .it('adds a micro frontend with specified stack', () => {
       const mfeName = 'angular-mfe'
-      const filePath: string = path.resolve(
-        tempBundleDir,
-        'microfrontends',
-        mfeName
-      )
       const updatedBundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
-      expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+      expectMfePathExists(mfeName)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microfrontends: [
           {
+            ...defaultMfeValues,
             name: mfeName,
             stack: 'angular',
-            group: 'free',
-            titles: { en: mfeName, it: mfeName },
-            publicFolder: 'public'
+            titles: { en: mfeName, it: mfeName }
           }
         ]
       })
@@ -123,12 +119,42 @@ describe('mfe add', () => {
     )
 
   test
+    .command(['mfe add', 'widget-config-mfe', '--type', 'widget-config'])
+    .it('adds a micro frontend with specified type', () => {
+      const mfeName = 'widget-config-mfe'
+      const updatedBundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+
+      expectMfePathExists(mfeName)
+      expect(updatedBundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microfrontends: [
+          {
+            ...defaultMfeValues,
+            name: mfeName,
+            type: 'widget-config',
+            titles: { en: mfeName, it: mfeName }
+          }
+        ]
+      })
+    })
+
+  test
+    .command(['mfe add', 'invalid-slot-flag', '--slot', 'content'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        '--slot requires --type to be app-builder'
+      )
+    })
+    .it('exits with an error if --slot is used but type is not app-builder')
+
+  test
     .stderr()
     .command(['mfe add', 'invalid name'])
     .catch(error => {
       expect(error.message).to.contain('not a valid Micro Frontend name')
     })
-    .it('exists with an error if micro frontend name is invalid')
+    .it('exits with an error if micro frontend name is invalid')
 
   test
     .stderr()
@@ -188,4 +214,68 @@ describe('mfe add', () => {
     .it(
       'exits with an error if another component with the same name already exists'
     )
+
+  context('type is app-builder', () => {
+    test
+      .command(['mfe add', 'ab-default-slot-mfe', '--type', 'app-builder'])
+      .it('adds an app-builder micro frontend with default slot', () => {
+        const mfeName = 'ab-default-slot-mfe'
+        const updatedBundleDescriptor: BundleDescriptor =
+          bundleDescriptorService.getBundleDescriptor()
+
+        expectMfePathExists(mfeName)
+        expect(updatedBundleDescriptor).to.eql({
+          ...bundleDescriptor,
+          microfrontends: [
+            {
+              ...defaultMfeValues,
+              name: mfeName,
+              type: 'app-builder',
+              slot: 'content',
+              paths: [],
+              titles: { en: mfeName, it: mfeName }
+            }
+          ]
+        })
+      })
+
+    test
+      .command([
+        'mfe add',
+        'ab-header-mfe',
+        '--type',
+        'app-builder',
+        '--slot',
+        'primary-header'
+      ])
+      .it('adds an app-builder micro frontend with specified slot', () => {
+        const mfeName = 'ab-header-mfe'
+        const updatedBundleDescriptor: BundleDescriptor =
+          bundleDescriptorService.getBundleDescriptor()
+
+        expectMfePathExists(mfeName)
+        expect(updatedBundleDescriptor).to.eql({
+          ...bundleDescriptor,
+          microfrontends: [
+            {
+              ...defaultMfeValues,
+              name: mfeName,
+              type: 'app-builder',
+              slot: 'primary-header',
+              titles: { en: mfeName, it: mfeName }
+            }
+          ]
+        })
+      })
+  })
+
+  function expectMfePathExists(mfeName: string) {
+    const filePath: string = path.resolve(
+      tempBundleDir,
+      'microfrontends',
+      mfeName
+    )
+
+    expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+  }
 })

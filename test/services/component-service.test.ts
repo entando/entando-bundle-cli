@@ -72,7 +72,7 @@ describe('component-service', () => {
     .it('get all components', () => {
       componentService = new ComponentService()
       const allComponents = componentService.getComponents()
-      expect(allComponents.length).to.be.eq(4)
+      expect(allComponents.length).to.be.eq(5)
     })
 
   test

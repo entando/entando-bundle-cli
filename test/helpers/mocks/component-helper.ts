@@ -1,6 +1,7 @@
 import {
   DBMS,
   MicroFrontend,
+  MicroFrontendType,
   Microservice
 } from '../../../src/models/bundle-descriptor'
 import {
@@ -31,11 +32,12 @@ export class ComponentHelper {
     return {
       name: name,
       stack: MicroFrontendStack.React,
+      type: MicroFrontendType.Widget,
       group: 'group',
       titles: {
         en: 'English Title'
       },
       ...partial
-    }
+    } as MicroFrontend
   }
 }

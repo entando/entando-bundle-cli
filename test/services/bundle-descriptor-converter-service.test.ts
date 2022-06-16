@@ -16,7 +16,9 @@ import { ComponentService } from '../../src/services/component-service'
 import {
   ApiType,
   DBMS,
-  SecurityLevel
+  SecurityLevel,
+  MicroFrontendType,
+  MicroFrontendAppBuilderSlot
 } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
@@ -72,6 +74,7 @@ describe('bundle-descriptor-converter-service', () => {
           name: 'test-mfe',
           code: 'test-mfe-code',
           stack: MicroFrontendStack.React,
+          type: MicroFrontendType.Widget,
           titles: {
             en: 'mfe title',
             it: 'titolo mfe'
@@ -92,9 +95,20 @@ describe('bundle-descriptor-converter-service', () => {
         {
           name: 'test-mfe-no-code',
           stack: MicroFrontendStack.React,
+          type: MicroFrontendType.Widget,
           titles: {},
           group: 'free',
           publicFolder: 'public'
+        },
+        {
+          name: 'test-app-builder-mfe',
+          stack: MicroFrontendStack.React,
+          type: MicroFrontendType.AppBuilder,
+          titles: {},
+          group: 'free',
+          publicFolder: 'public',
+          slot: MicroFrontendAppBuilderSlot.Content,
+          paths: []
         }
       ]
     })
@@ -133,6 +147,7 @@ describe('bundle-descriptor-converter-service', () => {
       },
       group: 'free',
       version: 'v2',
+      type: 'widget',
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
       ],
@@ -152,7 +167,25 @@ describe('bundle-descriptor-converter-service', () => {
       code: 'test-mfe-no-code',
       titles: {},
       group: 'free',
-      version: 'v2'
+      version: 'v2',
+      type: 'widget'
+    })
+
+    const appBuilderMfeDescriptorPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      'widgets',
+      'test-app-builder-mfe.yaml'
+    )
+    checkYamlFile(appBuilderMfeDescriptorPath, {
+      code: 'test-app-builder-mfe',
+      titles: {},
+      group: 'free',
+      version: 'v2',
+      type: 'app-builder',
+      slot: 'content',
+      paths: []
     })
 
     const msDescriptorPath = path.resolve(
@@ -205,10 +238,15 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(bundleDescriptorPath, {
       code: 'test-bundle',
+      version: 'v2',
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
-        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml']
+        widgets: [
+          'widgets/test-mfe.yaml',
+          'widgets/test-mfe-no-code.yaml',
+          'widgets/test-app-builder-mfe.yaml'
+        ]
       },
       global: {
         nav: [

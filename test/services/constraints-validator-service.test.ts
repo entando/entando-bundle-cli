@@ -42,7 +42,7 @@ describe('BundleDescriptorValidatorService', () => {
       invalidDescriptor.microfrontends[1].apiClaims = [
         {
           name: 'invalid-claim',
-          type: 'external',
+          type: 'invalid-type',
           serviceId: 'service-id'
         }
       ]
@@ -55,11 +55,62 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(
         'Field "type" is not valid. Allowed values are: internal'
       )
-      expect((error as JsonValidationError).jsonPath).eq(
-        '$.microfrontends[1].apiClaims[0].type'
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0].type')
+    })
+    .it('Validates field that allows only specific values')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'invalid-claim',
+          type: 'external',
+          serviceId: 'service-id'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
-    .it('Validates union type (ApiClaims)')
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "type" with value "external" requires field "bundleId" to have a value'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
+    })
+    .it(
+      'Validates union type with a field that requires another field to exist'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'invalid-claim',
+          type: 'internal',
+          serviceId: 'service-id',
+          bundleId: 'my-bundle'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "bundleId" requires field "type" to have value: external'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
+    })
+    .it(
+      'Validates union type with a field that requires another field to have a specific value'
+    )
 
   test
     .do(() => {
@@ -73,9 +124,7 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain('Field "apiClaims" should be an array')
-      expect((error as JsonValidationError).jsonPath).eq(
-        '$.microfrontends[1].apiClaims'
-      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims')
     })
     .it('Validates object instead of array')
 
@@ -113,9 +162,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(
         'Field "titles" is not valid. Should be a key-value map of strings'
       )
-      expect((error as JsonValidationError).jsonPath).eq(
-        '$.microfrontends[0].titles'
-      )
+      expect(error.message).contain('$.microfrontends[0].titles')
     })
     .it('Validates microfrontend titles')
 
@@ -151,9 +198,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(
         'Field "name" is not valid. ' + INVALID_NAME_MESSAGE
       )
-      expect((error as JsonValidationError).jsonPath).eq(
-        '$.microfrontends[1].name'
-      )
+      expect(error.message).contain('$.microfrontends[1].name')
     })
     .it('Validates name using RegExp')
 })

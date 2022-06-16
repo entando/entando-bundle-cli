@@ -3,6 +3,8 @@ import {
   DBMS,
   EnvironmentVariable,
   ExternalApiClaim,
+  MicroFrontendAppBuilderSlot,
+  MicroFrontendType,
   Nav,
   Permission
 } from './bundle-descriptor'
@@ -12,8 +14,11 @@ export type YamlWidgetDescriptor = {
   titles: { [lang: string]: string }
   group: string
   version: string
+  type: MicroFrontendType
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   nav?: Nav[]
+  slot?: MicroFrontendAppBuilderSlot
+  paths?: string[]
 }
 
 export type YamlPluginDescriptor = {
@@ -31,6 +36,7 @@ export type YamlPluginDescriptor = {
 
 export type YamlBundleDescriptor = {
   code: string
+  version: string
   description?: string
   components: {
     plugins: string[]

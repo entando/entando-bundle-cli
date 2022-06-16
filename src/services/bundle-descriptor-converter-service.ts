@@ -25,6 +25,7 @@ import { DockerService } from './docker-service'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v4'
 const WIDGET_DESCRIPTOR_VERSION = 'v2'
+const BUNDLE_DESCRIPTOR_VERSION = 'v2'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 
 export class BundleDescriptorConverterService {
@@ -71,7 +72,10 @@ export class BundleDescriptorConverterService {
       group: microFrontend.group,
       version: WIDGET_DESCRIPTOR_VERSION,
       apiClaims: microFrontend.apiClaims,
-      nav: microFrontend.nav
+      nav: microFrontend.nav,
+      type: microFrontend.type,
+      ...('slot' in microFrontend && { slot: microFrontend.slot }),
+      ...('paths' in microFrontend && { paths: microFrontend.paths })
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
@@ -115,7 +119,8 @@ export class BundleDescriptorConverterService {
         plugins: [],
         widgets: []
       },
-      global: bundleDescriptor.global
+      global: bundleDescriptor.global,
+      version: BUNDLE_DESCRIPTOR_VERSION
     }
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =

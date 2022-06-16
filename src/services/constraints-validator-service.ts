@@ -37,13 +37,19 @@ export class JsonValidationError extends CLIError {
   }
 }
 
+class PropertyDependencyError extends JsonValidationError {}
+
 // Type that is equal to true if an object property is required and false otherwise.
 // It is used to enforce the required value, so that it is not possible to set it to true
 // if the constrained property is optional and vice-versa
 type IsRequired<T, K extends keyof T> = undefined extends T[K] ? false : true
 
+type Field = { key: string; value?: any }
+
 // function that throws a JsonValidationError if the field doesn't match the constraint
 export type Validator = (key: string, field: any, jsonPath: JsonPath) => void
+
+export type UnionTypeValidator = (object: any, jsonPath: JsonPath) => void
 
 // Represents validation constraints on a type
 export type ObjectConstraints<T = any> = {
@@ -55,7 +61,10 @@ export type ObjectConstraints<T = any> = {
 }
 
 // Constraints for union types (e.g. <A | B>)
-export type UnionTypeConstraints<T> = Array<ObjectConstraints<T>>
+export type UnionTypeConstraints<T> = {
+  constraints: Array<ObjectConstraints<T>>
+  validators?: UnionTypeValidator[]
+}
 
 // Constraints for nested object types
 type ChildObjectConstraints<T, K extends keyof T> = {
@@ -135,6 +144,41 @@ export function isMapOfStrings(
   }
 }
 
+export function fieldDependsOn(
+  field: Field,
+  dependsOnField: Field
+): UnionTypeValidator {
+  return function (object: any, jsonPath: JsonPath) {
+    if (
+      (field.value !== undefined && object[field.key] === field.value) ||
+      (field.value === undefined && object[field.key] !== undefined)
+    ) {
+      let message = `Field "${field.key}"`
+      if (field.value) message += ` with value "${field.value}"`
+
+      if (dependsOnField.value === undefined) {
+        if (object[dependsOnField.key] === undefined) {
+          message += ` requires field "${dependsOnField.key}" to have a value`
+          throw new PropertyDependencyError(message, jsonPath)
+        }
+      } else if (object[dependsOnField.key] !== dependsOnField.value) {
+        message += ` requires field "${dependsOnField.key}" to have value: ${dependsOnField.value}`
+        throw new PropertyDependencyError(message, jsonPath)
+      }
+    }
+  }
+}
+
+export function mutualDependency(
+  field1: Field,
+  field2: Field
+): UnionTypeValidator {
+  return function (...args) {
+    fieldDependsOn(field1, field2)(...args)
+    fieldDependsOn(field2, field1)(...args)
+  }
+}
+
 export class ConstraintsValidatorService {
   public static validateObjectConstraints<T>(
     parsedObject: unknown,
@@ -171,6 +215,7 @@ function validateObjectTypeConstraints<T>(
     const newJsonPath = [...jsonPath, key]
 
     const value: any = parsedObject[key]
+
     if (value === undefined) {
       if (constraint.required) {
         throw new JsonValidationError(`Field "${key}" is required`, newJsonPath)
@@ -192,21 +237,38 @@ function validateObjectTypeConstraints<T>(
 
 function validateUnionTypeConstraints<T>(
   parsedObject: any,
-  constraints: UnionTypeConstraints<T>,
+  { constraints, validators }: UnionTypeConstraints<T>,
   jsonPath: JsonPath
 ): void {
   const errors: JsonValidationError[] = []
+
+  if (validators) {
+    for (const validator of validators) validator(parsedObject, jsonPath)
+  }
+
   for (const constraint of constraints) {
     try {
       validateConstraints(parsedObject, constraint, jsonPath)
     } catch (error) {
+      if (error instanceof PropertyDependencyError) {
+        throw error
+      }
+
       errors.push(error as JsonValidationError)
     }
   }
 
   if (errors.length > 0 && errors.length === constraints.length) {
-    // validation failed for all allowed types, returning first error
-    throw errors[0]
+    // Validation failed for all allowed types
+    const messageArr = [`Fix one of the following errors:`]
+    for (const error of errors) {
+      messageArr.push(`* ${error.message.split('\n').join('\n  ')}`)
+    }
+
+    // Formats error message by removing duplicates
+    const formattedMessage = [...new Set(messageArr)].join('\n')
+
+    throw new CLIError(formattedMessage)
   }
 }
 
@@ -266,7 +328,7 @@ function validateArrayConstraints<T>(
 function isUnionTypeConstraints<T>(
   constraints: ObjectConstraints<T> | UnionTypeConstraints<T>
 ): constraints is UnionTypeConstraints<T> {
-  return Array.isArray(constraints as UnionTypeConstraints<T>)
+  return Array.isArray((constraints as UnionTypeConstraints<T>).constraints)
 }
 
 function isPrimitiveConstraints<T>(
