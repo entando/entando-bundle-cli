@@ -11,7 +11,12 @@ import {
   OUTPUT_FOLDER,
   MICROFRONTENDS_FOLDER,
   MICROSERVICES_FOLDER,
-  EPC_FOLDER
+  EPC_FOLDER,
+  KEYCLOAK_REALM_CONFIG_FOLDER,
+  KEYCLOAK_DB_FOLDER,
+  KEYCLOAK_REALM_FILE,
+  KEYCLOAK_USERS_FILE,
+  KEYCLOAK_FOLDER
 } from '../paths'
 
 import { FSService } from './fs-service'
@@ -68,6 +73,11 @@ export class InitializerService {
     fs.mkdirSync(this.filesys.getBundleFilePath(MICROFRONTENDS_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(EPC_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(SVC_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(...KEYCLOAK_FOLDER))
+    fs.mkdirSync(
+      this.filesys.getBundleFilePath(...KEYCLOAK_REALM_CONFIG_FOLDER)
+    )
+    fs.mkdirSync(this.filesys.getBundleFilePath(...KEYCLOAK_DB_FOLDER))
   }
 
   public async performBundleInitFromGit(
@@ -100,6 +110,13 @@ export class InitializerService {
     this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(...OUTPUT_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(SVC_FOLDER)
+    this.createKeyCloakFoldersIfNotExist()
+  }
+
+  private createKeyCloakFoldersIfNotExist() {
+    this.filesys.createSubDirectoryIfNotExist(...KEYCLOAK_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(...KEYCLOAK_REALM_CONFIG_FOLDER)
+    this.filesys.createSubDirectoryIfNotExist(...KEYCLOAK_DB_FOLDER)
   }
 
   private createBundleDescriptor() {
@@ -132,7 +149,18 @@ export class InitializerService {
     InitializerService.debug('creating svc files')
 
     const defaultPrefix = 'default-'
-    const templateVariables = { '%BUNDLENAME%': this.options.name }
+
+    const dockerImages = require('../../package.json').org_entando_dependencies
+
+    const templateVariables: { [key: string]: string } = {
+      '%BUNDLENAME%': this.options.name
+    }
+
+    for (const [key, value] of Object.entries(dockerImages)) {
+      const k = `%${key.toUpperCase()}_DOCKER_IMAGE%`
+      templateVariables[k] = value as string
+    }
+
     const defaultYamls = fs
       .readdirSync(
         path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, SVC_FOLDER)
@@ -147,6 +175,37 @@ export class InitializerService {
         templateVariables
       )
     }
+
+    this.createKeycloakFilesFromTemplate()
+  }
+
+  private createKeycloakFilesFromTemplate() {
+    const keycloakRealm = path.join(
+      __dirname,
+      '..',
+      '..',
+      RESOURCES_FOLDER,
+      ...KEYCLOAK_REALM_CONFIG_FOLDER,
+      KEYCLOAK_REALM_FILE
+    )
+    const keycloakUsers = path.join(
+      __dirname,
+      '..',
+      '..',
+      RESOURCES_FOLDER,
+      ...KEYCLOAK_REALM_CONFIG_FOLDER,
+      KEYCLOAK_USERS_FILE
+    )
+
+    this.filesys.createFileFromTemplate(
+      [...KEYCLOAK_REALM_CONFIG_FOLDER, KEYCLOAK_REALM_FILE],
+      keycloakRealm
+    )
+
+    this.filesys.createFileFromTemplate(
+      [...KEYCLOAK_REALM_CONFIG_FOLDER, KEYCLOAK_USERS_FILE],
+      keycloakUsers
+    )
   }
 
   private createConfigJson() {

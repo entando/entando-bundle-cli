@@ -1,8 +1,26 @@
-version: '3.1'
-
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+version: '3.7'
 services:
   keycloak:
-    image: jboss/keycloak:latest
+    image: entando/entando-keycloak:%KEYCLOAK_DOCKER_IMAGE%
+    command: [
+        '-b',
+        '0.0.0.0',
+        '-Dkeycloak.profile.feature.scripts=enabled',
+        '-Dkeycloak.profile.feature.upload_scripts=enabled',
+        '-Dkeycloak.migration.action=import',
+        '-Dkeycloak.migration.provider=dir',
+        '-Dkeycloak.migration.dir=/opt/jboss/keycloak/realm-config',
+        '-Dkeycloak.migration.strategy=IGNORE_EXISTING', # use 'OVERWRITE_EXISTING' instead if you want to reset your current configuration
+        '-Djboss.socket.binding.port-offset=1000'
+      ]
+    volumes:
+      - ./keycloak/realm-config:/opt/jboss/keycloak/realm-config
+      - ./keycloak/keycloak-db:/opt/jboss/keycloak/standalone/data
     environment:
-      DB_DATABASE: %BUNDLENAME%-keycloak
-      DB_USER: %BUNDLENAME%
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=h2
+    ports:
+      - 9080:9080
+      - 9443:9443

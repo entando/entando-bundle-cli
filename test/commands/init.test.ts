@@ -18,8 +18,10 @@ import {
   CONFIG_FOLDER,
   CONFIG_FILE,
   BUNDLE_DESCRIPTOR_FILE_NAME,
-  SVC_FOLDER
+  SVC_FOLDER,
+  KEYCLOAK_REALM_CONFIG_FOLDER
 } from '../../src/paths'
+import { KEYCLOAK_REALM_FILE, KEYCLOAK_USERS_FILE } from '../../src/paths'
 
 describe('init', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -170,6 +172,16 @@ describe('init', () => {
     checkBundleFile(bundleName, SVC_FOLDER, 'mysql.yml')
     checkBundleFile(bundleName, SVC_FOLDER, 'postgresql.yml')
     checkBundleFile(bundleName, SVC_FOLDER, 'keycloak.yml')
+    checkBundleFile(
+      bundleName,
+      ...KEYCLOAK_REALM_CONFIG_FOLDER,
+      KEYCLOAK_REALM_FILE
+    )
+    checkBundleFile(
+      bundleName,
+      ...KEYCLOAK_REALM_CONFIG_FOLDER,
+      KEYCLOAK_USERS_FILE
+    )
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {

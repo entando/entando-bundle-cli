@@ -1,6 +1,11 @@
 export const RESOURCES_FOLDER = 'resources'
 export const CONFIG_FOLDER = '.entando'
 export const SVC_FOLDER = 'svc'
+export const KEYCLOAK_FOLDER = [SVC_FOLDER, 'keycloak']
+export const KEYCLOAK_DB_FOLDER = [...KEYCLOAK_FOLDER, 'keycloak-db']
+export const KEYCLOAK_REALM_CONFIG_FOLDER = [...KEYCLOAK_FOLDER, 'realm-config']
+export const KEYCLOAK_REALM_FILE = 'entando-dev-realm.json'
+export const KEYCLOAK_USERS_FILE = 'entando-dev-users-0.json'
 export const BUNDLE_DESCRIPTOR_FILE_NAME = 'entando.json'
 export const CONFIG_FILE = 'config.json'
 export const DEFAULT_CONFIG_FILE = 'default-config.json'
