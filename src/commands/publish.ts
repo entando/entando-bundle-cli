@@ -134,23 +134,15 @@ export default class Publish extends Command {
     organization: string,
     registry: string
   ): Promise<string[]> {
-    let images: string[]
-    if (registry === DEFAULT_DOCKER_REGISTRY) {
-      images = DockerService.getBundleDockerImages(
-        bundleDescriptor,
-        organization
-      )
-    } else {
-      CliUx.ux.action.start(
-        'Creating Docker images tags for registry ' + registry
-      )
-      images = await DockerService.setImagesRegistry(
-        bundleDescriptor,
-        organization,
-        registry
-      )
-      CliUx.ux.action.stop()
-    }
+    CliUx.ux.action.start(
+      'Creating Docker images tags for registry ' + registry
+    )
+    const images = await DockerService.setImagesRegistry(
+      bundleDescriptor,
+      organization,
+      registry
+    )
+    CliUx.ux.action.stop()
 
     return images
   }

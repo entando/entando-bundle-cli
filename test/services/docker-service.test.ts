@@ -11,6 +11,8 @@ import { ComponentService } from '../../src/services/component-service'
 import { ComponentType, MicroserviceStack } from '../../src/models/component'
 import * as executors from '../../src/services/process-executor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import * as path from 'node:path'
+import { CONFIG_FOLDER } from '../../src/paths'
 
 describe('DockerService', () => {
   afterEach(function () {
@@ -34,7 +36,8 @@ describe('DockerService', () => {
       executeProcessStub,
       sinon.match({
         command:
-          DOCKER_COMMAND + ' build -f Dockerfile -t my-org/bundle-name:0.0.1 .'
+          DOCKER_COMMAND +
+          ' build --platform "linux/amd64" -f Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -58,7 +61,7 @@ describe('DockerService', () => {
       sinon.match({
         command:
           DOCKER_COMMAND +
-          ' build -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
+          ' build --platform "linux/amd64" -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -253,7 +256,11 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: DOCKER_COMMAND + ' --config .entando/docker push myimage'
+        command:
+          DOCKER_COMMAND +
+          ' --config ' +
+          path.join(CONFIG_FOLDER, 'docker') +
+          ' push myimage'
       })
     )
     expect(sha).eq('sha256:52b239f9')
@@ -269,7 +276,11 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: DOCKER_COMMAND + ' --config .entando/docker push myimage'
+        command:
+          DOCKER_COMMAND +
+          ' --config ' +
+          path.join(CONFIG_FOLDER, 'docker') +
+          ' push myimage'
       })
     )
     expect(sha).eq('')

@@ -58,7 +58,7 @@ describe('publish', () => {
         .returns('configured-organization')
       sinon.stub(Pack, 'run').resolves()
       sinon
-        .stub(DockerService, 'getBundleDockerImages')
+        .stub(DockerService, 'setImagesRegistry')
         .resolves(getImagesToPush('configured-organization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
@@ -74,9 +74,9 @@ describe('publish', () => {
         const packStub = Pack.run as sinon.SinonStub
         sinon.assert.calledWith(packStub, ['--org', 'configured-organization'])
         verifyPushedSuccessfully(
-          'configured-organization',
           ctx.stdout,
-          ctx.stderr
+          ctx.stderr,
+          'configured-organization'
         )
       }
     )
@@ -87,7 +87,7 @@ describe('publish', () => {
       sinon.stub(DockerService, 'bundleImagesExists').resolves(false)
       sinon.stub(Pack, 'run').resolves()
       sinon
-        .stub(DockerService, 'getBundleDockerImages')
+        .stub(DockerService, 'setImagesRegistry')
         .resolves(getImagesToPush('flag-organization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
@@ -109,7 +109,7 @@ describe('publish', () => {
         )
         const packStub = Pack.run as sinon.SinonStub
         sinon.assert.calledWith(packStub, ['--org', 'flag-organization'])
-        verifyPushedSuccessfully('flag-organization', ctx.stdout, ctx.stderr)
+        verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
       }
     )
 
@@ -128,7 +128,7 @@ describe('publish', () => {
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('configured-organization')
       sinon
-        .stub(DockerService, 'getBundleDockerImages')
+        .stub(DockerService, 'setImagesRegistry')
         .resolves(getImagesToPush('flag-organization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
@@ -149,7 +149,7 @@ describe('publish', () => {
           'configured-organization',
           'flag-organization'
         )
-        verifyPushedSuccessfully('flag-organization', ctx.stdout, ctx.stderr)
+        verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
       }
     )
 
@@ -161,7 +161,7 @@ describe('publish', () => {
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('myorganization')
       sinon
-        .stub(DockerService, 'getBundleDockerImages')
+        .stub(DockerService, 'setImagesRegistry')
         .resolves(getImagesToPush('myorganization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
@@ -171,7 +171,7 @@ describe('publish', () => {
     .it(
       'Successfully publish Docker images using configured organization',
       ctx => {
-        verifyPushedSuccessfully('myorganization', ctx.stdout, ctx.stderr)
+        verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'myorganization')
       }
     )
 
@@ -180,7 +180,7 @@ describe('publish', () => {
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
       sinon
-        .stub(DockerService, 'getBundleDockerImages')
+        .stub(DockerService, 'setImagesRegistry')
         .resolves(getImagesToPush('flag-organization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
@@ -188,7 +188,7 @@ describe('publish', () => {
     .stderr()
     .command(['publish', '--org', 'flag-organization'])
     .it('Successfully publish Docker images using flag organization', ctx => {
-      verifyPushedSuccessfully('flag-organization', ctx.stdout, ctx.stderr)
+      verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
     })
 
   test
@@ -199,7 +199,7 @@ describe('publish', () => {
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('myorganization')
       sinon
-        .stub(DockerService, 'getBundleDockerImages')
+        .stub(DockerService, 'setImagesRegistry')
         .resolves(getImagesToPush('myorganization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
@@ -210,7 +210,7 @@ describe('publish', () => {
       expect(ctx.stdout).contain(
         'Login on Docker registry ' + DEFAULT_DOCKER_REGISTRY
       )
-      verifyPushedSuccessfully('myorganization', ctx.stdout, ctx.stderr)
+      verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'myorganization')
     })
 
   test
@@ -223,7 +223,7 @@ describe('publish', () => {
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon
         .stub(DockerService, 'setImagesRegistry')
-        .resolves(getImagesToPush('my-custom-registry/myorganization'))
+        .resolves(getImagesToPush('myorganization', 'my-custom-registry'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
     .stdout()
@@ -247,26 +247,33 @@ describe('publish', () => {
         'my-custom-registry'
       )
       verifyPushedSuccessfully(
-        'my-custom-registry/myorganization',
         ctx.stdout,
-        ctx.stderr
+        ctx.stderr,
+        'myorganization',
+        'my-custom-registry'
       )
     })
 })
 
-function getImagesToPush(prefix: string) {
+function getImagesToPush(
+  organization: string,
+  registry: string = DEFAULT_DOCKER_REGISTRY
+) {
+  const imagePrefix = registry + '/' + organization
   return [
-    prefix + '/test-bundle:0.0.1',
-    prefix + '/test-ms-spring-boot-1:0.0.2',
-    prefix + '/test-ms-spring-boot-2:0.0.3'
+    imagePrefix + '/test-bundle:0.0.1',
+    imagePrefix + '/test-ms-spring-boot-1:0.0.2',
+    imagePrefix + '/test-ms-spring-boot-2:0.0.3'
   ]
 }
 
 function verifyPushedSuccessfully(
-  imagePrefix: string,
   stdout: string,
-  stderr: string
+  stderr: string,
+  organization: string,
+  registry: string = DEFAULT_DOCKER_REGISTRY
 ) {
+  const imagePrefix = registry + '/' + organization
   const pushImageStub = DockerService.pushImage as sinon.SinonStub
   sinon.assert.calledWith(
     pushImageStub.firstCall,
