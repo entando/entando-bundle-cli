@@ -113,8 +113,20 @@ describe('config-service', () => {
   test.it(
     "get property when config file doesn't exist returns undefined",
     () => {
-      tempDirHelper.createUninitializedBundleDir()
+      tempDirHelper.createUninitializedBundleDir('empty-get')
       expect(new ConfigService().getProperty('test-key')).to.be.undefined
+    }
+  )
+
+  test.it(
+    "set property when config directory doesn't exist creates the directory",
+    () => {
+      const emptyDir = tempDirHelper.createUninitializedBundleDir('empty-add')
+      expect(fs.existsSync(path.resolve(emptyDir, CONFIG_FOLDER))).false
+      expect(new ConfigService().addProperty('test-key', 'test-value'))
+      expect(fs.existsSync(path.resolve(emptyDir, CONFIG_FOLDER))).true
+      expect(fs.existsSync(path.resolve(emptyDir, CONFIG_FOLDER, CONFIG_FILE)))
+        .true
     }
   )
 })
