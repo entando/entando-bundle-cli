@@ -145,7 +145,7 @@ describe('bundle-descriptor-converter-service', () => {
         it: 'titolo mfe'
       },
       group: 'free',
-      version: 'v5',
+      descriptorVersion: 'v5',
       type: 'widget',
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
@@ -166,7 +166,7 @@ describe('bundle-descriptor-converter-service', () => {
       name: 'test-mfe-no-code',
       titles: {},
       group: 'free',
-      version: 'v5',
+      descriptorVersion: 'v5',
       type: 'widget'
     })
 
@@ -181,7 +181,7 @@ describe('bundle-descriptor-converter-service', () => {
       name: 'test-app-builder-mfe',
       titles: {},
       group: 'free',
-      version: 'v5',
+      descriptorVersion: 'v5',
       type: 'app-builder',
       slot: 'content',
       paths: []
@@ -239,7 +239,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(bundleDescriptorPath, {
       name: 'test-bundle',
-      version: 'v5',
+      descriptorVersion: 'v5',
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],

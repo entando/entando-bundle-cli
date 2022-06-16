@@ -70,7 +70,7 @@ export class BundleDescriptorConverterService {
       name: microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
-      version: WIDGET_DESCRIPTOR_VERSION,
+      descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
       apiClaims: microFrontend.apiClaims,
       nav: microFrontend.nav,
       type: microFrontend.type,
@@ -121,7 +121,7 @@ export class BundleDescriptorConverterService {
         widgets: []
       },
       global: bundleDescriptor.global,
-      version: BUNDLE_DESCRIPTOR_VERSION
+      descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
     }
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =

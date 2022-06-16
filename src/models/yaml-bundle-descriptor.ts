@@ -13,7 +13,7 @@ export type YamlWidgetDescriptor = {
   name: string
   titles: { [lang: string]: string }
   group: string
-  version: string
+  descriptorVersion: string
   type: MicroFrontendType
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   nav?: Nav[]
@@ -37,7 +37,7 @@ export type YamlPluginDescriptor = {
 
 export type YamlBundleDescriptor = {
   name: string
-  version: string
+  descriptorVersion: string
   description?: string
   components: {
     plugins: string[]
