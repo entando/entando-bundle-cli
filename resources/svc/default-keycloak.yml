@@ -2,7 +2,7 @@
 version: '3.7'
 services:
   keycloak:
-    image: %KEYCLOAK_DOCKER_IMAGE%
+    image: entando/entando-keycloak:%KEYCLOAK_DOCKER_IMAGE%
     command: [
         '-b',
         '0.0.0.0',

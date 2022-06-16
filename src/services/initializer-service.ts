@@ -110,6 +110,10 @@ export class InitializerService {
     this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(...OUTPUT_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(SVC_FOLDER)
+    this.createKeyCloakFoldersIfNotExist()
+  }
+
+  private createKeyCloakFoldersIfNotExist() {
     this.filesys.createSubDirectoryIfNotExist(...KEYCLOAK_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(...KEYCLOAK_REALM_CONFIG_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(...KEYCLOAK_DB_FOLDER)
@@ -172,6 +176,10 @@ export class InitializerService {
       )
     }
 
+    this.createKeycloakFilesFromTemplate()
+  }
+
+  private createKeycloakFilesFromTemplate() {
     const keycloakRealm = path.join(
       __dirname,
       '..',
