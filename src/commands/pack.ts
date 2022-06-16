@@ -1,6 +1,9 @@
 import { CliUx, Flags } from '@oclif/core'
 import { ComponentType } from '../models/component'
-import { BundleDescriptorConverterService } from '../services/bundle-descriptor-converter-service'
+import {
+  BundleDescriptorConverterService,
+  ThumbnailStatusMessage
+} from '../services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
@@ -137,6 +140,22 @@ export default class Pack extends BaseBuildCommand {
 
     const bundleDescriptorConverterService =
       new BundleDescriptorConverterService(dockerOrganization)
+
+    const thumbnailInfo = bundleDescriptorConverterService.processThumbnail()
+
+    if (thumbnailInfo.status !== ThumbnailStatusMessage.OK) {
+      switch (thumbnailInfo.status) {
+        case ThumbnailStatusMessage.FILESIZE_EXCEED:
+          this.log(
+            `${color.bold.red('Warning:')} ${color.red(thumbnailInfo.status)}`
+          )
+          break
+        case ThumbnailStatusMessage.NO_THUMBNAIL:
+        default:
+          this.log(color.blue(thumbnailInfo.status))
+      }
+    }
+
     bundleDescriptorConverterService.generateYamlDescriptors()
 
     const result = await DockerService.buildDockerImage({

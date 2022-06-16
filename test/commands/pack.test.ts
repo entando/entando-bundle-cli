@@ -4,7 +4,10 @@ import {
   ConfigService,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../../src/services/config-service'
-import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
+import {
+  BundleDescriptorConverterService,
+  ThumbnailStatusMessage
+} from '../../src/services/bundle-descriptor-converter-service'
 import { ComponentService } from '../../src/services/component-service'
 import {
   DEFAULT_DOCKERFILE_NAME,
@@ -55,6 +58,18 @@ describe('pack', () => {
     .stub(CliUx.ux, 'prompt', () =>
       sinon.stub().resolves('prompted-organization')
     )
+    .stub(
+      BundleDescriptorConverterService.prototype,
+      'processThumbnail',
+      sinon
+        .stub()
+        .returns({
+          path: 'thumbnail.png',
+          size: 47,
+          status: ThumbnailStatusMessage.OK,
+          base64: 'hello'
+        })
+    )
     .command(['pack'])
     .it('runs pack asking the organization', () => {
       const configService = new ConfigService()
@@ -78,6 +93,18 @@ describe('pack', () => {
       )
       setupBuildSuccess(bundleDir)
     })
+    .stub(
+      BundleDescriptorConverterService.prototype,
+      'processThumbnail',
+      sinon
+        .stub()
+        .returns({
+          path: 'thumbnail.png',
+          size: 110,
+          status: ThumbnailStatusMessage.FILESIZE_EXCEED,
+          base64: 'i am a big thumbnail'
+        })
+    )
     .command(['pack'])
     .it('runs pack using the organization stored in config file', function () {
       const configService = new ConfigService()

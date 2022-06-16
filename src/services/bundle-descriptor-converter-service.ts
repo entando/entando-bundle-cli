@@ -28,17 +28,33 @@ const WIDGET_DESCRIPTOR_VERSION = 'v2'
 const BUNDLE_DESCRIPTOR_VERSION = 'v2'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 
+export enum ThumbnailStatusMessage {
+  NONE = '',
+  FILESIZE_EXCEED = 'Thumbnail filesize is too big. Make sure the thumbnail filesize is 100 KB or below.',
+  OK = 'passed',
+  NO_THUMBNAIL = 'No thumbnail found. Please provide a thumbnail in PNG or JPEG format (e.g. `thumbnail.png`) and place it under the root of your bundle directory'
+}
+
+export type BundleThumbnailInfo = {
+  path: string
+  size: number
+  status: ThumbnailStatusMessage
+  base64?: string
+}
+
 export class BundleDescriptorConverterService {
   private readonly bundleDirectory: string
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentService: ComponentService
   private readonly dockerOrganization: string
+  private thumbnail: BundleThumbnailInfo
 
   constructor(dockerOrganization: string) {
     this.bundleDirectory = process.cwd()
     this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
     this.dockerOrganization = dockerOrganization
+    this.thumbnail = { path: '', size: 0, status: ThumbnailStatusMessage.NONE }
   }
 
   public generateYamlDescriptors(): void {
@@ -63,6 +79,45 @@ export class BundleDescriptorConverterService {
     }
 
     this.generateBundleYamlDescriptor(bundleDescriptor)
+  }
+
+  public processThumbnail(): BundleThumbnailInfo {
+    const thumbnail = this.findThumbnail()
+    const thumbInfo = { path: thumbnail, size: 0 }
+    if (thumbnail === '') {
+      this.thumbnail = {
+        ...thumbInfo,
+        status: ThumbnailStatusMessage.NO_THUMBNAIL
+      }
+      return this.thumbnail
+    }
+
+    const stats = fs.statSync(thumbnail)
+    const size = stats.size / 1024
+    const base64 = Buffer.from(fs.readFileSync(thumbnail)).toString('base64')
+
+    this.thumbnail = {
+      ...thumbInfo,
+      size,
+      base64,
+      status:
+        size > 100
+          ? ThumbnailStatusMessage.FILESIZE_EXCEED
+          : ThumbnailStatusMessage.OK
+    }
+
+    return this.thumbnail
+  }
+
+  private findThumbnail(): string {
+    for (const ext of ['png', 'jpg', 'jpeg']) {
+      const thumb = path.resolve(this.bundleDirectory, `thumbnail.${ext}`)
+      if (fs.existsSync(thumb)) {
+        return thumb
+      }
+    }
+
+    return ''
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
@@ -122,6 +177,10 @@ export class BundleDescriptorConverterService {
       global: bundleDescriptor.global,
       version: BUNDLE_DESCRIPTOR_VERSION
     }
+    if (this.thumbnail.path !== '') {
+      yamlBundleDescriptor.thumbnail = this.thumbnail.base64
+    }
+
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =
         this.getMicroFrontendDescriptorRelativePath(microFrontend)

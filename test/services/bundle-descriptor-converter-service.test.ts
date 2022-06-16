@@ -3,7 +3,10 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as YAML from 'yaml'
 import * as sinon from 'sinon'
-import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
+import {
+  BundleDescriptorConverterService,
+  ThumbnailStatusMessage
+} from '../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { OUTPUT_FOLDER } from '../../src/paths'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
@@ -23,9 +26,10 @@ import {
 
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
+  let bundleDir: string
 
-  test.it('test bundle descriptors conversion', () => {
-    const bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')
+  before(() => {
+    bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')
     fs.mkdirSync(bundleDir, { recursive: true })
 
     process.chdir(bundleDir)
@@ -113,6 +117,14 @@ describe('bundle-descriptor-converter-service', () => {
       ]
     })
 
+    fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
+  })
+
+  beforeEach(() => {
+    process.chdir(bundleDir)
+  })
+
+  test.it('test bundle descriptors conversion', () => {
     sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
       {
         name: 'test-ms',
@@ -129,6 +141,8 @@ describe('bundle-descriptor-converter-service', () => {
     ])
 
     const converterService = new BundleDescriptorConverterService('docker-org')
+
+    converterService.processThumbnail()
 
     converterService.generateYamlDescriptors()
 
@@ -252,9 +266,32 @@ describe('bundle-descriptor-converter-service', () => {
         nav: [
           { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
         ]
-      }
+      },
+      thumbnail: Buffer.from('this is a thumbnail').toString('base64')
     })
   })
+
+  test
+    .stub(fs, 'statSync', sinon.stub().returns({ size: 150_000 }))
+    .stub(fs, 'existsSync', sinon.stub().returns(true))
+    .stub(fs, 'readFileSync', sinon.stub().returns('string_here'))
+    .stub(
+      Buffer,
+      'from',
+      sinon.stub().returns({ toString: () => 'base64_string_here' })
+    )
+    .it('processThumbnail method successful', () => {
+      const bundleDescriptorConverterService =
+        new BundleDescriptorConverterService('dockerOrg')
+      const thumbnail = bundleDescriptorConverterService.processThumbnail()
+      expect(thumbnail).to.haveOwnProperty('path')
+      expect(thumbnail.path).contain(`${bundleDir}/thumbnail.png`)
+      expect(thumbnail).to.deep.contains({
+        size: 150_000 / 1024,
+        status: ThumbnailStatusMessage.FILESIZE_EXCEED,
+        base64: 'base64_string_here'
+      })
+    })
 })
 
 function checkYamlFile(filePath: string, expectedContent: any) {
