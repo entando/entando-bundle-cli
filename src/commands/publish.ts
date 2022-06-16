@@ -1,4 +1,4 @@
-import { Command, Flags } from '@oclif/core'
+import { CliUx, Command, Flags } from '@oclif/core'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import {
   ConfigService,
@@ -61,13 +61,23 @@ export default class Publish extends Command {
         ))
       if (imagesExists && flags.org) {
         this.warn('Docker organization changed. Updating images names.')
-        // TODO: ENG-3816
+        CliUx.ux.action.start(
+          'Creating Docker images tags using new organization ' + flags.org
+        )
+        await DockerService.updateImagesOrganization(
+          bundleDescriptor,
+          configuredOrganization!,
+          flags.org
+        )
+        CliUx.ux.action.stop()
       }
     }
 
+    const organization = flags.org ?? configuredOrganization!
+
     if (!imagesExists) {
       this.warn('One or more Docker images are missing. Running pack command.')
-      await Pack.run(['--org', flags.org ?? configuredOrganization!])
+      await Pack.run(['--org', organization])
     }
 
     let dockerRegistry = flags.registry
@@ -84,5 +94,17 @@ export default class Publish extends Command {
       `Login on Docker registry ${dockerRegistry ?? DEFAULT_DOCKER_REGISTRY}`
     )
     await DockerService.login(dockerRegistry)
+
+    if (dockerRegistry && dockerRegistry !== DEFAULT_DOCKER_REGISTRY) {
+      CliUx.ux.action.start(
+        'Creating Docker images tags for registry ' + dockerRegistry
+      )
+      await DockerService.setImagesRegistry(
+        bundleDescriptor,
+        organization,
+        dockerRegistry
+      )
+      CliUx.ux.action.stop()
+    }
   }
 }

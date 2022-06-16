@@ -9,6 +9,8 @@ import * as sinon from 'sinon'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { ComponentService } from '../../src/services/component-service'
 import { ComponentType, MicroserviceStack } from '../../src/models/component'
+import * as executors from '../../src/services/process-executor-service'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 
 describe('DockerService', () => {
   afterEach(function () {
@@ -147,4 +149,90 @@ describe('DockerService', () => {
       expect(error.message).contain('Docker login failed')
     })
     .it('Docker login fails')
+
+  test.it('Updates Docker images organization', async () => {
+    const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+    sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+      {
+        type: ComponentType.MICROSERVICE,
+        stack: MicroserviceStack.SpringBoot,
+        name: 'test-ms',
+        version: '0.0.2'
+      }
+    ])
+
+    const stubParallelProcessExecutorService =
+      new StubParallelProcessExecutorService([0, 0])
+    const parallelExecutorStub = sinon
+      .stub(executors, 'ParallelProcessExecutorService')
+      .returns(stubParallelProcessExecutorService)
+
+    await DockerService.updateImagesOrganization(
+      bundleDescriptor,
+      'old-org',
+      'new-org'
+    )
+
+    sinon.assert.calledWith(parallelExecutorStub, [
+      sinon.match({
+        command:
+          DOCKER_COMMAND +
+          ' tag old-org/test-bundle:0.0.1 new-org/test-bundle:0.0.1'
+      }),
+      sinon.match({
+        command:
+          DOCKER_COMMAND + ' tag old-org/test-ms:0.0.2 new-org/test-ms:0.0.2'
+      })
+    ])
+  })
+
+  test.it('Sets Docker images registry', async () => {
+    const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+    sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+      {
+        type: ComponentType.MICROSERVICE,
+        stack: MicroserviceStack.SpringBoot,
+        name: 'test-ms',
+        version: '0.0.2'
+      }
+    ])
+
+    const stubParallelProcessExecutorService =
+      new StubParallelProcessExecutorService([0, 0])
+    const parallelExecutorStub = sinon
+      .stub(executors, 'ParallelProcessExecutorService')
+      .returns(stubParallelProcessExecutorService)
+
+    await DockerService.setImagesRegistry(bundleDescriptor, 'org', 'registry')
+
+    sinon.assert.calledWith(parallelExecutorStub, [
+      sinon.match({
+        command:
+          DOCKER_COMMAND +
+          ' tag org/test-bundle:0.0.1 registry/org/test-bundle:0.0.1'
+      }),
+      sinon.match({
+        command:
+          DOCKER_COMMAND + ' tag org/test-ms:0.0.2 registry/org/test-ms:0.0.2'
+      })
+    ])
+  })
+
+  test
+    .do(async () => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      sinon
+        .stub(ComponentService.prototype, 'getVersionedComponents')
+        .returns([])
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([1])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+      await DockerService.setImagesRegistry(bundleDescriptor, 'org', 'registry')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to create Docker image tag')
+    })
+    .it('Docker image tag creation fails')
 })

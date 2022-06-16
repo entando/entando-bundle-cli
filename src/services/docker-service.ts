@@ -227,4 +227,65 @@ export class DockerService {
       }
     }
   }
+
+  public static async updateImagesOrganization(
+    bundleDescriptor: BundleDescriptor,
+    oldOrganization: string,
+    newOrganization: string
+  ): Promise<void> {
+    await DockerService.createTags(
+      bundleDescriptor,
+      oldOrganization,
+      (sourceImage: string) => {
+        return sourceImage.replace(
+          new RegExp('^' + oldOrganization + '/'),
+          newOrganization + '/'
+        )
+      }
+    )
+  }
+
+  public static async setImagesRegistry(
+    bundleDescriptor: BundleDescriptor,
+    organization: string,
+    registry: string
+  ): Promise<void> {
+    await DockerService.createTags(
+      bundleDescriptor,
+      organization,
+      (sourceImage: string) => {
+        return registry + '/' + sourceImage
+      }
+    )
+  }
+
+  private static async createTags(
+    bundleDescriptor: BundleDescriptor,
+    organization: string,
+    getTargetImage: (sourgeImage: string) => string
+  ): Promise<void> {
+    const sourceImages = DockerService.getBundleDockerImages(
+      bundleDescriptor,
+      organization
+    )
+
+    const options: ProcessExecutionOptions[] = []
+    for (const sourceImage of sourceImages) {
+      const targetImage = getTargetImage(sourceImage)
+      const command = `${DOCKER_COMMAND} tag ${sourceImage} ${targetImage}`
+      options.push({
+        command,
+        errorStream: DockerService.debug.outputStream,
+        outputStream: DockerService.debug.outputStream
+      })
+    }
+
+    const results = await new ParallelProcessExecutorService(options).execute()
+
+    if (results.some(result => result !== 0)) {
+      throw new CLIError(
+        'Unable to create Docker image tag. Enable debug mode to see output of failed command.'
+      )
+    }
+  }
 }
