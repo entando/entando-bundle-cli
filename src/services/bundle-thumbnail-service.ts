@@ -29,7 +29,7 @@ export class BundleThumbnailService {
 
   public processThumbnail(): void {
     this.path = this.findThumbnail()
-    if (this.path === '') {
+    if (!this.path) {
       return
     }
 
@@ -48,7 +48,7 @@ export class BundleThumbnailService {
     };base64,${Buffer.from(fs.readFileSync(this.path)).toString('base64')}`
   }
 
-  private findThumbnail(): string {
+  private findThumbnail(): string | undefined {
     for (const ext of ['png', 'jpg', 'jpeg']) {
       const thumb = path.resolve(this.bundleDirectory, `thumbnail.${ext}`)
       if (fs.existsSync(thumb)) {
@@ -56,7 +56,7 @@ export class BundleThumbnailService {
       }
     }
 
-    return ''
+    return undefined
   }
 
   public getThumbnailInfo(): BundleThumbnailInfo {
