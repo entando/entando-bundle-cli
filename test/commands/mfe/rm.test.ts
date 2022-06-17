@@ -21,7 +21,6 @@ describe('mfe rm', () => {
     microfrontends: [
       {
         name: 'default-stack-mfe',
-        code: '123',
         titles: { en: 'Default Stack MFE' },
         stack: MicroFrontendStack.React,
         type: MicroFrontendType.Widget,

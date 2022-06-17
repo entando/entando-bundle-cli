@@ -54,7 +54,6 @@ export type Microservice = {
 type BaseMicroFrontend = {
   name: string
   stack: MicroFrontendStack
-  code?: string
   titles: { [lang: string]: string }
   group: string
   publicFolder?: string

@@ -23,9 +23,9 @@ import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
 
-const PLUGIN_DESCRIPTOR_VERSION = 'v4'
-const WIDGET_DESCRIPTOR_VERSION = 'v2'
-const BUNDLE_DESCRIPTOR_VERSION = 'v2'
+const PLUGIN_DESCRIPTOR_VERSION = 'v5'
+const WIDGET_DESCRIPTOR_VERSION = 'v5'
+const BUNDLE_DESCRIPTOR_VERSION = 'v5'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 
 export class BundleDescriptorConverterService {
@@ -67,10 +67,10 @@ export class BundleDescriptorConverterService {
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
     const widgetDescriptor: YamlWidgetDescriptor = {
-      code: microFrontend.code ?? microFrontend.name,
+      name: microFrontend.name,
       titles: microFrontend.titles,
       group: microFrontend.group,
-      version: WIDGET_DESCRIPTOR_VERSION,
+      descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
       apiClaims: microFrontend.apiClaims,
       nav: microFrontend.nav,
       type: microFrontend.type,
@@ -89,6 +89,7 @@ export class BundleDescriptorConverterService {
     version: string
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
+      name: microservice.name,
       descriptorVersion: PLUGIN_DESCRIPTOR_VERSION,
       dbms: microservice.dbms ?? DBMS.None,
       image: DockerService.getDockerImageName(
@@ -113,14 +114,14 @@ export class BundleDescriptorConverterService {
 
   private generateBundleYamlDescriptor(bundleDescriptor: BundleDescriptor) {
     const yamlBundleDescriptor: YamlBundleDescriptor = {
-      code: bundleDescriptor.name,
+      name: bundleDescriptor.name,
       description: bundleDescriptor.description,
       components: {
         plugins: [],
         widgets: []
       },
       global: bundleDescriptor.global,
-      version: BUNDLE_DESCRIPTOR_VERSION
+      descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
     }
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =

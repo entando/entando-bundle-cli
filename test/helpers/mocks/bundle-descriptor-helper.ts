@@ -64,7 +64,6 @@ export class BundleDescriptorHelper {
       microfrontends: [
         {
           name: 'test-mfe-1',
-          code: 'test-mfe-code-1',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.Widget,
           titles: {
@@ -76,7 +75,6 @@ export class BundleDescriptorHelper {
         },
         {
           name: 'test-mfe-2',
-          code: 'test-mfe-code-2',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.WidgetConfig,
           titles: {
@@ -88,7 +86,6 @@ export class BundleDescriptorHelper {
         },
         {
           name: 'test-mfe-3',
-          code: 'test-mfe-code-3',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.AppBuilder,
           titles: {

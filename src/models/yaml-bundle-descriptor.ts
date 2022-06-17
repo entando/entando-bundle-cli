@@ -10,10 +10,10 @@ import {
 } from './bundle-descriptor'
 
 export type YamlWidgetDescriptor = {
-  code: string
+  name: string
   titles: { [lang: string]: string }
   group: string
-  version: string
+  descriptorVersion: string
   type: MicroFrontendType
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   nav?: Nav[]
@@ -22,7 +22,8 @@ export type YamlWidgetDescriptor = {
 }
 
 export type YamlPluginDescriptor = {
-  descriptorVersion: 'v4'
+  name: string
+  descriptorVersion: string
   image: string
   deploymentBaseName?: string
   dbms: DBMS
@@ -35,8 +36,8 @@ export type YamlPluginDescriptor = {
 }
 
 export type YamlBundleDescriptor = {
-  code: string
-  version: string
+  name: string
+  descriptorVersion: string
   description?: string
   components: {
     plugins: string[]

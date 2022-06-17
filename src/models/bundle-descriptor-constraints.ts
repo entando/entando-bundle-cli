@@ -209,10 +209,6 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
         type: 'string',
         validators: [nameRegExpValidator]
       },
-      code: {
-        required: false,
-        type: 'string'
-      },
       stack: {
         required: true,
         type: 'string',
@@ -263,10 +259,6 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
         required: true,
         type: 'string',
         validators: [nameRegExpValidator]
-      },
-      code: {
-        required: false,
-        type: 'string'
       },
       stack: {
         required: true,
@@ -326,10 +318,6 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
         required: true,
         type: 'string',
         validators: [nameRegExpValidator]
-      },
-      code: {
-        required: false,
-        type: 'string'
       },
       stack: {
         required: true,

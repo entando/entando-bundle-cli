@@ -72,7 +72,6 @@ describe('bundle-descriptor-converter-service', () => {
       microfrontends: [
         {
           name: 'test-mfe',
-          code: 'test-mfe-code',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.Widget,
           titles: {
@@ -140,13 +139,13 @@ describe('bundle-descriptor-converter-service', () => {
       'test-mfe.yaml'
     )
     checkYamlFile(mfeDescriptorPath, {
-      code: 'test-mfe-code',
+      name: 'test-mfe',
       titles: {
         en: 'mfe title',
         it: 'titolo mfe'
       },
       group: 'free',
-      version: 'v2',
+      descriptorVersion: 'v5',
       type: 'widget',
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
@@ -164,10 +163,10 @@ describe('bundle-descriptor-converter-service', () => {
       'test-mfe-no-code.yaml'
     )
     checkYamlFile(mfeNoCodeDescriptorPath, {
-      code: 'test-mfe-no-code',
+      name: 'test-mfe-no-code',
       titles: {},
       group: 'free',
-      version: 'v2',
+      descriptorVersion: 'v5',
       type: 'widget'
     })
 
@@ -179,10 +178,10 @@ describe('bundle-descriptor-converter-service', () => {
       'test-app-builder-mfe.yaml'
     )
     checkYamlFile(appBuilderMfeDescriptorPath, {
-      code: 'test-app-builder-mfe',
+      name: 'test-app-builder-mfe',
       titles: {},
       group: 'free',
-      version: 'v2',
+      descriptorVersion: 'v5',
       type: 'app-builder',
       slot: 'content',
       paths: []
@@ -196,7 +195,8 @@ describe('bundle-descriptor-converter-service', () => {
       'test-ms.yaml'
     )
     checkYamlFile(msDescriptorPath, {
-      descriptorVersion: 'v4',
+      name: 'test-ms',
+      descriptorVersion: 'v5',
       image: 'docker-org/test-ms:0.0.5',
       dbms: 'postgresql',
       ingressPath: '/path/to/service',
@@ -225,7 +225,8 @@ describe('bundle-descriptor-converter-service', () => {
       'test-ms-no-dbms.yaml'
     )
     checkYamlFile(msNoDbmsDescriptorPath, {
-      descriptorVersion: 'v4',
+      name: 'test-ms-no-dbms',
+      descriptorVersion: 'v5',
       image: 'docker-org/test-ms-no-dbms:0.0.1',
       dbms: DBMS.None
     })
@@ -237,8 +238,8 @@ describe('bundle-descriptor-converter-service', () => {
       'descriptor.yaml'
     )
     checkYamlFile(bundleDescriptorPath, {
-      code: 'test-bundle',
-      version: 'v2',
+      name: 'test-bundle',
+      descriptorVersion: 'v5',
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
