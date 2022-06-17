@@ -148,6 +148,12 @@ export function isMapOfStrings(
   }
 }
 
+export function fieldValues(key: string, iterable: { [s: string]: unknown } | ArrayLike<unknown>): UnionTypeValidator {
+  return function (object: any, jsonPath: JsonPath) {
+    if (object[key] !== undefined) values(iterable)(key, object[key], jsonPath)
+  }
+}
+
 export function fieldDependsOn(
   field: Field,
   dependsOnField: Field
@@ -262,15 +268,16 @@ function validateUnionTypeConstraints<T>(
     }
   }
 
+  // Checks if validation failed for all allowed types
   if (errors.length > 0 && errors.length === constraints.length) {
-    // Validation failed for all allowed types
-    const messageArr = [`Fix one of the following errors:`]
-    for (const error of errors) {
-      messageArr.push(`* ${error.message.split('\n').join('\n  ')}`)
-    }
+    // Removes duplicate error messages
+    const messages = [...new Set(errors.map(error => error.message))]
 
-    // Formats error message by removing duplicates
-    const formattedMessage = [...new Set(messageArr)].join('\n')
+    if (messages.length === 1) throw new CLIError(messages[0])
+
+    // Formats error message as a list of all distinct errors
+    const formattedMessage = 'Fix one of the following errors:\n'
+      + `${messages.map(message => `* ${message.split('\n').join('\n  ')}`).join('\n')}`
 
     throw new CLIError(formattedMessage)
   }
