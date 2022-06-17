@@ -75,7 +75,10 @@ export class BundleDescriptorConverterService {
       nav: microFrontend.nav,
       type: microFrontend.type,
       ...('slot' in microFrontend && { slot: microFrontend.slot }),
-      ...('paths' in microFrontend && { paths: microFrontend.paths })
+      ...('paths' in microFrontend && { paths: microFrontend.paths }),
+      ...('contextParams' in microFrontend && {
+        contextParams: microFrontend.contextParams
+      })
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,

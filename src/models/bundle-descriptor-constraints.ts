@@ -10,10 +10,12 @@ import {
   MicroFrontendType,
   Microservice,
   Nav,
-  SecurityLevel
+  SecurityLevel,
+  WidgetContextParam
 } from '../models/bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
+  fieldDependsOn,
   isMapOfStrings,
   mutualDependency,
   ObjectConstraints,
@@ -217,9 +219,62 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
       type: {
         required: true,
         type: 'string',
-        validators: [
-          values([MicroFrontendType.Widget, MicroFrontendType.WidgetConfig])
-        ]
+        validators: [values([MicroFrontendType.Widget])]
+      },
+      titles: {
+        required: true,
+        validators: [isMapOfStrings],
+        children: {}
+      },
+      publicFolder: {
+        required: false,
+        type: 'string'
+      },
+      group: {
+        required: true,
+        type: 'string'
+      },
+      apiClaims: {
+        isArray: true,
+        required: false,
+        children: API_CLAIMS_CONSTRAINTS
+      },
+      nav: {
+        isArray: true,
+        required: false,
+        children: NAV_CONSTRAINTS
+      },
+      commands: {
+        required: false,
+        children: {
+          build: {
+            required: false,
+            type: 'string'
+          }
+        }
+      },
+      contextParams: {
+        isArray: true,
+        required: false,
+        type: 'string',
+        validators: [values(WidgetContextParam)]
+      }
+    },
+    {
+      name: {
+        required: true,
+        type: 'string',
+        validators: [nameRegExpValidator]
+      },
+      stack: {
+        required: true,
+        type: 'string',
+        validators: [values(MicroFrontendStack)]
+      },
+      type: {
+        required: true,
+        type: 'string',
+        validators: [values([MicroFrontendType.WidgetConfig])]
       },
       titles: {
         required: true,
@@ -374,6 +429,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
     }
   ],
   validators: [
+    fieldDependsOn(
+      { key: 'contextParams' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
     mutualDependency(
       { key: 'slot' },
       { key: 'type', value: MicroFrontendType.AppBuilder }

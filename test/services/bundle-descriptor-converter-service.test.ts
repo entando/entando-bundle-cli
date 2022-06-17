@@ -18,7 +18,8 @@ import {
   DBMS,
   SecurityLevel,
   MicroFrontendType,
-  MicroFrontendAppBuilderSlot
+  MicroFrontendAppBuilderSlot,
+  WidgetContextParam
 } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
@@ -89,7 +90,8 @@ describe('bundle-descriptor-converter-service', () => {
               target: 'target',
               url: '/test'
             }
-          ]
+          ],
+          contextParams: [WidgetContextParam.PageCode]
         },
         {
           name: 'test-mfe-no-code',
@@ -152,7 +154,8 @@ describe('bundle-descriptor-converter-service', () => {
       ],
       nav: [
         { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
-      ]
+      ],
+      contextParams: ['pageCode']
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(

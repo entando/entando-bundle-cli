@@ -64,6 +64,15 @@ type BaseMicroFrontend = {
   nav?: Nav[]
 }
 
+export type WidgetMicroFrontend = BaseMicroFrontend & {
+  type: MicroFrontendType.Widget
+  contextParams?: WidgetContextParam[]
+}
+
+export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
+  type: MicroFrontendType.WidgetConfig
+}
+
 export type AppBuilderMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.AppBuilder
 } & (
@@ -77,9 +86,8 @@ export type AppBuilderMicroFrontend = BaseMicroFrontend & {
   )
 
 export type MicroFrontend =
-  | (BaseMicroFrontend & {
-      type: Exclude<MicroFrontendType, MicroFrontendType.AppBuilder>
-    })
+  | WidgetMicroFrontend
+  | WidgetConfigMicroFrontend
   | AppBuilderMicroFrontend
 
 export type BundleDescriptor = {
@@ -121,6 +129,12 @@ export enum MicroFrontendAppBuilderSlot {
   PrimaryHeader = 'primary-header',
   PrimaryMenu = 'primary-menu',
   Content = 'content'
+}
+
+export enum WidgetContextParam {
+  PageCode = 'pageCode',
+  LangCode = 'langCode',
+  ApplicationBaseUrl = 'applicationBaseUrl'
 }
 
 export enum ApiType {

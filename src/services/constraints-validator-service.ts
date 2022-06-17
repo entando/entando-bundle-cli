@@ -1,7 +1,11 @@
 import { CLIError } from '@oclif/errors'
 
 // Extracts the type wrapped by an array type
-type TypeOfArray<T> = T extends Array<infer A> ? A : never
+type TypeOfArray<T> = T extends Array<infer A>
+  ? A extends string
+    ? 'string'
+    : A
+  : never
 
 // Type used to validate expected typeof
 type TypeOf<T> = T extends string
