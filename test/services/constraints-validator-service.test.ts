@@ -53,9 +53,9 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "type" is not valid. Allowed values are: internal'
+        'Field "type" is not valid. Allowed values are: internal, external'
       )
-      expect(error.message).contain('$.microfrontends[1].apiClaims[0].type')
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it('Validates field that allows only specific values')
 

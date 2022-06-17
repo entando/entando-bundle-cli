@@ -148,7 +148,10 @@ export function isMapOfStrings(
   }
 }
 
-export function fieldValues(key: string, iterable: { [s: string]: unknown } | ArrayLike<unknown>): UnionTypeValidator {
+export function fieldValues(
+  key: string,
+  iterable: { [s: string]: unknown } | ArrayLike<unknown>
+): UnionTypeValidator {
   return function (object: any, jsonPath: JsonPath) {
     if (object[key] !== undefined) values(iterable)(key, object[key], jsonPath)
   }
@@ -250,13 +253,28 @@ function validateUnionTypeConstraints<T>(
   { constraints, validators }: UnionTypeConstraints<T>,
   jsonPath: JsonPath
 ): void {
-  const errors: JsonValidationError[] = []
-
   if (validators) {
     for (const validator of validators) validator(parsedObject, jsonPath)
   }
 
+  const errors: JsonValidationError[] = []
+  const matchedKeyCounts: number[] = []
+  let maxMatchedKeyCount = 0
+
   for (const constraint of constraints) {
+    let matchedKeyCount = 0
+    for (const key of Object.keys(constraint)) {
+      if (parsedObject[key] !== undefined) {
+        matchedKeyCount++
+      }
+    }
+
+    if (maxMatchedKeyCount < matchedKeyCount) {
+      maxMatchedKeyCount = matchedKeyCount
+    }
+
+    matchedKeyCounts.push(matchedKeyCount)
+
     try {
       validateConstraints(parsedObject, constraint, jsonPath)
     } catch (error) {
@@ -270,14 +288,27 @@ function validateUnionTypeConstraints<T>(
 
   // Checks if validation failed for all allowed types
   if (errors.length > 0 && errors.length === constraints.length) {
+    const matchedErrors: JsonValidationError[] = []
+
+    // Includes only errors that match the constraint objects with the most number of keys
+    // that exist in the parsed object
+    for (const [idx, matchedKeyCount] of matchedKeyCounts.entries()) {
+      if (matchedKeyCount === maxMatchedKeyCount) {
+        matchedErrors.push(errors[idx])
+      }
+    }
+
     // Removes duplicate error messages
-    const messages = [...new Set(errors.map(error => error.message))]
+    const messages = [...new Set(matchedErrors.map(error => error.message))]
 
     if (messages.length === 1) throw new CLIError(messages[0])
 
     // Formats error message as a list of all distinct errors
-    const formattedMessage = 'Fix one of the following errors:\n'
-      + `${messages.map(message => `* ${message.split('\n').join('\n  ')}`).join('\n')}`
+    const formattedMessage =
+      'Fix one of the following errors:\n' +
+      `${messages
+        .map(message => `* ${message.split('\n').join('\n  ')}`)
+        .join('\n')}`
 
     throw new CLIError(formattedMessage)
   }
