@@ -73,10 +73,9 @@ describe('bundle thumbnail service', () => {
       const thumbnailService = new BundleThumbnailService()
       thumbnailService.processThumbnail()
       const thumbnail = thumbnailService.getThumbnailInfo()
-      expect(thumbnail).to.haveOwnProperty('path')
+      expect(thumbnail).to.not.haveOwnProperty('path')
       expect(thumbnail).to.not.haveOwnProperty('base64')
       expect(thumbnail).to.deep.eq({
-        path: '',
         size: 0,
         status: ThumbnailStatusMessage.NO_THUMBNAIL
       })

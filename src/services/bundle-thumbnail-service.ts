@@ -8,7 +8,7 @@ export enum ThumbnailStatusMessage {
 }
 
 export type BundleThumbnailInfo = {
-  path: string
+  path?: string
   size: number
   status: ThumbnailStatusMessage
   base64?: string
@@ -60,11 +60,12 @@ export class BundleThumbnailService {
   }
 
   public getThumbnailInfo(): BundleThumbnailInfo {
-    return {
-      path: this.path || '',
+    const info: BundleThumbnailInfo = {
       size: this.size,
-      status: this.status,
-      ...(this.base64 ? { base64: this.base64 } : {})
+      status: this.status
     }
+    if (this.path) info.path = this.path
+    if (this.base64) info.base64 = this.base64
+    return info
   }
 }
