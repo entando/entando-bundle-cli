@@ -24,6 +24,10 @@ import * as fs from 'node:fs'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import {
+  BundleThumbnailService,
+  ThumbnailStatusMessage
+} from '../../src/services/bundle-thumbnail-service'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -40,10 +44,26 @@ describe('pack', () => {
     stubBuildDockerImage = sinon
       .stub(DockerService, 'buildDockerImage')
       .resolves(0)
+
+    stubProcessThumbnail = sinon.stub(
+      BundleThumbnailService.prototype,
+      'processThumbnail'
+    )
+
+    stubGetThumbInfo = sinon
+      .stub(BundleThumbnailService.prototype, 'getThumbnailInfo')
+      .returns({
+        path: '',
+        size: 0,
+        status: ThumbnailStatusMessage.NO_THUMBNAIL,
+        base64: ''
+      })
   })
 
   let stubBuildDockerImage: sinon.SinonStub
   let stubGenerateYamlDescriptors: sinon.SinonStub
+  let stubProcessThumbnail: sinon.SinonStub
+  let stubGetThumbInfo: sinon.SinonStub
 
   test
     .do(() => {
@@ -55,6 +75,16 @@ describe('pack', () => {
     .stub(CliUx.ux, 'prompt', () =>
       sinon.stub().resolves('prompted-organization')
     )
+    .stub(
+      BundleThumbnailService.prototype,
+      'getThumbnailInfo',
+      sinon.stub().returns({
+        path: 'thumbnail.png',
+        size: 47,
+        status: ThumbnailStatusMessage.OK,
+        base64: 'hello'
+      })
+    )
     .command(['pack'])
     .it('runs pack asking the organization', () => {
       const configService = new ConfigService()
@@ -64,6 +94,7 @@ describe('pack', () => {
       sinon.assert.called(getComponentsStub)
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
       sinon.assert.calledOnce(stubBuildDockerImage)
+      sinon.assert.calledOnce(stubProcessThumbnail)
     })
 
   test
@@ -78,6 +109,16 @@ describe('pack', () => {
       )
       setupBuildSuccess(bundleDir)
     })
+    .stub(
+      BundleThumbnailService.prototype,
+      'getThumbnailInfo',
+      sinon.stub().returns({
+        path: 'thumbnail.png',
+        size: 110,
+        status: ThumbnailStatusMessage.FILESIZE_EXCEEDED,
+        base64: 'i am a big thumbnail'
+      })
+    )
     .command(['pack'])
     .it('runs pack using the organization stored in config file', function () {
       const configService = new ConfigService()
@@ -105,6 +146,7 @@ describe('pack', () => {
         expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
           'flag-organization'
         )
+        sinon.assert.called(stubGetThumbInfo)
       }
     )
 

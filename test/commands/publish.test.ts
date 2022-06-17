@@ -12,6 +12,7 @@ import {
 } from '../../src/services/docker-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import Pack from '../../src/commands/pack'
+import { BundleService } from '../../src/services/bundle-service'
 
 describe('publish', () => {
   afterEach(() => {
@@ -19,8 +20,25 @@ describe('publish', () => {
   })
 
   beforeEach(() => {
+    sinon.stub(BundleService, 'isValidBundleProject')
+    sinon
+      .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+      .returns(BundleDescriptorHelper.newBundleDescriptor())
     sinon.stub(DockerService, 'login').resolves()
   })
+
+  test
+    .do(() => {
+      sinon.restore()
+      sinon
+        .stub(BundleService, 'isValidBundleProject')
+        .throws(new Error('not initialized'))
+    })
+    .command('publish')
+    .catch(error => {
+      expect(error.message).contain('not initialized')
+    })
+    .it('Exits if is not a valid bundle project')
 
   test
     .command('publish')
@@ -38,11 +56,13 @@ describe('publish', () => {
         .stub(ConfigService.prototype, 'getProperty')
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('configured-organization')
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(Pack, 'run').resolves()
+      sinon
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('configured-organization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
+    .stdout()
     .stderr()
     .command('publish')
     .it(
@@ -53,6 +73,11 @@ describe('publish', () => {
         )
         const packStub = Pack.run as sinon.SinonStub
         sinon.assert.calledWith(packStub, ['--org', 'configured-organization'])
+        verifyPushedSuccessfully(
+          ctx.stdout,
+          ctx.stderr,
+          'configured-organization'
+        )
       }
     )
 
@@ -60,11 +85,13 @@ describe('publish', () => {
     .do(() => {
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon.stub(DockerService, 'bundleImagesExists').resolves(false)
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(Pack, 'run').resolves()
+      sinon
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('flag-organization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
+    .stdout()
     .stderr()
     .command(['publish', '--org', 'flag-organization'])
     .it(
@@ -82,6 +109,7 @@ describe('publish', () => {
         )
         const packStub = Pack.run as sinon.SinonStub
         sinon.assert.calledWith(packStub, ['--org', 'flag-organization'])
+        verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
       }
     )
 
@@ -100,9 +128,11 @@ describe('publish', () => {
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('configured-organization')
       sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('flag-organization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
+    .stdout()
     .stderr()
     .command(['publish', '--org', 'flag-organization'])
     .it(
@@ -119,6 +149,7 @@ describe('publish', () => {
           'configured-organization',
           'flag-organization'
         )
+        verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
       }
     )
 
@@ -130,22 +161,35 @@ describe('publish', () => {
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('myorganization')
       sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('myorganization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
+    .stdout()
+    .stderr()
     .command('publish')
-    .it('Successfully publish Docker images using configured organization')
+    .it(
+      'Successfully publish Docker images using configured organization',
+      ctx => {
+        verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'myorganization')
+      }
+    )
 
   test
     .do(() => {
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
       sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
       sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('flag-organization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
+    .stdout()
+    .stderr()
     .command(['publish', '--org', 'flag-organization'])
-    .it('Successfully publish Docker images using flag organization')
+    .it('Successfully publish Docker images using flag organization', ctx => {
+      verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
+    })
 
   test
     .do(() => {
@@ -155,15 +199,18 @@ describe('publish', () => {
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('myorganization')
       sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('myorganization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
     .stdout()
+    .stderr()
     .command('publish')
     .it('Successfully publish Docker images', ctx => {
       expect(ctx.stdout).contain(
         'Login on Docker registry ' + DEFAULT_DOCKER_REGISTRY
       )
+      verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'myorganization')
     })
 
   test
@@ -173,13 +220,14 @@ describe('publish', () => {
         .stub(ConfigService.prototype, 'getProperty')
         .withArgs(DOCKER_ORGANIZATION_PROPERTY)
         .returns('myorganization')
-      sinon
-        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
-        .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
-      sinon.stub(DockerService, 'setImagesRegistry').resolves()
+      sinon
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('myorganization', 'my-custom-registry'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
     })
     .stdout()
+    .stderr()
     .command(['publish', '--registry', 'my-custom-registry'])
     .it('Successfully publish Docker images on custom registry', ctx => {
       expect(ctx.stdout).contain('Login on Docker registry my-custom-registry')
@@ -198,5 +246,51 @@ describe('publish', () => {
         'myorganization',
         'my-custom-registry'
       )
+      verifyPushedSuccessfully(
+        ctx.stdout,
+        ctx.stderr,
+        'myorganization',
+        'my-custom-registry'
+      )
     })
 })
+
+function getImagesToPush(
+  organization: string,
+  registry: string = DEFAULT_DOCKER_REGISTRY
+) {
+  const imagePrefix = registry + '/' + organization
+  return [
+    imagePrefix + '/test-bundle:0.0.1',
+    imagePrefix + '/test-ms-spring-boot-1:0.0.2',
+    imagePrefix + '/test-ms-spring-boot-2:0.0.3'
+  ]
+}
+
+function verifyPushedSuccessfully(
+  stdout: string,
+  stderr: string,
+  organization: string,
+  registry: string = DEFAULT_DOCKER_REGISTRY
+) {
+  const imagePrefix = registry + '/' + organization
+  const pushImageStub = DockerService.pushImage as sinon.SinonStub
+  sinon.assert.calledWith(
+    pushImageStub.firstCall,
+    imagePrefix + '/test-bundle:0.0.1'
+  )
+  sinon.assert.calledWith(
+    pushImageStub.secondCall,
+    imagePrefix + '/test-ms-spring-boot-1:0.0.2'
+  )
+  sinon.assert.calledWith(
+    pushImageStub.thirdCall,
+    imagePrefix + '/test-ms-spring-boot-2:0.0.3'
+  )
+  expect(stderr).contain('3/3')
+  expect(stdout).contain('Images pushed successfully')
+  expect(stdout).contain(imagePrefix + '/test-bundle:0.0.1')
+  expect(stdout).contain(imagePrefix + '/test-ms-spring-boot-1:0.0.2')
+  expect(stdout).contain(imagePrefix + '/test-ms-spring-boot-2:0.0.3')
+  expect(stdout).contain('sha:123')
+}

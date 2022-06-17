@@ -21,6 +21,10 @@ import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
 import * as fs from 'node:fs'
+import {
+  BundleThumbnailService,
+  ThumbnailStatusMessage
+} from '../services/bundle-thumbnail-service'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -137,7 +141,25 @@ export default class Pack extends BaseBuildCommand {
 
     const bundleDescriptorConverterService =
       new BundleDescriptorConverterService(dockerOrganization)
-    bundleDescriptorConverterService.generateYamlDescriptors()
+
+    const thumbnailService = new BundleThumbnailService()
+    thumbnailService.processThumbnail()
+    const thumbnailInfo = thumbnailService.getThumbnailInfo()
+
+    if (thumbnailInfo.status !== ThumbnailStatusMessage.OK) {
+      switch (thumbnailInfo.status) {
+        case ThumbnailStatusMessage.FILESIZE_EXCEEDED:
+          this.log(
+            `${color.bold.red('Warning:')} ${color.red(thumbnailInfo.status)}`
+          )
+          break
+        case ThumbnailStatusMessage.NO_THUMBNAIL:
+        default:
+          this.log(color.blue(thumbnailInfo.status))
+      }
+    }
+
+    bundleDescriptorConverterService.generateYamlDescriptors(thumbnailInfo)
 
     const result = await DockerService.buildDockerImage({
       name: bundleDescriptor.name,

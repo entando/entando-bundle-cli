@@ -21,7 +21,7 @@ import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
-export const DEFAULT_DOCKER_REGISTRY = 'index.docker.io'
+export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 export const DOCKER_COMMAND = 'docker'
 
 export type DockerBuildOptions = {
@@ -71,7 +71,7 @@ export class DockerService {
       options.name,
       options.tag
     )
-    return `${DOCKER_COMMAND} build -f ${dockerfile} -t ${dockerImageName} .`
+    return `${DOCKER_COMMAND} build --platform "linux/amd64" -f ${dockerfile} -t ${dockerImageName} .`
   }
 
   public static getDockerImageName(
@@ -202,14 +202,14 @@ export class DockerService {
   }
 
   public static async login(
-    dockerRegistry: string = DEFAULT_DOCKER_REGISTRY
+    registry: string = DEFAULT_DOCKER_REGISTRY
   ): Promise<void> {
     const command =
       DOCKER_COMMAND +
       ' --config ' +
       path.join(...DOCKER_CONFIG_FOLDER) +
       ' login ' +
-      dockerRegistry
+      registry
 
     const tryLogin = await ProcessExecutorService.executeProcess({
       command
@@ -232,8 +232,8 @@ export class DockerService {
     bundleDescriptor: BundleDescriptor,
     oldOrganization: string,
     newOrganization: string
-  ): Promise<void> {
-    await DockerService.createTags(
+  ): Promise<string[]> {
+    return DockerService.createTags(
       bundleDescriptor,
       oldOrganization,
       (sourceImage: string) => {
@@ -249,8 +249,8 @@ export class DockerService {
     bundleDescriptor: BundleDescriptor,
     organization: string,
     registry: string
-  ): Promise<void> {
-    await DockerService.createTags(
+  ): Promise<string[]> {
+    return DockerService.createTags(
       bundleDescriptor,
       organization,
       (sourceImage: string) => {
@@ -263,15 +263,17 @@ export class DockerService {
     bundleDescriptor: BundleDescriptor,
     organization: string,
     getTargetImage: (sourgeImage: string) => string
-  ): Promise<void> {
+  ): Promise<string[]> {
     const sourceImages = DockerService.getBundleDockerImages(
       bundleDescriptor,
       organization
     )
 
+    const targetImages: string[] = []
     const options: ProcessExecutionOptions[] = []
     for (const sourceImage of sourceImages) {
       const targetImage = getTargetImage(sourceImage)
+      targetImages.push(targetImage)
       const command = `${DOCKER_COMMAND} tag ${sourceImage} ${targetImage}`
       options.push({
         command,
@@ -287,5 +289,36 @@ export class DockerService {
         'Unable to create Docker image tag. Enable debug mode to see output of failed command.'
       )
     }
+
+    return targetImages
+  }
+
+  public static async pushImage(image: string): Promise<string> {
+    const command =
+      DOCKER_COMMAND +
+      ' --config ' +
+      path.join(...DOCKER_CONFIG_FOLDER) +
+      ' push ' +
+      image
+    const outputStream = new InMemoryWritable()
+    const result = await ProcessExecutorService.executeProcess({
+      command,
+      errorStream: DockerService.debug.outputStream,
+      outputStream
+    })
+    const output = outputStream.data
+    if (result !== 0) {
+      DockerService.debug(output)
+      throw new CLIError(
+        'Unable to push Docker image. Enable debug mode to see output of failed command.'
+      )
+    }
+
+    const sha = output.match(/digest:\s(\S*)/)
+    if (sha) {
+      return sha[1]
+    }
+
+    return ''
   }
 }

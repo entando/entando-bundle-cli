@@ -10,29 +10,14 @@ export const DOCKER_REGISTRY_PROPERTY = 'docker-registry'
 export class ConfigService {
   private config: { [key: string]: string } = {}
 
-  private readConfigFile(): void {
-    const configFilePath = path.join(CONFIG_FOLDER, CONFIG_FILE)
-    if (fs.existsSync(configFilePath)) {
-      const configFile = fs.readFileSync(configFilePath, {
-        encoding: 'utf-8'
-      })
-      this.config = JSON.parse(configFile)
-    }
-  }
-
-  private writeConfigFile(): void {
-    const filePath = path.join(CONFIG_FOLDER)
-
-    fs.writeFileSync(
-      path.join(filePath, CONFIG_FILE),
-      JSON.stringify(this.config, null, 2) + os.EOL,
-      'utf8'
-    )
-  }
-
   getProperty(key: string): string | undefined {
     this.readConfigFile()
     return this.config[key]
+  }
+
+  getProperties(): { [key: string]: string } {
+    this.readConfigFile()
+    return this.config
   }
 
   addProperty(key: string, value: string): void {
@@ -75,5 +60,27 @@ export class ConfigService {
     }
 
     this.writeConfigFile()
+  }
+
+  private readConfigFile(): void {
+    const configFilePath = path.join(CONFIG_FOLDER, CONFIG_FILE)
+    if (fs.existsSync(configFilePath)) {
+      const configFile = fs.readFileSync(configFilePath, {
+        encoding: 'utf-8'
+      })
+      this.config = JSON.parse(configFile)
+    }
+  }
+
+  private writeConfigFile(): void {
+    if (!fs.existsSync(CONFIG_FOLDER)) {
+      fs.mkdirSync(CONFIG_FOLDER)
+    }
+
+    fs.writeFileSync(
+      path.join(CONFIG_FOLDER, CONFIG_FILE),
+      JSON.stringify(this.config, null, 2) + os.EOL,
+      'utf8'
+    )
   }
 }

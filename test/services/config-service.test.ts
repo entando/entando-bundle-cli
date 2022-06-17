@@ -23,7 +23,6 @@ describe('config-service', () => {
 
   beforeEach(() => {
     process.chdir(tempBundleDir)
-
     // create config from template file
     const defaultConfig = fs.readFileSync(
       path.resolve(
@@ -47,6 +46,9 @@ describe('config-service', () => {
       JSON.stringify(defaultConfigParsed, null, 2),
       'utf8'
     )
+
+    configService.addProperty('key1', 'val1')
+    configService.addProperty('key2', 'val2')
   })
 
   test.it('get properties', () => {
@@ -113,8 +115,20 @@ describe('config-service', () => {
   test.it(
     "get property when config file doesn't exist returns undefined",
     () => {
-      tempDirHelper.createUninitializedBundleDir()
+      tempDirHelper.createUninitializedBundleDir('empty-get')
       expect(new ConfigService().getProperty('test-key')).to.be.undefined
+    }
+  )
+
+  test.it(
+    "set property when config directory doesn't exist creates the directory",
+    () => {
+      const emptyDir = tempDirHelper.createUninitializedBundleDir('empty-add')
+      expect(fs.existsSync(path.resolve(emptyDir, CONFIG_FOLDER))).false
+      expect(new ConfigService().addProperty('test-key', 'test-value'))
+      expect(fs.existsSync(path.resolve(emptyDir, CONFIG_FOLDER))).true
+      expect(fs.existsSync(path.resolve(emptyDir, CONFIG_FOLDER, CONFIG_FILE)))
+        .true
     }
   )
 })

@@ -11,6 +11,8 @@ import { ComponentService } from '../../src/services/component-service'
 import { ComponentType, MicroserviceStack } from '../../src/models/component'
 import * as executors from '../../src/services/process-executor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import * as path from 'node:path'
+import { CONFIG_FOLDER } from '../../src/paths'
 
 describe('DockerService', () => {
   afterEach(function () {
@@ -34,7 +36,8 @@ describe('DockerService', () => {
       executeProcessStub,
       sinon.match({
         command:
-          DOCKER_COMMAND + ' build -f Dockerfile -t my-org/bundle-name:0.0.1 .'
+          DOCKER_COMMAND +
+          ' build --platform "linux/amd64" -f Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -58,7 +61,7 @@ describe('DockerService', () => {
       sinon.match({
         command:
           DOCKER_COMMAND +
-          ' build -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
+          ' build --platform "linux/amd64" -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -235,4 +238,61 @@ describe('DockerService', () => {
       expect(error.message).contain('Unable to create Docker image tag')
     })
     .it('Docker image tag creation fails')
+
+  test.it('Push image and retrieve digest', async () => {
+    const executeProcessStub = sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .callsFake(options => {
+        options.outputStream!.write('a0c: Pushed\n')
+        options.outputStream!.write('6p5: Pushed\n')
+        options.outputStream!.write(
+          '0.0.1: digest: sha256:52b239f9 size: 2213\n'
+        )
+        return Promise.resolve(0)
+      })
+
+    const sha = await DockerService.pushImage('myimage')
+
+    sinon.assert.calledWith(
+      executeProcessStub,
+      sinon.match({
+        command:
+          DOCKER_COMMAND +
+          ' --config ' +
+          path.join(CONFIG_FOLDER, 'docker') +
+          ' push myimage'
+      })
+    )
+    expect(sha).eq('sha256:52b239f9')
+  })
+
+  test.it('Push image but unable to retrieve digest', async () => {
+    const executeProcessStub = sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .resolves(0)
+
+    const sha = await DockerService.pushImage('myimage')
+
+    sinon.assert.calledWith(
+      executeProcessStub,
+      sinon.match({
+        command:
+          DOCKER_COMMAND +
+          ' --config ' +
+          path.join(CONFIG_FOLDER, 'docker') +
+          ' push myimage'
+      })
+    )
+    expect(sha).eq('')
+  })
+
+  test
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.pushImage('myimage')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to push Docker image')
+    })
+    .it('Error while pushing image')
 })
