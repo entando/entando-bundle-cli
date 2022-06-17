@@ -1,7 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as sinon from 'sinon'
-import * as path from 'node:path'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import {
   BundleThumbnailService,
@@ -14,8 +13,7 @@ describe('bundle thumbnail service', () => {
   let stubExistsSync: sinon.SinonStub
 
   before(() => {
-    bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')
-    fs.mkdirSync(bundleDir, { recursive: true })
+    bundleDir = tempDirHelper.createInitializedBundleDir('test-bundle')
     fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
   })
 
@@ -61,10 +59,10 @@ describe('bundle thumbnail service', () => {
         const thumbnail = thumbnailService.getThumbnailInfo()
         expect(thumbnail).to.haveOwnProperty('path')
         expect(thumbnail.path).to.contain(`${bundleDir}/thumbnail.png`)
+        expect(thumbnail).to.not.haveOwnProperty('base64')
         expect(thumbnail).to.deep.contains({
           size: 120_000 / 1024,
-          status: ThumbnailStatusMessage.FILESIZE_EXCEEDED,
-          base64: ''
+          status: ThumbnailStatusMessage.FILESIZE_EXCEEDED
         })
       }
     )
@@ -76,11 +74,11 @@ describe('bundle thumbnail service', () => {
       thumbnailService.processThumbnail()
       const thumbnail = thumbnailService.getThumbnailInfo()
       expect(thumbnail).to.haveOwnProperty('path')
+      expect(thumbnail).to.not.haveOwnProperty('base64')
       expect(thumbnail).to.deep.eq({
         path: '',
         size: 0,
-        status: ThumbnailStatusMessage.NO_THUMBNAIL,
-        base64: ''
+        status: ThumbnailStatusMessage.NO_THUMBNAIL
       })
     })
 })

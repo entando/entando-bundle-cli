@@ -18,13 +18,11 @@ export class BundleThumbnailService {
   private readonly bundleDirectory: string
   private size: number
   private status: ThumbnailStatusMessage
-  private base64: string
-  private path: string
+  private base64?: string
+  private path?: string
 
   constructor() {
     this.bundleDirectory = process.cwd()
-    this.path = ''
-    this.base64 = ''
     this.size = 0
     this.status = ThumbnailStatusMessage.NO_THUMBNAIL
   }
@@ -63,10 +61,10 @@ export class BundleThumbnailService {
 
   public getThumbnailInfo(): BundleThumbnailInfo {
     return {
-      path: this.path,
+      path: this.path || '',
       size: this.size,
       status: this.status,
-      base64: this.base64
+      ...(this.base64 ? { base64: this.base64 } : {})
     }
   }
 }
