@@ -1,7 +1,8 @@
 import { expect, test } from '@oclif/test'
 import {
   ConstraintsValidatorService,
-  JsonValidationError
+  JsonValidationError,
+  UNION_TYPE_ERROR_MESSAGE
 } from '../../src/services/constraints-validator-service'
 import {
   BUNDLE_DESCRIPTOR_CONSTRAINTS,
@@ -201,4 +202,160 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].name')
     })
     .it('Validates name using RegExp')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'bad-claim',
+          type: 'external',
+          serviceName: 'my-service',
+          bundle: 'http://hub.docker.com/r/entando/test2'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain(
+        'Field "bundle" is not valid. Valid format is <registry>/<organization>/<repository>'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0].bundle')
+    })
+    .it('Validates invalid bundle format containing http://')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'bad-claim',
+          type: 'external',
+          serviceName: 'my-service',
+          bundle: 'entando/test2'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain(
+        'Field "bundle" is not valid. Valid format is <registry>/<organization>/<repository>'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0].bundle')
+    })
+    .it('Validates invalid bundle format missing the registry')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'bad-claim',
+          type: 'external',
+          serviceName: 'my-service'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain(
+        'Field "type" with value "external" requires field "bundle" to have a value'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
+    })
+    .it(
+      'Validates mutual dependency between external API claim and bundle field'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'bad-claim',
+          type: 'internal',
+          serviceName: 'my-service',
+          bundle: 'custom.registry.com/entando/my-bundle'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain(
+        'Field "bundle" requires field "type" to have value: external'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
+    })
+    .it(
+      'Validates inverse mutual dependency between external API claim and bundle field'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'bad-claim',
+          type: 'internal'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain('Field "serviceName" is required')
+      expect(error.message).contain(
+        '$.microfrontends[1].apiClaims[0].serviceName'
+      )
+    })
+    .it('Validates missing serviceName in API claim')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microservices[1].env = [
+        {
+          name: 'bad-env'
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain('Field "value" is required')
+      expect(error.message).contain('Position: $.microservices[1].env[0].value')
+      expect(error.message).contain('Field "valueFrom" is required')
+      expect(error.message).contain(
+        'Position: $.microservices[1].env[0].valueFrom'
+      )
+    })
+    .it('Validates union type constraints')
 })

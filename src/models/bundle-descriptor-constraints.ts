@@ -25,8 +25,15 @@ import {
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
 export const INVALID_NAME_MESSAGE =
   'Only alphanumeric characters, underscore and dash are allowed'
+export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP = /^[\w-]+\/[\w-]+$/
+export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
+  /^[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
 
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+const bundleRegExpValidator = regexp(
+  ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
+  'Valid format is <registry>/<organization>/<repository>'
+)
 
 // Constraints
 
@@ -82,7 +89,7 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
       type: {
         required: true,
         type: 'string',
-        validators: [values([ApiType.Internal])]
+        validators: [values(ApiType)]
       },
       serviceName: {
         required: true,
@@ -97,7 +104,7 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
       type: {
         required: true,
         type: 'string',
-        validators: [values([ApiType.External])]
+        validators: [values(ApiType)]
       },
       serviceName: {
         required: true,
@@ -105,7 +112,8 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
       },
       bundle: {
         required: true,
-        type: 'string'
+        type: 'string',
+        validators: [bundleRegExpValidator]
       }
     }
   ],
