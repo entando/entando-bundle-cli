@@ -41,6 +41,7 @@ USAGE
 - [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
 - [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli info`](#entando-bundle-cli-info)
 - [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
 - [`entando-bundle-cli list`](#entando-bundle-cli-list)
 - [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
@@ -171,6 +172,23 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+
+## `entando-bundle-cli info`
+
+Show status information for the bundle project
+
+```
+USAGE
+  $ entando-bundle-cli info
+
+DESCRIPTION
+  Show status information for the bundle project
+
+EXAMPLES
+  $ entando-bundle-cli info
+```
+
+_See code: [dist/commands/info.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/info.ts)_
 
 ## `entando-bundle-cli init NAME`
 
@@ -332,6 +350,24 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/pack.ts)_
+
+## `entando-bundle-cli publish`
+
+Publish bundle Docker images
+
+```
+USAGE
+  $ entando-bundle-cli publish [-r <value>] [-o <value>]
+
+FLAGS
+  -o, --org=<value>       Docker organization name
+  -r, --registry=<value>  Docker registry (default is index.docker.io)
+
+DESCRIPTION
+  Publish bundle Docker images
+```
+
+_See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/publish.ts)_
 
 ## `entando-bundle-cli svc disable SERVICENAME`
 

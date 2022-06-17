@@ -23,7 +23,6 @@ describe('config-service', () => {
 
   beforeEach(() => {
     process.chdir(tempBundleDir)
-
     // create config from template file
     const defaultConfig = fs.readFileSync(
       path.resolve(
@@ -47,6 +46,9 @@ describe('config-service', () => {
       JSON.stringify(defaultConfigParsed, null, 2),
       'utf8'
     )
+
+    configService.addProperty('key1', 'val1')
+    configService.addProperty('key2', 'val2')
   })
 
   test.it('get properties', () => {
