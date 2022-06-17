@@ -7,6 +7,7 @@ import { BundleDescriptorConverterService } from '../../src/services/bundle-desc
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { OUTPUT_FOLDER } from '../../src/paths'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import { ThumbnailStatusMessage } from '../../src/services/bundle-thumbnail-service'
 import {
   ComponentType,
   MicroFrontendStack,
@@ -112,6 +113,8 @@ describe('bundle-descriptor-converter-service', () => {
       ]
     })
 
+    fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
+
     sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
       {
         name: 'test-ms',
@@ -129,7 +132,12 @@ describe('bundle-descriptor-converter-service', () => {
 
     const converterService = new BundleDescriptorConverterService('docker-org')
 
-    converterService.generateYamlDescriptors()
+    converterService.generateYamlDescriptors({
+      path: `${bundleDir}/thumbnail.png`,
+      size: 47,
+      status: ThumbnailStatusMessage.OK,
+      base64: Buffer.from('this is a thumbnail').toString('base64')
+    })
 
     const mfeDescriptorPath = path.resolve(
       bundleDir,
@@ -253,7 +261,8 @@ describe('bundle-descriptor-converter-service', () => {
         nav: [
           { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
         ]
-      }
+      },
+      thumbnail: Buffer.from('this is a thumbnail').toString('base64')
     })
   })
 })

@@ -22,12 +22,12 @@ import {
 import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
+import { BundleThumbnailInfo } from './bundle-thumbnail-service'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v5'
 const WIDGET_DESCRIPTOR_VERSION = 'v5'
 const BUNDLE_DESCRIPTOR_VERSION = 'v5'
 const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
-
 export class BundleDescriptorConverterService {
   private readonly bundleDirectory: string
   private readonly bundleDescriptorService: BundleDescriptorService
@@ -41,7 +41,7 @@ export class BundleDescriptorConverterService {
     this.dockerOrganization = dockerOrganization
   }
 
-  public generateYamlDescriptors(): void {
+  public generateYamlDescriptors(thumbnail?: BundleThumbnailInfo): void {
     const bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
 
     for (const microFrontend of bundleDescriptor.microfrontends) {
@@ -62,7 +62,7 @@ export class BundleDescriptorConverterService {
       )
     }
 
-    this.generateBundleYamlDescriptor(bundleDescriptor)
+    this.generateBundleYamlDescriptor(bundleDescriptor, thumbnail)
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
@@ -112,7 +112,10 @@ export class BundleDescriptorConverterService {
     this.writeYamlFile(filePath, pluginDescriptor)
   }
 
-  private generateBundleYamlDescriptor(bundleDescriptor: BundleDescriptor) {
+  private generateBundleYamlDescriptor(
+    bundleDescriptor: BundleDescriptor,
+    thumbnail?: BundleThumbnailInfo
+  ) {
     const yamlBundleDescriptor: YamlBundleDescriptor = {
       name: bundleDescriptor.name,
       description: bundleDescriptor.description,
@@ -123,6 +126,10 @@ export class BundleDescriptorConverterService {
       global: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
     }
+    if (thumbnail?.base64 !== '') {
+      yamlBundleDescriptor.thumbnail = thumbnail?.base64
+    }
+
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =
         this.getMicroFrontendDescriptorRelativePath(microFrontend)

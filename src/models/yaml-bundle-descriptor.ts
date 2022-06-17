@@ -39,6 +39,7 @@ export type YamlBundleDescriptor = {
   name: string
   descriptorVersion: string
   description?: string
+  thumbnail?: string
   components: {
     plugins: string[]
     widgets: string[]
