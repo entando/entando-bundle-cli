@@ -8,7 +8,7 @@ export default class Add extends Command {
     'Add an internal API claim to the specified MFE component'
 
   static examples = [
-    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080'
+    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --serviceName ms1 --serviceUrl http://localhost:8080'
   ]
 
   static args = [
@@ -25,7 +25,7 @@ export default class Add extends Command {
   ]
 
   static flags = {
-    serviceId: Flags.string({
+    serviceName: Flags.string({
       description: 'Microservice name within the Bundle',
       required: true
     }),
@@ -43,7 +43,7 @@ export default class Add extends Command {
     const apiClaim: ApiClaim = {
       name: args.claimName,
       type: ApiType.Internal,
-      serviceId: flags.serviceId
+      serviceName: flags.serviceName
     }
     const apiClaimService: ApiClaimService = new ApiClaimService()
 

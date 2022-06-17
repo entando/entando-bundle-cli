@@ -43,7 +43,7 @@ describe('BundleDescriptorValidatorService', () => {
         {
           name: 'invalid-claim',
           type: 'invalid-type',
-          serviceId: 'service-id'
+          serviceName: 'service-name'
         }
       ]
       ConstraintsValidatorService.validateObjectConstraints(
@@ -67,7 +67,7 @@ describe('BundleDescriptorValidatorService', () => {
         {
           name: 'invalid-claim',
           type: 'external',
-          serviceId: 'service-id'
+          serviceName: 'service-name'
         }
       ]
       ConstraintsValidatorService.validateObjectConstraints(
@@ -77,7 +77,7 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "type" with value "external" requires field "bundleId" to have a value'
+        'Field "type" with value "external" requires field "bundle" to have a value'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
@@ -93,8 +93,8 @@ describe('BundleDescriptorValidatorService', () => {
         {
           name: 'invalid-claim',
           type: 'internal',
-          serviceId: 'service-id',
-          bundleId: 'my-bundle'
+          serviceName: 'service-name',
+          bundle: 'my-bundle'
         }
       ]
       ConstraintsValidatorService.validateObjectConstraints(
@@ -104,7 +104,7 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "bundleId" requires field "type" to have value: external'
+        'Field "bundle" requires field "type" to have value: external'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })

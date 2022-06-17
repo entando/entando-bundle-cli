@@ -8,7 +8,7 @@ export default class AddExt extends Command {
     'Add an external API claim to the specified MFE component'
 
   static examples = [
-    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --bundleId my-bundle --serviceId ms1'
+    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --bundle registry.hub.docker.com/my-org/my-bundle --serviceName ms1'
   ]
 
   static args = [
@@ -25,11 +25,11 @@ export default class AddExt extends Command {
   ]
 
   static flags = {
-    bundleId: Flags.string({
+    bundle: Flags.string({
       description: 'Target Bundle ID',
       required: true
     }),
-    serviceId: Flags.string({
+    serviceName: Flags.string({
       description: 'Microservice name within the target Bundle',
       required: true
     })
@@ -43,8 +43,8 @@ export default class AddExt extends Command {
     const apiClaim: ExternalApiClaim = {
       name: args.claimName,
       type: ApiType.External,
-      serviceId: flags.serviceId,
-      bundleId: flags.bundleId
+      serviceName: flags.serviceName,
+      bundle: flags.bundle
     }
     const apiClaimService: ApiClaimService = new ApiClaimService()
 

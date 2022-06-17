@@ -84,7 +84,7 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
         type: 'string',
         validators: [values([ApiType.Internal])]
       },
-      serviceId: {
+      serviceName: {
         required: true,
         type: 'string'
       }
@@ -99,11 +99,11 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
         type: 'string',
         validators: [values([ApiType.External])]
       },
-      serviceId: {
+      serviceName: {
         required: true,
         type: 'string'
       },
-      bundleId: {
+      bundle: {
         required: true,
         type: 'string'
       }
@@ -112,7 +112,7 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
   validators: [
     mutualDependency(
       { key: 'type', value: ApiType.External },
-      { key: 'bundleId' }
+      { key: 'bundle' }
     )
   ]
 }

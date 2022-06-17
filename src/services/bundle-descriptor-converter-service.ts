@@ -1,11 +1,16 @@
 import {
+  ApiClaim,
+  ApiType,
   BundleDescriptor,
   DBMS,
+  ExternalApiClaim,
   MicroFrontend,
   Microservice
 } from '../models/bundle-descriptor'
 import {
   YamlBundleDescriptor,
+  YamlExternalApiClaim,
+  YamlInternalApiClaim,
   YamlPluginDescriptor,
   YamlWidgetDescriptor
 } from '../models/yaml-bundle-descriptor'
@@ -13,6 +18,7 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as crypto from 'node:crypto'
 import {
   DESCRIPTORS_OUTPUT_FOLDER,
   DESCRIPTOR_EXTENSION,
@@ -71,7 +77,9 @@ export class BundleDescriptorConverterService {
       titles: microFrontend.titles,
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
-      apiClaims: microFrontend.apiClaims,
+      apiClaims: microFrontend.apiClaims
+        ? this.generateYamlApiClaims(microFrontend.apiClaims)
+        : undefined,
       nav: microFrontend.nav,
       type: microFrontend.type,
       ...('slot' in microFrontend && { slot: microFrontend.slot }),
@@ -82,6 +90,35 @@ export class BundleDescriptorConverterService {
       this.getMicroFrontendDescriptorRelativePath(microFrontend)
     )
     this.writeYamlFile(filePath, widgetDescriptor)
+  }
+
+  private generateYamlApiClaims(
+    apiClaims: Array<ApiClaim | ExternalApiClaim>
+  ): Array<YamlInternalApiClaim | YamlExternalApiClaim> {
+    const yamlApiClaims: Array<YamlInternalApiClaim | YamlExternalApiClaim> = []
+    for (const apiClaim of apiClaims) {
+      if (apiClaim.type === ApiType.External) {
+        yamlApiClaims.push({
+          type: ApiType.External,
+          name: apiClaim.name,
+          pluginName: apiClaim.serviceName,
+          bundleId: this.generateBundleId((apiClaim as ExternalApiClaim).bundle)
+        })
+      } else {
+        yamlApiClaims.push({
+          type: ApiType.Internal,
+          name: apiClaim.name,
+          pluginName: apiClaim.serviceName
+        })
+      }
+    }
+
+    return yamlApiClaims
+  }
+
+  private generateBundleId(bundle: string): string {
+    const sha256 = crypto.createHash('sha256').update(bundle).digest('hex')
+    return sha256.slice(0, 8)
   }
 
   private generateMicroserviceYamlDescriptor(

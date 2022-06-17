@@ -52,9 +52,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .it('adds an external api claim to an mfe', () => {
@@ -71,8 +71,8 @@ describe('api add-ext', () => {
               {
                 name: 'ms1-api',
                 type: 'external',
-                serviceId: 'ms1',
-                bundleId: 'my-bundle'
+                serviceName: 'ms1',
+                bundle: 'my-bundle'
               }
             ]
           }
@@ -93,8 +93,8 @@ describe('api add-ext', () => {
             {
               name: 'ms1-api',
               type: 'external',
-              serviceId: 'ms1',
-              bundleId: 'my-bundle'
+              serviceName: 'ms1',
+              bundle: 'my-bundle'
             }
           ]
         }
@@ -109,9 +109,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'mfe1',
       'ms2-api',
-      '--serviceId',
+      '--serviceName',
       'ms2',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .it(
@@ -131,14 +131,14 @@ describe('api add-ext', () => {
                 {
                   name: 'ms1-api',
                   type: 'external',
-                  serviceId: 'ms1',
-                  bundleId: 'my-bundle'
+                  serviceName: 'ms1',
+                  bundle: 'my-bundle'
                 },
                 {
                   name: 'ms2-api',
                   type: 'external',
-                  serviceId: 'ms2',
-                  bundleId: 'my-bundle'
+                  serviceName: 'ms2',
+                  bundle: 'my-bundle'
                 }
               ]
             }
@@ -162,9 +162,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .it(
@@ -184,8 +184,8 @@ describe('api add-ext', () => {
                 {
                   name: 'ms1-api',
                   type: 'external',
-                  serviceId: 'ms1',
-                  bundleId: 'my-bundle'
+                  serviceName: 'ms1',
+                  bundle: 'my-bundle'
                 }
               ]
             }
@@ -204,9 +204,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'nonexistent-mfe',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .catch(error => {
@@ -226,8 +226,8 @@ describe('api add-ext', () => {
             {
               name: 'ms1-api',
               type: 'external',
-              serviceId: 'ms1',
-              bundleId: 'my-bundle'
+              serviceName: 'ms1',
+              bundle: 'my-bundle'
             }
           ]
         }
@@ -239,9 +239,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .catch(error => {
@@ -260,9 +260,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .catch(error => {
@@ -279,9 +279,9 @@ describe('api add-ext', () => {
       'api add-ext',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
-      '--bundleId',
+      '--bundle',
       'my-bundle'
     ])
     .catch(error => {
