@@ -1,9 +1,6 @@
 import { CliUx, Flags } from '@oclif/core'
 import { ComponentType } from '../models/component'
-import {
-  BundleDescriptorConverterService,
-  ThumbnailStatusMessage
-} from '../services/bundle-descriptor-converter-service'
+import { BundleDescriptorConverterService } from '../services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
@@ -24,6 +21,10 @@ import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
 import * as fs from 'node:fs'
+import {
+  BundleThumbnailService,
+  ThumbnailStatusMessage
+} from '../services/bundle-thumbnail-service'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -141,11 +142,13 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorConverterService =
       new BundleDescriptorConverterService(dockerOrganization)
 
-    const thumbnailInfo = bundleDescriptorConverterService.processThumbnail()
+    const thumbnailService = new BundleThumbnailService()
+    thumbnailService.processThumbnail()
+    const thumbnailInfo = thumbnailService.getThumbnailInfo()
 
     if (thumbnailInfo.status !== ThumbnailStatusMessage.OK) {
       switch (thumbnailInfo.status) {
-        case ThumbnailStatusMessage.FILESIZE_EXCEED:
+        case ThumbnailStatusMessage.FILESIZE_EXCEEDED:
           this.log(
             `${color.bold.red('Warning:')} ${color.red(thumbnailInfo.status)}`
           )
@@ -156,7 +159,7 @@ export default class Pack extends BaseBuildCommand {
       }
     }
 
-    bundleDescriptorConverterService.generateYamlDescriptors()
+    bundleDescriptorConverterService.generateYamlDescriptors(thumbnailInfo)
 
     const result = await DockerService.buildDockerImage({
       name: bundleDescriptor.name,
