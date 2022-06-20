@@ -9,10 +9,13 @@ import {
   Microservice
 } from '../models/bundle-descriptor'
 import {
+  BaseYamlWidgetDescriptor,
+  YamlAppBuilderWidgetDescriptor,
   YamlBundleDescriptor,
   YamlExternalApiClaim,
   YamlInternalApiClaim,
   YamlPluginDescriptor,
+  YamlWidgetConfigDescriptor,
   YamlWidgetDescriptor
 } from '../models/yaml-bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
@@ -73,27 +76,67 @@ export class BundleDescriptorConverterService {
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
-    const widgetDescriptor: YamlWidgetDescriptor = {
+    const widgetDescriptor:
+      | YamlWidgetDescriptor
+      | YamlWidgetConfigDescriptor
+      | YamlAppBuilderWidgetDescriptor =
+      this.mapMicroFrontendToYamlDescriptor(microFrontend)
+
+    const filePath = path.join(
+      ...DESCRIPTORS_OUTPUT_FOLDER,
+      this.getMicroFrontendDescriptorRelativePath(microFrontend)
+    )
+
+    this.writeYamlFile(filePath, widgetDescriptor)
+  }
+
+  private mapMicroFrontendToYamlDescriptor(
+    microFrontend: MicroFrontend
+  ):
+    | YamlWidgetDescriptor
+    | YamlWidgetConfigDescriptor
+    | YamlAppBuilderWidgetDescriptor {
+    const commonProperties: BaseYamlWidgetDescriptor<
+      typeof microFrontend.type
+    > = {
       name: microFrontend.name,
+      type: microFrontend.type,
       titles: microFrontend.titles,
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
-        : undefined,
-      nav: microFrontend.nav,
-      type: microFrontend.type,
-      ...('slot' in microFrontend && { slot: microFrontend.slot }),
-      ...('paths' in microFrontend && { paths: microFrontend.paths }),
-      ...('contextParams' in microFrontend && {
-        contextParams: microFrontend.contextParams
-      })
+        : undefined
     }
-    const filePath = path.join(
-      ...DESCRIPTORS_OUTPUT_FOLDER,
-      this.getMicroFrontendDescriptorRelativePath(microFrontend)
-    )
-    this.writeYamlFile(filePath, widgetDescriptor)
+
+    let result:
+      | YamlWidgetDescriptor
+      | YamlWidgetConfigDescriptor
+      | YamlAppBuilderWidgetDescriptor
+
+    if (microFrontend.type === MicroFrontendType.AppBuilder) {
+      result = {
+        ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
+        ext: {
+          slot: microFrontend.slot,
+          nav: microFrontend.nav,
+          ...('paths' in microFrontend && { paths: microFrontend.paths })
+        }
+      }
+    } else if (microFrontend.type === MicroFrontendType.WidgetConfig) {
+      result = {
+        ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.WidgetConfig>),
+        nav: microFrontend.nav
+      }
+    } else {
+      result = {
+        ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.Widget>),
+        nav: microFrontend.nav,
+        contextParams: microFrontend.contextParams
+      }
+    }
+
+    return result
   }
 
   private generateYamlApiClaims(
@@ -163,7 +206,7 @@ export class BundleDescriptorConverterService {
       components: {
         plugins: [],
         widgets: [],
-        'app-builder': [],
+        'app-builder': []
       },
       global: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
