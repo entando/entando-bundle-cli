@@ -41,7 +41,25 @@ export class JsonValidationError extends CLIError {
   }
 }
 
-class PropertyDependencyError extends JsonValidationError {}
+class PrioritizedValidationError extends JsonValidationError {}
+
+export const UNION_TYPE_ERROR_MESSAGE = 'Fix one of the following errors:'
+class UnionTypeError extends CLIError {
+  constructor(errors: JsonValidationError[]) {
+    // Removing duplicates
+    const uniqueErrorMessages = [...new Set(errors.map(e => e.message))]
+    if (uniqueErrorMessages.length === 1) {
+      super(uniqueErrorMessages[0])
+    } else {
+      const messageArr = [UNION_TYPE_ERROR_MESSAGE]
+      for (const errorMessage of uniqueErrorMessages) {
+        messageArr.push(`* ${errorMessage.split('\n').join('\n  ')}`)
+      }
+
+      super(messageArr.join('\n'))
+    }
+  }
+}
 
 // Type that is equal to true if an object property is required and false otherwise.
 // It is used to enforce the required value, so that it is not possible to set it to true
@@ -110,7 +128,7 @@ type ArrayConstraints<T, K extends keyof T> =
 export function regexp(regexp: RegExp, message: string): Validator {
   return function (key: string, field: any, jsonPath: JsonPath): void {
     if (!regexp.test(field)) {
-      throw new JsonValidationError(
+      throw new PrioritizedValidationError(
         `Field "${key}" is not valid. ${message}`,
         jsonPath
       )
@@ -148,15 +166,6 @@ export function isMapOfStrings(
   }
 }
 
-export function fieldValues(
-  key: string,
-  iterable: { [s: string]: unknown } | ArrayLike<unknown>
-): UnionTypeValidator {
-  return function (object: any, jsonPath: JsonPath) {
-    if (object[key] !== undefined) values(iterable)(key, object[key], jsonPath)
-  }
-}
-
 export function fieldDependsOn(
   field: Field,
   dependsOnField: Field
@@ -172,11 +181,11 @@ export function fieldDependsOn(
       if (dependsOnField.value === undefined) {
         if (object[dependsOnField.key] === undefined) {
           message += ` requires field "${dependsOnField.key}" to have a value`
-          throw new PropertyDependencyError(message, jsonPath)
+          throw new PrioritizedValidationError(message, jsonPath)
         }
       } else if (object[dependsOnField.key] !== dependsOnField.value) {
         message += ` requires field "${dependsOnField.key}" to have value: ${dependsOnField.value}`
-        throw new PropertyDependencyError(message, jsonPath)
+        throw new PrioritizedValidationError(message, jsonPath)
       }
     }
   }
@@ -278,7 +287,12 @@ function validateUnionTypeConstraints<T>(
     try {
       validateConstraints(parsedObject, constraint, jsonPath)
     } catch (error) {
-      if (error instanceof PropertyDependencyError) {
+      if (error instanceof PrioritizedValidationError) {
+        throw error
+      }
+
+      if (error instanceof UnionTypeError) {
+        // avoid nested union type errors
         throw error
       }
 
@@ -298,19 +312,8 @@ function validateUnionTypeConstraints<T>(
       }
     }
 
-    // Removes duplicate error messages
-    const messages = [...new Set(matchedErrors.map(error => error.message))]
-
-    if (messages.length === 1) throw new CLIError(messages[0])
-
-    // Formats error message as a list of all distinct errors
-    const formattedMessage =
-      'Fix one of the following errors:\n' +
-      `${messages
-        .map(message => `* ${message.split('\n').join('\n  ')}`)
-        .join('\n')}`
-
-    throw new CLIError(formattedMessage)
+    // Validation failed for all allowed types
+    throw new UnionTypeError(matchedErrors)
   }
 }
 

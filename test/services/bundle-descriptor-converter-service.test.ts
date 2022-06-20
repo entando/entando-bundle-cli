@@ -83,7 +83,17 @@ describe('bundle-descriptor-converter-service', () => {
           group: 'free',
           publicFolder: 'public',
           apiClaims: [
-            { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+            {
+              name: 'my-api-claim',
+              type: ApiType.Internal,
+              serviceName: 'my-ms'
+            },
+            {
+              name: 'my-external-api-claim',
+              type: ApiType.External,
+              serviceName: 'my-ms-2',
+              bundle: 'registry.hub.docker.com/entando/example-qe-bundle-01'
+            }
           ],
           nav: [
             {
@@ -158,7 +168,13 @@ describe('bundle-descriptor-converter-service', () => {
       descriptorVersion: 'v5',
       type: 'widget',
       apiClaims: [
-        { name: 'my-api-claim', type: ApiType.Internal, serviceId: 'my-ms' }
+        { name: 'my-api-claim', type: ApiType.Internal, pluginName: 'my-ms' },
+        {
+          name: 'my-external-api-claim',
+          type: ApiType.External,
+          pluginName: 'my-ms-2',
+          bundleId: '36fcf4de'
+        }
       ],
       nav: [
         { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }

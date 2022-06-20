@@ -19,7 +19,6 @@ import {
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
   fieldDependsOn,
-  fieldValues,
   isMapOfStrings,
   mutualDependency,
   ObjectConstraints,
@@ -31,8 +30,15 @@ import {
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
 export const INVALID_NAME_MESSAGE =
   'Only alphanumeric characters, underscore and dash are allowed'
+export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP = /^[\w-]+\/[\w-]+$/
+export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
+  /^[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
 
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+const bundleRegExpValidator = regexp(
+  ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
+  'Valid format is <registry>/<organization>/<repository>'
+)
 
 // Constraints
 
@@ -88,9 +94,9 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
       type: {
         required: true,
         type: 'string',
-        validators: [values([ApiType.Internal])]
+        validators: [values(ApiType)]
       },
-      serviceId: {
+      serviceName: {
         required: true,
         type: 'string'
       }
@@ -103,23 +109,23 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
       type: {
         required: true,
         type: 'string',
-        validators: [values([ApiType.External])]
+        validators: [values(ApiType)]
       },
-      serviceId: {
+      serviceName: {
         required: true,
         type: 'string'
       },
-      bundleId: {
+      bundle: {
         required: true,
-        type: 'string'
+        type: 'string',
+        validators: [bundleRegExpValidator]
       }
     }
   ],
   validators: [
-    fieldValues('type', ApiType),
     mutualDependency(
       { key: 'type', value: ApiType.External },
-      { key: 'bundleId' }
+      { key: 'bundle' }
     )
   ]
 }
@@ -254,7 +260,7 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
   type: {
     required: true,
     type: 'string',
-    validators: [values([MicroFrontendType.Widget])]
+    validators: [values(MicroFrontendType)]
   },
   contextParams: {
     isArray: true,
@@ -310,7 +316,7 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
   type: {
     required: true,
     type: 'string',
-    validators: [values([MicroFrontendType.WidgetConfig])]
+    validators: [values(MicroFrontendType)]
   },
 }
 
@@ -361,7 +367,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMi
     type: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendType.AppBuilder])]
+      validators: [values(MicroFrontendType)]
     },
     slot: {
       required: true,
@@ -415,7 +421,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMi
     type: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendType.AppBuilder])]
+      validators: [values(MicroFrontendType)]
     },
     slot: {
       required: true,
@@ -437,8 +443,6 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
     ...APPBUILDER_MICROFRONTEND_CONSTRAINTS
   ],
   validators: [
-    fieldValues('type', MicroFrontendType),
-    fieldValues('slot', MicroFrontendAppBuilderSlot),
     fieldDependsOn(
       { key: 'contextParams' },
       { key: 'type', value: MicroFrontendType.Widget }

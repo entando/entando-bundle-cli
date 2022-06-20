@@ -52,7 +52,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'http://localhost:8080'
@@ -67,7 +67,9 @@ describe('api add', () => {
         microfrontends: [
           {
             ...bundleDescriptor.microfrontends[0],
-            apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
+            apiClaims: [
+              { name: 'ms1-api', type: 'internal', serviceName: 'ms1' }
+            ]
           }
         ]
       })
@@ -87,7 +89,7 @@ describe('api add', () => {
         {
           ...bundleDescriptor.microfrontends[0],
           apiClaims: [
-            { name: 'ms1-api', type: ApiType.Internal, serviceId: 'ms1' }
+            { name: 'ms1-api', type: ApiType.Internal, serviceName: 'ms1' }
           ]
         }
       ]
@@ -101,7 +103,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms2-api',
-      '--serviceId',
+      '--serviceName',
       'ms2',
       '--serviceUrl',
       'http://localhost:8081'
@@ -120,8 +122,8 @@ describe('api add', () => {
             {
               ...bundleDescriptor.microfrontends[0],
               apiClaims: [
-                { name: 'ms1-api', type: 'internal', serviceId: 'ms1' },
-                { name: 'ms2-api', type: 'internal', serviceId: 'ms2' }
+                { name: 'ms1-api', type: 'internal', serviceName: 'ms1' },
+                { name: 'ms2-api', type: 'internal', serviceName: 'ms2' }
               ]
             }
           ]
@@ -144,7 +146,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'http://localhost:8080'
@@ -163,7 +165,7 @@ describe('api add', () => {
             {
               ...bundleDescriptor.microfrontends[0],
               apiClaims: [
-                { name: 'ms1-api', type: 'internal', serviceId: 'ms1' }
+                { name: 'ms1-api', type: 'internal', serviceName: 'ms1' }
               ]
             }
           ]
@@ -181,7 +183,7 @@ describe('api add', () => {
       'api add',
       'nonexistent-mfe',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'http://localhost:8080'
@@ -203,7 +205,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'http://localhost:8080'
@@ -219,7 +221,7 @@ describe('api add', () => {
       const microfrontends = <MicroFrontend[]>[
         {
           ...bundleDescriptor.microfrontends[0],
-          apiClaims: [{ name: 'ms1-api', type: 'internal', serviceId: 'ms1' }]
+          apiClaims: [{ name: 'ms1-api', type: 'internal', serviceName: 'ms1' }]
         }
       ]
       bundleDescriptor = { ...bundleDescriptor, microfrontends }
@@ -229,7 +231,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'http://localhost:8080'
@@ -245,7 +247,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'invalidurl'
@@ -264,7 +266,7 @@ describe('api add', () => {
       'api add',
       'mfe1',
       'ms1-api',
-      '--serviceId',
+      '--serviceName',
       'ms1',
       '--serviceUrl',
       'http://localhost:8080'

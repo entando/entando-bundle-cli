@@ -48,13 +48,13 @@ describe('api rm', () => {
             {
               name: 'ms1-api',
               type: 'external',
-              serviceId: 'ms1',
-              bundleId: 'my-bundle'
+              serviceName: 'ms1',
+              bundle: 'my-bundle'
             },
             {
               name: 'ms2-api',
               type: 'internal',
-              serviceId: 'ms2'
+              serviceName: 'ms2'
             }
           ]
         }
@@ -96,7 +96,7 @@ describe('api rm', () => {
               {
                 name: 'ms2-api',
                 type: 'internal',
-                serviceId: 'ms2'
+                serviceName: 'ms2'
               }
             ]
           }

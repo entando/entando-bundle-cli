@@ -17,6 +17,10 @@ import Pack from './pack'
 export default class Publish extends Command {
   static description = 'Publish bundle Docker images'
 
+  static examples = [
+    '<%= config.bin %> <%= command.id %> --registry registry.hub.docker.com --org my-docker-organization'
+  ]
+
   static flags = {
     registry: Flags.string({
       char: 'r',
