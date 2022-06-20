@@ -357,5 +357,165 @@ describe('BundleDescriptorValidatorService', () => {
         'Position: $.microservices[1].env[0].valueFrom'
       )
     })
-    .it('Validates union type constraints')
+    .it('Validates microservice env field with no value or valueFrom fields')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'invalid-type'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "type" is not valid. Allowed values are: app-builder, widget, widget-config'
+      )
+      expect(error.message).contain('$.microfrontends[1].type')
+    })
+    .it('Validates micro frontend with invalid type field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'app-builder'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "type" with value "app-builder" requires field "slot" to have a value'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+    .it('Validates micro frontend app-builder type field dependency')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'widget'
+      invalidDescriptor.microfrontends[1].slot = 'primary-header'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "slot" requires field "type" to have value: app-builder'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+    .it('Validates micro frontend slot field dependency')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'app-builder'
+      invalidDescriptor.microfrontends[1].slot = 'invalid-slot'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "slot" is not valid. Allowed values are: primary-header, primary-menu, content'
+      )
+      expect(error.message).contain('$.microfrontends[1].slot')
+    })
+    .it('Validates micro frontend with invalid slot field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'app-builder'
+      invalidDescriptor.microfrontends[1].slot = 'primary-header'
+      invalidDescriptor.microfrontends[1].paths = []
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "paths" requires field "slot" to have value: content'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+    .it('Validates micro frontend paths field dependency')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'app-builder'
+      invalidDescriptor.microfrontends[1].slot = 'content'
+      invalidDescriptor.microfrontends[1].paths = 'adsf'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "paths" should be an array'
+      )
+      expect(error.message).contain('$.microfrontends[1].paths')
+    })
+    .it('Validates micro frontend with invalid paths field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'widget-config'
+      invalidDescriptor.microfrontends[1].contextParams = 'pageCode'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "contextParams" requires field "type" to have value: widget'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+    .it('Validates micro frontend contextParams field dependency')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].type = 'widget'
+      invalidDescriptor.microfrontends[1].contextParams = ['invalid-param']
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "contextParams" is not valid. Allowed values are: pageCode, langCode, applicationBaseUrl'
+      )
+      expect(error.message).contain('$.microfrontends[1].contextParams[0]')
+    })
+    .it('Validates micro frontend with invalid contextParams field')
 })

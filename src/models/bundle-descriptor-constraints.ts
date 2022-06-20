@@ -372,7 +372,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMi
     slot: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendAppBuilderSlot.PrimaryHeader, MicroFrontendAppBuilderSlot.PrimaryMenu])]
+      validators: [values(MicroFrontendAppBuilderSlot)]
     }
   },
   {
@@ -426,7 +426,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMi
     slot: {
       required: true,
       type: 'string',
-      validators: [values([MicroFrontendAppBuilderSlot.Content])]
+      validators: [values(MicroFrontendAppBuilderSlot)]
     },
     paths: {
       isArray: true,

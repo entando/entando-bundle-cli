@@ -283,37 +283,37 @@ function validateUnionTypeConstraints<T>(
     }
 
     matchedKeyCounts.push(matchedKeyCount)
+  }
 
-    try {
-      validateConstraints(parsedObject, constraint, jsonPath)
-    } catch (error) {
-      if (error instanceof PrioritizedValidationError) {
-        throw error
+  let matchedConstraintCount = 0
+
+  // Includes only errors that match the constraint objects with the most number of keys
+  // that exist in the parsed object
+  for (const [idx, matchedKeyCount] of matchedKeyCounts.entries()) {
+    if (matchedKeyCount === maxMatchedKeyCount) {
+      try {
+        validateConstraints(parsedObject, constraints[idx], jsonPath)
+      } catch (error) {
+        if (error instanceof PrioritizedValidationError) {
+          throw error
+        }
+
+        if (error instanceof UnionTypeError) {
+          // avoid nested union type errors
+          throw error
+        }
+
+        errors.push(error as JsonValidationError)
       }
 
-      if (error instanceof UnionTypeError) {
-        // avoid nested union type errors
-        throw error
-      }
-
-      errors.push(error as JsonValidationError)
+      matchedConstraintCount++
     }
   }
 
   // Checks if validation failed for all allowed types
-  if (errors.length > 0 && errors.length === constraints.length) {
-    const matchedErrors: JsonValidationError[] = []
-
-    // Includes only errors that match the constraint objects with the most number of keys
-    // that exist in the parsed object
-    for (const [idx, matchedKeyCount] of matchedKeyCounts.entries()) {
-      if (matchedKeyCount === maxMatchedKeyCount) {
-        matchedErrors.push(errors[idx])
-      }
-    }
-
+  if (errors.length > 0 && errors.length === matchedConstraintCount) {
     // Validation failed for all allowed types
-    throw new UnionTypeError(matchedErrors)
+    throw new UnionTypeError(errors)
   }
 }
 
