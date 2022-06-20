@@ -1,5 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import {
@@ -40,7 +41,7 @@ describe('bundle thumbnail service', () => {
       const thumbnail = thumbnailService.getThumbnailInfo()
       sinon.assert.called(stubExistsSync)
       expect(thumbnail).to.haveOwnProperty('path')
-      expect(thumbnail.path).to.contain(`${bundleDir}/thumbnail.png`)
+      expect(thumbnail.path).to.contain(path.resolve(bundleDir,'thumbnail.png'))
       expect(thumbnail).to.deep.contains({
         size: 47_000 / 1024,
         status: ThumbnailStatusMessage.OK,
@@ -58,7 +59,7 @@ describe('bundle thumbnail service', () => {
         thumbnailService.processThumbnail()
         const thumbnail = thumbnailService.getThumbnailInfo()
         expect(thumbnail).to.haveOwnProperty('path')
-        expect(thumbnail.path).to.contain(`${bundleDir}/thumbnail.png`)
+        expect(thumbnail.path).to.contain(path.resolve(bundleDir,'thumbnail.png'))
         expect(thumbnail).to.not.haveOwnProperty('base64')
         expect(thumbnail).to.deep.contains({
           size: 120_000 / 1024,
