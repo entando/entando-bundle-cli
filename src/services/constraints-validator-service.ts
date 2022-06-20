@@ -1,7 +1,11 @@
 import { CLIError } from '@oclif/errors'
 
 // Extracts the type wrapped by an array type
-type TypeOfArray<T> = T extends Array<infer A> ? A : never
+type TypeOfArray<T> = T extends Array<infer A>
+  ? A extends string
+    ? 'string'
+    : A
+  : never
 
 // Type used to validate expected typeof
 type TypeOf<T> = T extends string
@@ -258,30 +262,56 @@ function validateUnionTypeConstraints<T>(
   { constraints, validators }: UnionTypeConstraints<T>,
   jsonPath: JsonPath
 ): void {
-  const errors: JsonValidationError[] = []
-
   if (validators) {
     for (const validator of validators) validator(parsedObject, jsonPath)
   }
 
+  const errors: JsonValidationError[] = []
+  const matchedKeyCounts: number[] = []
+  let maxMatchedKeyCount = 0
+
   for (const constraint of constraints) {
-    try {
-      validateConstraints(parsedObject, constraint, jsonPath)
-    } catch (error) {
-      if (error instanceof PrioritizedValidationError) {
-        throw error
+    let matchedKeyCount = 0
+    for (const key of Object.keys(constraint)) {
+      if (parsedObject[key] !== undefined) {
+        matchedKeyCount++
+      }
+    }
+
+    if (maxMatchedKeyCount < matchedKeyCount) {
+      maxMatchedKeyCount = matchedKeyCount
+    }
+
+    matchedKeyCounts.push(matchedKeyCount)
+  }
+
+  let matchedConstraintCount = 0
+
+  // Includes only errors that match the constraint objects with the most number of keys
+  // that exist in the parsed object
+  for (const [idx, matchedKeyCount] of matchedKeyCounts.entries()) {
+    if (matchedKeyCount === maxMatchedKeyCount) {
+      try {
+        validateConstraints(parsedObject, constraints[idx], jsonPath)
+      } catch (error) {
+        if (error instanceof PrioritizedValidationError) {
+          throw error
+        }
+
+        if (error instanceof UnionTypeError) {
+          // avoid nested union type errors
+          throw error
+        }
+
+        errors.push(error as JsonValidationError)
       }
 
-      if (error instanceof UnionTypeError) {
-        // avoid nested union type errors
-        throw error
-      }
-
-      errors.push(error as JsonValidationError)
+      matchedConstraintCount++
     }
   }
 
-  if (errors.length > 0 && errors.length === constraints.length) {
+  // Checks if validation failed for all allowed types
+  if (errors.length > 0 && errors.length === matchedConstraintCount) {
     // Validation failed for all allowed types
     throw new UnionTypeError(errors)
   }

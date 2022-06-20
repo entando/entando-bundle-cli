@@ -16,5 +16,8 @@
         "allowModules": ["debug"]
       }
     ]
+  },
+  "parserOptions": {
+    "warnOnUnsupportedTypeScriptVersion": false
   }
 }
