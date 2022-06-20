@@ -272,9 +272,9 @@ describe('bundle-descriptor-converter-service', () => {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
         widgets: [
           'widgets/test-mfe.yaml',
-          'widgets/test-mfe-no-code.yaml',
-          'widgets/test-app-builder-mfe.yaml'
-        ]
+          'widgets/test-mfe-no-code.yaml'
+        ],
+        'app-builder': ['widgets/test-app-builder-mfe.yaml']
       },
       global: {
         nav: [

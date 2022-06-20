@@ -5,6 +5,7 @@ import {
   DBMS,
   ExternalApiClaim,
   MicroFrontend,
+  MicroFrontendType,
   Microservice
 } from '../models/bundle-descriptor'
 import {
@@ -161,7 +162,8 @@ export class BundleDescriptorConverterService {
       description: bundleDescriptor.description,
       components: {
         plugins: [],
-        widgets: []
+        widgets: [],
+        'app-builder': [],
       },
       global: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
@@ -173,7 +175,11 @@ export class BundleDescriptorConverterService {
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =
         this.getMicroFrontendDescriptorRelativePath(microFrontend)
-      yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
+      if (microFrontend.type === MicroFrontendType.Widget) {
+        yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
+      } else {
+        yamlBundleDescriptor.components['app-builder'].push(mfeDescriptorPath)
+      }
     }
 
     for (const microservice of bundleDescriptor.microservices) {

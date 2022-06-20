@@ -54,6 +54,7 @@ export type YamlBundleDescriptor = {
   components: {
     plugins: string[]
     widgets: string[]
+    'app-builder': string[]
   }
   global?: {
     nav: Nav[]
