@@ -65,6 +65,7 @@ describe('mfe add', () => {
           {
             ...defaultMfeValues,
             name: mfeName,
+            customElement: mfeName,
             titles: { en: mfeName, it: mfeName }
           }
         ]
@@ -85,6 +86,7 @@ describe('mfe add', () => {
           {
             ...defaultMfeValues,
             name: mfeName,
+            customElement: mfeName,
             stack: 'angular',
             titles: { en: mfeName, it: mfeName }
           }
@@ -132,6 +134,7 @@ describe('mfe add', () => {
           {
             ...defaultMfeValues,
             name: mfeName,
+            customElement: mfeName,
             type: 'widget-config',
             titles: { en: mfeName, it: mfeName }
           }
@@ -230,6 +233,7 @@ describe('mfe add', () => {
             {
               ...defaultMfeValues,
               name: mfeName,
+              customElement: mfeName,
               type: 'app-builder',
               slot: 'content',
               paths: [],
@@ -260,6 +264,7 @@ describe('mfe add', () => {
             {
               ...defaultMfeValues,
               name: mfeName,
+              customElement: mfeName,
               type: 'app-builder',
               slot: 'primary-header',
               titles: { en: mfeName, it: mfeName }

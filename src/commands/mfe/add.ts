@@ -52,6 +52,7 @@ export default class Add extends Command {
 
     const microFrontend: MicroFrontend = <MicroFrontend>{
       name: args.name,
+      customElement: args.name,
       stack: flags.stack,
       type: flags.type,
       slot: flags.slot

@@ -74,6 +74,7 @@ describe('bundle-descriptor-converter-service', () => {
       microfrontends: [
         {
           name: 'test-mfe',
+          customElement: 'test-mfe',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.Widget,
           titles: {
@@ -106,6 +107,7 @@ describe('bundle-descriptor-converter-service', () => {
         },
         {
           name: 'test-mfe-no-code',
+          customElement: 'test-mfe-no-code',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.Widget,
           titles: {},
@@ -114,6 +116,7 @@ describe('bundle-descriptor-converter-service', () => {
         },
         {
           name: 'test-app-builder-mfe',
+          customElement: 'test-app-builder-mfe',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.AppBuilder,
           titles: {},
@@ -160,6 +163,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(mfeDescriptorPath, {
       name: 'test-mfe',
+      customElement: 'test-mfe',
       titles: {
         en: 'mfe title',
         it: 'titolo mfe'
@@ -191,6 +195,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(mfeNoCodeDescriptorPath, {
       name: 'test-mfe-no-code',
+      customElement: 'test-mfe-no-code',
       titles: {},
       group: 'free',
       descriptorVersion: 'v5',
@@ -206,6 +211,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(appBuilderMfeDescriptorPath, {
       name: 'test-app-builder-mfe',
+      customElement: 'test-app-builder-mfe',
       titles: {},
       group: 'free',
       descriptorVersion: 'v5',

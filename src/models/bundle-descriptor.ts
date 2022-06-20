@@ -62,6 +62,7 @@ type BaseMicroFrontend = {
     build?: string
   }
   nav?: Nav[]
+  customElement: string
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {

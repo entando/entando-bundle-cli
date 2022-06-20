@@ -31,6 +31,7 @@ export class ComponentHelper {
   ): MicroFrontend {
     return {
       name: name,
+      customElement: name,
       stack: MicroFrontendStack.React,
       type: MicroFrontendType.Widget,
       group: 'group',
