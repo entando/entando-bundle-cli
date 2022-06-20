@@ -131,11 +131,11 @@ export enum ApiType {
 export interface ApiClaim {
   name: string
   type: ApiType
-  serviceId: string
+  serviceName: string
 }
 
 export interface ExternalApiClaim extends ApiClaim {
-  bundleId: string
+  bundle: string
 }
 
 export type Nav = {

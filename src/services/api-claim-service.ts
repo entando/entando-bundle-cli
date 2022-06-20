@@ -26,8 +26,8 @@ export class ApiClaimService {
       throw new CLIError(`${serviceUrl} is not a valid URL`)
     }
 
-    if (!this.internalMicroserviceExists(apiClaim.serviceId)) {
-      throw new CLIError(`Microservice ${apiClaim.serviceId} does not exist`)
+    if (!this.internalMicroserviceExists(apiClaim.serviceName)) {
+      throw new CLIError(`Microservice ${apiClaim.serviceName} does not exist`)
     }
 
     this.addApiClaim(mfeName, apiClaim)
@@ -39,8 +39,8 @@ export class ApiClaimService {
     apiClaim: ExternalApiClaim
   ): void {
     const url = this.cmService.getBundleMicroserviceUrl(
-      apiClaim.bundleId,
-      apiClaim.serviceId
+      apiClaim.bundle,
+      apiClaim.serviceName
     )
 
     if (!url) {

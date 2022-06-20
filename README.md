@@ -23,7 +23,7 @@ $ npm install -g entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.3
+entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -49,6 +49,7 @@ USAGE
 - [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
 - [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
 - [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
+- [`entando-bundle-cli publish`](#entando-bundle-cli-publish)
 - [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
@@ -63,21 +64,21 @@ Add an internal API claim to the specified MFE component
 
 ```
 USAGE
-  $ entando-bundle-cli api add [MFENAME] [CLAIMNAME] --serviceId <value> --serviceUrl <value>
+  $ entando-bundle-cli api add [MFENAME] [CLAIMNAME] --serviceName <value> --serviceUrl <value>
 
 ARGUMENTS
   MFENAME    Name of the Micro Frontend component
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --serviceId=<value>   (required) Microservice name within the Bundle
-  --serviceUrl=<value>  (required) Local microservice URL
+  --serviceName=<value>  (required) Microservice name within the Bundle
+  --serviceUrl=<value>   (required) Local microservice URL
 
 DESCRIPTION
   Add an internal API claim to the specified MFE component
 
 EXAMPLES
-  $ entando-bundle-cli api add mfe1 ms1-api --serviceId ms1 --serviceUrl http://localhost:8080
+  $ entando-bundle-cli api add mfe1 ms1-api --serviceName ms1 --serviceUrl http://localhost:8080
 ```
 
 ## `entando-bundle-cli api add-ext MFENAME CLAIMNAME`
@@ -86,21 +87,22 @@ Add an external API claim to the specified MFE component
 
 ```
 USAGE
-  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] --bundleId <value> --serviceId <value>
+  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] --bundle <value> --serviceName <value>
 
 ARGUMENTS
   MFENAME    Name of the Micro Frontend component
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --bundleId=<value>   (required) Target Bundle ID
-  --serviceId=<value>  (required) Microservice name within the target Bundle
+  --bundle=<value>       (required) Target Bundle Docker repository with the format <organization>/<repository> or
+                         <registry>/<organization>/<repository>
+  --serviceName=<value>  (required) Microservice name within the target Bundle
 
 DESCRIPTION
   Add an external API claim to the specified MFE component
 
 EXAMPLES
-  $ entando-bundle-cli api add-ext mfe1 ms1-api --bundleId my-bundle --serviceId ms1
+  $ entando-bundle-cli api add-ext mfe1 ms1-api --bundle registry.hub.docker.com/my-org/my-bundle --serviceName ms1
 ```
 
 ## `entando-bundle-cli api rm MFENAME CLAIMNAME`
@@ -250,14 +252,19 @@ Add a Micro Frontend component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli mfe add [NAME] [--stack react|angular]
+  $ entando-bundle-cli mfe add [NAME] [--stack react|angular] [--type app-builder|widget|widget-config]
+    [--slot primary-header|primary-menu|content]
 
 ARGUMENTS
   NAME  Name of the Micro Frontend component
 
 FLAGS
+  --slot=<option>   Micro Frontend App Builder slot (only if type=app-builder)
+                    <options: primary-header|primary-menu|content>
   --stack=<option>  [default: react] Micro Frontend stack
                     <options: react|angular>
+  --type=<option>   [default: widget] Micro Frontend type
+                    <options: app-builder|widget|widget-config>
 
 DESCRIPTION
   Add a Micro Frontend component to the bundle
@@ -330,7 +337,7 @@ EXAMPLES
 
 ## `entando-bundle-cli pack`
 
-Generate the bundle Docker image
+Generate the bundle Docker images
 
 ```
 USAGE
@@ -341,7 +348,7 @@ FLAGS
   -o, --org=<value>   Docker organization name
 
 DESCRIPTION
-  Generate the bundle Docker image
+  Generate the bundle Docker images
 
 EXAMPLES
   $ entando-bundle-cli pack
@@ -361,10 +368,13 @@ USAGE
 
 FLAGS
   -o, --org=<value>       Docker organization name
-  -r, --registry=<value>  Docker registry (default is index.docker.io)
+  -r, --registry=<value>  Docker registry (default is registry.hub.docker.com)
 
 DESCRIPTION
   Publish bundle Docker images
+
+EXAMPLES
+  $ entando-bundle-cli publish --registry registry.hub.docker.com --org my-docker-organization
 ```
 
 _See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/publish.ts)_
@@ -425,7 +435,7 @@ EXAMPLES
 
 ## `entando-bundle-cli svc logs`
 
-Display logs of running auxiliary services
+Display running auxiliary services logs
 
 ```
 USAGE
@@ -435,7 +445,7 @@ FLAGS
   --all  Display logs of all enabled services in the bundle descriptor
 
 DESCRIPTION
-  Display logs of running auxiliary services
+  Display running auxiliary services logs
 
 EXAMPLES
   $ entando-bundle-cli svc logs --all

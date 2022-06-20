@@ -1,8 +1,7 @@
 import {
-  ApiClaim,
+  ApiType,
   DBMS,
   EnvironmentVariable,
-  ExternalApiClaim,
   MicroFrontendAppBuilderSlot,
   MicroFrontendType,
   Nav,
@@ -15,10 +14,22 @@ export type YamlWidgetDescriptor = {
   group: string
   descriptorVersion: string
   type: MicroFrontendType
-  apiClaims?: Array<ApiClaim | ExternalApiClaim>
+  apiClaims?: Array<YamlInternalApiClaim | YamlExternalApiClaim>
   nav?: Nav[]
   slot?: MicroFrontendAppBuilderSlot
   paths?: string[]
+}
+
+type YamlApiClaim<T extends ApiType> = {
+  name: string
+  type: T
+  pluginName: string
+}
+
+export type YamlInternalApiClaim = YamlApiClaim<ApiType.Internal>
+
+export type YamlExternalApiClaim = YamlApiClaim<ApiType.External> & {
+  bundleId: string
 }
 
 export type YamlPluginDescriptor = {
