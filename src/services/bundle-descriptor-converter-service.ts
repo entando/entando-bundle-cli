@@ -82,6 +82,7 @@ export class BundleDescriptorConverterService {
         : undefined,
       nav: microFrontend.nav,
       type: microFrontend.type,
+      customElement: microFrontend.customElement,
       ...('slot' in microFrontend && { slot: microFrontend.slot }),
       ...('paths' in microFrontend && { paths: microFrontend.paths }),
       ...('contextParams' in microFrontend && {

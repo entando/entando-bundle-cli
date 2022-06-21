@@ -214,113 +214,7 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   }
 }
 
-const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> = {
-  name: {
-    required: true,
-    type: 'string',
-    validators: [nameRegExpValidator]
-  },
-  stack: {
-    required: true,
-    type: 'string',
-    validators: [values(MicroFrontendStack)]
-  },
-  titles: {
-    required: true,
-    validators: [isMapOfStrings],
-    children: {}
-  },
-  publicFolder: {
-    required: false,
-    type: 'string'
-  },
-  group: {
-    required: true,
-    type: 'string'
-  },
-  apiClaims: {
-    isArray: true,
-    required: false,
-    children: API_CLAIMS_CONSTRAINTS
-  },
-  nav: {
-    isArray: true,
-    required: false,
-    children: NAV_CONSTRAINTS
-  },
-  commands: {
-    required: false,
-    children: {
-      build: {
-        required: false,
-        type: 'string'
-      }
-    }
-  },
-  type: {
-    required: true,
-    type: 'string',
-    validators: [values(MicroFrontendType)]
-  },
-  contextParams: {
-    isArray: true,
-    required: false,
-    type: 'string',
-    validators: [values(WidgetContextParam)]
-  }
-}
-
-const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicroFrontend> = {
-  name: {
-    required: true,
-    type: 'string',
-    validators: [nameRegExpValidator]
-  },
-  stack: {
-    required: true,
-    type: 'string',
-    validators: [values(MicroFrontendStack)]
-  },
-  titles: {
-    required: true,
-    validators: [isMapOfStrings],
-    children: {}
-  },
-  publicFolder: {
-    required: false,
-    type: 'string'
-  },
-  group: {
-    required: true,
-    type: 'string'
-  },
-  apiClaims: {
-    isArray: true,
-    required: false,
-    children: API_CLAIMS_CONSTRAINTS
-  },
-  nav: {
-    isArray: true,
-    required: false,
-    children: NAV_CONSTRAINTS
-  },
-  commands: {
-    required: false,
-    children: {
-      build: {
-        required: false,
-        type: 'string'
-      }
-    }
-  },
-  type: {
-    required: true,
-    type: 'string',
-    validators: [values(MicroFrontendType)]
-  },
-}
-
-const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMicroFrontend>> = [
+const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
   {
     name: {
       required: true,
@@ -363,6 +257,128 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMi
           type: 'string'
         }
       }
+    },
+    customElement: {
+      required: true,
+      type: 'string'
+    },
+    type: {
+      required: true,
+      type: 'string',
+      validators: [values(MicroFrontendType)]
+    },
+    contextParams: {
+      isArray: true,
+      required: false,
+      type: 'string',
+      validators: [values(WidgetContextParam)]
+    }
+  }
+
+const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicroFrontend> =
+  {
+    name: {
+      required: true,
+      type: 'string',
+      validators: [nameRegExpValidator]
+    },
+    stack: {
+      required: true,
+      type: 'string',
+      validators: [values(MicroFrontendStack)]
+    },
+    titles: {
+      required: true,
+      validators: [isMapOfStrings],
+      children: {}
+    },
+    publicFolder: {
+      required: false,
+      type: 'string'
+    },
+    group: {
+      required: true,
+      type: 'string'
+    },
+    apiClaims: {
+      isArray: true,
+      required: false,
+      children: API_CLAIMS_CONSTRAINTS
+    },
+    nav: {
+      isArray: true,
+      required: false,
+      children: NAV_CONSTRAINTS
+    },
+    commands: {
+      required: false,
+      children: {
+        build: {
+          required: false,
+          type: 'string'
+        }
+      }
+    },
+    customElement: {
+      required: true,
+      type: 'string'
+    },
+    type: {
+      required: true,
+      type: 'string',
+      validators: [values(MicroFrontendType)]
+    }
+  }
+
+const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
+  ObjectConstraints<AppBuilderMicroFrontend>
+> = [
+  {
+    name: {
+      required: true,
+      type: 'string',
+      validators: [nameRegExpValidator]
+    },
+    stack: {
+      required: true,
+      type: 'string',
+      validators: [values(MicroFrontendStack)]
+    },
+    titles: {
+      required: true,
+      validators: [isMapOfStrings],
+      children: {}
+    },
+    publicFolder: {
+      required: false,
+      type: 'string'
+    },
+    group: {
+      required: true,
+      type: 'string'
+    },
+    apiClaims: {
+      isArray: true,
+      required: false,
+      children: API_CLAIMS_CONSTRAINTS
+    },
+    nav: {
+      isArray: true,
+      required: false,
+      children: NAV_CONSTRAINTS
+    },
+    commands: {
+      required: false,
+      children: {
+        build: {
+          required: false,
+          type: 'string'
+        }
+      }
+    },
+    customElement: {
+      required: true,
+      type: 'string'
     },
     type: {
       required: true,
@@ -417,6 +433,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<ObjectConstraints<AppBuilderMi
           type: 'string'
         }
       }
+    },
+    customElement: {
+      required: true,
+      type: 'string'
     },
     type: {
       required: true,

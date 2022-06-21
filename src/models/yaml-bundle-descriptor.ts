@@ -18,6 +18,7 @@ export type YamlWidgetDescriptor = {
   nav?: Nav[]
   slot?: MicroFrontendAppBuilderSlot
   paths?: string[]
+  customElement: string
 }
 
 type YamlApiClaim<T extends ApiType> = {
