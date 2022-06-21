@@ -21,6 +21,7 @@ export class ComponentHelper {
       name: name,
       stack: MicroserviceStack.SpringBoot,
       dbms: DBMS.MySQL,
+      healthCheckPath: '/api/health',
       ...partial
     }
   }

@@ -171,7 +171,7 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
     type: 'string'
   },
   healthCheckPath: {
-    required: false,
+    required: true,
     type: 'string'
   },
   roles: {

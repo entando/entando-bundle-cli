@@ -13,6 +13,7 @@ import {
 } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
+import { MicroserviceStack } from '../../../src/models/component'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -21,6 +22,11 @@ describe('ms add', () => {
     type: 'bundle',
     microservices: [],
     microfrontends: []
+  }
+
+  const defaultMsValues: Partial<Microservice> = {
+    stack: MicroserviceStack.SpringBoot,
+    healthCheckPath: '/api/health'
   }
 
   const tempDirHelper = new TempDirHelper(__filename)
@@ -42,9 +48,9 @@ describe('ms add', () => {
   })
 
   test
-    .command(['ms add', 'default-stack-ms'])
-    .it('adds a microservice with default stack', () => {
-      const msName = 'default-stack-ms'
+    .command(['ms add', 'default-ms'])
+    .it('adds a microservice with default values', () => {
+      const msName = 'default-ms'
       const filePath: string = path.resolve(
         tempBundleDir,
         'microservices',
@@ -56,7 +62,10 @@ describe('ms add', () => {
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
-        microservices: [{ name: msName, stack: 'spring-boot' }]
+        microservices: [{
+          ...defaultMsValues,
+          name: msName,
+        }]
       })
     })
 
@@ -75,7 +84,11 @@ describe('ms add', () => {
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
-        microservices: [{ name: msName, stack: 'node' }]
+        microservices: [{
+          ...defaultMsValues,
+          name: msName,
+          stack: 'node'
+        }]
       })
     })
 

@@ -68,7 +68,8 @@ describe('bundle-descriptor-converter-service', () => {
         },
         {
           name: 'test-ms-no-dbms',
-          stack: MicroserviceStack.Node
+          stack: MicroserviceStack.Node,
+          healthCheckPath: '/api/health'
         }
       ],
       microfrontends: [
@@ -261,7 +262,8 @@ describe('bundle-descriptor-converter-service', () => {
       name: 'test-ms-no-dbms',
       descriptorVersion: 'v5',
       image: 'docker-org/test-ms-no-dbms:0.0.1',
-      dbms: DBMS.None
+      dbms: DBMS.None,
+      healthCheckPath: '/api/health'
     })
 
     const bundleDescriptorPath = path.resolve(
