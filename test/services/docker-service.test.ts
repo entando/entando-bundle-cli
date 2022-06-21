@@ -10,9 +10,13 @@ import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helpe
 import { ComponentService } from '../../src/services/component-service'
 import { ComponentType, MicroserviceStack } from '../../src/models/component'
 import * as executors from '../../src/services/process-executor-service'
+import {
+  COMMAND_NOT_FOUND_EXIT_CODE,
+  ProcessExecutionOptions
+} from '../../src/services/process-executor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import * as path from 'node:path'
-import { CONFIG_FOLDER } from '../../src/paths'
+import { DOCKER_CONFIG_FOLDER } from '../../src/paths'
 
 describe('DockerService', () => {
   afterEach(function () {
@@ -259,7 +263,7 @@ describe('DockerService', () => {
         command:
           DOCKER_COMMAND +
           ' --config ' +
-          path.join(CONFIG_FOLDER, 'docker') +
+          path.join(...DOCKER_CONFIG_FOLDER) +
           ' push myimage'
       })
     )
@@ -279,7 +283,7 @@ describe('DockerService', () => {
         command:
           DOCKER_COMMAND +
           ' --config ' +
-          path.join(CONFIG_FOLDER, 'docker') +
+          path.join(...DOCKER_CONFIG_FOLDER) +
           ' push myimage'
       })
     )
@@ -295,4 +299,125 @@ describe('DockerService', () => {
       expect(error.message).contain('Unable to push Docker image')
     })
     .it('Error while pushing image')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(COMMAND_NOT_FOUND_EXIT_CODE)
+      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+    })
+    .catch(error => {
+      expect(error.message).contain('Command crane not found')
+    })
+    .it('Tags retrieval fails if crane is not installed')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.errorStream!.write(
+            'NAME_UNKNOWN: repository name not known to registry'
+          )
+          return Promise.resolve(1)
+        })
+      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+    })
+    .catch(error => {
+      expect(error.message).contain('Image registry/org/my-bundle not found')
+    })
+    .it('Tags retrieval fails if image is not found')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.errorStream!.write('UNAUTHORIZED: authentication required')
+          return Promise.resolve(1)
+        })
+      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+    })
+    .catch(error => {
+      expect(error.message).contain('Registry required authentication')
+      expect(error.message).contain(
+        'Please verify that registry/org/my-bundle exists'
+      )
+    })
+    .it('Tags retrieval fails if listing is not authorized')
+
+  test
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to list tags for Docker image registry/org/my-bundle'
+      )
+    })
+    .it('Tags retrieval fails on generic error')
+
+  test
+    .env({ ENTANDO_CLI_CRANE_BIN: undefined })
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          expect(options.command).eq('crane ls registry/org/my-bundle')
+          options.outputStream!.write('0.0.1\n0.0.2\n')
+          return Promise.resolve(0)
+        })
+
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([1])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+
+      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to retrieve digests for Docker image registry/org/my-bundle'
+      )
+    })
+    .it('Digests retrieval fails on generic error')
+
+  test
+    .env({ ENTANDO_CLI_CRANE_BIN: 'path/to/crane' })
+    .it('Retrieves tags and digests using custom crane bin', async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.outputStream!.write('0.0.1\n0.0.2\n')
+          return Promise.resolve(0)
+        })
+
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([0])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .callsFake(param => {
+          const options = param as ProcessExecutionOptions[]
+          expect(options[0].command).eq(
+            'path/to/crane digest registry/org/my-bundle:0.0.2'
+          )
+          expect(options[1].command).eq(
+            'path/to/crane digest registry/org/my-bundle:0.0.1'
+          )
+          options[0].outputStream!.write('sha256:abcd')
+          options[1].outputStream!.write('sha256:1234')
+          return stubParallelProcessExecutorService
+        })
+
+      const result = await DockerService.getTagsWithDigests(
+        'registry/org/my-bundle'
+      )
+
+      expect(result.size).eq(2)
+      expect(result.get('0.0.2')).eq('sha256:abcd')
+      expect(result.get('0.0.1')).eq('sha256:1234')
+    })
 })
