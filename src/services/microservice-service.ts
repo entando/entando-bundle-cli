@@ -11,6 +11,7 @@ import {
 } from '../models/bundle-descriptor-constraints'
 
 const MICROSERVICES_DIRNAME = 'microservices'
+const DEFAULT_HEALTH_CHECK_PATH = '/api/health'
 
 export class MicroserviceService {
   private readonly microservicesPath: string
@@ -40,7 +41,10 @@ export class MicroserviceService {
 
     this.createMicroserviceDirectory(ms.name)
 
-    this.addMicroserviceDescriptor(ms)
+    this.addMicroserviceDescriptor({
+      ...ms,
+      healthCheckPath: DEFAULT_HEALTH_CHECK_PATH
+    })
   }
 
   public removeMicroservice(name: string): void {

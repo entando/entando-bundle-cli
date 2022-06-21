@@ -36,10 +36,10 @@ export type YamlPluginDescriptor = {
   name: string
   descriptorVersion: string
   image: string
+  healthCheckPath: string
   deploymentBaseName?: string
   dbms: DBMS
   ingressPath?: string
-  healthCheckPath?: string
   roles?: string[]
   permissions?: Permission[]
   securityLevel?: string
