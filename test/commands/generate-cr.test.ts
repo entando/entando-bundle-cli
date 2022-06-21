@@ -25,7 +25,8 @@ describe('generate-cr', () => {
   test
     .command('generate-cr')
     .catch(error => {
-      expect(error.message).contain('Bundle descriptor not found')
+      expect(error.message).contain('not an initialized bundle project')
+      expect(error.message).contain('Use the --image flag')
     })
     .it('Exits if is not a valid bundle project')
 
