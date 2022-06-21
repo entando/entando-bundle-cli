@@ -30,7 +30,8 @@ describe('Remove Microservice', () => {
       const ms: Microservice = {
         name: 'test-ms',
         dbms: DBMS.MySQL,
-        stack: MicroserviceStack.SpringBoot
+        stack: MicroserviceStack.SpringBoot,
+        healthCheckPath: '/api/health'
       }
       const microserviceService = new MicroserviceService()
       microserviceService.addMicroservice(ms)

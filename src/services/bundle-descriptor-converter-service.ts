@@ -104,6 +104,7 @@ export class BundleDescriptorConverterService {
       titles: microFrontend.titles,
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
+      customElement: microFrontend.customElement,
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
         : undefined

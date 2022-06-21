@@ -38,10 +38,10 @@ export type Microservice = {
   /** Tech stack. It could be guessed from folder content or forced by the user */
   stack: MicroserviceStack
   /** Value used for defining custom pod names */
+  healthCheckPath: string
   deploymentBaseName?: string
   dbms?: DBMS
   ingressPath?: string
-  healthCheckPath?: string
   roles?: string[]
   permissions?: Permission[]
   securityLevel?: SecurityLevel
@@ -62,6 +62,7 @@ type BaseMicroFrontend = {
     build?: string
   }
   nav?: Nav[]
+  customElement: string
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {

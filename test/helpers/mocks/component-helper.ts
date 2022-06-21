@@ -21,6 +21,7 @@ export class ComponentHelper {
       name: name,
       stack: MicroserviceStack.SpringBoot,
       dbms: DBMS.MySQL,
+      healthCheckPath: '/api/health',
       ...partial
     }
   }
@@ -31,6 +32,7 @@ export class ComponentHelper {
   ): MicroFrontend {
     return {
       name: name,
+      customElement: name,
       stack: MicroFrontendStack.React,
       type: MicroFrontendType.Widget,
       group: 'group',

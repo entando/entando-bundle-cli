@@ -9,8 +9,9 @@ import {
   ALLOWED_NAME_REGEXP,
   INVALID_NAME_MESSAGE
 } from '../models/bundle-descriptor-constraints'
+import { MICROSERVICES_FOLDER } from '../paths'
 
-const MICROSERVICES_DIRNAME = 'microservices'
+const DEFAULT_HEALTH_CHECK_PATH = '/api/health'
 
 export class MicroserviceService {
   private readonly microservicesPath: string
@@ -18,7 +19,7 @@ export class MicroserviceService {
   private readonly componentService: ComponentService
 
   constructor() {
-    this.microservicesPath = path.resolve(process.cwd(), MICROSERVICES_DIRNAME)
+    this.microservicesPath = path.resolve(process.cwd(), MICROSERVICES_FOLDER)
     this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
   }
@@ -40,7 +41,10 @@ export class MicroserviceService {
 
     this.createMicroserviceDirectory(ms.name)
 
-    this.addMicroserviceDescriptor(ms)
+    this.addMicroserviceDescriptor({
+      ...ms,
+      healthCheckPath: DEFAULT_HEALTH_CHECK_PATH
+    })
   }
 
   public removeMicroservice(name: string): void {
