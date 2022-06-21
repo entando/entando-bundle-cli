@@ -71,9 +71,11 @@ describe('api rm', () => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
     mfeConfigService = new MfeConfigService()
     mfeConfigService.writeMfeConfig('mfe1', {
-      api: {
-        'ms1-api': { url: 'http://mock-my-bundle-ms1' },
-        'ms2-api': { url: 'http://localhost:8080' }
+      systemParams: {
+        api: {
+          'ms1-api': { url: 'http://mock-my-bundle-ms1' },
+          'ms2-api': { url: 'http://localhost:8080' }
+        }
       }
     })
   })
@@ -103,7 +105,7 @@ describe('api rm', () => {
         ]
       })
 
-      expect(updatedMfeConfig).to.eql({
+      expect(updatedMfeConfig.systemParams).to.eql({
         api: {
           'ms2-api': { url: 'http://localhost:8080' }
         }

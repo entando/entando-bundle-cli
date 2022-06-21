@@ -1,7 +1,13 @@
+import { WidgetContextParam } from './bundle-descriptor'
+
 export interface MfeConfig {
-  api?: {
-    [apiClaim: string]: {
-      url: string
+  systemParams?: {
+    api?: {
+      [apiClaim: string]: {
+        url: string
+      }
     }
   }
+  contextParams?: Partial<Record<WidgetContextParam, string>>
+  params?: Record<string, string>
 }
