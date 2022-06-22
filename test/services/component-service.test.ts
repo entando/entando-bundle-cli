@@ -105,6 +105,34 @@ describe('component-service', () => {
 
   test
     .do(() => {
+      const bundleDir =
+        tempDirHelper.createInitializedBundleDir('test-run-service')
+      fs.mkdirSync(
+        path.resolve(bundleDir, MICROSERVICES_FOLDER, msSpringBoot),
+        { recursive: true }
+      )
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      sinon.stub(fs, 'existsSync').returns(true)
+    })
+    .it('Run spring-boot Microservice', async () => {
+      const executeProcessStub = sinon.stub(
+        ProcessExecutorService,
+        'executeProcess'
+      )
+      await componentService.run(msSpringBoot)
+
+      sinon.assert.calledWith(
+        executeProcessStub,
+        sinon.match({
+          command: 'mvn spring-boot:run'
+        })
+      )
+    })
+
+  test
+    .do(() => {
       const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
       bundleDescriptor.microfrontends = [
         ComponentHelper.newMicroFrontend('same-name')

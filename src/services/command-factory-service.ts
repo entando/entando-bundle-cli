@@ -5,7 +5,8 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 export enum Phase {
   Clean = 'clean',
   Build = 'build',
-  Package = 'package'
+  Package = 'package',
+  Run = 'run'
 }
 
 type CommandsDefinition = {
@@ -21,24 +22,28 @@ const DEFAULT_COMMANDS: CommandsDefinition = {
     angular: {
       clean: 'npm run clean',
       build: 'npm install && npm run build',
-      package: 'npm install && npm run build'
+      package: 'npm install && npm run build',
+      run: 'npm install && npm start'
     },
     react: {
       clean: 'npm run clean',
       build: 'npm install && npm run build',
-      package: 'npm install && npm run build'
+      package: 'npm install && npm run build',
+      run: 'npm install && npm start'
     }
   },
   microservice: {
     'spring-boot': {
       clean: 'mvn clean',
       build: 'mvn test',
-      package: 'mvn clean package -DskipTests'
+      package: 'mvn clean package -DskipTests',
+      run: 'mvn spring-boot:run'
     },
     node: {
       clean: 'npm run clean',
       build: 'npm install && npm run build',
-      package: 'npm install && npm run build'
+      package: 'npm install && npm run build',
+      run: 'npm install && npm start'
     }
   }
 }
