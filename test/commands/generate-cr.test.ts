@@ -12,15 +12,15 @@ import {
   DockerService
 } from '../../src/services/docker-service'
 import * as sinon from 'sinon'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import { CLIError } from '@oclif/errors'
 
 describe('generate-cr', () => {
   afterEach(() => {
     sinon.restore()
   })
 
-  const tagsWithDigests = new Map()
-  tagsWithDigests.set('0.0.2', 'sha256:abcd')
-  tagsWithDigests.set('0.0.1', 'sha256:1234')
+  const tags = ['0.0.2', '0.0.1']
 
   test
     .command('generate-cr')
@@ -40,22 +40,21 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
-      sinon.stub(DockerService, 'getTagsWithDigests').resolves(tagsWithDigests)
+      sinon.stub(DockerService, 'listTags').resolves(tags)
     })
     .stdout()
     .command(['generate-cr', '--image', 'entando/my-bundle'])
     .it('Accepts image name without registry', () => {
-      const getTagsWithDigestsStub =
-        DockerService.getTagsWithDigests as sinon.SinonStub
+      const listTagsStub = DockerService.listTags as sinon.SinonStub
       sinon.assert.calledWith(
-        getTagsWithDigestsStub,
+        listTagsStub,
         `${DEFAULT_DOCKER_REGISTRY}/entando/my-bundle`
       )
     })
 
   test
     .do(() => {
-      sinon.stub(DockerService, 'getTagsWithDigests').resolves(tagsWithDigests)
+      sinon.stub(DockerService, 'listTags').resolves(tags)
     })
     .stdout()
     .command([
@@ -64,10 +63,9 @@ describe('generate-cr', () => {
       'custom-registry.org/entando/my-bundle'
     ])
     .it('Accepts image name with registry', () => {
-      const getTagsWithDigestsStub =
-        DockerService.getTagsWithDigests as sinon.SinonStub
+      const listTagsStub = DockerService.listTags as sinon.SinonStub
       sinon.assert.calledWith(
-        getTagsWithDigestsStub,
+        listTagsStub,
         'custom-registry.org/entando/my-bundle'
       )
     })
@@ -94,14 +92,14 @@ describe('generate-cr', () => {
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
-      sinon.stub(DockerService, 'getTagsWithDigests').resolves(tagsWithDigests)
+      sinon.stub(DockerService, 'listTags').resolves(tags)
     })
+    .stdout()
     .command('generate-cr')
     .it('Generate CR for current project and default registry', () => {
-      const getTagsWithDigestsStub =
-        DockerService.getTagsWithDigests as sinon.SinonStub
+      const listTagsStub = DockerService.listTags as sinon.SinonStub
       sinon.assert.calledWith(
-        getTagsWithDigestsStub,
+        listTagsStub,
         `${DEFAULT_DOCKER_REGISTRY}/my-org/test-bundle`
       )
     })
@@ -118,15 +116,68 @@ describe('generate-cr', () => {
       sinon
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
-      sinon.stub(DockerService, 'getTagsWithDigests').resolves(tagsWithDigests)
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+
+      const stubDigestsExecutor =
+        new (class extends StubParallelProcessExecutorService {
+          async getDigests(): Promise<Map<string, string>> {
+            await super.execute()
+            const tagsWithDigests = new Map()
+            tagsWithDigests.set('0.0.2', 'sha256:abcd')
+            tagsWithDigests.set('0.0.1', 'sha256:1234')
+            return tagsWithDigests
+          }
+        })([0, 0])
+      sinon
+        .stub(DockerService, 'getDigestsExecutor')
+        .returns(stubDigestsExecutor)
     })
-    .command('generate-cr')
-    .it('Generate CR for current project and custom registry', () => {
-      const getTagsWithDigestsStub =
-        DockerService.getTagsWithDigests as sinon.SinonStub
-      sinon.assert.calledWith(
-        getTagsWithDigestsStub,
-        'custom-registry.org/my-org/test-bundle'
-      )
+    .stdout()
+    .stderr()
+    .command(['generate-cr', '--digest'])
+    .it(
+      'Generate CR with digests for current project and custom registry',
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.calledWith(
+          listTagsStub,
+          'custom-registry.org/my-org/test-bundle'
+        )
+        const getDigestsExecutorStub =
+          DockerService.getDigestsExecutor as sinon.SinonStub
+        sinon.assert.calledWith(
+          getDigestsExecutorStub,
+          'custom-registry.org/my-org/test-bundle',
+          tags
+        )
+      }
+    )
+
+  test
+    .do(() => {
+      sinon.stub(BundleService, 'isValidBundleProject')
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+      const stubDigestsExecutor =
+        new (class extends StubParallelProcessExecutorService {
+          async getDigests(): Promise<Map<string, string>> {
+            await super.execute()
+            throw new CLIError('Unable to retrieve digests')
+          }
+        })([1, 1])
+      sinon
+        .stub(DockerService, 'getDigestsExecutor')
+        .returns(stubDigestsExecutor)
     })
+    .stdout()
+    .stderr()
+    .command([
+      'generate-cr',
+      '--digest',
+      '--image',
+      'custom-registry.org/my-org/my-image'
+    ])
+    .catch(error => {
+      expect(error.message).contain('Unable to retrieve digests')
+    })
+    .it('Generate CR with digests fails retrieving digests')
 })

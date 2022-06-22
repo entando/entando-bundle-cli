@@ -305,7 +305,7 @@ describe('DockerService', () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(COMMAND_NOT_FOUND_EXIT_CODE)
-      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+      await DockerService.listTags('registry/org/my-bundle')
     })
     .catch(error => {
       expect(error.message).contain('Command crane not found')
@@ -322,7 +322,7 @@ describe('DockerService', () => {
           )
           return Promise.resolve(1)
         })
-      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+      await DockerService.listTags('registry/org/my-bundle')
     })
     .catch(error => {
       expect(error.message).contain('Image registry/org/my-bundle not found')
@@ -337,7 +337,7 @@ describe('DockerService', () => {
           options.errorStream!.write('UNAUTHORIZED: authentication required')
           return Promise.resolve(1)
         })
-      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+      await DockerService.listTags('registry/org/my-bundle')
     })
     .catch(error => {
       expect(error.message).contain('Registry required authentication')
@@ -350,7 +350,7 @@ describe('DockerService', () => {
   test
     .do(async () => {
       sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
-      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+      await DockerService.listTags('registry/org/my-bundle')
     })
     .catch(error => {
       expect(error.message).contain(
@@ -361,7 +361,7 @@ describe('DockerService', () => {
 
   test
     .env({ ENTANDO_CLI_CRANE_BIN: undefined })
-    .do(async () => {
+    .it('Tags retrieval is successfull', async () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .callsFake(options => {
@@ -370,13 +370,23 @@ describe('DockerService', () => {
           return Promise.resolve(0)
         })
 
+      const tags = await DockerService.listTags('registry/org/my-bundle')
+      expect(tags).deep.equal(['0.0.2', '0.0.1'])
+    })
+
+  test
+    .do(async () => {
       const stubParallelProcessExecutorService =
         new StubParallelProcessExecutorService([1])
       sinon
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
 
-      await DockerService.getTagsWithDigests('registry/org/my-bundle')
+      const digestsExecutor = DockerService.getDigestsExecutor(
+        'registry/org/my-bundle',
+        ['0.0.2', '0.0.1']
+      )
+      await digestsExecutor.getDigests()
     })
     .catch(error => {
       expect(error.message).contain(
@@ -412,9 +422,11 @@ describe('DockerService', () => {
           return stubParallelProcessExecutorService
         })
 
-      const result = await DockerService.getTagsWithDigests(
-        'registry/org/my-bundle'
+      const digestsExecutor = DockerService.getDigestsExecutor(
+        'registry/org/my-bundle',
+        ['0.0.2', '0.0.1']
       )
+      const result = await digestsExecutor.getDigests()
 
       expect(result.size).eq(2)
       expect(result.get('0.0.2')).eq('sha256:abcd')

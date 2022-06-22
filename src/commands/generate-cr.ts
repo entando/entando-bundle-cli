@@ -1,5 +1,6 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import { CLIError } from '@oclif/errors'
+import color from '@oclif/color'
 import {
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
@@ -24,7 +25,8 @@ export default class GenerateCr extends Command {
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle',
-    '<%= config.bin %> <%= command.id %> --image=my-registry/my-org/my-bundle'
+    '<%= config.bin %> <%= command.id %> --image=my-registry/my-org/my-bundle',
+    '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest'
   ]
 
   static flags = {
@@ -32,6 +34,10 @@ export default class GenerateCr extends Command {
       char: 'i',
       description:
         'Name of the bundle Docker image with the format ' + VALID_BUNDLE_FORMAT
+    }),
+    digest: Flags.boolean({
+      char: 'd',
+      description: 'Include the digests of Docker images'
     })
   }
 
@@ -80,14 +86,36 @@ export default class GenerateCr extends Command {
       image = `${registry}/${dockerOrganization}/${bundleDescriptor.name}`
     }
 
-    CliUx.ux.action.start('Retrieving information about bundle image')
-
-    const res = await DockerService.getTagsWithDigests(image)
-
+    CliUx.ux.action.start('Retrieving bundle image tags')
+    const tags = await DockerService.listTags(image)
     CliUx.ux.action.stop()
 
-    for (const [tag, digest] of res.entries()) {
-      this.log(tag, digest)
+    if (flags.digest) {
+      this.log(color.bold.blue('Fetching bundle Docker repository tags'))
+
+      const progress = CliUx.ux.progress()
+      progress.start(tags.length, 0)
+
+      const digestsExecutor = DockerService.getDigestsExecutor(image, tags)
+
+      digestsExecutor.on('done', () => {
+        progress.update(progress.value + 1)
+      })
+
+      let digests: Map<string, string>
+      try {
+        digests = await digestsExecutor.getDigests()
+      } finally {
+        progress.stop()
+      }
+
+      for (const [tag, digest] of digests.entries()) {
+        this.log(tag, digest)
+      }
+    } else {
+      for (const tag of tags) {
+        this.log(tag)
+      }
     }
   }
 }

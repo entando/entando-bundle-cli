@@ -325,13 +325,12 @@ export class DockerService {
     return ''
   }
 
-  public static async getTagsWithDigests(
-    imageName: string
-  ): Promise<Map<string, string>> {
-    const tagsWithDigests = new Map<string, string>()
-
-    const tags = await DockerService.listTags(imageName)
-
+  public static getDigestsExecutor(
+    imageName: string,
+    tags: string[]
+  ): ParallelProcessExecutorService & {
+    getDigests(): Promise<Map<string, string>>
+  } {
     const options: ProcessExecutionOptions[] = []
     const outputStreams: InMemoryWritable[] = []
     for (const tag of tags) {
@@ -344,25 +343,37 @@ export class DockerService {
       })
     }
 
-    const parallelExecutorService = new ParallelProcessExecutorService(options)
-
-    const results = await parallelExecutorService.execute()
-
-    if (results.some(r => r !== 0)) {
-      throw new CLIError(
-        `Unable to retrieve digests for Docker image ${imageName}. Enable debug mode to see output of failed command.`
-      )
+    const digestExecutor = new ParallelProcessExecutorService(
+      options,
+      6
+    ) as ParallelProcessExecutorService & {
+      getDigests(): Promise<Map<string, string>>
     }
 
-    for (const [index, tag] of tags.entries()) {
-      const digest = outputStreams[index].data.trim()
-      tagsWithDigests.set(tag, digest)
+    digestExecutor.getDigests = async function (): Promise<
+      Map<string, string>
+    > {
+      const results = await digestExecutor.execute()
+
+      if (results.some(r => r !== 0)) {
+        throw new CLIError(
+          `Unable to retrieve digests for Docker image ${imageName}. Enable debug mode to see output of failed command.`
+        )
+      }
+
+      const tagsWithDigests = new Map<string, string>()
+      for (const [index, tag] of tags.entries()) {
+        const digest = outputStreams[index].data.trim()
+        tagsWithDigests.set(tag, digest)
+      }
+
+      return tagsWithDigests
     }
 
-    return tagsWithDigests
+    return digestExecutor
   }
 
-  private static async listTags(imageName: string): Promise<string[]> {
+  public static async listTags(imageName: string): Promise<string[]> {
     const outputStream = new InMemoryWritable()
     const errorStream = new InMemoryWritable()
     const result = await ProcessExecutorService.executeProcess({
