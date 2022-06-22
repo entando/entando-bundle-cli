@@ -19,6 +19,7 @@ export type YamlWidgetDescriptor = {
   slot?: MicroFrontendAppBuilderSlot
   paths?: string[]
   customElement: string
+  configMfe?: string
 }
 
 type YamlApiClaim<T extends ApiType> = {
