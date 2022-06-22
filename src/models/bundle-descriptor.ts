@@ -54,7 +54,6 @@ export type Microservice = {
 type BaseMicroFrontend = {
   name: string
   stack: MicroFrontendStack
-  titles: { [lang: string]: string }
   group: string
   publicFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
@@ -66,8 +65,10 @@ type BaseMicroFrontend = {
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {
+  titles: { [lang: string]: string }
   type: MicroFrontendType.Widget
-  contextParams?: WidgetContextParam[]
+  contextParams?: string[]
+  configMfe?: string
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
@@ -130,12 +131,6 @@ export enum MicroFrontendAppBuilderSlot {
   PrimaryHeader = 'primary-header',
   PrimaryMenu = 'primary-menu',
   Content = 'content'
-}
-
-export enum WidgetContextParam {
-  PageCode = 'pageCode',
-  LangCode = 'langCode',
-  ApplicationBaseUrl = 'applicationBaseUrl'
 }
 
 export enum ApiType {

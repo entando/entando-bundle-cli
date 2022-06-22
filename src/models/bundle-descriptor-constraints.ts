@@ -13,7 +13,6 @@ import {
   Nav,
   SecurityLevel,
   WidgetConfigMicroFrontend,
-  WidgetContextParam,
   WidgetMicroFrontend
 } from '../models/bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
@@ -24,7 +23,8 @@ import {
   ObjectConstraints,
   regexp,
   UnionTypeConstraints,
-  values
+  values,
+  valueNotEqualTo
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
@@ -33,11 +33,20 @@ export const INVALID_NAME_MESSAGE =
 export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP = /^[\w-]+\/[\w-]+$/
 export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
   /^[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
+export const VALID_BUNDLE_FORMAT =
+  '<organization>/<repository> or <registry>/<organization>/<repository>'
+
+export const VALID_CONTEXT_PARAM_FORMAT =
+  'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   'Valid format is <registry>/<organization>/<repository>'
+)
+const contextParamRegExpValidator = regexp(
+  /(page|info|systemParam)_[\dA-Za-z]*/,
+  VALID_CONTEXT_PARAM_FORMAT
 )
 
 // Constraints
@@ -271,7 +280,11 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       isArray: true,
       required: false,
       type: 'string',
-      validators: [values(WidgetContextParam)]
+      validators: [contextParamRegExpValidator]
+    },
+    configMfe: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -286,11 +299,6 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       required: true,
       type: 'string',
       validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
     },
     publicFolder: {
       required: false,
@@ -344,11 +352,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       type: 'string',
       validators: [values(MicroFrontendStack)]
     },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
-    },
     publicFolder: {
       required: false,
       type: 'string'
@@ -401,11 +404,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: true,
       type: 'string',
       validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
     },
     publicFolder: {
       required: false,
@@ -465,6 +463,15 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
   validators: [
     fieldDependsOn(
       { key: 'contextParams' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
+    fieldDependsOn(
+      { key: 'configMfe' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
+    valueNotEqualTo({ key: 'configMfe' }, { key: 'name' }),
+    mutualDependency(
+      { key: 'titles' },
       { key: 'type', value: MicroFrontendType.Widget }
     ),
     mutualDependency(

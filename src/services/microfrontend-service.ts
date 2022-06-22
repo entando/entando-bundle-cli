@@ -57,7 +57,9 @@ export class MicroFrontendService {
       ...mfe,
       group: DEFAULT_GROUP,
       publicFolder: DEFAULT_PUBLIC_FOLDER,
-      titles: this.getDefaultTitles(mfe.name),
+      ...(mfe.type === MicroFrontendType.Widget && {
+        titles: this.getDefaultTitles(mfe.name)
+      }),
       ...(mfe.type === MicroFrontendType.AppBuilder &&
         this.getAppBuilderFields(mfe))
     })

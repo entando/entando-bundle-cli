@@ -2,14 +2,12 @@ import { CliUx, Command, Flags } from '@oclif/core'
 import { ApiType, ExternalApiClaim } from '../../models/bundle-descriptor'
 import {
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
-  ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP
+  ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
+  VALID_BUNDLE_FORMAT
 } from '../../models/bundle-descriptor-constraints'
 import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
 import { DEFAULT_DOCKER_REGISTRY } from '../../services/docker-service'
-
-const VALID_BUNDLE_FORMAT =
-  '<organization>/<repository> or <registry>/<organization>/<repository>'
 
 export default class AddExt extends Command {
   static description =

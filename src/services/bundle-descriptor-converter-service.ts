@@ -101,7 +101,7 @@ export class BundleDescriptorConverterService {
     > = {
       name: microFrontend.name,
       type: microFrontend.type,
-      titles: microFrontend.titles,
+      ...('titles' in microFrontend && { titles: microFrontend.titles }),
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
       customElement: microFrontend.customElement,
@@ -133,6 +133,7 @@ export class BundleDescriptorConverterService {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.Widget>),
         nav: microFrontend.nav,
+        configMfe: microFrontend.configMfe,
         contextParams: microFrontend.contextParams
       }
     }

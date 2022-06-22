@@ -3,6 +3,7 @@ import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 
 const DEFAULT_PARALLEL_PROCESSES_SIZE = 2
+export const COMMAND_NOT_FOUND_EXIT_CODE = 127
 
 export type ProcessExecutionOptions = {
   command: string
@@ -21,6 +22,7 @@ export type ProcessExecutionOptions = {
    */
   errorStream?: Writable
   stdio?: StdioOptions
+  env?: NodeJS.ProcessEnv
 }
 
 export type ProcessExecutionResult = number | Error | NodeJS.Signals
@@ -143,7 +145,8 @@ function setUpProcess(options: ProcessExecutionOptions) {
   const process = spawn(options.command, {
     cwd: options.workDir,
     shell: true,
-    stdio: options.stdio
+    stdio: options.stdio,
+    env: options.env
   })
 
   if (process.stdout) {

@@ -1,4 +1,5 @@
 import {
+  COMMAND_NOT_FOUND_EXIT_CODE,
   ParallelProcessExecutorService,
   ProcessExecutionOptions,
   ProcessExecutionResult,
@@ -9,6 +10,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {
   BUILD_FOLDER,
+  CONFIG_FOLDER,
   DOCKER_CONFIG_FOLDER,
   MICROFRONTENDS_FOLDER,
   WIDGETS_FOLDER
@@ -23,6 +25,7 @@ import { InMemoryWritable } from '../utils'
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 export const DOCKER_COMMAND = 'docker'
+const CRANE_BIN_NAME = 'crane'
 
 export type DockerBuildOptions = {
   path: string
@@ -141,10 +144,10 @@ export class DockerService {
     // Listing all the expected images
     let command = DOCKER_COMMAND + ' image ls'
     for (const image of images) {
-      command += ` --filter 'reference=${image}'`
+      command += ` --filter "reference=${image}"`
     }
 
-    command += " --format='{{.Repository}}:{{.Tag}}'"
+    command += ' --format="{{.Repository}}:{{.Tag}}"'
 
     const outputStream = new InMemoryWritable()
 
@@ -320,5 +323,99 @@ export class DockerService {
     }
 
     return ''
+  }
+
+  public static getDigestsExecutor(
+    imageName: string,
+    tags: string[]
+  ): ParallelProcessExecutorService & {
+    getDigests(): Promise<Map<string, string>>
+  } {
+    const options: ProcessExecutionOptions[] = []
+    const outputStreams: InMemoryWritable[] = []
+    for (const tag of tags) {
+      const outputStream = new InMemoryWritable()
+      outputStreams.push(outputStream)
+      options.push({
+        ...DockerService.getCraneExecutionOptions(`digest ${imageName}:${tag}`),
+        errorStream: DockerService.debug.outputStream,
+        outputStream
+      })
+    }
+
+    const digestExecutor = new ParallelProcessExecutorService(
+      options,
+      6
+    ) as ParallelProcessExecutorService & {
+      getDigests(): Promise<Map<string, string>>
+    }
+
+    digestExecutor.getDigests = async function (): Promise<
+      Map<string, string>
+    > {
+      const results = await digestExecutor.execute()
+
+      if (results.some(r => r !== 0)) {
+        throw new CLIError(
+          `Unable to retrieve digests for Docker image ${imageName}. Enable debug mode to see output of failed command.`
+        )
+      }
+
+      const tagsWithDigests = new Map<string, string>()
+      for (const [index, tag] of tags.entries()) {
+        const digest = outputStreams[index].data.trim()
+        tagsWithDigests.set(tag, digest)
+      }
+
+      return tagsWithDigests
+    }
+
+    return digestExecutor
+  }
+
+  public static async listTags(imageName: string): Promise<string[]> {
+    const outputStream = new InMemoryWritable()
+    const errorStream = new InMemoryWritable()
+    const result = await ProcessExecutorService.executeProcess({
+      ...DockerService.getCraneExecutionOptions(`ls ${imageName}`),
+      errorStream,
+      outputStream
+    })
+
+    const output = outputStream.data
+    const error = errorStream.data
+
+    if (result === 0) {
+      return output.trim().split('\n').reverse() // listing the most recent images first
+    }
+
+    if (result === COMMAND_NOT_FOUND_EXIT_CODE) {
+      throw new CLIError('Command crane not found')
+    } else if (error.includes('NAME_UNKNOWN')) {
+      throw new CLIError(`Image ${imageName} not found`)
+    } else if (error.includes('UNAUTHORIZED')) {
+      throw new CLIError(
+        `Registry required authentication. This may also be caused by searching for a non-existing image.\nPlease verify that ${imageName} exists.`
+      )
+    } else {
+      DockerService.debug(output)
+      DockerService.debug(error)
+      throw new CLIError(
+        `Unable to list tags for Docker image ${imageName}. Enable debug mode to see output of failed command.`
+      )
+    }
+  }
+
+  private static getCraneExecutionOptions(
+    craneCommand: string
+  ): ProcessExecutionOptions {
+    const baseCommand = process.env.ENTANDO_CLI_CRANE_BIN ?? CRANE_BIN_NAME
+    return {
+      command: `${baseCommand} ${craneCommand}`,
+      env: {
+        // setting config folder as home since crane looks at ~/.docker/config.json for authenticating
+        HOME: CONFIG_FOLDER
+      }
+    }
   }
 }

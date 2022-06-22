@@ -1,6 +1,7 @@
 import {
   BundleDescriptor,
   MicroFrontend,
+  MicroFrontendType,
   Microservice
 } from '../models/bundle-descriptor'
 import {
@@ -114,6 +115,27 @@ export class ComponentService {
     })
   }
 
+  public async run(name: string): Promise<ProcessExecutionResult> {
+    const component = this.getComponent(name)
+
+    const componentPath = ComponentService.getComponentPath(component)
+
+    if (!fs.existsSync(componentPath)) {
+      throw new CLIError(`Directory ${componentPath} not exists`)
+    }
+
+    const runCmd = CommandFactoryService.getCommand(component, Phase.Run)
+
+    ComponentService.debug(`Run ${name} using ${runCmd}`)
+
+    return ProcessExecutorService.executeProcess({
+      command: runCmd,
+      outputStream: process.stdout,
+      errorStream: process.stdout,
+      workDir: componentPath
+    })
+  }
+
   public componentExists(name: string): boolean {
     return this.getComponents().some(comp => comp.name === name)
   }
@@ -130,6 +152,28 @@ export class ComponentService {
         'Components names should be unique. Duplicates found: ' +
           [...new Set(duplicates)].join(', ')
       )
+    }
+  }
+
+  public checkConfigMfes(): void {
+    const allMfes = this.getComponents(ComponentType.MICROFRONTEND)
+    const allMfesWithTypes = allMfes.map(({ name, mfeType }) => ({
+      name,
+      type: mfeType
+    }))
+    for (const mfe of allMfes) {
+      if (
+        mfe.configMfe &&
+        mfe.configMfe.slice(0, 9) !== 'internal:' &&
+        allMfesWithTypes.findIndex(
+          ({ name, type }) =>
+            mfe.configMfe === name && type === MicroFrontendType.WidgetConfig
+        ) === -1
+      ) {
+        throw new CLIError(
+          `configMfe value ${mfe.configMfe} for MFE ${mfe.name} must be an existing widget-config MFE in the project or a platform provided config MFE, defined with the internal:<name> syntax`
+        )
+      }
     }
   }
 
@@ -155,6 +199,12 @@ export class ComponentService {
   private mapComponentType(
     type: ComponentType
   ): (compToMap: MicroFrontend | Microservice) => Component<ComponentType> {
-    return ({ name, stack }) => ({ name, stack, type })
+    return ({ name, stack, ...others }) => ({
+      name,
+      stack,
+      type,
+      ...('type' in others ? { mfeType: others.type } : {}),
+      ...('configMfe' in others ? { configMfe: others.configMfe } : {})
+    })
   }
 }
