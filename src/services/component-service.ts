@@ -114,6 +114,27 @@ export class ComponentService {
     })
   }
 
+  public async run(name: string): Promise<ProcessExecutionResult> {
+    const component = this.getComponent(name)
+
+    const componentPath = ComponentService.getComponentPath(component)
+
+    if (!fs.existsSync(componentPath)) {
+      throw new CLIError(`Directory ${componentPath} not exists`)
+    }
+
+    const runCmd = CommandFactoryService.getCommand(component, Phase.Run)
+
+    ComponentService.debug(`Run ${name} using ${runCmd}`)
+
+    return ProcessExecutorService.executeProcess({
+      command: runCmd,
+      outputStream: process.stdout,
+      errorStream: process.stdout,
+      workDir: componentPath
+    })
+  }
+
   public componentExists(name: string): boolean {
     return this.getComponents().some(comp => comp.name === name)
   }
