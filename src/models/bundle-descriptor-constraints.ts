@@ -133,7 +133,7 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
   ]
 }
 
-const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
+export const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
   label: {
     required: true,
     validators: [isMapOfStrings],

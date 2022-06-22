@@ -10,6 +10,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {
   BUILD_FOLDER,
+  BUNDLE_DESCRIPTOR_NAME,
   CONFIG_FOLDER,
   DOCKER_CONFIG_FOLDER,
   MICROFRONTENDS_FOLDER,
@@ -21,6 +22,10 @@ import { ComponentService } from './component-service'
 import { CLIError } from '@oclif/errors'
 import { debugFactory } from './debug-factory-service'
 import { InMemoryWritable } from '../utils'
+import { YamlBundleDescriptor } from '../models/yaml-bundle-descriptor'
+import { ConstraintsValidatorService } from './constraints-validator-service'
+import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/yaml-bundle-descriptor-constraints'
+import * as YAML from 'yaml'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
@@ -402,6 +407,101 @@ export class DockerService {
       DockerService.debug(error)
       throw new CLIError(
         `Unable to list tags for Docker image ${imageName}. Enable debug mode to see output of failed command.`
+      )
+    }
+  }
+
+  public static async getYamlDescriptorFromImage(
+    imageName: string
+  ): Promise<YamlBundleDescriptor> {
+    const digest = await DockerService.getFirstLayerDigest(imageName)
+    const outputStream = new InMemoryWritable()
+    const errorStream = new InMemoryWritable()
+
+    const result = await ProcessExecutorService.executeProcess({
+      ...DockerService.getCraneExecutionOptions(
+        `blob ${imageName}@${digest} | tar -zOxf - ${BUNDLE_DESCRIPTOR_NAME}`
+      ),
+      errorStream,
+      outputStream
+    })
+
+    if (result === 0) {
+      const output = outputStream.data
+      let parsedDescriptor: any
+      try {
+        parsedDescriptor = YAML.parse(output)
+      } catch {
+        DockerService.debug(output)
+        throw new CLIError(
+          'Retrieved descriptor contains invalid YAML. Enable debug mode to see retrieved content.'
+        )
+      }
+
+      try {
+        return ConstraintsValidatorService.validateObjectConstraints(
+          parsedDescriptor,
+          YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS
+        )
+      } catch (error) {
+        throw new CLIError(
+          'Retrieved descriptor has an invalid format.\n' +
+            (error as Error).message
+        )
+      }
+    } else if (
+      errorStream.data.includes(
+        `tar: ${BUNDLE_DESCRIPTOR_NAME}: Not found in archive`
+      )
+    ) {
+      throw new CLIError(
+        `${BUNDLE_DESCRIPTOR_NAME} not found. Have you specified a valid bundle Docker image?`
+      )
+    } else {
+      DockerService.debug(errorStream.data)
+      DockerService.debug(outputStream.data)
+      throw new CLIError(
+        'Unable to parse YAML descriptor from bundle Docker image. Enable debug mode to see output of failed command.'
+      )
+    }
+  }
+
+  private static async getFirstLayerDigest(imageName: string): Promise<string> {
+    const outputStream = new InMemoryWritable()
+    const result = await ProcessExecutorService.executeProcess({
+      ...DockerService.getCraneExecutionOptions(`manifest ${imageName}`),
+      errorStream: DockerService.debug.outputStream,
+      outputStream
+    })
+
+    if (result === 0) {
+      const output = outputStream.data
+      let manifest: any
+      try {
+        manifest = JSON.parse(output)
+      } catch {
+        DockerService.debug(output)
+        throw new CLIError(
+          'Retrieved manifest contains invalid JSON. Enable debug mode to see retrieved content.'
+        )
+      }
+
+      if (
+        manifest.layers &&
+        manifest.layers.length > 0 &&
+        manifest.layers[0].digest
+      ) {
+        return manifest.layers[0].digest
+      }
+
+      DockerService.debug(output)
+      throw new CLIError(
+        'Unable to extract digest from retrieved manifest. Have you specified a valid bundle Docker image?\nEnable debug mode to see retrieved content.'
+      )
+    } else {
+      DockerService.debug(outputStream.data)
+      throw new CLIError(
+        'Unable to retrieve image manifest. Enable debug mode to see output of failed command.'
       )
     }
   }

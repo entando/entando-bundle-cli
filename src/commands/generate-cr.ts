@@ -90,6 +90,10 @@ export default class GenerateCr extends Command {
     const tags = await DockerService.listTags(image)
     CliUx.ux.action.stop()
 
+    if (tags.length === 0) {
+      this.error(`No tag found for Docker image ${image}`)
+    }
+
     if (flags.digest) {
       this.log(color.bold.blue('Fetching bundle Docker repository tags'))
 
@@ -117,5 +121,13 @@ export default class GenerateCr extends Command {
         this.log(tag)
       }
     }
+
+    CliUx.ux.action.start('Retrieving bundle image descriptor')
+    const latestImage = `${image}:${tags[0]}`
+    const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
+      latestImage
+    )
+    CliUx.ux.action.stop()
+    console.log(yamlDescriptor)
   }
 }
