@@ -146,7 +146,7 @@ describe('component-service', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Config MFE mfe-not-found must be at least an internal widget or must exist among your micro frontends with type widget-config'
+        'configMfe value mfe-not-found for MFE mfe-name-1 must be an existing widget-config MFE'
       )
     })
     .it(
@@ -173,7 +173,7 @@ describe('component-service', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Config MFE mfe-conf must be at least an internal widget or must exist among your micro frontends with type widget-config'
+        'configMfe value mfe-conf for MFE mfe-name-1 must be an existing widget-config MFE'
       )
     })
     .it(

@@ -136,22 +136,21 @@ export class ComponentService {
 
   public checkConfigMfes(): void {
     const allMfes = this.getComponents(ComponentType.MICROFRONTEND)
-    const allMfesWithTypes = allMfes.map(({ name, others }) => ({
+    const allMfesWithTypes = allMfes.map(({ name, mfeType }) => ({
       name,
-      type: others?.type
+      type: mfeType
     }))
     for (const mfe of allMfes) {
       if (
-        mfe.others?.configMfe &&
-        mfe.others.configMfe.slice(0, 9) !== 'internal:' &&
+        mfe.configMfe &&
+        mfe.configMfe.slice(0, 9) !== 'internal:' &&
         allMfesWithTypes.findIndex(
           ({ name, type }) =>
-            mfe.others.configMfe === name &&
-            type === MicroFrontendType.WidgetConfig
+            mfe.configMfe === name && type === MicroFrontendType.WidgetConfig
         ) === -1
       ) {
         throw new CLIError(
-          `Config MFE ${mfe.others.configMfe} must be at least an internal widget or must exist among your micro frontends with type widget-config`
+          `configMfe value ${mfe.configMfe} for MFE ${mfe.name} must be an existing widget-config MFE in the project or a platform provided config MFE, defined with the internal:<name> syntax`
         )
       }
     }
@@ -183,7 +182,8 @@ export class ComponentService {
       name,
       stack,
       type,
-      others
+      ...('type' in others ? { mfeType: others.type } : {}),
+      ...('configMfe' in others ? { configMfe: others.configMfe } : {})
     })
   }
 }
