@@ -401,6 +401,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].titles = {
+        ...invalidDescriptor.microfrontends[0].titles
+      }
       invalidDescriptor.microfrontends[1].type = 'widget'
       invalidDescriptor.microfrontends[1].slot = 'primary-header'
 
@@ -441,6 +444,26 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].name = 'mfe-name'
+      invalidDescriptor.microfrontends[0].configMfe = 'mfe-name'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "configMfe" value must not be equal to field "name" value'
+      )
+      expect(error.message).contain('$.microfrontends[0]')
+    })
+    .it('Validates micro frontend with invalid name and configMfe')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[1].type = 'app-builder'
       invalidDescriptor.microfrontends[1].slot = 'primary-header'
       invalidDescriptor.microfrontends[1].paths = []
@@ -472,9 +495,7 @@ describe('BundleDescriptorValidatorService', () => {
       )
     })
     .catch(error => {
-      expect(error.message).contain(
-        'Field "paths" should be an array'
-      )
+      expect(error.message).contain('Field "paths" should be an array')
       expect(error.message).contain('$.microfrontends[1].paths')
     })
     .it('Validates micro frontend with invalid paths field')
@@ -503,6 +524,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].titles = {
+        ...invalidDescriptor.microfrontends[0].titles
+      }
       invalidDescriptor.microfrontends[1].type = 'widget'
       invalidDescriptor.microfrontends[1].contextParams = ['invalid-param']
 

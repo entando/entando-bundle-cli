@@ -11,6 +11,7 @@ import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { ComponentHelper } from '../helpers/mocks/component-helper'
+import { MicroFrontendType } from '../../src/models/bundle-descriptor'
 
 describe('component-service', () => {
   let componentService: ComponentService
@@ -152,4 +153,58 @@ describe('component-service', () => {
       )
     })
     .it('Checks for duplicate component names')
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microfrontends = [
+        ComponentHelper.newMicroFrontend('mfe-name-1', {
+          type: MicroFrontendType.Widget,
+          configMfe: 'mfe-not-found'
+        }),
+        ComponentHelper.newMicroFrontend('mfe-conf', {
+          type: MicroFrontendType.Widget
+        })
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      componentService.checkConfigMfes()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'configMfe value mfe-not-found for MFE mfe-name-1 must be an existing widget-config MFE'
+      )
+    })
+    .it(
+      'Checks for config MFE that has invalid requirements with non-existent mfe name'
+    )
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microfrontends = [
+        ComponentHelper.newMicroFrontend('mfe-name-1', {
+          type: MicroFrontendType.Widget,
+          configMfe: 'mfe-conf'
+        }),
+        ComponentHelper.newMicroFrontend('mfe-conf', {
+          type: MicroFrontendType.Widget
+        })
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      componentService.checkConfigMfes()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'configMfe value mfe-conf for MFE mfe-name-1 must be an existing widget-config MFE'
+      )
+    })
+    .it(
+      'Checks for config MFE that has invalid requirements with wrong widget type'
+    )
 })

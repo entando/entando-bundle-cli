@@ -57,7 +57,9 @@ export class BundleDescriptorService {
         parsedDescriptor,
         BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
-      new ComponentService().checkDuplicatedComponentNames()
+      const componentService = new ComponentService()
+      componentService.checkDuplicatedComponentNames()
+      componentService.checkConfigMfes()
     } catch (error) {
       throw new CLIError(
         BUNDLE_DESCRIPTOR_FILE_NAME +

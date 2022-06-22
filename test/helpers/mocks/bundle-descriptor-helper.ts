@@ -79,10 +79,6 @@ export class BundleDescriptorHelper {
           customElement: 'test-mfe-2',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.WidgetConfig,
-          titles: {
-            en: 'mfe title 2',
-            it: 'titolo mfe 2'
-          },
           group: 'free',
           publicFolder: 'public'
         },
@@ -91,10 +87,6 @@ export class BundleDescriptorHelper {
           customElement: 'test-mfe-3',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.AppBuilder,
-          titles: {
-            en: 'mfe title 3',
-            it: 'titolo mfe 3'
-          },
           group: 'free',
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,

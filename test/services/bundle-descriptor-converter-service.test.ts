@@ -84,6 +84,7 @@ describe('bundle-descriptor-converter-service', () => {
           },
           group: 'free',
           publicFolder: 'public',
+          configMfe: 'test-mfe-no-code',
           apiClaims: [
             {
               name: 'my-api-claim',
@@ -120,7 +121,6 @@ describe('bundle-descriptor-converter-service', () => {
           customElement: 'test-app-builder-mfe',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.AppBuilder,
-          titles: {},
           group: 'free',
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
@@ -172,6 +172,7 @@ describe('bundle-descriptor-converter-service', () => {
       group: 'free',
       descriptorVersion: 'v5',
       type: 'widget',
+      configMfe: 'test-mfe-no-code',
       apiClaims: [
         { name: 'my-api-claim', type: ApiType.Internal, pluginName: 'my-ms' },
         {
@@ -213,7 +214,6 @@ describe('bundle-descriptor-converter-service', () => {
     checkYamlFile(appBuilderMfeDescriptorPath, {
       name: 'test-app-builder-mfe',
       customElement: 'test-app-builder-mfe',
-      titles: {},
       group: 'free',
       descriptorVersion: 'v5',
       type: 'app-builder',

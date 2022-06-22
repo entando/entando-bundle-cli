@@ -24,7 +24,8 @@ import {
   ObjectConstraints,
   regexp,
   UnionTypeConstraints,
-  values
+  values,
+  valueNotEqualTo
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
@@ -274,6 +275,10 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       type: 'string',
       validators: [values(WidgetContextParam)]
+    },
+    configMfe: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -288,11 +293,6 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       required: true,
       type: 'string',
       validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
     },
     publicFolder: {
       required: false,
@@ -346,11 +346,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       type: 'string',
       validators: [values(MicroFrontendStack)]
     },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
-    },
     publicFolder: {
       required: false,
       type: 'string'
@@ -403,11 +398,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: true,
       type: 'string',
       validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
     },
     publicFolder: {
       required: false,
@@ -467,6 +457,15 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
   validators: [
     fieldDependsOn(
       { key: 'contextParams' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
+    fieldDependsOn(
+      { key: 'configMfe' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
+    valueNotEqualTo({ key: 'configMfe' }, { key: 'name' }),
+    mutualDependency(
+      { key: 'titles' },
       { key: 'type', value: MicroFrontendType.Widget }
     ),
     mutualDependency(
