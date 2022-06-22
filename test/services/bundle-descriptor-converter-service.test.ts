@@ -19,8 +19,7 @@ import {
   DBMS,
   SecurityLevel,
   MicroFrontendType,
-  MicroFrontendAppBuilderSlot,
-  WidgetContextParam
+  MicroFrontendAppBuilderSlot
 } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
@@ -105,7 +104,7 @@ describe('bundle-descriptor-converter-service', () => {
               url: '/test'
             }
           ],
-          contextParams: [WidgetContextParam.PageCode]
+          contextParams: ['pageCode']
         },
         {
           name: 'test-mfe-no-code',
