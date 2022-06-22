@@ -144,10 +144,10 @@ export class DockerService {
     // Listing all the expected images
     let command = DOCKER_COMMAND + ' image ls'
     for (const image of images) {
-      command += ` --filter 'reference=${image}'`
+      command += ` --filter "reference=${image}"`
     }
 
-    command += " --format='{{.Repository}}:{{.Tag}}'"
+    command += ' --format="{{.Repository}}:{{.Tag}}"'
 
     const outputStream = new InMemoryWritable()
 
