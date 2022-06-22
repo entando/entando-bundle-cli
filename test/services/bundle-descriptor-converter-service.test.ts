@@ -121,7 +121,6 @@ describe('bundle-descriptor-converter-service', () => {
           customElement: 'test-app-builder-mfe',
           stack: MicroFrontendStack.React,
           type: MicroFrontendType.AppBuilder,
-          titles: {},
           group: 'free',
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
@@ -215,7 +214,6 @@ describe('bundle-descriptor-converter-service', () => {
     checkYamlFile(appBuilderMfeDescriptorPath, {
       name: 'test-app-builder-mfe',
       customElement: 'test-app-builder-mfe',
-      titles: {},
       group: 'free',
       descriptorVersion: 'v5',
       type: 'app-builder',

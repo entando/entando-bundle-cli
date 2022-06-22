@@ -401,6 +401,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].titles = {
+        ...invalidDescriptor.microfrontends[0].titles
+      }
       invalidDescriptor.microfrontends[1].type = 'widget'
       invalidDescriptor.microfrontends[1].slot = 'primary-header'
 
@@ -521,6 +524,9 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].titles = {
+        ...invalidDescriptor.microfrontends[0].titles
+      }
       invalidDescriptor.microfrontends[1].type = 'widget'
       invalidDescriptor.microfrontends[1].contextParams = ['invalid-param']
 

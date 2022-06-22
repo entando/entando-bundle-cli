@@ -292,11 +292,6 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       type: 'string',
       validators: [values(MicroFrontendStack)]
     },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
-    },
     publicFolder: {
       required: false,
       type: 'string'
@@ -348,11 +343,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: true,
       type: 'string',
       validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
     },
     publicFolder: {
       required: false,
@@ -406,11 +396,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: true,
       type: 'string',
       validators: [values(MicroFrontendStack)]
-    },
-    titles: {
-      required: true,
-      validators: [isMapOfStrings],
-      children: {}
     },
     publicFolder: {
       required: false,
@@ -476,9 +461,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
       { key: 'configMfe' },
       { key: 'type', value: MicroFrontendType.Widget }
     ),
-    valueNotEqualTo(
-      { key: 'configMfe' },
-      { key: 'name' }
+    valueNotEqualTo({ key: 'configMfe' }, { key: 'name' }),
+    mutualDependency(
+      { key: 'titles' },
+      { key: 'type', value: MicroFrontendType.Widget }
     ),
     mutualDependency(
       { key: 'slot' },

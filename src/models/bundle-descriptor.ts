@@ -54,7 +54,6 @@ export type Microservice = {
 type BaseMicroFrontend = {
   name: string
   stack: MicroFrontendStack
-  titles: { [lang: string]: string }
   group: string
   publicFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
@@ -66,8 +65,9 @@ type BaseMicroFrontend = {
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {
+  titles: { [lang: string]: string }
   type: MicroFrontendType.Widget
-  contextParams?: WidgetContextParam[],
+  contextParams?: WidgetContextParam[]
   configMfe?: string
 }
 

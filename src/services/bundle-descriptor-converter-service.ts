@@ -74,7 +74,7 @@ export class BundleDescriptorConverterService {
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
     const widgetDescriptor: YamlWidgetDescriptor = {
       name: microFrontend.name,
-      titles: microFrontend.titles,
+      ...('titles' in microFrontend && { titles: microFrontend.titles }),
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
       apiClaims: microFrontend.apiClaims

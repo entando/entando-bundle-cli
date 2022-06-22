@@ -10,7 +10,7 @@ import {
 
 export type YamlWidgetDescriptor = {
   name: string
-  titles: { [lang: string]: string }
+  titles?: { [lang: string]: string }
   group: string
   descriptorVersion: string
   type: MicroFrontendType
