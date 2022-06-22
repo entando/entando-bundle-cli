@@ -37,7 +37,7 @@ export default class GenerateCr extends Command {
     }),
     digest: Flags.boolean({
       char: 'd',
-      description: 'Include the digests of Docker images'
+      description: 'Include Docker images digests'
     })
   }
 
@@ -72,7 +72,7 @@ export default class GenerateCr extends Command {
 
       if (!dockerOrganization) {
         this.error(
-          'Docker organization not configured for the project. Bundle image must be published to generate CR.'
+          'Docker organization not configured for the project. Bundle image must be published to generate the CR.'
         )
       }
 
