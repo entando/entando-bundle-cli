@@ -67,7 +67,7 @@ type BaseMicroFrontend = {
 export type WidgetMicroFrontend = BaseMicroFrontend & {
   titles: { [lang: string]: string }
   type: MicroFrontendType.Widget
-  contextParams?: WidgetContextParam[]
+  contextParams?: string[]
   configMfe?: string
 }
 
@@ -131,12 +131,6 @@ export enum MicroFrontendAppBuilderSlot {
   PrimaryHeader = 'primary-header',
   PrimaryMenu = 'primary-menu',
   Content = 'content'
-}
-
-export enum WidgetContextParam {
-  PageCode = 'pageCode',
-  LangCode = 'langCode',
-  ApplicationBaseUrl = 'applicationBaseUrl'
 }
 
 export enum ApiType {

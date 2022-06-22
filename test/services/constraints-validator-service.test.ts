@@ -6,7 +6,8 @@ import {
 } from '../../src/services/constraints-validator-service'
 import {
   BUNDLE_DESCRIPTOR_CONSTRAINTS,
-  INVALID_NAME_MESSAGE
+  INVALID_NAME_MESSAGE,
+  VALID_CONTEXT_PARAM_FORMAT
 } from '../../src/models/bundle-descriptor-constraints'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 
@@ -536,9 +537,7 @@ describe('BundleDescriptorValidatorService', () => {
       )
     })
     .catch(error => {
-      expect(error.message).contain(
-        'Field "contextParams" is not valid. Allowed values are: pageCode, langCode, applicationBaseUrl'
-      )
+      expect(error.message).contain(VALID_CONTEXT_PARAM_FORMAT)
       expect(error.message).contain('$.microfrontends[1].contextParams[0]')
     })
     .it('Validates micro frontend with invalid contextParams field')
