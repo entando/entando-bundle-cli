@@ -24,7 +24,8 @@ import {
   ObjectConstraints,
   regexp,
   UnionTypeConstraints,
-  values
+  values,
+  valueNotEqualTo
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
@@ -474,7 +475,11 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
     fieldDependsOn(
       { key: 'configMfe' },
       { key: 'type', value: MicroFrontendType.Widget }
-    ),    
+    ),
+    valueNotEqualTo(
+      { key: 'configMfe' },
+      { key: 'name' }
+    ),
     mutualDependency(
       { key: 'slot' },
       { key: 'type', value: MicroFrontendType.AppBuilder }

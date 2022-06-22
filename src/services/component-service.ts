@@ -1,6 +1,7 @@
 import {
   BundleDescriptor,
   MicroFrontend,
+  MicroFrontendType,
   Microservice
 } from '../models/bundle-descriptor'
 import {
@@ -135,22 +136,17 @@ export class ComponentService {
 
   public checkConfigMfes(): void {
     const allMfes = this.getComponents(ComponentType.MICROFRONTEND)
+    const allMfesWithTypes = allMfes.map(({ name, others: { type } }) => ({ name, type }))
     for (const mfe of allMfes) {
-      if (mfe.configMfe) {
-        if (mfe.configMfe === mfe.name) {
-          throw new CLIError(
-            `Config MFE ${mfe.configMfe} should not be same name to the MFE name itself`
-          )
-        }
-
-        if (
-          mfe.configMfe.slice(0, 9) !== 'internal:' &&
-          !allMfes.map(c => c.name).includes(mfe.configMfe)
-        ) {
-          throw new CLIError(
-            `Config MFE ${mfe.configMfe} should be at least an internal widget or must exist among your micro frontends`
-          )
-        }
+      if (
+        mfe.others?.configMfe &&
+        mfe.others?.configMfe?.slice(0, 9) !== 'internal:' &&
+        allMfesWithTypes
+          .findIndex(({ name, type }) => mfe.others?.configMfe === name && type === MicroFrontendType.WidgetConfig) === -1
+      ) {
+        throw new CLIError(
+          `Config MFE ${mfe.others?.configMfe} must be at least an internal widget or must exist among your micro frontends with type widget-config`
+        )
       }
     }
   }
@@ -181,7 +177,7 @@ export class ComponentService {
       name,
       stack,
       type,
-      ...('configMfe' in others ? { widgetType: others.type, configMfe: others.configMfe } : {})
+      others,
     })
   }
 }
