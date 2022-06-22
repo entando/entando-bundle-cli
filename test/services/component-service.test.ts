@@ -11,6 +11,7 @@ import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { ComponentHelper } from '../helpers/mocks/component-helper'
+import { MicroFrontendType } from '../../src/models/bundle-descriptor'
 
 describe('component-service', () => {
   let componentService: ComponentService
@@ -124,4 +125,58 @@ describe('component-service', () => {
       )
     })
     .it('Checks for duplicate component names')
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microfrontends = [
+        ComponentHelper.newMicroFrontend('mfe-name-1', {
+          type: MicroFrontendType.Widget,
+          configMfe: 'mfe-not-found'
+        }),
+        ComponentHelper.newMicroFrontend('mfe-conf', {
+          type: MicroFrontendType.Widget
+        })
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      componentService.checkConfigMfes()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Config MFE mfe-not-found must be at least an internal widget or must exist among your micro frontends with type widget-config'
+      )
+    })
+    .it(
+      'Checks for config MFE that has invalid requirements with non-existent mfe name'
+    )
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microfrontends = [
+        ComponentHelper.newMicroFrontend('mfe-name-1', {
+          type: MicroFrontendType.Widget,
+          configMfe: 'mfe-conf'
+        }),
+        ComponentHelper.newMicroFrontend('mfe-conf', {
+          type: MicroFrontendType.Widget
+        })
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      componentService.checkConfigMfes()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Config MFE mfe-conf must be at least an internal widget or must exist among your micro frontends with type widget-config'
+      )
+    })
+    .it(
+      'Checks for config MFE that has invalid requirements with wrong widget type'
+    )
 })
