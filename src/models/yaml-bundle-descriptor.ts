@@ -8,19 +8,36 @@ import {
   Permission
 } from './bundle-descriptor'
 
-export type YamlWidgetDescriptor = {
+export type BaseYamlWidgetDescriptor<T extends MicroFrontendType> = {
   name: string
   titles?: { [lang: string]: string }
   group: string
   descriptorVersion: string
-  type: MicroFrontendType
+  type: T
   apiClaims?: Array<YamlInternalApiClaim | YamlExternalApiClaim>
-  nav?: Nav[]
-  slot?: MicroFrontendAppBuilderSlot
-  paths?: string[]
   customElement: string
-  configMfe?: string
 }
+
+export type YamlAppBuilderWidgetDescriptor =
+  BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder> & {
+    ext: {
+      slot: MicroFrontendAppBuilderSlot
+      nav?: Nav[]
+      paths?: string[]
+    }
+  }
+
+export type YamlWidgetDescriptor =
+  BaseYamlWidgetDescriptor<MicroFrontendType.Widget> & {
+    configMfe?: string
+    contextParams?: string[]
+    nav?: Nav[]
+  }
+
+export type YamlWidgetConfigDescriptor =
+  BaseYamlWidgetDescriptor<MicroFrontendType.WidgetConfig> & {
+    nav?: Nav[]
+  }
 
 type YamlApiClaim<T extends ApiType> = {
   name: string
@@ -56,6 +73,7 @@ export type YamlBundleDescriptor = {
   components: {
     plugins: string[]
     widgets: string[]
+    'app-builder': string[]
   }
   global?: {
     nav: Nav[]

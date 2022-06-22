@@ -62,10 +62,12 @@ describe('ms add', () => {
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
-        microservices: [{
-          ...defaultMsValues,
-          name: msName,
-        }]
+        microservices: [
+          {
+            ...defaultMsValues,
+            name: msName
+          }
+        ]
       })
     })
 
@@ -84,11 +86,13 @@ describe('ms add', () => {
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
-        microservices: [{
-          ...defaultMsValues,
-          name: msName,
-          stack: 'node'
-        }]
+        microservices: [
+          {
+            ...defaultMsValues,
+            name: msName,
+            stack: 'node'
+          }
+        ]
       })
     })
 

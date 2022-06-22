@@ -123,7 +123,8 @@ describe('bundle-descriptor-converter-service', () => {
           group: 'free',
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
-          paths: []
+          paths: [],
+          nav: []
         }
       ]
     })
@@ -216,8 +217,11 @@ describe('bundle-descriptor-converter-service', () => {
       group: 'free',
       descriptorVersion: 'v5',
       type: 'app-builder',
-      slot: 'content',
-      paths: []
+      ext: {
+        slot: 'content',
+        paths: [],
+        nav: []
+      }
     })
 
     const msDescriptorPath = path.resolve(
@@ -277,11 +281,8 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
-        widgets: [
-          'widgets/test-mfe.yaml',
-          'widgets/test-mfe-no-code.yaml',
-          'widgets/test-app-builder-mfe.yaml'
-        ]
+        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml'],
+        'app-builder': ['widgets/test-app-builder-mfe.yaml']
       },
       global: {
         nav: [

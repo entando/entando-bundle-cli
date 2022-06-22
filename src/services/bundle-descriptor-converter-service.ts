@@ -5,13 +5,17 @@ import {
   DBMS,
   ExternalApiClaim,
   MicroFrontend,
+  MicroFrontendType,
   Microservice
 } from '../models/bundle-descriptor'
 import {
+  BaseYamlWidgetDescriptor,
+  YamlAppBuilderWidgetDescriptor,
   YamlBundleDescriptor,
   YamlExternalApiClaim,
   YamlInternalApiClaim,
   YamlPluginDescriptor,
+  YamlWidgetConfigDescriptor,
   YamlWidgetDescriptor
 } from '../models/yaml-bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
@@ -72,31 +76,69 @@ export class BundleDescriptorConverterService {
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
-    const widgetDescriptor: YamlWidgetDescriptor = {
-      name: microFrontend.name,
-      ...('titles' in microFrontend && { titles: microFrontend.titles }),
-      group: microFrontend.group,
-      descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
-      apiClaims: microFrontend.apiClaims
-        ? this.generateYamlApiClaims(microFrontend.apiClaims)
-        : undefined,
-      nav: microFrontend.nav,
-      type: microFrontend.type,
-      customElement: microFrontend.customElement,
-      ...('slot' in microFrontend && { slot: microFrontend.slot }),
-      ...('paths' in microFrontend && { paths: microFrontend.paths }),
-      ...('configMfe' in microFrontend && {
-        configMfe: microFrontend.configMfe
-      }),
-      ...('contextParams' in microFrontend && {
-        contextParams: microFrontend.contextParams
-      })
-    }
+    const widgetDescriptor:
+      | YamlWidgetDescriptor
+      | YamlWidgetConfigDescriptor
+      | YamlAppBuilderWidgetDescriptor =
+      this.mapMicroFrontendToYamlDescriptor(microFrontend)
+
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroFrontendDescriptorRelativePath(microFrontend)
     )
+
     this.writeYamlFile(filePath, widgetDescriptor)
+  }
+
+  private mapMicroFrontendToYamlDescriptor(
+    microFrontend: MicroFrontend
+  ):
+    | YamlWidgetDescriptor
+    | YamlWidgetConfigDescriptor
+    | YamlAppBuilderWidgetDescriptor {
+    const commonProperties: BaseYamlWidgetDescriptor<
+      typeof microFrontend.type
+    > = {
+      name: microFrontend.name,
+      type: microFrontend.type,
+      ...('titles' in microFrontend && { titles: microFrontend.titles }),
+      group: microFrontend.group,
+      descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
+      customElement: microFrontend.customElement,
+      apiClaims: microFrontend.apiClaims
+        ? this.generateYamlApiClaims(microFrontend.apiClaims)
+        : undefined
+    }
+
+    let result:
+      | YamlWidgetDescriptor
+      | YamlWidgetConfigDescriptor
+      | YamlAppBuilderWidgetDescriptor
+
+    if (microFrontend.type === MicroFrontendType.AppBuilder) {
+      result = {
+        ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
+        ext: {
+          slot: microFrontend.slot,
+          nav: microFrontend.nav,
+          ...('paths' in microFrontend && { paths: microFrontend.paths })
+        }
+      }
+    } else if (microFrontend.type === MicroFrontendType.WidgetConfig) {
+      result = {
+        ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.WidgetConfig>),
+        nav: microFrontend.nav
+      }
+    } else {
+      result = {
+        ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.Widget>),
+        nav: microFrontend.nav,
+        configMfe: microFrontend.configMfe,
+        contextParams: microFrontend.contextParams
+      }
+    }
+
+    return result
   }
 
   private generateYamlApiClaims(
@@ -165,7 +207,8 @@ export class BundleDescriptorConverterService {
       description: bundleDescriptor.description,
       components: {
         plugins: [],
-        widgets: []
+        widgets: [],
+        'app-builder': []
       },
       global: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
@@ -177,7 +220,11 @@ export class BundleDescriptorConverterService {
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =
         this.getMicroFrontendDescriptorRelativePath(microFrontend)
-      yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
+      if (microFrontend.type === MicroFrontendType.Widget) {
+        yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
+      } else {
+        yamlBundleDescriptor.components['app-builder'].push(mfeDescriptorPath)
+      }
     }
 
     for (const microservice of bundleDescriptor.microservices) {
