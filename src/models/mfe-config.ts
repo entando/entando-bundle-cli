@@ -1,5 +1,3 @@
-import { WidgetContextParam } from './bundle-descriptor'
-
 export interface MfeConfig {
   systemParams?: {
     api?: {
@@ -8,6 +6,6 @@ export interface MfeConfig {
       }
     }
   }
-  contextParams?: Partial<Record<WidgetContextParam, string>>
+  contextParams?: Record<string, string>
   params?: Record<string, string>
 }
