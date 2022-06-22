@@ -33,6 +33,8 @@ export const INVALID_NAME_MESSAGE =
 export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP = /^[\w-]+\/[\w-]+$/
 export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
   /^[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
+export const VALID_BUNDLE_FORMAT =
+  '<organization>/<repository> or <registry>/<organization>/<repository>'
 
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
 const bundleRegExpValidator = regexp(
