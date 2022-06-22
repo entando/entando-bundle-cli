@@ -133,6 +133,28 @@ export class ComponentService {
     }
   }
 
+  public checkConfigMfes(): void {
+    const allMfes = this.getComponents(ComponentType.MICROFRONTEND)
+    for (const mfe of allMfes) {
+      if (mfe.configMfe) {
+        if (mfe.configMfe === mfe.name) {
+          throw new CLIError(
+            `Config MFE ${mfe.configMfe} should not be same name to the MFE name itself`
+          )
+        }
+
+        if (
+          mfe.configMfe.slice(0, 9) !== 'internal:' &&
+          !allMfes.map(c => c.name).includes(mfe.configMfe)
+        ) {
+          throw new CLIError(
+            `Config MFE ${mfe.configMfe} should be at least an internal widget or must exist among your micro frontends`
+          )
+        }
+      }
+    }
+  }
+
   public getComponent(name: string): Component<ComponentType> {
     const component = this.getComponents().find(comp => comp.name === name)
     if (component === undefined) {
@@ -155,6 +177,11 @@ export class ComponentService {
   private mapComponentType(
     type: ComponentType
   ): (compToMap: MicroFrontend | Microservice) => Component<ComponentType> {
-    return ({ name, stack }) => ({ name, stack, type })
+    return ({ name, stack, ...others }) => ({ 
+      name,
+      stack,
+      type,
+      ...('configMfe' in others ? { widgetType: others.type, configMfe: others.configMfe } : {})
+    })
   }
 }

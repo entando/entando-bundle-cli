@@ -272,6 +272,10 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       type: 'string',
       validators: [values(WidgetContextParam)]
+    },
+    configMfe: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -467,6 +471,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
       { key: 'contextParams' },
       { key: 'type', value: MicroFrontendType.Widget }
     ),
+    fieldDependsOn(
+      { key: 'configMfe' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),    
     mutualDependency(
       { key: 'slot' },
       { key: 'type', value: MicroFrontendType.AppBuilder }

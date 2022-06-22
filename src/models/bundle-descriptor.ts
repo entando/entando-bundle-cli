@@ -67,7 +67,8 @@ type BaseMicroFrontend = {
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
-  contextParams?: WidgetContextParam[]
+  contextParams?: WidgetContextParam[],
+  configMfe?: string
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {

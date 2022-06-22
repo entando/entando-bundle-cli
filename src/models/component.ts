@@ -1,3 +1,5 @@
+import { MicroFrontendType } from "./bundle-descriptor"
+
 export enum MicroFrontendStack {
   React = 'react',
   Angular = 'angular'
@@ -23,6 +25,8 @@ export type StackFor<T extends ComponentType> =
 export type Component<T extends ComponentType> = {
   name: string
   stack: StackFor<T>
+  configMfe?: T extends ComponentType.MICROFRONTEND ? string : never
+  widgetType?: T extends ComponentType.MICROFRONTEND ? MicroFrontendType : never
   type: T
 }
 
