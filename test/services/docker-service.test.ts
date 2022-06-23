@@ -438,15 +438,24 @@ describe('DockerService', () => {
     layers: [{ digest: 'sha256:1234' }, { digest: 'sha256:abcd' }]
   })
 
+  const configContentStub = JSON.stringify({
+    config: { Labels: { 'org.entando.bundle-name': 'entando-bundle' } }
+  })
+
   test.it('Parses YAML bundle descriptor from Docker image', async () => {
     sinon
       .stub(ProcessExecutorService, 'executeProcess')
       .onFirstCall()
       .callsFake(options => {
-        options.outputStream!.write(manifestContentStub)
+        options.outputStream!.write(configContentStub)
         return Promise.resolve(0)
       })
       .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write(manifestContentStub)
+        return Promise.resolve(0)
+      })
+      .onThirdCall()
       .callsFake(options => {
         options.outputStream!.write(
           YAML.stringify(BundleDescriptorHelper.newYamlBundleDescriptor())
@@ -467,14 +476,66 @@ describe('DockerService', () => {
       await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
     })
     .catch(error => {
-      expect(error.message).contain('Unable to retrieve image manifest')
+      expect(error.message).contain('Unable to retrieve image config')
     })
-    .it('Retrieval of first layer digest fails if crane manifest command fails')
+    .it('Retrieval of first layer digest fails if crane config command fails')
 
   test
     .do(async () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.outputStream!.write(
+            JSON.stringify({
+              config: { Labels: { someLabel: 'someValue' } }
+            })
+          )
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+    })
+    .it(
+      "Retrieval of first layer digest fails if config doesn't contains valid Docker label"
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.outputStream!.write(
+            JSON.stringify({
+              config: {}
+            })
+          )
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+    })
+    .it(
+      "Retrieval of first layer digest fails if config doesn't contains Docker labels"
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
         .callsFake(options => {
           options.outputStream!.write('}invalid-json{')
           return Promise.resolve(0)
@@ -492,6 +553,33 @@ describe('DockerService', () => {
     .do(async () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write('{}')
+          return Promise.resolve(1)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to retrieve image manifest')
+    })
+    .it('Retrieval of first layer digest fails if crane manifest command fails')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
         .callsFake(options => {
           options.outputStream!.write('{}')
           return Promise.resolve(0)
@@ -509,6 +597,12 @@ describe('DockerService', () => {
     .do(async () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
         .callsFake(options => {
           options.outputStream!.write(
             JSON.stringify({
@@ -530,6 +624,12 @@ describe('DockerService', () => {
     .do(async () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
         .callsFake(options => {
           options.outputStream!.write(
             JSON.stringify({
@@ -553,10 +653,15 @@ describe('DockerService', () => {
         .stub(ProcessExecutorService, 'executeProcess')
         .onFirstCall()
         .callsFake(options => {
-          options.outputStream!.write(manifestContentStub)
+          options.outputStream!.write(configContentStub)
           return Promise.resolve(0)
         })
         .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
         .resolves(1)
       await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
     })
@@ -575,10 +680,15 @@ describe('DockerService', () => {
         .stub(ProcessExecutorService, 'executeProcess')
         .onFirstCall()
         .callsFake(options => {
-          options.outputStream!.write(manifestContentStub)
+          options.outputStream!.write(configContentStub)
           return Promise.resolve(0)
         })
         .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
         .callsFake(options => {
           options.errorStream!.write(
             `tar: ${BUNDLE_DESCRIPTOR_NAME}: Not found in archive`
@@ -602,10 +712,15 @@ describe('DockerService', () => {
         .stub(ProcessExecutorService, 'executeProcess')
         .onFirstCall()
         .callsFake(options => {
-          options.outputStream!.write(manifestContentStub)
+          options.outputStream!.write(configContentStub)
           return Promise.resolve(0)
         })
         .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
         .callsFake(options => {
           options.outputStream!.write('}invalid-yaml{')
           return Promise.resolve(0)
@@ -627,10 +742,15 @@ describe('DockerService', () => {
         .stub(ProcessExecutorService, 'executeProcess')
         .onFirstCall()
         .callsFake(options => {
-          options.outputStream!.write(manifestContentStub)
+          options.outputStream!.write(configContentStub)
           return Promise.resolve(0)
         })
         .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
         .callsFake(options => {
           options.outputStream!.write(YAML.stringify({ something: 'wrong' }))
           return Promise.resolve(0)

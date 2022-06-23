@@ -31,6 +31,7 @@ export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 export const DOCKER_COMMAND = 'docker'
 const CRANE_BIN_NAME = 'crane'
+const ENTANDO_BUNDLE_NAME_LABEL = 'org.entando.bundle-name'
 
 export type DockerBuildOptions = {
   path: string
@@ -467,41 +468,69 @@ export class DockerService {
   }
 
   private static async getFirstLayerDigest(imageName: string): Promise<string> {
-    const outputStream = new InMemoryWritable()
-    const result = await ProcessExecutorService.executeProcess({
-      ...DockerService.getCraneExecutionOptions(`manifest ${imageName}`),
+    let outputStream = new InMemoryWritable()
+    const imageConfigResult = await ProcessExecutorService.executeProcess({
+      ...DockerService.getCraneExecutionOptions(`config ${imageName}`),
       errorStream: DockerService.debug.outputStream,
       outputStream
     })
 
-    if (result === 0) {
-      const output = outputStream.data
-      let manifest: any
-      try {
-        manifest = JSON.parse(output)
-      } catch {
-        DockerService.debug(output)
+    if (imageConfigResult === 0) {
+      const imageConfigOutput = outputStream.data
+      console.log(imageConfigOutput)
+      const bundleNameLabel =
+        JSON.parse(imageConfigOutput).config.Labels?.[ENTANDO_BUNDLE_NAME_LABEL]
+
+      if (bundleNameLabel) {
+        outputStream = new InMemoryWritable()
+        const result = await ProcessExecutorService.executeProcess({
+          ...DockerService.getCraneExecutionOptions(`manifest ${imageName}`),
+          errorStream: DockerService.debug.outputStream,
+          outputStream
+        })
+
+        if (result === 0) {
+          const output = outputStream.data
+          let manifest: any
+          try {
+            manifest = JSON.parse(output)
+          } catch {
+            DockerService.debug(output)
+            throw new CLIError(
+              'Retrieved manifest contains invalid JSON. Enable debug mode to see retrieved content.'
+            )
+          }
+
+          if (
+            manifest.layers &&
+            manifest.layers.length > 0 &&
+            manifest.layers[0].digest
+          ) {
+            return manifest.layers[0].digest
+          }
+
+          DockerService.debug(output)
+          throw new CLIError(
+            'Unable to extract digest from retrieved manifest. Have you specified a valid bundle Docker image?\nEnable debug mode to see retrieved content.'
+          )
+        } else {
+          DockerService.debug(outputStream.data)
+          throw new CLIError(
+            'Unable to retrieve image manifest. Enable debug mode to see output of failed command.'
+          )
+        }
+      } else {
+        DockerService.debug(imageConfigOutput)
         throw new CLIError(
-          'Retrieved manifest contains invalid JSON. Enable debug mode to see retrieved content.'
+          "Given Docker image doesn't contain required label " +
+            ENTANDO_BUNDLE_NAME_LABEL +
+            '. Have you specified a valid bundle Docker image?\nEnable debug mode to see retrieved content.'
         )
       }
-
-      if (
-        manifest.layers &&
-        manifest.layers.length > 0 &&
-        manifest.layers[0].digest
-      ) {
-        return manifest.layers[0].digest
-      }
-
-      DockerService.debug(output)
-      throw new CLIError(
-        'Unable to extract digest from retrieved manifest. Have you specified a valid bundle Docker image?\nEnable debug mode to see retrieved content.'
-      )
     } else {
       DockerService.debug(outputStream.data)
       throw new CLIError(
-        'Unable to retrieve image manifest. Enable debug mode to see output of failed command.'
+        'Unable to retrieve image config. Enable debug mode to see output of failed command.'
       )
     }
   }
