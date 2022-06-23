@@ -132,6 +132,56 @@ describe('CommandFactoryService', () => {
   test
     .do(() => {
       const bundleDescriptor = <BundleDescriptor>{
+        microservices: [{ name: 'test-ms' }]
+      }
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('Maven run command', () => {
+      const component: Component<ComponentType.MICROSERVICE> = {
+        name: 'test-ms',
+        stack: MicroserviceStack.SpringBoot,
+        type: ComponentType.MICROSERVICE
+      }
+
+      const commandOptions = CommandFactoryService.getCommand(
+        component,
+        Phase.Run
+      )
+
+      expect(commandOptions).to.eql('mvn spring-boot:run')
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = <BundleDescriptor>{
+        microfrontends: [{ name: 'test-mfe' }]
+      }
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('React run command', () => {
+      const component: Component<ComponentType.MICROFRONTEND> = {
+        name: 'test-mfe',
+        stack: MicroFrontendStack.React,
+        type: ComponentType.MICROFRONTEND
+      }
+
+      const commandOptions = CommandFactoryService.getCommand(
+        component,
+        Phase.Run
+      )
+
+      expect(commandOptions).to.eql('npm install && npm start')
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = <BundleDescriptor>{
         microservices: [
           {
             name: 'my-ms',
