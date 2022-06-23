@@ -35,6 +35,7 @@ export class InitializerService {
   private readonly options: InitializerOptions
   private readonly filesys: FSService
   private readonly git: GitService
+  private templateVariables: { [key: string]: string } = {}
 
   constructor(options: InitializerOptions) {
     this.options = options
@@ -43,6 +44,20 @@ export class InitializerService {
 
     this.filesys = new FSService(name, parentDirectory)
     this.git = new GitService(name, parentDirectory)
+    this.initializeTemplateVariables()
+  }
+
+  private initializeTemplateVariables() {
+    const dockerImages = require('../../package.json').org_entando_dependencies
+
+    this.templateVariables = {
+      '%BUNDLENAME%': this.options.name
+    }
+
+    for (const [key, value] of Object.entries(dockerImages)) {
+      const k = `%${key.toUpperCase()}_DOCKER_IMAGE%`
+      this.templateVariables[k] = value as string
+    }
   }
 
   public async performBundleInit(): Promise<void> {
@@ -142,24 +157,17 @@ export class InitializerService {
 
   private createDockerfile() {
     InitializerService.debug('creating Dockerfile')
-    this.filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
+    this.filesys.createFileFromTemplate(
+      ['Dockerfile'],
+      'default-Dockerfile',
+      this.templateVariables
+    )
   }
 
   public createDefaultSvcFiles(): void {
     InitializerService.debug('creating svc files')
 
     const defaultPrefix = 'default-'
-
-    const dockerImages = require('../../package.json').org_entando_dependencies
-
-    const templateVariables: { [key: string]: string } = {
-      '%BUNDLENAME%': this.options.name
-    }
-
-    for (const [key, value] of Object.entries(dockerImages)) {
-      const k = `%${key.toUpperCase()}_DOCKER_IMAGE%`
-      templateVariables[k] = value as string
-    }
 
     const defaultYamls = fs
       .readdirSync(
@@ -172,7 +180,7 @@ export class InitializerService {
       this.filesys.createFileFromTemplate(
         [SVC_FOLDER, defaultYaml],
         path.join(SVC_FOLDER, `${defaultPrefix}${defaultYaml}`),
-        templateVariables
+        this.templateVariables
       )
     }
 
