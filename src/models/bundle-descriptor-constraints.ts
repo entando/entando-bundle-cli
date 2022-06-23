@@ -218,6 +218,10 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
       build: {
         required: false,
         type: 'string'
+      },
+      run: {
+        required: false,
+        type: 'string'
       }
     }
   }
@@ -262,6 +266,10 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       children: {
         build: {
+          required: false,
+          type: 'string'
+        },
+        run: {
           required: false,
           type: 'string'
         }
@@ -324,6 +332,10 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
         build: {
           required: false,
           type: 'string'
+        },
+        run: {
+          required: false,
+          type: 'string'
         }
       }
     },
@@ -374,6 +386,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       children: {
         build: {
+          required: false,
+          type: 'string'
+        },
+        run: {
           required: false,
           type: 'string'
         }
@@ -427,6 +443,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       children: {
         build: {
+          required: false,
+          type: 'string'
+        },
+        run: {
           required: false,
           type: 'string'
         }
