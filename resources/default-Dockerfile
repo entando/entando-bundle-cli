@@ -1,3 +1,5 @@
 FROM scratch
 
+LABEL org.entando.bundle-name="%BUNDLENAME%"
+
 ADD .entando/output/descriptors/ .

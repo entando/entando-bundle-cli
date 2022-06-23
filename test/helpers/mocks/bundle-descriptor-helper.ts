@@ -9,6 +9,8 @@ import {
   MicroFrontendStack,
   MicroserviceStack
 } from '../../../src/models/component'
+import { YamlBundleDescriptor } from '../../../src/models/yaml-bundle-descriptor'
+import { BUNDLE_DESCRIPTOR_VERSION } from '../../../src/services/bundle-descriptor-converter-service'
 
 export class BundleDescriptorHelper {
   public static newBundleDescriptor(): BundleDescriptor {
@@ -93,6 +95,18 @@ export class BundleDescriptorHelper {
           paths: []
         }
       ]
+    }
+  }
+
+  public static newYamlBundleDescriptor(): YamlBundleDescriptor {
+    return {
+      name: 'test-bundle',
+      descriptorVersion: BUNDLE_DESCRIPTOR_VERSION,
+      components: {
+        widgets: ['test-mfe'],
+        plugins: ['test-ms'],
+        'app-builder': ['test-ab']
+      }
     }
   }
 }

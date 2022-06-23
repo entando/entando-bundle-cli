@@ -16,7 +16,8 @@ import {
 } from '../../src/services/process-executor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import * as path from 'node:path'
-import { DOCKER_CONFIG_FOLDER } from '../../src/paths'
+import { BUNDLE_DESCRIPTOR_NAME, DOCKER_CONFIG_FOLDER } from '../../src/paths'
+import * as YAML from 'yaml'
 
 describe('DockerService', () => {
   afterEach(function () {
@@ -432,4 +433,336 @@ describe('DockerService', () => {
       expect(result.get('0.0.2')).eq('sha256:abcd')
       expect(result.get('0.0.1')).eq('sha256:1234')
     })
+
+  const manifestContentStub = JSON.stringify({
+    layers: [{ digest: 'sha256:1234' }, { digest: 'sha256:abcd' }]
+  })
+
+  const configContentStub = JSON.stringify({
+    config: { Labels: { 'org.entando.bundle-name': 'entando-bundle' } }
+  })
+
+  test.it('Parses YAML bundle descriptor from Docker image', async () => {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write(manifestContentStub)
+        return Promise.resolve(0)
+      })
+      .onThirdCall()
+      .callsFake(options => {
+        options.outputStream!.write(
+          YAML.stringify(BundleDescriptorHelper.newYamlBundleDescriptor())
+        )
+        return Promise.resolve(0)
+      })
+
+    const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
+      'registry/org/bundle:tag'
+    )
+
+    expect(yamlDescriptor.name).eq('test-bundle')
+  })
+
+  test
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to retrieve image metadata')
+    })
+    .it('Retrieval of first layer digest fails if crane config command fails')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.outputStream!.write(
+            JSON.stringify({
+              config: { Labels: { someLabel: 'someValue' } }
+            })
+          )
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+    })
+    .it(
+      "Retrieval of first layer digest fails if config doesn't contains valid Docker label"
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.outputStream!.write(
+            JSON.stringify({
+              config: {}
+            })
+          )
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+    })
+    .it(
+      "Retrieval of first layer digest fails if config doesn't contains Docker labels"
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write('}invalid-json{')
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain('Retrieved manifest contains invalid JSON')
+    })
+    .it(
+      'Retrieval of first layer digest fails if manifest contains invalid JSON'
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write('{}')
+          return Promise.resolve(1)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to retrieve image manifest')
+    })
+    .it('Retrieval of first layer digest fails if crane manifest command fails')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write('{}')
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to extract digest from retrieved manifest'
+      )
+    })
+    .it('Retrieval of first layer digest fails if layer has no layers field')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(
+            JSON.stringify({
+              layers: []
+            })
+          )
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to extract digest from retrieved manifest'
+      )
+    })
+    .it('Retrieval of first layer digest fails if manifest has zero layers')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(
+            JSON.stringify({
+              layers: [{}]
+            })
+          )
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to extract digest from retrieved manifest'
+      )
+    })
+    .it('Retrieval of first layer digest fails if layer has no digest field')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
+        .resolves(1)
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to parse YAML descriptor from bundle Docker image'
+      )
+    })
+    .it(
+      'Parsing of YAML bundle descriptor from Docker image fails if crane blob command fails'
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
+        .callsFake(options => {
+          options.errorStream!.write(
+            `tar: ${BUNDLE_DESCRIPTOR_NAME}: Not found in archive`
+          )
+          return Promise.resolve(1)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        `${BUNDLE_DESCRIPTOR_NAME} not found. Have you specified a valid bundle Docker image?`
+      )
+    })
+    .it(
+      'Parsing of YAML bundle descriptor from Docker image fails if bundle descriptor is missing'
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
+        .callsFake(options => {
+          options.outputStream!.write('}invalid-yaml{')
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Retrieved descriptor contains invalid YAML'
+      )
+    })
+    .it(
+      'Parsing of YAML bundle descriptor from Docker image fails if descriptor contains invalid YAML'
+    )
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
+        .callsFake(options => {
+          options.outputStream!.write(YAML.stringify({ something: 'wrong' }))
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Retrieved descriptor has an invalid format'
+      )
+    })
+    .it(
+      'Parsing of YAML bundle descriptor from Docker image fails if descriptor has invalid format'
+    )
 })

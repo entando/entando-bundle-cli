@@ -5,7 +5,7 @@ import * as YAML from 'yaml'
 import * as sinon from 'sinon'
 import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
-import { OUTPUT_FOLDER } from '../../src/paths'
+import { BUNDLE_DESCRIPTOR_NAME, OUTPUT_FOLDER } from '../../src/paths'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { ThumbnailStatusMessage } from '../../src/services/bundle-thumbnail-service'
 import {
@@ -273,7 +273,7 @@ describe('bundle-descriptor-converter-service', () => {
       bundleDir,
       ...OUTPUT_FOLDER,
       'descriptors',
-      'descriptor.yaml'
+      BUNDLE_DESCRIPTOR_NAME
     )
     checkYamlFile(bundleDescriptorPath, {
       name: 'test-bundle',

@@ -20,3 +20,4 @@ export const WIDGETS_FOLDER = 'widgets'
 export const PLUGINS_FOLDER = 'plugins'
 export const BUILD_FOLDER = 'build'
 export const DESCRIPTOR_EXTENSION = '.yaml'
+export const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION

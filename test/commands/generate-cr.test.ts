@@ -21,6 +21,7 @@ describe('generate-cr', () => {
   })
 
   const tags = ['0.0.2', '0.0.1']
+  const yamlDescriptor = BundleDescriptorHelper.newYamlBundleDescriptor()
 
   test
     .command('generate-cr')
@@ -41,6 +42,9 @@ describe('generate-cr', () => {
   test
     .do(() => {
       sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
     })
     .stdout()
     .command(['generate-cr', '--image', 'entando/my-bundle'])
@@ -55,6 +59,9 @@ describe('generate-cr', () => {
   test
     .do(() => {
       sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
     })
     .stdout()
     .command([
@@ -93,6 +100,9 @@ describe('generate-cr', () => {
         .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
         .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
     })
     .stdout()
     .command('generate-cr')
@@ -131,6 +141,10 @@ describe('generate-cr', () => {
       sinon
         .stub(DockerService, 'getDigestsExecutor')
         .returns(stubDigestsExecutor)
+
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
     })
     .stdout()
     .stderr()
@@ -180,4 +194,17 @@ describe('generate-cr', () => {
       expect(error.message).contain('Unable to retrieve digests')
     })
     .it('Generate CR with digests fails retrieving digests')
+
+  test
+    .do(() => {
+      sinon.stub(BundleService, 'isValidBundleProject')
+      sinon.stub(DockerService, 'listTags').resolves([])
+    })
+    .stdout()
+    .stderr()
+    .command(['generate-cr', '--image', 'my-org/my-image'])
+    .catch(error => {
+      expect(error.message).contain('No tags found')
+    })
+    .it('Generate CR fails if image has no tags')
 })
