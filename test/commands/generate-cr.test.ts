@@ -204,7 +204,7 @@ describe('generate-cr', () => {
     .stderr()
     .command(['generate-cr', '--image', 'my-org/my-image'])
     .catch(error => {
-      expect(error.message).contain('No tag found')
+      expect(error.message).contain('No tags found')
     })
     .it('Generate CR fails if image has no tags')
 })

@@ -477,7 +477,6 @@ export class DockerService {
 
     if (imageConfigResult === 0) {
       const imageConfigOutput = outputStream.data
-      console.log(imageConfigOutput)
       const bundleNameLabel =
         JSON.parse(imageConfigOutput).config.Labels?.[ENTANDO_BUNDLE_NAME_LABEL]
 
@@ -530,7 +529,7 @@ export class DockerService {
     } else {
       DockerService.debug(outputStream.data)
       throw new CLIError(
-        'Unable to retrieve image config. Enable debug mode to see output of failed command.'
+        'Unable to retrieve image metadata. Enable debug mode to see output of failed command.'
       )
     }
   }

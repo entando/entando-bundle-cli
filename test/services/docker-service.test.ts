@@ -476,7 +476,7 @@ describe('DockerService', () => {
       await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
     })
     .catch(error => {
-      expect(error.message).contain('Unable to retrieve image config')
+      expect(error.message).contain('Unable to retrieve image metadata')
     })
     .it('Retrieval of first layer digest fails if crane config command fails')
 
