@@ -48,6 +48,7 @@ export type Microservice = {
   env?: EnvironmentVariable[]
   commands?: {
     build?: string
+    run?: string
   }
 }
 
@@ -59,6 +60,7 @@ type BaseMicroFrontend = {
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   commands?: {
     build?: string
+    run?: string
   }
   nav?: Nav[]
   customElement: string

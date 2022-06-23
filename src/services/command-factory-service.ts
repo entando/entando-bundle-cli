@@ -71,7 +71,6 @@ export class CommandFactoryService {
       bundleDescriptorService.getBundleDescriptor()[`${component.type}s`]
     const commands = comps.find(({ name }) => name === component.name)?.commands
 
-    // Currently, only `build` is a property of `commands`
-    return commands && commands[phase as Phase.Build]
+    return commands && commands[phase as Phase.Build | Phase.Run]
   }
 }

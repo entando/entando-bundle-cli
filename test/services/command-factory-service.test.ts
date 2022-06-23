@@ -128,4 +128,64 @@ describe('CommandFactoryService', () => {
 
       expect(commandOptions).to.eql('custommfebuild')
     })
+
+  test
+    .do(() => {
+      const bundleDescriptor = <BundleDescriptor>{
+        microservices: [
+          {
+            name: 'my-ms',
+            commands: { run: 'custommsrun' }
+          }
+        ]
+      }
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('Microservice custom run command', () => {
+      const component: Component<ComponentType.MICROSERVICE> = {
+        name: 'my-ms',
+        stack: MicroserviceStack.SpringBoot,
+        type: ComponentType.MICROSERVICE
+      }
+
+      const commandOptions = CommandFactoryService.getCommand(
+        component,
+        Phase.Run
+      )
+
+      expect(commandOptions).to.eql('custommsrun')
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = <BundleDescriptor>{
+        microfrontends: [
+          {
+            name: 'my-mfe',
+            commands: { run: 'custommferun' }
+          }
+        ]
+      }
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('MicroFrontend custom run command', () => {
+      const component: Component<ComponentType.MICROFRONTEND> = {
+        name: 'my-mfe',
+        stack: MicroFrontendStack.React,
+        type: ComponentType.MICROFRONTEND
+      }
+
+      const commandOptions = CommandFactoryService.getCommand(
+        component,
+        Phase.Run
+      )
+
+      expect(commandOptions).to.eql('custommferun')
+    })
 })
