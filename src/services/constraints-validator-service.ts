@@ -205,9 +205,12 @@ export function valueNotEqualTo(
   field: Field,
   targetField: Field
 ): UnionTypeValidator {
-  return function(object: any, jsonPath: JsonPath) {
+  return function (object: any, jsonPath: JsonPath) {
     if (object[field.key] === object[targetField.key]) {
-      throw new PrioritizedValidationError(`Field "${field.key}" value must not be equal to field "${targetField.key}" value`, jsonPath)
+      throw new PrioritizedValidationError(
+        `Field "${field.key}" value must not be equal to field "${targetField.key}" value`,
+        jsonPath
+      )
     }
   }
 }

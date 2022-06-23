@@ -1,7 +1,11 @@
 export interface MfeConfig {
-  api?: {
-    [apiClaim: string]: {
-      url: string
+  systemParams?: {
+    api?: {
+      [apiClaim: string]: {
+        url: string
+      }
     }
   }
+  contextParams?: Record<string, string>
+  params?: Record<string, string>
 }

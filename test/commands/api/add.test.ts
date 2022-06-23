@@ -74,7 +74,7 @@ describe('api add', () => {
         ]
       })
 
-      expect(updatedMfeConfig).to.eql({
+      expect(updatedMfeConfig.systemParams).to.eql({
         api: { 'ms1-api': { url: 'http://localhost:8080' } }
       })
     })
@@ -96,7 +96,9 @@ describe('api add', () => {
       bundleDescriptor = { ...bundleDescriptor, microfrontends, microservices }
       bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
       mfeConfigService.writeMfeConfig('mfe1', {
-        api: { 'ms1-api': { url: 'http://localhost:8080' } }
+        systemParams: {
+          api: { 'ms1-api': { url: 'http://localhost:8080' } }
+        }
       })
     })
     .command([
@@ -129,7 +131,7 @@ describe('api add', () => {
           ]
         })
 
-        expect(updatedMfeConfig).to.eql({
+        expect(updatedMfeConfig.systemParams).to.eql({
           api: {
             'ms1-api': { url: 'http://localhost:8080' },
             'ms2-api': { url: 'http://localhost:8081' }
@@ -171,7 +173,7 @@ describe('api add', () => {
           ]
         })
 
-        expect(updatedMfeConfig).to.eql({
+        expect(updatedMfeConfig.systemParams).to.eql({
           api: { 'ms1-api': { url: 'http://localhost:8080' } }
         })
       }

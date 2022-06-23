@@ -95,7 +95,7 @@ describe('api add-ext', () => {
         ]
       })
 
-      expect(updatedMfeConfig).to.eql({
+      expect(updatedMfeConfig.systemParams).to.eql({
         api: {
           'ms1-api': {
             url:
@@ -125,7 +125,9 @@ describe('api add-ext', () => {
       bundleDescriptor = { ...bundleDescriptor, microfrontends }
       bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
       mfeConfigService.writeMfeConfig('mfe1', {
-        api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
+        systemParams: {
+          api: { 'ms1-api': { url: 'http://mock-my-bundle-ms1' } }
+        }
       })
     })
     .command([
@@ -168,7 +170,7 @@ describe('api add-ext', () => {
           ]
         })
 
-        expect(updatedMfeConfig).to.eql({
+        expect(updatedMfeConfig.systemParams).to.eql({
           api: {
             'ms1-api': { url: 'http://mock-my-bundle-ms1' },
             'ms2-api': {
@@ -217,7 +219,7 @@ describe('api add-ext', () => {
           ]
         })
 
-        expect(updatedMfeConfig).to.eql({
+        expect(updatedMfeConfig.systemParams).to.eql({
           api: {
             'ms1-api': {
               url:

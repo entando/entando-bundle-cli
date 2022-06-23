@@ -75,7 +75,7 @@ export class ApiClaimService {
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
 
     const mfeConfig: MfeConfig = this.mfeConfigService.getMfeConfig(mfeName)
-    delete (mfeConfig.api || {})[claimName]
+    delete (mfeConfig.systemParams?.api || {})[claimName]
     this.mfeConfigService.writeMfeConfig(mfeName, mfeConfig)
   }
 
@@ -122,9 +122,11 @@ export class ApiClaimService {
     const mfeConfig: MfeConfig = this.mfeConfigService.getMfeConfig(mfeName)
     const updatedMfeConfig: MfeConfig = {
       ...mfeConfig,
-      api: {
-        ...mfeConfig.api,
-        [apiClaimName]: { url }
+      systemParams: {
+        api: {
+          ...mfeConfig.systemParams?.api,
+          [apiClaimName]: { url }
+        }
       }
     }
     this.mfeConfigService.writeMfeConfig(mfeName, updatedMfeConfig)
