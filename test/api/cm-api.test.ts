@@ -33,8 +33,19 @@ const MOCK_BUNDLE_PLUGINS = [
 describe('CM API', () => {
   test
     .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
+      api.get(`/bundles`).reply(200, { payload: MOCK_BUNDLES })
+    )
+    .it('getBundles fetches all bundles from a cm api', async () => {
+      const cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
+      const response = await cmAPI.getBundles()
+
+      expect(response.data).to.eql({ payload: MOCK_BUNDLES })
+    })
+
+  test
+    .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
       api
-        .get(`/bundle/${MOCK_BUNDLES[0].bundleId}/plugins`)
+        .get(`/bundles/${MOCK_BUNDLES[0].bundleId}/plugins`)
         .reply(200, { payload: MOCK_BUNDLE_PLUGINS })
     )
     .it(
@@ -51,7 +62,7 @@ describe('CM API', () => {
     .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
       api
         .get(
-          `/bundle/${MOCK_BUNDLES[0].bundleId}/plugins/${MOCK_BUNDLE_PLUGINS[0].pluginName}`
+          `/bundles/${MOCK_BUNDLES[0].bundleId}/plugins/${MOCK_BUNDLE_PLUGINS[0].pluginName}`
         )
         .reply(200, MOCK_BUNDLE_PLUGINS[0])
     )
