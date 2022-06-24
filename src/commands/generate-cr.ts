@@ -17,6 +17,8 @@ import {
   DEFAULT_DOCKER_REGISTRY,
   DockerService
 } from '../services/docker-service'
+import { CustomResourceService } from '../services/custom-resource-service'
+import * as YAML from 'yaml'
 
 export default class GenerateCr extends Command {
   static description =
@@ -88,6 +90,7 @@ export default class GenerateCr extends Command {
 
     CliUx.ux.action.start('Retrieving bundle image tags')
     const tags = await DockerService.listTags(image)
+    let digests: Map<string, string> = new Map()
     CliUx.ux.action.stop()
 
     if (tags.length === 0) {
@@ -105,29 +108,22 @@ export default class GenerateCr extends Command {
       digestsExecutor.on('done', () => {
         progress.update(progress.value + 1)
       })
-
-      let digests: Map<string, string>
+      
       try {
         digests = await digestsExecutor.getDigests()
       } finally {
         progress.stop()
       }
-
-      for (const [tag, digest] of digests.entries()) {
-        this.log(tag, digest)
-      }
-    } else {
-      for (const tag of tags) {
-        this.log(tag)
-      }
     }
 
-    CliUx.ux.action.start('Retrieving bundle image descriptor')
+    CliUx.ux.action.start('Generating Entando custom resource descriptor')
     const latestTag = `${image}:${tags[0]}`
     const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
       latestTag
     )
+    const customResourceService = new CustomResourceService(image, tags, digests, yamlDescriptor);
+    const crDescriptor = customResourceService.createCustomResource()
     CliUx.ux.action.stop()
-    console.log(yamlDescriptor)
+    this.log(YAML.stringify(crDescriptor))
   }
 }

@@ -22,7 +22,6 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import * as crypto from 'node:crypto'
 import {
   BUNDLE_DESCRIPTOR_NAME,
   DESCRIPTORS_OUTPUT_FOLDER,
@@ -34,6 +33,7 @@ import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
 import { BundleThumbnailInfo } from './bundle-thumbnail-service'
+import { BundleService } from './bundle-service'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v5'
 const WIDGET_DESCRIPTOR_VERSION = 'v5'
@@ -151,7 +151,7 @@ export class BundleDescriptorConverterService {
           type: ApiType.External,
           name: apiClaim.name,
           pluginName: apiClaim.serviceName,
-          bundleId: this.generateBundleId((apiClaim as ExternalApiClaim).bundle)
+          bundleId: BundleService.generateBundleId((apiClaim as ExternalApiClaim).bundle)
         })
       } else {
         yamlApiClaims.push({
@@ -163,11 +163,6 @@ export class BundleDescriptorConverterService {
     }
 
     return yamlApiClaims
-  }
-
-  private generateBundleId(bundle: string): string {
-    const sha256 = crypto.createHash('sha256').update(bundle).digest('hex')
-    return sha256.slice(0, 8)
   }
 
   private generateMicroserviceYamlDescriptor(
