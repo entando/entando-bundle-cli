@@ -12,7 +12,7 @@ describe('Utilities', () => {
     expect(writable.data).eq('some data\nsome other data')
   })
 
-  it('OutputColorWritable', () => {
+  xit('OutputColorWritable', () => {
     const sandbox = sinon.createSandbox()
     const prefix = 'test'
     const writable = new OutputColorWritable(prefix, prefix.length)
