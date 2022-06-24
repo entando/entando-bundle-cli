@@ -2,9 +2,7 @@ import { expect } from '@oclif/test'
 import { InMemoryWritable, OutputColorWritable } from '../src/utils'
 import { EOL } from 'node:os'
 import * as sinon from 'sinon'
-
 describe('Utilities', () => {
-
   it('InMemoryWritable', () => {
     const writable = new InMemoryWritable()
     writable.write('some data\n')
@@ -12,7 +10,7 @@ describe('Utilities', () => {
     expect(writable.data).eq('some data\nsome other data')
   })
 
-  xit('OutputColorWritable', () => {
+  it('OutputColorWritable', () => {
     const sandbox = sinon.createSandbox()
     const prefix = 'test'
     const writable = new OutputColorWritable(prefix, prefix.length)
@@ -23,8 +21,9 @@ describe('Utilities', () => {
     const regExp2 = new RegExp(/^(.+test\s\|.+other data)/)
     writable.write(chunk1)
     writable.write(chunk2)
-    sinon.assert.calledWith(stdoutStub.firstCall, sandbox.match(regExp1))
-    sinon.assert.calledWith(stdoutStub.secondCall, sandbox.match(regExp2))
+    sandbox.assert.calledWith(stdoutStub.firstCall, sandbox.match(regExp1))
+    sandbox.assert.calledWith(stdoutStub.secondCall, sandbox.match(regExp2))
     sandbox.restore()
+    console.log('test')
   })
 })
