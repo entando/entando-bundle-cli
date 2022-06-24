@@ -22,8 +22,8 @@ describe('Utilities', () => {
       const regExp2 = new RegExp(/^(.+test\s\|.+other data)/)
       writable.write(chunk1)
       writable.write(chunk2)
-      sandbox.assert.calledWith(stdoutStub.firstCall, sandbox.match(regExp1))
-      sandbox.assert.calledWith(stdoutStub.secondCall, sandbox.match(regExp2))
+      sandbox.assert.calledWith(stdoutStub.firstCall, sinon.match(regExp1))
+      sandbox.assert.calledWith(stdoutStub.secondCall, sinon.match(regExp2))
     } finally {
       sandbox.restore()
     }
