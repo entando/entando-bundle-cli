@@ -1,6 +1,14 @@
+export enum RequestFilterOperator {
+  Like = 'like',
+  Equal = 'eq',
+  NotEqual = 'not',
+  Greater = 'gt',
+  Lower = 'lower'
+}
+
 export type RequestFilter = {
   attribute: string
-  operator: string
+  operator: RequestFilterOperator
   value: string
 }
 

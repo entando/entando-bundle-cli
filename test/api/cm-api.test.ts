@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import { CmAPI } from '../../src/api/cm-api'
 import * as chai from 'chai'
+import { RequestFilterOperator } from '../../src/models/api'
 
 chai.config.truncateThreshold = 0
 
@@ -41,6 +42,31 @@ describe('CM API', () => {
 
       expect(response.data).to.eql({ payload: MOCK_BUNDLES })
     })
+
+  test
+    .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
+      api
+        .get(
+          `/bundles?filters[0].attribute=bundleId&filters[0].operator=eq&filters[0].value=${MOCK_BUNDLES[0].bundleId}`
+        )
+        .reply(200, { payload: MOCK_BUNDLES })
+    )
+    .it(
+      'getBundles with filters fetches a filtered list of bundles from a cm api',
+      async () => {
+        const cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
+        const reqFilters = [
+          {
+            attribute: 'bundleId',
+            operator: RequestFilterOperator.Equal,
+            value: MOCK_BUNDLES[0].bundleId
+          }
+        ]
+        const response = await cmAPI.getBundles(reqFilters)
+
+        expect(response.data).to.eql({ payload: MOCK_BUNDLES })
+      }
+    )
 
   test
     .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>

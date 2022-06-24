@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
-import { PagedResponseBody } from '../models/api'
+import { PagedResponseBody, RequestFilter } from '../models/api'
 
 type Bundle = {
   bundleId: string
@@ -29,8 +29,14 @@ export class CmAPI {
     this.authToken = authToken
   }
 
-  public getBundles(): Promise<AxiosResponse<PagedResponseBody<Bundle>>> {
-    const url = `${this.baseUrl}${this.bundlesPath}`
+  public getBundles(
+    filters?: RequestFilter[]
+  ): Promise<AxiosResponse<PagedResponseBody<Bundle>>> {
+    let url = `${this.baseUrl}${this.bundlesPath}`
+
+    if (filters) {
+      url += `?${this.filtersToQueryParams(filters)}`
+    }
 
     return axios.get(url, {
       headers: {
@@ -62,5 +68,14 @@ export class CmAPI {
         Authorization: `Bearer ${this.authToken}`
       }
     })
+  }
+
+  private filtersToQueryParams(filters: RequestFilter[]): string {
+    let queryParams = ''
+    for (const [idx, { attribute, operator, value }] of filters.entries()) {
+      queryParams += `filters[${idx}].attribute=${attribute}&filters[${idx}].operator=${operator}&filters[${idx}].value=${value}`
+    }
+
+    return queryParams
   }
 }
