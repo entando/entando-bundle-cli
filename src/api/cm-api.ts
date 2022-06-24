@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { PagedResponseBody, RequestFilter } from '../models/api'
 
 type Bundle = {
@@ -38,11 +38,7 @@ export class CmAPI {
       url += `?${this.filtersToQueryParams(filters)}`
     }
 
-    return axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${this.authToken}`
-      }
-    })
+    return this.getWithAuth(url)
   }
 
   public getBundlePlugins(
@@ -50,11 +46,7 @@ export class CmAPI {
   ): Promise<AxiosResponse<PagedResponseBody<Plugin>>> {
     const url = `${this.baseUrl}${this.bundlesPath}/${bundleId}/plugins`
 
-    return axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${this.authToken}`
-      }
-    })
+    return this.getWithAuth(url)
   }
 
   public getBundlePlugin(
@@ -63,11 +55,7 @@ export class CmAPI {
   ): Promise<AxiosResponse<Plugin>> {
     const url = `${this.baseUrl}${this.bundlesPath}/${bundleId}/plugins/${pluginName}`
 
-    return axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${this.authToken}`
-      }
-    })
+    return this.getWithAuth(url)
   }
 
   private filtersToQueryParams(filters: RequestFilter[]): string {
@@ -77,5 +65,17 @@ export class CmAPI {
     }
 
     return queryParams
+  }
+
+  private getWithAuth(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<any>> {
+    return axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${this.authToken}`
+      },
+      ...config
+    })
   }
 }
