@@ -24,6 +24,5 @@ describe('Utilities', () => {
     sandbox.assert.calledWith(stdoutStub.firstCall, sandbox.match(regExp1))
     sandbox.assert.calledWith(stdoutStub.secondCall, sandbox.match(regExp2))
     sandbox.restore()
-    console.log('test')
   })
 })
