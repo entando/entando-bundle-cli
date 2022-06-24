@@ -18,8 +18,8 @@ describe('Utilities', () => {
       const stdoutStub = sandbox.stub(process.stdout, 'write')
       const chunk1 = `first chunk `
       const chunk2 = `second chunk${EOL} other data${EOL}`
-      const regExp1 = new RegExp(/^(.+test\s\|.+first chunk second chunk)/)
-      const regExp2 = new RegExp(/^(.+test\s\|.+other data)/)
+      const regExp1 = new RegExp(/^(.*test\s\|.*first chunk second chunk)/)
+      const regExp2 = new RegExp(/^(.*test\s\|.*other data)/)
       writable.write(chunk1)
       writable.write(chunk2)
       sandbox.assert.calledWith(stdoutStub.firstCall, sinon.match(regExp1))
