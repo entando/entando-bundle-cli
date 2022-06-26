@@ -31,7 +31,7 @@ const MOCK_BUNDLE_PLUGINS = [
   }
 ]
 
-describe('CM API', () => {
+describe('cm-api', () => {
   test
     .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
       api.get(`/bundles`).reply(200, { payload: MOCK_BUNDLES })

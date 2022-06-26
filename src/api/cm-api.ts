@@ -1,22 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { PagedResponseBody, RequestFilter } from '../models/api'
-
-type Bundle = {
-  bundleId: string
-  bundleName: string
-  componentTypes: string[]
-  installed: boolean
-  publicationUrl: string
-}
-
-type Plugin = {
-  bundleId: string
-  pluginId: string
-  pluginName: string
-  pluginCode: string
-  ingressPath: string
-  roles: string[]
-}
+import { CmBundle, Plugin } from '../models/cm'
 
 export class CmAPI {
   private readonly baseUrl: string
@@ -31,7 +15,7 @@ export class CmAPI {
 
   public getBundles(
     filters?: RequestFilter[]
-  ): Promise<AxiosResponse<PagedResponseBody<Bundle>>> {
+  ): Promise<AxiosResponse<PagedResponseBody<CmBundle>>> {
     let url = `${this.baseUrl}${this.bundlesPath}`
 
     if (filters) {
