@@ -32,6 +32,11 @@ export enum SecurityLevel {
   Lenient = 'lenient'
 }
 
+export type WidgetParams = {
+  name: string
+  description: string
+}
+
 export type Microservice = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
@@ -71,6 +76,7 @@ export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
   contextParams?: string[]
   configMfe?: string
+  params: WidgetParams[]
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
@@ -79,6 +85,7 @@ export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
 
 export type AppBuilderMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.AppBuilder
+  params: WidgetParams[]
 } & (
     | {
         slot: Exclude<

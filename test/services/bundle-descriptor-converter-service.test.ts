@@ -104,7 +104,13 @@ describe('bundle-descriptor-converter-service', () => {
               url: '/test'
             }
           ],
-          contextParams: ['pageCode']
+          contextParams: ['pageCode'],
+          params: [
+            {
+              name: 'param1',
+              description: 'this is param1'
+            }
+          ]
         },
         {
           name: 'test-mfe-no-code',
@@ -113,7 +119,8 @@ describe('bundle-descriptor-converter-service', () => {
           type: MicroFrontendType.Widget,
           titles: {},
           group: 'free',
-          publicFolder: 'public'
+          publicFolder: 'public',
+          params: []
         },
         {
           name: 'test-app-builder-mfe',
@@ -124,7 +131,8 @@ describe('bundle-descriptor-converter-service', () => {
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
-          nav: []
+          nav: [],
+          params: []
         }
       ]
     })
@@ -185,7 +193,13 @@ describe('bundle-descriptor-converter-service', () => {
       nav: [
         { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
       ],
-      contextParams: ['pageCode']
+      contextParams: ['pageCode'],
+      params: [
+        {
+          name: 'param1',
+          description: 'this is param1'
+        }
+      ]
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(
@@ -201,7 +215,8 @@ describe('bundle-descriptor-converter-service', () => {
       titles: {},
       group: 'free',
       descriptorVersion: 'v5',
-      type: 'widget'
+      type: 'widget',
+      params: []
     })
 
     const appBuilderMfeDescriptorPath = path.resolve(
@@ -221,7 +236,8 @@ describe('bundle-descriptor-converter-service', () => {
         slot: 'content',
         paths: [],
         nav: []
-      }
+      },
+      params: []
     })
 
     const msDescriptorPath = path.resolve(

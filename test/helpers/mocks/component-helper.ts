@@ -39,6 +39,7 @@ export class ComponentHelper {
       titles: {
         en: 'English Title'
       },
+      params: [],
       ...partial
     } as MicroFrontend
   }

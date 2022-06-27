@@ -13,7 +13,8 @@ import {
   Nav,
   SecurityLevel,
   WidgetConfigMicroFrontend,
-  WidgetMicroFrontend
+  WidgetMicroFrontend,
+  WidgetParams
 } from '../models/bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
@@ -150,6 +151,17 @@ export const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
     type: 'string'
   },
   url: {
+    required: true,
+    type: 'string'
+  }
+}
+
+export const PARAM_CONSTRAINTS: ObjectConstraints<WidgetParams> = {
+  name: {
+    required: true,
+    type: 'string'
+  },
+  description: {
     required: true,
     type: 'string'
   }
@@ -293,6 +305,11 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
     configMfe: {
       required: false,
       type: 'string'
+    },
+    params: {
+      isArray: true,
+      required: true,
+      children: PARAM_CONSTRAINTS
     }
   }
 
@@ -408,6 +425,11 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: true,
       type: 'string',
       validators: [values(MicroFrontendAppBuilderSlot)]
+    },
+    params: {
+      isArray: true,
+      required: true,
+      children: PARAM_CONSTRAINTS
     }
   },
   {
@@ -470,6 +492,11 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       isArray: true,
       required: true,
       type: 'string'
+    },
+    params: {
+      isArray: true,
+      required: true,
+      children: PARAM_CONSTRAINTS
     }
   }
 ]

@@ -74,7 +74,8 @@ export class BundleDescriptorHelper {
             it: 'titolo mfe 1'
           },
           group: 'free',
-          publicFolder: 'public'
+          publicFolder: 'public',
+          params: []
         },
         {
           name: 'test-mfe-2',
@@ -92,7 +93,8 @@ export class BundleDescriptorHelper {
           group: 'free',
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
-          paths: []
+          paths: [],
+          params: []
         }
       ]
     }
