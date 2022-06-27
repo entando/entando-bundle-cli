@@ -4,12 +4,17 @@ import { RequestFilterOperator } from '../../src/models/api'
 import { MOCK_BUNDLES, MOCK_BUNDLE_PLUGINS, MOCK_CM_TOKEN, MOCK_CM_URL } from '../helpers/mocks/cm'
 
 describe('cm-api', () => {
+  let cmAPI: CmAPI
+
+  beforeEach(() => {
+    cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
+  })
+
   test
     .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
       api.get(`/bundles`).reply(200, { payload: MOCK_BUNDLES })
     )
     .it('getBundles fetches all bundles from a cm api', async () => {
-      const cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
       const response = await cmAPI.getBundles()
 
       expect(response.data).to.eql({ payload: MOCK_BUNDLES })
@@ -26,7 +31,6 @@ describe('cm-api', () => {
     .it(
       'getBundles with filters fetches a filtered list of bundles from a cm api',
       async () => {
-        const cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
         const reqFilters = [
           {
             attribute: 'bundleId',
@@ -49,7 +53,6 @@ describe('cm-api', () => {
     .it(
       'getBundlePlugins fetches all plugins of a bundle from a cm api',
       async () => {
-        const cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
         const response = await cmAPI.getBundlePlugins(MOCK_BUNDLES[0].bundleId)
 
         expect(response.data).to.eql({ payload: MOCK_BUNDLE_PLUGINS })
@@ -67,7 +70,6 @@ describe('cm-api', () => {
     .it(
       'getBundlePlugin fetches a plugin of a bundle by name from a cm api',
       async () => {
-        const cmAPI = new CmAPI(MOCK_CM_URL, MOCK_CM_TOKEN)
         const response = await cmAPI.getBundlePlugin(
           MOCK_BUNDLES[0].bundleId,
           MOCK_BUNDLE_PLUGINS[0].pluginName
