@@ -216,7 +216,7 @@ export class DockerService {
     const command =
       DOCKER_COMMAND +
       ' --config ' +
-      path.join(...DOCKER_CONFIG_FOLDER) +
+      DockerService.getConfigFolder() +
       ' login ' +
       registry
 
@@ -306,7 +306,7 @@ export class DockerService {
     const command =
       DOCKER_COMMAND +
       ' --config ' +
-      path.join(...DOCKER_CONFIG_FOLDER) +
+      DockerService.getConfigFolder() +
       ' push ' +
       image
     const outputStream = new InMemoryWritable()
@@ -542,8 +542,18 @@ export class DockerService {
       command: `${baseCommand} ${craneCommand}`,
       env: {
         // setting config folder as home since crane looks at ~/.docker/config.json for authenticating
-        HOME: CONFIG_FOLDER
+        HOME: process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH
+          ? path.dirname(
+              path.dirname(process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH)
+            )
+          : CONFIG_FOLDER
       }
     }
+  }
+
+  private static getConfigFolder() {
+    return process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH
+      ? path.dirname(process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH)
+      : path.join(...DOCKER_CONFIG_FOLDER)
   }
 }
