@@ -63,7 +63,10 @@
       }
     },
     "hooks": {
-      "init": "./dist/hooks/init/cli-name-hook"
+      "init": [
+        "./dist/hooks/init/cli-name-hook",
+        "./dist/hooks/init/version-hook"
+      ]
     }
   },
   "dependencies": {
