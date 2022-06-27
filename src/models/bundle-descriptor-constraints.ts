@@ -308,7 +308,7 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
     },
     params: {
       isArray: true,
-      required: true,
+      required: false,
       children: PARAM_CONSTRAINTS
     }
   }
@@ -428,7 +428,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
     },
     params: {
       isArray: true,
-      required: true,
+      required: false,
       children: PARAM_CONSTRAINTS
     }
   },
@@ -495,7 +495,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
     },
     params: {
       isArray: true,
-      required: true,
+      required: false,
       children: PARAM_CONSTRAINTS
     }
   }

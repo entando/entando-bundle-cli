@@ -6,8 +6,7 @@ import {
   BundleDescriptor,
   MicroFrontend,
   MicroFrontendAppBuilderSlot,
-  MicroFrontendType,
-  WidgetParams
+  MicroFrontendType
 } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
@@ -59,8 +58,7 @@ export class MicroFrontendService {
       group: DEFAULT_GROUP,
       publicFolder: DEFAULT_PUBLIC_FOLDER,
       ...(mfe.type === MicroFrontendType.Widget && {
-        titles: this.getDefaultTitles(mfe.name),
-        params: []
+        titles: this.getDefaultTitles(mfe.name)
       }),
       ...(mfe.type === MicroFrontendType.AppBuilder &&
         this.getAppBuilderFields(mfe))
@@ -163,21 +161,18 @@ export class MicroFrontendService {
     | {
         slot: MicroFrontendAppBuilderSlot.Content
         paths: string[]
-        params: WidgetParams[]
       }
     | {
         slot: Exclude<
           MicroFrontendAppBuilderSlot,
           MicroFrontendAppBuilderSlot.Content
         >
-        params: WidgetParams[]
       } {
     const slot: MicroFrontendAppBuilderSlot =
       mfe.slot || MicroFrontendAppBuilderSlot.Content
 
-    if (slot === MicroFrontendAppBuilderSlot.Content)
-      return { slot, paths: [], params: [] }
+    if (slot === MicroFrontendAppBuilderSlot.Content) return { slot, paths: [] }
 
-    return { slot, params: [] }
+    return { slot }
   }
 }

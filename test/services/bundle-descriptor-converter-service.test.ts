@@ -116,11 +116,9 @@ describe('bundle-descriptor-converter-service', () => {
           name: 'test-mfe-no-code',
           customElement: 'test-mfe-no-code',
           stack: MicroFrontendStack.React,
-          type: MicroFrontendType.Widget,
-          titles: {},
+          type: MicroFrontendType.WidgetConfig,
           group: 'free',
-          publicFolder: 'public',
-          params: []
+          publicFolder: 'public'
         },
         {
           name: 'test-app-builder-mfe',
@@ -131,8 +129,7 @@ describe('bundle-descriptor-converter-service', () => {
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
-          nav: [],
-          params: []
+          nav: []
         }
       ]
     })
@@ -212,11 +209,9 @@ describe('bundle-descriptor-converter-service', () => {
     checkYamlFile(mfeNoCodeDescriptorPath, {
       name: 'test-mfe-no-code',
       customElement: 'test-mfe-no-code',
-      titles: {},
       group: 'free',
       descriptorVersion: 'v5',
-      type: 'widget',
-      params: []
+      type: 'widget-config'
     })
 
     const appBuilderMfeDescriptorPath = path.resolve(
@@ -297,8 +292,11 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
-        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml'],
-        'app-builder': ['widgets/test-app-builder-mfe.yaml']
+        widgets: ['widgets/test-mfe.yaml'],
+        'app-builder': [
+          'widgets/test-mfe-no-code.yaml',
+          'widgets/test-app-builder-mfe.yaml'
+        ]
       },
       global: {
         nav: [

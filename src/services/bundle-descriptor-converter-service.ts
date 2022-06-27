@@ -118,7 +118,7 @@ export class BundleDescriptorConverterService {
     if (microFrontend.type === MicroFrontendType.AppBuilder) {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
-        params: microFrontend.params,
+        params: microFrontend.params || [],
         ext: {
           slot: microFrontend.slot,
           nav: microFrontend.nav,
@@ -133,7 +133,7 @@ export class BundleDescriptorConverterService {
     } else {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.Widget>),
-        params: microFrontend.params,
+        params: microFrontend.params || [],
         titles: microFrontend.titles,
         nav: microFrontend.nav,
         configMfe: microFrontend.configMfe,

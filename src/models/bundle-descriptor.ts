@@ -76,7 +76,7 @@ export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
   contextParams?: string[]
   configMfe?: string
-  params: WidgetParams[]
+  params?: WidgetParams[]
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
@@ -85,7 +85,7 @@ export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
 
 export type AppBuilderMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.AppBuilder
-  params: WidgetParams[]
+  params?: WidgetParams[]
 } & (
     | {
         slot: Exclude<

@@ -29,14 +29,6 @@ describe('mfe add', () => {
     stack: MicroFrontendStack.React,
     type: MicroFrontendType.Widget,
     group: 'free',
-    publicFolder: 'public',
-    params: []
-  }
-
-  const defaultMfeValuesNoParams: Partial<MicroFrontend> = {
-    stack: MicroFrontendStack.React,
-    type: MicroFrontendType.Widget,
-    group: 'free',
     publicFolder: 'public'
   }
 
@@ -140,7 +132,7 @@ describe('mfe add', () => {
         ...bundleDescriptor,
         microfrontends: [
           {
-            ...defaultMfeValuesNoParams,
+            ...defaultMfeValues,
             name: mfeName,
             customElement: mfeName,
             type: 'widget-config'
