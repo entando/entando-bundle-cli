@@ -14,7 +14,7 @@ export class InMemoryWritable extends Writable {
   }
 }
 
-export class OutputColorWritable extends Writable {
+export class ColorizedWritable extends Writable {
   prefix = ''
   data = ''
 
@@ -22,9 +22,9 @@ export class OutputColorWritable extends Writable {
 
   constructor(prefix: string, maxPrefixLength: number) {
     super()
-    this.randomColor = color.hsl((Math.floor(Math.random() * 360) ),100,50)
-    this.prefix = `${prefix.padEnd(maxPrefixLength, ' ')} |`;
-   }
+    this.randomColor = color.hsl(Math.floor(Math.random() * 360), 100, 50)
+    this.prefix = `${prefix.padEnd(maxPrefixLength, ' ')} |`
+  }
 
   public _write = (
     chunk: unknown,
@@ -39,7 +39,7 @@ export class OutputColorWritable extends Writable {
         process.stdout.write(`${this.randomColor(this.prefix)} ${s} ${EOL}`)
       }
 
-      this.data=''
+      this.data = ''
     }
 
     next()

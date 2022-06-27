@@ -48,7 +48,7 @@ describe('run command', () => {
     .command(['run', '--all-ms', 'my-component'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Run failed, please use one flag or write the component name as argument'
+        'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     })
     .it('run command with flag and name arg should return and error')
@@ -59,7 +59,9 @@ describe('run command', () => {
     })
     .command(['run'])
     .catch(error => {
-      expect(error.message).to.contain('Run failed, missing required arg name')
+      expect(error.message).to.contain(
+        'Bad arguments. Please use the component name as argument or one of the available flags'
+      )
     })
     .it('run with missing required arg name ')
 

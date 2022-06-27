@@ -16,6 +16,19 @@ export abstract class BaseExecutionCommand extends Command {
     return this.name === BaseExecutionCommand.name
   }
 
+  public validateInputs(flagsLength: number, name?: string): void {
+    if (
+      flagsLength > 1 ||
+      (flagsLength > 0 && name !== undefined) ||
+      (flagsLength === 0 && name === undefined)
+    ) {
+      this.error(
+        'Bad arguments. Please use the component name as argument or one of the available flags',
+        { exit: 1 }
+      )
+    }
+  }
+
   public getExecutionOptions(
     components: Array<Component<ComponentType>>,
     commandPhase: Phase,

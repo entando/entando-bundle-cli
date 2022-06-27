@@ -1,5 +1,5 @@
 import { expect } from '@oclif/test'
-import { InMemoryWritable, OutputColorWritable } from '../src/utils'
+import { InMemoryWritable, ColorizedWritable } from '../src/utils'
 import { EOL } from 'node:os'
 import * as sinon from 'sinon'
 describe('Utilities', () => {
@@ -10,11 +10,11 @@ describe('Utilities', () => {
     expect(writable.data).eq('some data\nsome other data')
   })
 
-  it('OutputColorWritable', () => {
+  it('ColorizedWritable', () => {
     const sandbox = sinon.createSandbox()
     try {
       const prefix = 'test'
-      const writable = new OutputColorWritable(prefix, prefix.length)
+      const writable = new ColorizedWritable(prefix, prefix.length)
       const stdoutStub = sandbox.stub(process.stdout, 'write')
       const chunk1 = `first chunk `
       const chunk2 = `second chunk${EOL} other data${EOL}`

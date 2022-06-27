@@ -37,18 +37,8 @@ export default class Build extends BaseBuildCommand {
   public async run(): Promise<void> {
     BundleService.isValidBundleProject()
     const { args, flags } = await this.parse(Build)
-    const componentService = new ComponentService()
 
-    if (Object.keys(flags).length > 1) {
-      this.error(`Build failed, please use only one flag`, { exit: 1 })
-    }
-
-    if (Object.keys(flags).length > 0 && args.name !== undefined) {
-      this.error(
-        `Build failed, please use one flag or write the component name as argument`,
-        { exit: 1 }
-      )
-    }
+    this.validateInputs(Object.keys(flags).length, args.name)
 
     if (flags['all-mfe']) {
       await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
@@ -57,12 +47,9 @@ export default class Build extends BaseBuildCommand {
     } else if (flags.all) {
       await this.buildAllComponents(Phase.Build)
     } else {
-      if (args.name === undefined) {
-        this.error(`Build failed, missing required arg name`, { exit: 1 })
-      }
-
       CliUx.ux.action.start(`Building component ${args.name}`)
 
+      const componentService = new ComponentService()
       const result = await componentService.build(args.name)
 
       if (result !== 0) {
