@@ -19,6 +19,8 @@ import {
 } from '../services/docker-service'
 import { CustomResourceService } from '../services/custom-resource-service'
 import * as YAML from 'yaml'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
 
 export default class GenerateCr extends Command {
   static description =
@@ -28,7 +30,8 @@ export default class GenerateCr extends Command {
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> --image=my-registry/my-org/my-bundle',
-    '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest'
+    '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
+    '<%= config.bin %> <%= command.id %> -o my-cr.yml'
   ]
 
   static flags = {
@@ -40,11 +43,19 @@ export default class GenerateCr extends Command {
     digest: Flags.boolean({
       char: 'd',
       description: 'Include Docker images digests'
+    }),
+    output: Flags.string({
+      char: 'o',
+      description: 'Write the result to the specified output file'
     })
   }
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GenerateCr)
+
+    if (flags.output && !fs.existsSync(path.dirname(flags.output))) {
+      this.error("Parent directory for the specified output file doesn't exist")
+    }
 
     let image = flags.image
 
@@ -128,7 +139,12 @@ export default class GenerateCr extends Command {
       yamlDescriptor
     )
     const crDescriptor = customResourceService.createCustomResource()
+    const yamlContent = YAML.stringify(crDescriptor)
     CliUx.ux.action.stop()
-    this.log(YAML.stringify(crDescriptor))
+    if (flags.output) {
+      fs.writeFileSync(flags.output, yamlContent)
+    } else {
+      this.log(yamlContent)
+    }
   }
 }

@@ -14,8 +14,12 @@ import {
 import * as sinon from 'sinon'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import { CLIError } from '@oclif/errors'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
+import * as fs from 'node:fs'
 
 describe('generate-cr', () => {
+  const tempDirHelper = new TempDirHelper(__filename)
+
   afterEach(() => {
     sinon.restore()
   })
@@ -198,7 +202,6 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
-      sinon.stub(BundleService, 'isValidBundleProject')
       sinon.stub(DockerService, 'listTags').resolves([])
     })
     .stdout()
@@ -208,4 +211,30 @@ describe('generate-cr', () => {
       expect(error.message).contain('No tags found')
     })
     .it('Generate CR fails if image has no tags')
+
+  test
+    .do(() => {
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
+      tempDirHelper.createUninitializedBundleDir()
+    })
+    .stdout()
+    .stderr()
+    .command(['generate-cr', '--image', 'my-org/my-image', '-o', 'my-cr.yml'])
+    .it('Generate CR using output file', () => {
+      expect(fs.existsSync('my-cr.yml')).eq(true)
+    })
+
+  test
+    .stdout()
+    .stderr()
+    .command(['generate-cr', '-o', 'path/to/my-cr.yml'])
+    .catch(error => {
+      expect(error.message).contain(
+        "Parent directory for the specified output file doesn't exist"
+      )
+    })
+    .it("Generate CR fails if output file parent directory doesn't exist")
 })
