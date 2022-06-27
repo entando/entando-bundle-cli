@@ -17,6 +17,10 @@ import {
   DEFAULT_DOCKER_REGISTRY,
   DockerService
 } from '../services/docker-service'
+import { CustomResourceService } from '../services/custom-resource-service'
+import * as YAML from 'yaml'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
 
 export default class GenerateCr extends Command {
   static description =
@@ -26,7 +30,8 @@ export default class GenerateCr extends Command {
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> --image=my-registry/my-org/my-bundle',
-    '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest'
+    '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
+    '<%= config.bin %> <%= command.id %> -o my-cr.yml'
   ]
 
   static flags = {
@@ -38,11 +43,19 @@ export default class GenerateCr extends Command {
     digest: Flags.boolean({
       char: 'd',
       description: 'Include Docker images digests'
+    }),
+    output: Flags.string({
+      char: 'o',
+      description: 'Write the result to the specified output file'
     })
   }
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GenerateCr)
+
+    if (flags.output && !fs.existsSync(path.dirname(flags.output))) {
+      this.error("Parent directory for the specified output file doesn't exist")
+    }
 
     let image = flags.image
 
@@ -88,6 +101,7 @@ export default class GenerateCr extends Command {
 
     CliUx.ux.action.start('Retrieving bundle image tags')
     const tags = await DockerService.listTags(image)
+    let digests: Map<string, string> = new Map()
     CliUx.ux.action.stop()
 
     if (tags.length === 0) {
@@ -95,7 +109,7 @@ export default class GenerateCr extends Command {
     }
 
     if (flags.digest) {
-      this.log(color.bold.blue('Fetching bundle Docker repository tags'))
+      console.warn(color.bold.blue('Fetching bundle Docker repository tags'))
 
       const progress = CliUx.ux.progress()
       progress.start(tags.length, 0)
@@ -106,28 +120,31 @@ export default class GenerateCr extends Command {
         progress.update(progress.value + 1)
       })
 
-      let digests: Map<string, string>
       try {
         digests = await digestsExecutor.getDigests()
       } finally {
         progress.stop()
       }
-
-      for (const [tag, digest] of digests.entries()) {
-        this.log(tag, digest)
-      }
-    } else {
-      for (const tag of tags) {
-        this.log(tag)
-      }
     }
 
-    CliUx.ux.action.start('Retrieving bundle image descriptor')
+    CliUx.ux.action.start('Generating Entando custom resource descriptor')
     const latestTag = `${image}:${tags[0]}`
     const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
       latestTag
     )
+    const customResourceService = new CustomResourceService(
+      image,
+      tags,
+      digests,
+      yamlDescriptor
+    )
+    const crDescriptor = customResourceService.createCustomResource()
+    const yamlContent = YAML.stringify(crDescriptor)
     CliUx.ux.action.stop()
-    console.log(yamlDescriptor)
+    if (flags.output) {
+      fs.writeFileSync(flags.output, yamlContent)
+    } else {
+      this.log(yamlContent)
+    }
   }
 }
