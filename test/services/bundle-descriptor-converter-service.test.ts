@@ -104,14 +104,19 @@ describe('bundle-descriptor-converter-service', () => {
               url: '/test'
             }
           ],
-          contextParams: ['pageCode']
+          contextParams: ['pageCode'],
+          params: [
+            {
+              name: 'param1',
+              description: 'this is param1'
+            }
+          ]
         },
         {
           name: 'test-mfe-no-code',
           customElement: 'test-mfe-no-code',
           stack: MicroFrontendStack.React,
-          type: MicroFrontendType.Widget,
-          titles: {},
+          type: MicroFrontendType.WidgetConfig,
           group: 'free',
           publicFolder: 'public'
         },
@@ -185,7 +190,13 @@ describe('bundle-descriptor-converter-service', () => {
       nav: [
         { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
       ],
-      contextParams: ['pageCode']
+      contextParams: ['pageCode'],
+      params: [
+        {
+          name: 'param1',
+          description: 'this is param1'
+        }
+      ]
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(
@@ -198,10 +209,9 @@ describe('bundle-descriptor-converter-service', () => {
     checkYamlFile(mfeNoCodeDescriptorPath, {
       name: 'test-mfe-no-code',
       customElement: 'test-mfe-no-code',
-      titles: {},
       group: 'free',
       descriptorVersion: 'v5',
-      type: 'widget'
+      type: 'widget-config'
     })
 
     const appBuilderMfeDescriptorPath = path.resolve(
@@ -221,7 +231,8 @@ describe('bundle-descriptor-converter-service', () => {
         slot: 'content',
         paths: [],
         nav: []
-      }
+      },
+      params: []
     })
 
     const msDescriptorPath = path.resolve(
@@ -281,8 +292,11 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
-        widgets: ['widgets/test-mfe.yaml', 'widgets/test-mfe-no-code.yaml'],
-        'app-builder': ['widgets/test-app-builder-mfe.yaml']
+        widgets: ['widgets/test-mfe.yaml'],
+        'app-builder': [
+          'widgets/test-mfe-no-code.yaml',
+          'widgets/test-app-builder-mfe.yaml'
+        ]
       },
       global: {
         nav: [

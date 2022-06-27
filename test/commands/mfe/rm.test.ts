@@ -26,7 +26,8 @@ describe('mfe rm', () => {
         stack: MicroFrontendStack.React,
         type: MicroFrontendType.Widget,
         group: 'group',
-        publicFolder: 'public'
+        publicFolder: 'public',
+        params: []
       }
     ]
   }
