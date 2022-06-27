@@ -1,3 +1,5 @@
+import * as sinon from 'sinon'
+
 export const MOCK_CM_URL = 'http://test-cm.eng-entando.com'
 export const MOCK_CM_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSl'
 
@@ -23,3 +25,11 @@ export const MOCK_BUNDLE_PLUGINS = [
     roles: ['myapp2mysql-admin', 'point-2-d-admin']
   }
 ]
+
+export function setCmEnv(): void {
+  sinon.stub(process, 'env').value({
+    ...process.env,
+    ENTANDO_CLI_ECR_URL: MOCK_CM_URL,
+    ENTANDO_CLI_ECR_TOKEN: MOCK_CM_TOKEN
+  })
+}

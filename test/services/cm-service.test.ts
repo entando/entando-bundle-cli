@@ -3,13 +3,23 @@ import { AxiosError, AxiosResponse } from 'axios'
 import * as sinon from 'sinon'
 import { CmAPI } from '../../src/api/cm-api'
 import { CmService } from '../../src/services/cm-service'
-import { MOCK_BUNDLES, MOCK_BUNDLE_PLUGINS } from '../helpers/mocks/cm'
+import {
+  MOCK_BUNDLES,
+  MOCK_BUNDLE_PLUGINS,
+  setCmEnv
+} from '../helpers/mocks/cm'
 
 describe('cm-service', () => {
   let cmService: CmService
 
   beforeEach(() => {
+    setCmEnv()
+
     cmService = new CmService()
+  })
+
+  afterEach(() => {
+    sinon.restore()
   })
 
   test
@@ -40,13 +50,11 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundles',
-      sinon
-        .stub()
-        .rejects(
-          new AxiosError(undefined, undefined, undefined, undefined, {
-            status: 400
-          } as AxiosResponse)
-        )
+      sinon.stub().rejects(
+        new AxiosError(undefined, undefined, undefined, undefined, {
+          status: 400
+        } as AxiosResponse)
+      )
     )
     .do(async () => {
       await cmService.getBundles()
@@ -93,13 +101,11 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundlePlugins',
-      sinon
-        .stub()
-        .rejects(
-          new AxiosError(undefined, undefined, undefined, undefined, {
-            status: 400
-          } as AxiosResponse)
-        )
+      sinon.stub().rejects(
+        new AxiosError(undefined, undefined, undefined, undefined, {
+          status: 400
+        } as AxiosResponse)
+      )
     )
     .do(async () => {
       await cmService.getBundleMicroservices(MOCK_BUNDLES[0].bundleId)
@@ -147,13 +153,11 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundlePlugin',
-      sinon
-        .stub()
-        .rejects(
-          new AxiosError(undefined, undefined, undefined, undefined, {
-            status: 400
-          } as AxiosResponse)
-        )
+      sinon.stub().rejects(
+        new AxiosError(undefined, undefined, undefined, undefined, {
+          status: 400
+        } as AxiosResponse)
+      )
     )
     .do(async () => {
       await cmService.getBundleMicroservice(

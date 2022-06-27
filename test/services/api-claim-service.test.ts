@@ -6,8 +6,13 @@ import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helpe
 import { ComponentHelper } from '../helpers/mocks/component-helper'
 import { ApiType } from '../../src/models/bundle-descriptor'
 import { MfeConfigService } from '../../src/services/mfe-config-service'
+import { setCmEnv } from '../helpers/mocks/cm'
 
 describe('ApiClaimService', () => {
+  beforeEach(() => {
+    setCmEnv()
+  })
+
   afterEach(() => {
     sinon.restore()
   })

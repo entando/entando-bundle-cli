@@ -17,6 +17,7 @@ import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
 import { DEFAULT_DOCKER_REGISTRY } from '../../../src/services/docker-service'
+import { setCmEnv } from '../../helpers/mocks/cm'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -46,6 +47,12 @@ describe('api add-ext', () => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
     mfeConfigService = new MfeConfigService()
     mfeConfigService.writeMfeConfig('mfe1', {})
+
+    setCmEnv()
+  })
+
+  afterEach(() => {
+    sinon.restore()
   })
 
   test
