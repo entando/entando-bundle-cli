@@ -1,7 +1,21 @@
 import { CLIError } from '@oclif/errors';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { CmAPI } from '../api/cm-api';
 import { CmBundle, Plugin } from '../models/cm';
+
+class ApiError extends CLIError {
+  constructor(message: string, error?: AxiosError | Error) {
+    if (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        super(message + `\nServer responded with status code: ${error.response.status}`)
+      } else {
+        super(message + error.message)
+      }
+    } else {
+      super(message)
+    }
+  }
+}
 
 export class CmService {
   private readonly cmApi: CmAPI
@@ -22,14 +36,8 @@ export class CmService {
       const response = await this.cmApi.getBundles()
       return response.data.payload
     } catch (error) {
-      let errorMsg = 'Failed to get bundles\n'
-
-      if (axios.isAxiosError(error) && error.response) {
-          errorMsg += `Server responded with status code: ${error.response.status}`
-          throw new CLIError(errorMsg)
-      }
-
-      throw new CLIError(errorMsg + (error as Error).message)
+      const errorMsg = 'Failed to get bundles'
+      throw new ApiError(errorMsg, error as AxiosError | Error)
     }
   }
 
@@ -38,14 +46,8 @@ export class CmService {
       const response = await this.cmApi.getBundlePlugins(bundleId)
       return response.data.payload
     } catch (error) {
-      let errorMsg = 'Failed to get bundle microservices\n'
-
-      if (axios.isAxiosError(error) && error.response) {
-          errorMsg += `Server responded with status code: ${error.response.status}`
-          throw new CLIError(errorMsg)
-      }
-
-      throw new CLIError(errorMsg + (error as Error).message)
+      const errorMsg = 'Failed to get bundle microservices'
+      throw new ApiError(errorMsg, error as AxiosError | Error)
     }
   }
 
@@ -54,14 +56,8 @@ public async getBundleMicroservice(bundleId: string, serviceName: string): Promi
     const response = await this.cmApi.getBundlePlugin(bundleId, serviceName)
     return response.data
   } catch (error) {
-    let errorMsg = `Failed to get bundle microservice ${serviceName}\n`
-
-    if (axios.isAxiosError(error) && error.response) {
-        errorMsg += `Server responded with status code: ${error.response.status}`
-        throw new CLIError(errorMsg)
-    }
-
-    throw new CLIError(errorMsg + (error as Error).message)
+    const errorMsg = `Failed to get bundle microservice ${serviceName}`
+    throw new ApiError(errorMsg, error as AxiosError | Error)
   }
 }
 
