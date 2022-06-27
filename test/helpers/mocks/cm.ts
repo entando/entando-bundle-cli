@@ -14,17 +14,15 @@ export const MOCK_BUNDLES = [
   }
 ]
 
-export const MOCK_BUNDLE_PLUGINS = [
-  {
-    id: 'f90100c6-ec40-4041-a46b-28b40a12ff7b',
-    bundleId: '1aafa497',
-    pluginId: 'c7b80698',
-    pluginName: 'lcorsettientando-myapp-2-mysql',
-    pluginCode: 'pn-1aafa497-c7b80698-lcorsettientando-myapp-2-mysql',
-    ingressPath: '/lcorsettientando/myapp-2-mysql',
-    roles: ['myapp2mysql-admin', 'point-2-d-admin']
-  }
-]
+export const MOCK_BUNDLE_PLUGIN = {
+  id: 'f90100c6-ec40-4041-a46b-28b40a12ff7b',
+  bundleId: '1aafa497',
+  pluginId: 'c7b80698',
+  pluginName: 'lcorsettientando-myapp-2-mysql',
+  pluginCode: 'pn-1aafa497-c7b80698-lcorsettientando-myapp-2-mysql',
+  ingressPath: '/lcorsettientando/myapp-2-mysql',
+  roles: ['myapp2mysql-admin', 'point-2-d-admin']
+}
 
 export function setCmEnv(): void {
   sinon.stub(process, 'env').value({

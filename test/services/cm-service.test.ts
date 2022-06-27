@@ -3,11 +3,7 @@ import { AxiosError, AxiosResponse } from 'axios'
 import * as sinon from 'sinon'
 import { CmAPI } from '../../src/api/cm-api'
 import { CmService } from '../../src/services/cm-service'
-import {
-  MOCK_BUNDLES,
-  MOCK_BUNDLE_PLUGINS,
-  setCmEnv
-} from '../helpers/mocks/cm'
+import { MOCK_BUNDLES, MOCK_BUNDLE_PLUGIN, setCmEnv } from '../helpers/mocks/cm'
 
 describe('cm-service', () => {
   let cmService: CmService
@@ -84,7 +80,7 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundlePlugins',
-      sinon.stub().resolves({ data: { payload: MOCK_BUNDLE_PLUGINS } })
+      sinon.stub().resolves({ data: { payload: [MOCK_BUNDLE_PLUGIN] } })
     )
     .it(
       'getBundleMicroservices fetches all microservices of a bundle via CmAPI',
@@ -93,7 +89,7 @@ describe('cm-service', () => {
           MOCK_BUNDLES[0].bundleId
         )
 
-        expect(bundleMicroservices).to.eql(MOCK_BUNDLE_PLUGINS)
+        expect(bundleMicroservices).to.eql([MOCK_BUNDLE_PLUGIN])
       }
     )
 
@@ -135,17 +131,17 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundlePlugin',
-      sinon.stub().resolves({ data: MOCK_BUNDLE_PLUGINS[0] })
+      sinon.stub().resolves({ data: MOCK_BUNDLE_PLUGIN })
     )
     .it(
       'getBundleMicroservice fetches a microservice of a bundle by name via CmAPI',
       async () => {
         const bundleMicroservice = await cmService.getBundleMicroservice(
           MOCK_BUNDLES[0].bundleId,
-          MOCK_BUNDLE_PLUGINS[0].pluginName
+          MOCK_BUNDLE_PLUGIN.pluginName
         )
 
-        expect(bundleMicroservice).to.eql(MOCK_BUNDLE_PLUGINS[0])
+        expect(bundleMicroservice).to.eql(MOCK_BUNDLE_PLUGIN)
       }
     )
 
@@ -162,12 +158,12 @@ describe('cm-service', () => {
     .do(async () => {
       await cmService.getBundleMicroservice(
         MOCK_BUNDLES[0].bundleId,
-        MOCK_BUNDLE_PLUGINS[0].pluginName
+        MOCK_BUNDLE_PLUGIN.pluginName
       )
     })
     .catch(error => {
       expect(error.message).to.contain(
-        `Failed to get bundle microservice ${MOCK_BUNDLE_PLUGINS[0].pluginName}`
+        `Failed to get bundle microservice ${MOCK_BUNDLE_PLUGIN.pluginName}`
       )
       expect(error.message).to.contain('Server responded with status code: 400')
     })
@@ -182,12 +178,12 @@ describe('cm-service', () => {
     .do(async () => {
       await cmService.getBundleMicroservice(
         MOCK_BUNDLES[0].bundleId,
-        MOCK_BUNDLE_PLUGINS[0].pluginName
+        MOCK_BUNDLE_PLUGIN.pluginName
       )
     })
     .catch(error => {
       expect(error.message).to.contain(
-        `Failed to get bundle microservice ${MOCK_BUNDLE_PLUGINS[0].pluginName}`
+        `Failed to get bundle microservice ${MOCK_BUNDLE_PLUGIN.pluginName}`
       )
       expect(error.message).to.contain('Some error occurred')
     })
