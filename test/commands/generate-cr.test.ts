@@ -151,7 +151,7 @@ describe('generate-cr', () => {
     .command(['generate-cr', '--digest'])
     .it(
       'Generate CR with digests for current project and custom registry',
-      () => {
+      ctx => {
         const listTagsStub = DockerService.listTags as sinon.SinonStub
         sinon.assert.calledWith(
           listTagsStub,
@@ -164,6 +164,7 @@ describe('generate-cr', () => {
           'custom-registry.org/my-org/test-bundle',
           tags
         )
+        expect(ctx.stderr).contain('Fetching bundle Docker repository tags')
       }
     )
 

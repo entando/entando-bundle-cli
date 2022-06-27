@@ -98,7 +98,7 @@ export default class GenerateCr extends Command {
     }
 
     if (flags.digest) {
-      this.log(color.bold.blue('Fetching bundle Docker repository tags'))
+      console.warn(color.bold.blue('Fetching bundle Docker repository tags'))
 
       const progress = CliUx.ux.progress()
       progress.start(tags.length, 0)

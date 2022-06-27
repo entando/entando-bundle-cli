@@ -97,4 +97,56 @@ describe('CustomResourceService', () => {
       ])
     }
   )
+
+  test.it(
+    'CustomResourceService should generate a valid CR when there are no plugins',
+    () => {
+      const mockYmlBundleDescriptor = {
+        name: 'jeff-bundle',
+        description: 'This is an awesome bundle',
+        components: {
+          plugins: [],
+          widgets: [],
+          'app-builder': ['widgets/jeff-mfe.yaml']
+        },
+        descriptorVersion: 'v5',
+        thumbnail: 'data:image/png;base64,abcdef'
+      }
+      customResourceService = new CustomResourceService(
+        'registry/repo/image',
+        ['0.0.2', '0.0.1'],
+        new Map(),
+        mockYmlBundleDescriptor
+      )
+      const desc = customResourceService.createCustomResource()
+      expect(desc.metadata.labels.plugin).to.eq(false)
+      expect(desc.metadata.labels.widget).to.eq(true)
+    }
+  )
+
+  test.it(
+    'CustomResourceService should generate a valid CR when there are no plugins and no widgets',
+    () => {
+      const mockYmlBundleDescriptor = {
+        name: 'jeff-bundle',
+        description: 'This is an awesome bundle',
+        components: {
+          plugins: [],
+          widgets: [],
+          'app-builder': []
+        },
+        descriptorVersion: 'v5',
+        thumbnail: 'data:image/png;base64,abcdef'
+      }
+      customResourceService = new CustomResourceService(
+        'registry/repo/image',
+        ['0.0.2', '0.0.1'],
+        new Map(),
+        mockYmlBundleDescriptor
+      )
+      const desc = customResourceService.createCustomResource()
+      expect(desc.metadata.labels.plugin).to.eq(false)
+      expect(desc.metadata.labels.widget).to.eq(false)
+    }
+  )
 })
