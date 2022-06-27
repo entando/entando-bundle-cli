@@ -26,6 +26,6 @@ export type CustomResourceDescriptor = {
       versions: string[]
       thumbnail?: string
     }
-    tags : CustomResourceTag[]
+    tags: CustomResourceTag[]
   }
 }

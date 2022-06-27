@@ -151,7 +151,9 @@ export class BundleDescriptorConverterService {
           type: ApiType.External,
           name: apiClaim.name,
           pluginName: apiClaim.serviceName,
-          bundleId: BundleService.generateBundleId((apiClaim as ExternalApiClaim).bundle)
+          bundleId: BundleService.generateBundleId(
+            (apiClaim as ExternalApiClaim).bundle
+          )
         })
       } else {
         yamlApiClaims.push({

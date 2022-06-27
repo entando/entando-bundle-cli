@@ -108,7 +108,7 @@ export default class GenerateCr extends Command {
       digestsExecutor.on('done', () => {
         progress.update(progress.value + 1)
       })
-      
+
       try {
         digests = await digestsExecutor.getDigests()
       } finally {
@@ -121,7 +121,12 @@ export default class GenerateCr extends Command {
     const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
       latestTag
     )
-    const customResourceService = new CustomResourceService(image, tags, digests, yamlDescriptor);
+    const customResourceService = new CustomResourceService(
+      image,
+      tags,
+      digests,
+      yamlDescriptor
+    )
     const crDescriptor = customResourceService.createCustomResource()
     CliUx.ux.action.stop()
     this.log(YAML.stringify(crDescriptor))
