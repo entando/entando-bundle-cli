@@ -12,7 +12,7 @@ import {
   MISSING_DESCRIPTOR_ERROR
 } from '../../../src/services/bundle-descriptor-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
-import { CMService } from '../../../src/services/cm-service'
+import { CmService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
@@ -286,7 +286,7 @@ describe('api add-ext', () => {
   test
     .stderr()
     .stub(
-      CMService.prototype,
+      CmService.prototype,
       'getBundleMicroserviceUrl',
       sinon.stub().returns(null)
     )
