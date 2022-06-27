@@ -14,7 +14,7 @@ import {
   SecurityLevel,
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
-  WidgetParams
+  WidgetParam
 } from '../models/bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from '../models/component'
 import {
@@ -156,13 +156,13 @@ export const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
   }
 }
 
-export const PARAM_CONSTRAINTS: ObjectConstraints<WidgetParams> = {
+export const PARAM_CONSTRAINTS: ObjectConstraints<WidgetParam> = {
   name: {
     required: true,
     type: 'string'
   },
   description: {
-    required: true,
+    required: false,
     type: 'string'
   }
 }

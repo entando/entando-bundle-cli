@@ -6,7 +6,7 @@ import {
   MicroFrontendType,
   Nav,
   Permission,
-  WidgetParams
+  WidgetParam
 } from './bundle-descriptor'
 
 export type BaseYamlWidgetDescriptor<T extends MicroFrontendType> = {
@@ -20,7 +20,7 @@ export type BaseYamlWidgetDescriptor<T extends MicroFrontendType> = {
 
 export type YamlAppBuilderWidgetDescriptor =
   BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder> & {
-    params: WidgetParams[]
+    params: WidgetParam[]
     ext: {
       slot: MicroFrontendAppBuilderSlot
       nav?: Nav[]
@@ -33,7 +33,7 @@ export type YamlWidgetDescriptor =
     titles: { [lang: string]: string }
     configMfe?: string
     contextParams?: string[]
-    params: WidgetParams[]
+    params: WidgetParam[]
     nav?: Nav[]
   }
 

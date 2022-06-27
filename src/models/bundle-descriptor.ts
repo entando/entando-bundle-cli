@@ -32,9 +32,9 @@ export enum SecurityLevel {
   Lenient = 'lenient'
 }
 
-export type WidgetParams = {
+export type WidgetParam = {
   name: string
-  description: string
+  description?: string
 }
 
 export type Microservice = {
@@ -76,7 +76,7 @@ export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
   contextParams?: string[]
   configMfe?: string
-  params?: WidgetParams[]
+  params?: WidgetParam[]
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
@@ -85,7 +85,7 @@ export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
 
 export type AppBuilderMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.AppBuilder
-  params?: WidgetParams[]
+  params?: WidgetParam[]
 } & (
     | {
         slot: Exclude<
