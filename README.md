@@ -85,16 +85,16 @@ Add an external API claim to the specified MFE component
 
 ```
 USAGE
-  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] --bundle <value> --serviceName <value>
+  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] [--serviceName <value> --bundle <value>]
 
 ARGUMENTS
   MFENAME    Name of the Micro Frontend component
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --bundle=<value>       (required) Target Bundle Docker repository with the format <organization>/<repository> or
+  --bundle=<value>       Target Bundle Docker repository with the format <organization>/<repository> or
                          <registry>/<organization>/<repository>
-  --serviceName=<value>  (required) Microservice name within the target Bundle
+  --serviceName=<value>  Microservice name within the target Bundle
 
 DESCRIPTION
   Add an external API claim to the specified MFE component
