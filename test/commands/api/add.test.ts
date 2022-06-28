@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as sinon from 'sinon'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   ApiType,
@@ -16,6 +17,7 @@ import { MfeConfigService } from '../../../src/services/mfe-config-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
+import { setCmEnv } from '../../helpers/mocks/cm'
 
 describe('api add', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -45,6 +47,12 @@ describe('api add', () => {
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
     mfeConfigService = new MfeConfigService()
     mfeConfigService.writeMfeConfig('mfe1', {})
+
+    setCmEnv()
+  })
+
+  afterEach(() => {
+    sinon.restore()
   })
 
   test

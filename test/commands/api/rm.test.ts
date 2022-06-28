@@ -14,6 +14,7 @@ import {
 } from '../../../src/services/bundle-descriptor-service'
 import { ConstraintsValidatorService } from '../../../src/services/constraints-validator-service'
 import { MfeConfigService } from '../../../src/services/mfe-config-service'
+import { setCmEnv } from '../../helpers/mocks/cm'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 
 describe('api rm', () => {
@@ -78,6 +79,8 @@ describe('api rm', () => {
         }
       }
     })
+
+    setCmEnv()
   })
 
   test

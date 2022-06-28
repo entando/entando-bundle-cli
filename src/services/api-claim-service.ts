@@ -4,17 +4,17 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { MfeConfigService } from './mfe-config-service'
 import { MfeConfig } from '../models/mfe-config'
-import { CMService } from './cm-service'
+import { CmService } from './cm-service'
 
 export class ApiClaimService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly mfeConfigService: MfeConfigService
-  private readonly cmService: CMService
+  private readonly cmService: CmService
 
   constructor() {
     this.bundleDescriptorService = new BundleDescriptorService()
     this.mfeConfigService = new MfeConfigService()
-    this.cmService = new CMService()
+    this.cmService = new CmService()
   }
 
   public addInternalApiClaim(
