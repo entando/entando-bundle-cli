@@ -1,4 +1,4 @@
-name: Internal Snapshot Publication
+name: PUB
 
 on:
   push:
@@ -36,18 +36,12 @@ jobs:
         run: |
           ${{ secrets.ENTANDO_OPT_PPL_INSTALL_CMD }}
           ~/ppl-run \
-            .. status-report \
-            .. @setup-feature-flags "PR_FORMAT_CHECK" "BOM_CHECK" "BOM" "POST_PUB_DOCKER_SCAN" "POST_DEP_TESTS" \
-          ;
-      #~ CHECKOUT
-      - name: "CHECKOUT"
-        id: CHECKOUT
-        run: |
-          ~/ppl-run \
             .. checkout-branch --id "CHECKOUT FOR PUBLICATION" \
                   --lcd "$LOCAL_CLONE_DIR" \
                   --token "$ENTANDO_BOT_TOKEN" \
+            .. status-report \
             .. pr-preflight-checks --only flags --lcd "$LOCAL_CLONE_DIR" \
+            .. @setup-feature-flags "PR_FORMAT_CHECK" "BOM_CHECK" "BOM" "POST_PUB_DOCKER_SCAN" "POST_DEP_TESTS" \
           ;
       #~ NODE
       - name: "Set up Node 14"
