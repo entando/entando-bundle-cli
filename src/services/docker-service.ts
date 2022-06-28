@@ -11,8 +11,6 @@ import * as path from 'node:path'
 import {
   BUILD_FOLDER,
   BUNDLE_DESCRIPTOR_NAME,
-  CONFIG_FOLDER,
-  DOCKER_CONFIG_FOLDER,
   MICROFRONTENDS_FOLDER,
   WIDGETS_FOLDER
 } from '../paths'
@@ -213,12 +211,7 @@ export class DockerService {
   public static async login(
     registry: string = DEFAULT_DOCKER_REGISTRY
   ): Promise<void> {
-    const command =
-      DOCKER_COMMAND +
-      ' --config ' +
-      DockerService.getConfigFolder() +
-      ' login ' +
-      registry
+    const command = DOCKER_COMMAND + ' login ' + registry
 
     const tryLogin = await ProcessExecutorService.executeProcess({
       command
@@ -303,12 +296,7 @@ export class DockerService {
   }
 
   public static async pushImage(image: string): Promise<string> {
-    const command =
-      DOCKER_COMMAND +
-      ' --config ' +
-      DockerService.getConfigFolder() +
-      ' push ' +
-      image
+    const command = DOCKER_COMMAND + ' push ' + image
     const outputStream = new InMemoryWritable()
     const result = await ProcessExecutorService.executeProcess({
       command,
@@ -400,8 +388,9 @@ export class DockerService {
     } else if (error.includes('NAME_UNKNOWN')) {
       throw new CLIError(`Image ${imageName} not found`)
     } else if (error.includes('UNAUTHORIZED')) {
+      const registry = imageName.slice(0, imageName.indexOf('/'))
       throw new CLIError(
-        `Registry required authentication. This may also be caused by searching for a non-existing image.\nPlease verify that ${imageName} exists.`
+        `Docker registry ${registry} requires authentication. This may be caused by one of the following reasons:\n- You are not logged in against the given registry. Please run docker login command\n- You are using a non-existing image in that registry`
       )
     } else {
       DockerService.debug(output)
@@ -539,21 +528,7 @@ export class DockerService {
   ): ProcessExecutionOptions {
     const baseCommand = process.env.ENTANDO_CLI_CRANE_BIN ?? CRANE_BIN_NAME
     return {
-      command: `${baseCommand} ${craneCommand}`,
-      env: {
-        // setting config folder as home since crane looks at ~/.docker/config.json for authenticating
-        HOME: process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH
-          ? path.dirname(
-              path.dirname(process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH)
-            )
-          : CONFIG_FOLDER
-      }
+      command: `${baseCommand} ${craneCommand}`
     }
-  }
-
-  private static getConfigFolder() {
-    return process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH
-      ? path.dirname(process.env.ENTANDO_CLI_DOCKER_CONFIG_PATH)
-      : path.join(...DOCKER_CONFIG_FOLDER)
   }
 }
