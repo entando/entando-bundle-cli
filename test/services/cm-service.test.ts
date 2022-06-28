@@ -99,6 +99,26 @@ describe('cm-service', () => {
       'getBundlePlugins',
       sinon.stub().rejects(
         new AxiosError(undefined, undefined, undefined, undefined, {
+          status: 404
+        } as AxiosResponse)
+      )
+    )
+    .do(async () => {
+      await cmService.getBundleMicroservices(MOCK_BUNDLES[0].bundleId)
+    })
+    .catch(error => {
+      expect(error.message).to.contain(
+        `Bundle with bundleId ${MOCK_BUNDLES[0].bundleId} cannot be found`
+      )
+    })
+    .it('getBundleMicroservices handles 404 error response')
+
+  test
+    .stub(
+      CmAPI.prototype,
+      'getBundlePlugins',
+      sinon.stub().rejects(
+        new AxiosError(undefined, undefined, undefined, undefined, {
           status: 400
         } as AxiosResponse)
       )
@@ -144,6 +164,54 @@ describe('cm-service', () => {
         expect(bundleMicroservice).to.eql(MOCK_BUNDLE_PLUGIN)
       }
     )
+
+  test
+    .stub(
+      CmAPI.prototype,
+      'getBundlePlugin',
+      sinon.stub().rejects(
+        new AxiosError(undefined, undefined, undefined, undefined, {
+          status: 404,
+          data: { message: MOCK_BUNDLE_PLUGIN.pluginName }
+        } as AxiosResponse)
+      )
+    )
+    .do(async () => {
+      await cmService.getBundleMicroservice(
+        MOCK_BUNDLES[0].bundleId,
+        MOCK_BUNDLE_PLUGIN.pluginName
+      )
+    })
+    .catch(error => {
+      expect(error.message).to.contain(
+        `Microservice ${MOCK_BUNDLE_PLUGIN.pluginName} with bundleId ${MOCK_BUNDLES[0].bundleId} cannot be found`
+      )
+    })
+    .it('getBundleMicroservices handles 404 error response (plugin not found)')
+
+  test
+    .stub(
+      CmAPI.prototype,
+      'getBundlePlugin',
+      sinon.stub().rejects(
+        new AxiosError(undefined, undefined, undefined, undefined, {
+          status: 404,
+          data: { message: '' }
+        } as AxiosResponse)
+      )
+    )
+    .do(async () => {
+      await cmService.getBundleMicroservice(
+        MOCK_BUNDLES[0].bundleId,
+        MOCK_BUNDLE_PLUGIN.pluginName
+      )
+    })
+    .catch(error => {
+      expect(error.message).to.contain(
+        `Bundle with bundleId ${MOCK_BUNDLES[0].bundleId} cannot be found`
+      )
+    })
+    .it('getBundleMicroservices handles 404 error response (bundle not found)')
 
   test
     .stub(

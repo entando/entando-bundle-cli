@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
+import * as inquirer from 'inquirer'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
 import {
   BundleDescriptor,
@@ -17,7 +18,11 @@ import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
 import { DEFAULT_DOCKER_REGISTRY } from '../../../src/services/docker-service'
-import { setCmEnv } from '../../helpers/mocks/cm'
+import {
+  MOCK_BUNDLES,
+  MOCK_BUNDLE_PLUGIN,
+  setCmEnv
+} from '../../helpers/mocks/cm'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -71,6 +76,29 @@ describe('api add-ext', () => {
     .it('Invalid bundle format')
 
   test
+    .env({ ENTANDO_CLI_BASE_URL: undefined })
+    .command([
+      'api add-ext',
+      'mfe1',
+      'ms1-api',
+      '--serviceName',
+      'ms1',
+      '--bundle',
+      'entando/my-bundle'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain(
+        '"process.env.ENTANDO_CLI_BASE_URL" should have a value'
+      )
+    })
+    .it('exits with an error if required env variable is not set')
+
+  test
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
+    )
     .command([
       'api add-ext',
       'mfe1',
@@ -105,16 +133,18 @@ describe('api add-ext', () => {
       expect(updatedMfeConfig.systemParams).to.eql({
         api: {
           'ms1-api': {
-            url:
-              'http://mock-' +
-              DEFAULT_DOCKER_REGISTRY +
-              '/entando/my-bundle-ms1'
+            url: `${process.env.ENTANDO_CLI_BASE_URL}${MOCK_BUNDLE_PLUGIN.ingressPath}`
           }
         }
       })
     })
 
   test
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
+    )
     .do(() => {
       const microfrontends = <MicroFrontend[]>[
         {
@@ -181,7 +211,7 @@ describe('api add-ext', () => {
           api: {
             'ms1-api': { url: 'http://mock-my-bundle-ms1' },
             'ms2-api': {
-              url: 'http://mock-custom-registry/entando/my-bundle-ms2'
+              url: `${process.env.ENTANDO_CLI_BASE_URL}${MOCK_BUNDLE_PLUGIN.ingressPath}`
             }
           }
         })
@@ -189,6 +219,11 @@ describe('api add-ext', () => {
     )
 
   test
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
+    )
     .do(() => {
       fs.rmSync(mfeConfigService.getMfeConfigPath('mfe1'))
     })
@@ -229,10 +264,7 @@ describe('api add-ext', () => {
         expect(updatedMfeConfig.systemParams).to.eql({
           api: {
             'ms1-api': {
-              url:
-                'http://mock-' +
-                DEFAULT_DOCKER_REGISTRY +
-                '/entando/my-bundle-ms1'
+              url: `${process.env.ENTANDO_CLI_BASE_URL}${MOCK_BUNDLE_PLUGIN.ingressPath}`
             }
           }
         })
@@ -240,6 +272,11 @@ describe('api add-ext', () => {
     )
 
   test
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
+    )
     .stderr()
     .command([
       'api add-ext',
@@ -258,6 +295,11 @@ describe('api add-ext', () => {
     )
 
   test
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
+    )
     .stderr()
     .do(() => {
       const microfrontends = <MicroFrontend[]>[
@@ -291,25 +333,120 @@ describe('api add-ext', () => {
     .it('exits with error if API claim already exists')
 
   test
-    .stderr()
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({
+          bundle: MOCK_BUNDLES[0].publicationUrl,
+          microservice: MOCK_BUNDLE_PLUGIN.pluginName
+        })
+    )
     .stub(
       CmService.prototype,
-      'getBundleMicroserviceUrl',
-      sinon.stub().returns(null)
+      'getBundles',
+      sinon.stub().resolves(MOCK_BUNDLES)
+    )
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservices',
+      sinon.stub().resolves([MOCK_BUNDLE_PLUGIN])
+    )
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
+    )
+    .command(['api add-ext', 'mfe1', 'myextservice-api'])
+    .it('adds an external api claim to an mfe via interactive mode', () => {
+      const updatedBundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+      const updatedMfeConfig: MfeConfig = mfeConfigService.getMfeConfig('mfe1')
+
+      expect(updatedBundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microfrontends: [
+          {
+            ...bundleDescriptor.microfrontends[0],
+            apiClaims: [
+              {
+                name: 'myextservice-api',
+                type: 'external',
+                serviceName: MOCK_BUNDLE_PLUGIN.pluginName,
+                bundle: MOCK_BUNDLES[0].publicationUrl
+              }
+            ]
+          }
+        ]
+      })
+
+      expect(updatedMfeConfig.systemParams).to.eql({
+        api: {
+          'myextservice-api': {
+            url: `${process.env.ENTANDO_CLI_BASE_URL}${MOCK_BUNDLE_PLUGIN.ingressPath}`
+          }
+        }
+      })
+    })
+
+  test
+    .stub(
+      inquirer,
+      'prompt',
+      sinon.stub().resolves({ microservice: MOCK_BUNDLE_PLUGIN.pluginName })
+    )
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservices',
+      sinon.stub().resolves([MOCK_BUNDLE_PLUGIN])
+    )
+    .stub(
+      CmService.prototype,
+      'getBundleMicroservice',
+      sinon.stub().resolves(MOCK_BUNDLE_PLUGIN)
     )
     .command([
       'api add-ext',
       'mfe1',
-      'ms1-api',
-      '--serviceName',
-      'ms1',
+      'myextservice-api',
       '--bundle',
-      'entando/my-bundle'
+      'custom-registry/entando/my-bundle'
     ])
-    .catch(error => {
-      expect(error.message).to.contain('Failed to get microservice URL')
-    })
-    .it('exits with an error if it fails to get the microservice url')
+    .it(
+      'adds an external api claim to an mfe via interactive mode with specified bundle',
+      () => {
+        const updatedBundleDescriptor: BundleDescriptor =
+          bundleDescriptorService.getBundleDescriptor()
+        const updatedMfeConfig: MfeConfig =
+          mfeConfigService.getMfeConfig('mfe1')
+
+        expect(updatedBundleDescriptor).to.eql({
+          ...bundleDescriptor,
+          microfrontends: [
+            {
+              ...bundleDescriptor.microfrontends[0],
+              apiClaims: [
+                {
+                  name: 'myextservice-api',
+                  type: 'external',
+                  serviceName: MOCK_BUNDLE_PLUGIN.pluginName,
+                  bundle: 'custom-registry/entando/my-bundle'
+                }
+              ]
+            }
+          ]
+        })
+
+        expect(updatedMfeConfig.systemParams).to.eql({
+          api: {
+            'myextservice-api': {
+              url: `${process.env.ENTANDO_CLI_BASE_URL}${MOCK_BUNDLE_PLUGIN.ingressPath}`
+            }
+          }
+        })
+      }
+    )
 
   test
     .stderr()
