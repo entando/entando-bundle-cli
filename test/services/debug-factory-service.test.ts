@@ -6,7 +6,7 @@ import { debugFactory } from '../../src/services/debug-factory-service'
 describe('debugFactory', () => {
   test
     .stderr()
-    .env({ ENTANDO_BUNDLE_CLI_DEBUG: 'false' })
+    .env({ ENTANDO_CLI_DEBUG: 'false' })
     .do(() => {
       const debug = debugFactory('disabled')
       debug('should not appear')
@@ -17,7 +17,7 @@ describe('debugFactory', () => {
 
   test
     .stderr()
-    .env({ ENTANDO_BUNDLE_CLI_DEBUG: 'true' })
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
     .do(() => {
       const debug = debugFactory(Init)
       debug('simple message')
@@ -28,7 +28,7 @@ describe('debugFactory', () => {
 
   test
     .stderr()
-    .env({ ENTANDO_BUNDLE_CLI_DEBUG: 'true' })
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
     .do(() => {
       const debug = debugFactory('test-namespace')
       debug('%s message', 'formatted')
