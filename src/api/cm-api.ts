@@ -9,7 +9,7 @@ export class CmAPI {
   private readonly bundlesPath: string = '/bundles'
 
   constructor(baseUrl: string, authToken: string) {
-    this.baseUrl = baseUrl
+    this.baseUrl = baseUrl.replace(/\/+$/, '')
     this.authToken = authToken
   }
 
