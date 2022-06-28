@@ -577,6 +577,9 @@ EXAMPLES
 - `ENTANDO_BUNDLE_CLI_BIN_NAME`: customizes CLI name that appears in `USAGE` and `EXAMPLES` sections of the help (`entando-bundle-cli` by default)
 - `ENTANDO_CLI_CRANE_BIN`: path to the crane executable
 - `ENTANDO_CLI_DOCKER_CONFIG_PATH`: path to the Docker config file
+- `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
+- `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
+- `ENTANDO_CLI_BASE_URL`: Entando app base URL
 
 # Development environment setup
 
