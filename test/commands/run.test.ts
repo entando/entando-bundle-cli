@@ -14,14 +14,16 @@ import {
   mfeReact,
   msNameSpringBoot,
   mfeNameReact,
-  msListSpringBoot
+  msListSpringBoot,
+  mfeListReact
 } from '../helpers/mocks/commands/build-mocks'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import * as executors from '../../src/services/process-executor-service'
 
 describe('run command', () => {
+  const BAD_ARGS_ERR =
+    'Bad arguments. Please use the component name as argument or one of the available flags'
   const tempDirHelper = new TempDirHelper(__filename)
-
   let executeProcessStub: sinon.SinonStub
 
   afterEach(function () {
@@ -43,27 +45,43 @@ describe('run command', () => {
 
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command')
+      tempDirHelper.createInitializedBundleDir('test-run-command')
     })
     .command(['run', '--all-ms', 'my-component'])
     .catch(error => {
-      expect(error.message).to.contain(
-        'Bad arguments. Please use the component name as argument or one of the available flags'
-      )
+      expect(error.message).to.contain(BAD_ARGS_ERR)
     })
-    .it('run command with flag and name arg should return and error')
+    .it('run command with flag and name arg should return an error')
 
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-run-command-ms')
+      tempDirHelper.createInitializedBundleDir('test-run-command')
+    })
+    .command(['run', '--all-mfe', 'my-component'])
+    .catch(error => {
+      expect(error.message).to.contain(BAD_ARGS_ERR)
+    })
+    .it('run command with flag and name arg should return an error')
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-run-command')
+    })
+    .command(['run', '--all-ms', '--all-mfe'])
+    .catch(error => {
+      expect(error.message).to.contain(BAD_ARGS_ERR)
+    })
+    .it('run command with multiple flags should return an error')
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-run-command')
     })
     .command(['run'])
     .catch(error => {
-      expect(error.message).to.contain(
-        'Bad arguments. Please use the component name as argument or one of the available flags'
-      )
+      expect(error.message).to.contain(BAD_ARGS_ERR)
     })
-    .it('run with missing required arg name ')
+    .it('run with missing required arg name')
 
   test
     .do(() => {
@@ -169,7 +187,7 @@ describe('run command', () => {
 
   test
     .do(() => {
-      tempDirHelper.createInitializedBundleDir('test-build-command-ms')
+      tempDirHelper.createInitializedBundleDir('test-run-command-ms')
 
       TempDirHelper.createComponentsFolders(msListSpringBoot)
 
@@ -200,6 +218,44 @@ describe('run command', () => {
           command: 'mvn spring-boot:run',
           outputStream: {
             prefix: 'test-ms-spring-boot-2 |'
+          }
+        })
+      ])
+    })
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-run-command-mfe')
+
+      TempDirHelper.createComponentsFolders(mfeListReact)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(mfeListReact)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+
+      parallelExecutorStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .command(['run', '--all-mfe'])
+    .it('run all react micro frontends', async () => {
+      sinon.assert.called(getComponentsStub)
+      sinon.assert.calledWith(parallelExecutorStub, [
+        sinon.match({
+          command: 'npm install && npm start',
+          outputStream: {
+            prefix: 'test-mfe-react-1 |'
+          }
+        }),
+        sinon.match({
+          command: 'npm install && npm start',
+          outputStream: {
+            prefix: 'test-mfe-react-2 |'
           }
         })
       ])

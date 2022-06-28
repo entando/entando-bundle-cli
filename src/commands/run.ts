@@ -11,7 +11,11 @@ import { ColorizedWritable } from '../utils'
 export default class Run extends BaseExecutionCommand {
   static description = 'Run bundle components'
 
-  static examples = ['<%= config.bin %> <%= command.id %> my-component']
+  static examples = [
+    '<%= config.bin %> <%= command.id %> my-component',
+    '<%= config.bin %> <%= command.id %> --all-ms',
+    '<%= config.bin %> <%= command.id %> --all-mfe'
+  ]
 
   static args = [
     {
@@ -23,6 +27,9 @@ export default class Run extends BaseExecutionCommand {
   static flags = {
     'all-ms': Flags.boolean({
       description: 'Run all the bundle microservices'
+    }),
+    'all-mfe': Flags.boolean({
+      description: 'Run all the bundle micro frontends'
     })
   }
 
@@ -32,7 +39,12 @@ export default class Run extends BaseExecutionCommand {
 
     this.validateInputs(Object.keys(flags).length, args.name)
 
-    if (flags['all-ms']) {
+    if (flags['all-mfe']) {
+      CliUx.ux.action.start(
+        `Running all micro frontends. Press ctrl + c to exit.`
+      )
+      await this.runAllComponents(Phase.Run, ComponentType.MICROFRONTEND)
+    } else if (flags['all-ms']) {
       CliUx.ux.action.start(
         `Running all microservices. Press ctrl + c to exit.`
       )
@@ -70,7 +82,7 @@ export default class Run extends BaseExecutionCommand {
       case ComponentType.MICROSERVICE:
         this.log(color.bold.blue(`Runnning all microservices`))
         break
-      default:
+      case ComponentType.MICROFRONTEND:
         this.log(color.bold.blue(`Runnning all micro frontends`))
         break
     }
