@@ -59,7 +59,8 @@ export default class AddExt extends Command {
         bundle = this.formatBundle(bundle)
       } else {
         const bundles = (await cmService.getBundles()).map(
-          b => b.publicationUrl
+          // Removes the URL scheme
+          b => b.publicationUrl.replace(/(^\w+:|^)\/\//, '')
         )
         bundle = await this.promptSelectBundle(bundles)
       }
