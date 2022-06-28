@@ -573,8 +573,10 @@ EXAMPLES
 
 # Environment variables
 
-- `ENTANDO_BUNDLE_CLI_DEBUG`: boolean flag (`true`|`false`) used to enable debug logging (`false` by default)
+- `ENTANDO_CLI_DEBUG`: boolean flag (`true`|`false`) used to enable debug logging (`false` by default)
 - `ENTANDO_BUNDLE_CLI_BIN_NAME`: customizes CLI name that appears in `USAGE` and `EXAMPLES` sections of the help (`entando-bundle-cli` by default)
+- `ENTANDO_CLI_CRANE_BIN`: path to the crane executable
+- `ENTANDO_CLI_DOCKER_CONFIG_PATH`: path to the Docker config file
 
 # Development environment setup
 
@@ -598,7 +600,7 @@ private static debug = debugFactory(MyClass)
 Debug output can be enabled using the following environment variable:
 
 ```
-ENTANDO_BUNDLE_CLI_DEBUG=true
+ENTANDO_CLI_DEBUG=true
 ```
 
 Debug output is sent to stderr, so you can redirect it to a file in the following way:

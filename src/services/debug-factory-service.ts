@@ -15,7 +15,7 @@ export function debugFactory(caller: { name: string } | string): Debugger {
   const extendedDebugger = rootDebugger.extend(namespace)
 
   extendedDebugger.enabled =
-    extendedDebugger.enabled || process.env.ENTANDO_BUNDLE_CLI_DEBUG === 'true'
+    extendedDebugger.enabled || process.env.ENTANDO_CLI_DEBUG === 'true'
 
   const debugFunction: Debugger = (message: string, ...args: any[]) => {
     if (extendedDebugger.enabled) {

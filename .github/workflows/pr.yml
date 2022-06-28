@@ -39,8 +39,8 @@ jobs:
         run: |
           ${{ secrets.ENTANDO_OPT_PPL_INSTALL_CMD }}
           ~/ppl-run \
-            .. status-report \
             .. @checkout-branch --lcd "$LOCAL_CLONE_DIR" \
+            .. status-report \
             .. @setup-feature-flags "PR_PREFLIGHT_CHECKS" "BOM_CHECK" "BOM" \
             .. @setup-features-list "SCAN_MATRIX" --prefix "MTX-NPM-,MTX-SCAN-" \
           ;
