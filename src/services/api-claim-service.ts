@@ -41,7 +41,7 @@ export class ApiClaimService {
   ): Promise<void> {
     if (!process.env.ENTANDO_CLI_BASE_URL) {
       throw new CLIError(
-        '"process.env.ENTANDO_CLI_BASE_URL" should have a value'
+        'Environment variable "ENTANDO_CLI_BASE_URL" should have a value'
       )
     }
 

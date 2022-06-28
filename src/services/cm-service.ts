@@ -29,7 +29,7 @@ export class CmService {
 
     if (!cmUrl || !cmToken) {
       throw new CLIError(
-        'Both "process.env.ENTANDO_CLI_ECR_URL" and "process.env.ENTANDO_CLI_ECR_TOKEN" should have values'
+        'Environment variables "ENTANDO_CLI_ECR_URL" and "ENTANDO_CLI_ECR_TOKEN" should have values'
       )
     }
 

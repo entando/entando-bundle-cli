@@ -88,7 +88,7 @@ describe('api add-ext', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain(
-        '"process.env.ENTANDO_CLI_BASE_URL" should have a value'
+        'Environment variable "ENTANDO_CLI_BASE_URL" should have a value'
       )
     })
     .it('exits with an error if required env variable is not set')
@@ -336,12 +336,10 @@ describe('api add-ext', () => {
     .stub(
       inquirer,
       'prompt',
-      sinon
-        .stub()
-        .resolves({
-          bundle: MOCK_BUNDLES[0].publicationUrl,
-          microservice: MOCK_BUNDLE_PLUGIN.pluginName
-        })
+      sinon.stub().resolves({
+        bundle: MOCK_BUNDLES[0].publicationUrl,
+        microservice: MOCK_BUNDLE_PLUGIN.pluginName
+      })
     )
     .stub(
       CmService.prototype,

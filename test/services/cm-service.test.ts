@@ -25,7 +25,7 @@ describe('cm-service', () => {
     })
     .catch(error => {
       expect(error.message).to.contain(
-        '"process.env.ENTANDO_CLI_ECR_URL" and "process.env.ENTANDO_CLI_ECR_TOKEN" should have values'
+        'Environment variables "ENTANDO_CLI_ECR_URL" and "ENTANDO_CLI_ECR_TOKEN" should have values'
       )
     })
     .it('throws an error when one of required env variables has no value')
