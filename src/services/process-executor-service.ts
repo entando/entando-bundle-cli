@@ -142,6 +142,7 @@ export class ParallelProcessExecutorService extends EventEmitter {
 }
 
 function setUpProcess(options: ProcessExecutionOptions) {
+
   const process = spawn(options.command, {
     cwd: options.workDir,
     shell: true,

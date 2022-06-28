@@ -411,10 +411,13 @@ Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME]
+  $ entando-bundle-cli run [NAME] [--all-ms]
 
 ARGUMENTS
   NAME  The name of the component to run
+
+FLAGS
+  --all-ms  Run all the bundle microservices
 
 DESCRIPTION
   Run bundle components

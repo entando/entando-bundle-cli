@@ -1,12 +1,10 @@
-import { CliUx, Command } from '@oclif/core'
+import { CliUx } from '@oclif/core'
 import {
-  CommandFactoryService,
   Phase
 } from '../services/command-factory-service'
 import { ComponentService } from '../services/component-service'
 import {
   ParallelProcessExecutorService,
-  ProcessExecutionOptions,
   ProcessExecutionResult
 } from '../services/process-executor-service'
 import * as fs from 'node:fs'
@@ -15,8 +13,9 @@ import { Component, ComponentType } from '../models/component'
 import { LOGS_FOLDER, OUTPUT_FOLDER } from '../paths'
 import { mkdirSync } from 'node:fs'
 import { color } from '@oclif/color'
+import { BaseExecutionCommand } from './base-execution-command'
 
-export abstract class BaseBuildCommand extends Command {
+export abstract class BaseBuildCommand extends BaseExecutionCommand {
   static get hidden(): boolean {
     return this.name === BaseBuildCommand.name
   }
@@ -42,37 +41,15 @@ export abstract class BaseBuildCommand extends Command {
     const componentService = new ComponentService()
     const components = componentService.getComponents(componentType)
 
-    const executionOptions = this.buildExecutionOptions(
+    const executionOptions = this.getExecutionOptions(
       components,
-      commandPhase
+      commandPhase,
+      component => this.getBuildOutputLogFile(component)
     )
 
     const executorService = new ParallelProcessExecutorService(executionOptions)
 
     await this.parallelBuild(executorService, components)
-  }
-
-  private buildExecutionOptions(
-    components: Array<Component<ComponentType>>,
-    commandPhase: Phase
-  ): ProcessExecutionOptions[] {
-    const executionOptions: ProcessExecutionOptions[] = []
-
-    for (const component of components) {
-      const command = CommandFactoryService.getCommand(component, commandPhase)
-
-      const workDir = ComponentService.getComponentPath(component)
-      const logFile = this.getBuildOutputLogFile(component)
-
-      executionOptions.push({
-        command: command,
-        workDir,
-        outputStream: logFile,
-        errorStream: logFile
-      })
-    }
-
-    return executionOptions
   }
 
   public getBuildOutputLogFile(
@@ -125,17 +102,5 @@ export abstract class BaseBuildCommand extends Command {
       errorMessage += 'See log files for more information'
       this.error(errorMessage)
     }
-  }
-
-  public getErrorMessage(executionResult: ProcessExecutionResult): string {
-    if (typeof executionResult === 'number') {
-      return `Process exited with code ${executionResult}`
-    }
-
-    if (executionResult instanceof Error) {
-      return `Command failed due to error: ${executionResult.message}`
-    }
-
-    return `Process killed by signal ${executionResult}`
   }
 }

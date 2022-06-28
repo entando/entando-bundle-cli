@@ -4,14 +4,20 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER } from '../../src/paths'
-import { ProcessExecutorService } from '../../src/services/process-executor-service'
+import {
+  ProcessExecutionResult,
+  ProcessExecutorService
+} from '../../src/services/process-executor-service'
 import { ComponentService } from '../../src/services/component-service'
 import {
   msSpringBoot,
   mfeReact,
   msNameSpringBoot,
-  mfeNameReact
+  mfeNameReact,
+  msListSpringBoot
 } from '../helpers/mocks/commands/build-mocks'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import * as executors from '../../src/services/process-executor-service'
 
 describe('run command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -37,11 +43,25 @@ describe('run command', () => {
 
   test
     .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command')
+    })
+    .command(['run', '--all-ms', 'my-component'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Bad arguments. Please use the component name as argument or one of the available flags'
+      )
+    })
+    .it('run command with flag and name arg should return and error')
+
+  test
+    .do(() => {
       tempDirHelper.createInitializedBundleDir('test-run-command-ms')
     })
     .command(['run'])
     .catch(error => {
-      expect(error.message).to.contain('Run failed, missing required arg name')
+      expect(error.message).to.contain(
+        'Bad arguments. Please use the component name as argument or one of the available flags'
+      )
     })
     .it('run with missing required arg name ')
 
@@ -142,4 +162,46 @@ describe('run command', () => {
     .command(['run', mfeNameReact])
     .exit(1)
     .it('run react micro frontend exits with code 1')
+
+  let getComponentsStub: sinon.SinonStub
+  let stubParallelProcessExecutorService: StubParallelProcessExecutorService
+  let parallelExecutorStub: sinon.SinonStub
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command-ms')
+
+      TempDirHelper.createComponentsFolders(msListSpringBoot)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(msListSpringBoot)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+
+      parallelExecutorStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .command(['run', '--all-ms'])
+    .it('run all spring-boot microservices', async () => {
+      sinon.assert.called(getComponentsStub)
+      sinon.assert.calledWith(parallelExecutorStub, [
+        sinon.match({
+          command: 'mvn spring-boot:run',
+          outputStream: {
+            prefix: 'test-ms-spring-boot-1 |'
+          }
+        }),
+        sinon.match({
+          command: 'mvn spring-boot:run',
+          outputStream: {
+            prefix: 'test-ms-spring-boot-2 |'
+          }
+        })
+      ])
+    })
 })

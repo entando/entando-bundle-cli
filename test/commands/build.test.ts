@@ -50,9 +50,11 @@ describe('build command', () => {
     })
     .command(['build', '--all-ms', '--all-mfe'])
     .catch(error => {
-      expect(error.message).to.contain('Build failed, please use only one flag')
+      expect(error.message).to.contain(
+        'Bad arguments. Please use the component name as argument or one of the available flags'
+      )
     })
-    .it('build command with multiple flags should return and error')
+    .it('build command with multiple flags should return an error')
 
   test
     .do(() => {
@@ -61,10 +63,10 @@ describe('build command', () => {
     .command(['build', '--all-ms', 'my-component'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Build failed, please use one flag or write the component name as argument'
+        'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     })
-    .it('build command with flag and name arg should return and error')
+    .it('build command with flag and name arg should return an error')
 
   test
     .do(() => {
@@ -73,7 +75,7 @@ describe('build command', () => {
     .command(['build'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Build failed, missing required arg name'
+        'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     })
     .it('build with missing required arg name ')
