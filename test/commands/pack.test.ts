@@ -66,6 +66,8 @@ describe('pack', () => {
   let stubGetThumbInfo: sinon.SinonStub
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-org-prompt'
@@ -86,7 +88,7 @@ describe('pack', () => {
       })
     )
     .command(['pack'])
-    .it('runs pack asking the organization', () => {
+    .it('runs pack asking the organization', ctx => {
       const configService = new ConfigService()
       expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
         'prompted-organization'
@@ -95,9 +97,13 @@ describe('pack', () => {
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
       sinon.assert.calledOnce(stubBuildDockerImage)
       sinon.assert.calledOnce(stubProcessThumbnail)
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
     })
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-existing-org'
@@ -120,7 +126,7 @@ describe('pack', () => {
       })
     )
     .command(['pack'])
-    .it('runs pack using the organization stored in config file', function () {
+    .it('runs pack using the organization stored in config file', ctx => {
       const configService = new ConfigService()
       expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
         'configured-organization'
@@ -128,9 +134,13 @@ describe('pack', () => {
       sinon.assert.called(getComponentsStub)
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
       sinon.assert.calledOnce(stubBuildDockerImage)
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
     })
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-org-flag-no-existing-conf'
@@ -140,17 +150,21 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization'])
     .it(
       'runs pack --org flag-organization without existing configuration',
-      () => {
+      ctx => {
         const configService = new ConfigService()
         sinon.assert.called(getComponentsStub)
         expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
           'flag-organization'
         )
         sinon.assert.called(stubGetThumbInfo)
+        expect(ctx.stderr).contain('2/2') // components build
+        expect(ctx.stderr).contain('1/1') // docker images build
       }
     )
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-org-flag-with-existing-conf'
@@ -163,17 +177,24 @@ describe('pack', () => {
       setupBuildSuccess(bundleDir)
     })
     .command(['pack', '--org', 'flag-organization'])
-    .it('runs pack --org flag-organization with existing configuration', () => {
-      const configService = new ConfigService()
-      sinon.assert.called(getComponentsStub)
-      expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
-        'flag-organization'
-      )
-    })
+    .it(
+      'runs pack --org flag-organization with existing configuration',
+      ctx => {
+        const configService = new ConfigService()
+        sinon.assert.called(getComponentsStub)
+        expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
+          'flag-organization'
+        )
+        expect(ctx.stderr).contain('2/2') // components build
+        expect(ctx.stderr).contain('1/1') // docker images build
+      }
+    )
 
   let getComponentsStub: sinon.SinonStub
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-build-errors')
 
@@ -203,27 +224,25 @@ describe('pack', () => {
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
 
-      const stubResults: ProcessExecutionResult[] = [
+      stubParallelProcessExecutorService([
         0,
         1,
         'SIGKILL' as NodeJS.Signals,
         new Error('command not found')
-      ]
-      const stubParallelProcessExecutorService =
-        new StubParallelProcessExecutorService(stubResults)
-      sinon
-        .stub(executors, 'ParallelProcessExecutorService')
-        .returns(stubParallelProcessExecutorService)
+      ])
     })
     .command(['pack'])
     .catch(error => {
       expect(error.message).to.contain('components failed to build')
       sinon.assert.calledThrice(getComponentsStub)
     })
-    .it('Build failure stops package command')
+    .it('Build failure stops package command', ctx => {
+      expect(ctx.stderr).contain('4/4') // components build
+    })
 
   test
     .stderr()
+    .stdout()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-docker-build-fails')
       stubBuildDockerImage.restore()
@@ -239,6 +258,8 @@ describe('pack', () => {
     })
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-docker-not-found')
       stubBuildDockerImage.restore()
@@ -254,6 +275,8 @@ describe('pack', () => {
     .it('Docker build fails when command not found')
 
   test
+    .stderr()
+    .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-build-no-version'
@@ -274,7 +297,7 @@ describe('pack', () => {
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
 
-      stubParallelProcessExecutorServiceSuccess()
+      stubParallelProcessExecutorService([0])
     })
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
@@ -282,9 +305,16 @@ describe('pack', () => {
         'Unable to determine version for component ms1'
       )
     })
-    .it('Packaging stops if it is unable to retrieve component version')
+    .it(
+      'Packaging stops if it is unable to retrieve component version',
+      ctx => {
+        expect(ctx.stderr).contain('1/1') // components build
+      }
+    )
 
   test
+    .stderr()
+    .stdout()
     .stub(
       ComponentDescriptorService.prototype,
       'getComponentVersion',
@@ -306,7 +336,7 @@ describe('pack', () => {
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
 
-      stubParallelProcessExecutorServiceSuccess()
+      stubParallelProcessExecutorService([0])
     })
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
@@ -314,7 +344,12 @@ describe('pack', () => {
         'Dockerfile not found for microservice ms1'
       )
     })
-    .it("Packaging stops if a microservice folder doesn't contain a Dockerfile")
+    .it(
+      "Packaging stops if a microservice folder doesn't contain a Dockerfile",
+      ctx => {
+        expect(ctx.stderr).contain('1/1') // components build
+      }
+    )
 
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [
@@ -351,11 +386,17 @@ describe('pack', () => {
         stubComponents.filter(c => c.type === ComponentType.MICROSERVICE)
       )
 
-    stubParallelProcessExecutorServiceSuccess()
+    sinon
+      .stub(executors, 'ParallelProcessExecutorService')
+      .onFirstCall()
+      .returns(new StubParallelProcessExecutorService([0, 0]))
+      .onSecondCall()
+      .returns(new StubParallelProcessExecutorService([0]))
   }
 
-  function stubParallelProcessExecutorServiceSuccess() {
-    const stubResults: ProcessExecutionResult[] = [0, 0]
+  function stubParallelProcessExecutorService(
+    stubResults: ProcessExecutionResult[]
+  ) {
     sinon
       .stub(executors, 'ParallelProcessExecutorService')
       .returns(new StubParallelProcessExecutorService(stubResults))

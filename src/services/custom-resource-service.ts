@@ -37,8 +37,8 @@ export class CustomResourceService {
           '-' +
           BundleService.generateBundleId(this.image),
         labels: {
-          plugin: false,
-          widget: false,
+          plugin: 'false',
+          widget: 'false',
           'bundle-type': 'standard-bundle'
         }
       },
@@ -68,14 +68,11 @@ export class CustomResourceService {
     }
 
     if (this.yamlDescriptor.components.plugins.length > 0) {
-      crDescriptor.metadata.labels.plugin = true
+      crDescriptor.metadata.labels.plugin = 'true'
     }
 
-    if (
-      this.yamlDescriptor.components.widgets.length > 0 ||
-      this.yamlDescriptor.components['app-builder'].length > 0
-    ) {
-      crDescriptor.metadata.labels.widget = true
+    if (this.yamlDescriptor.components.widgets.length > 0) {
+      crDescriptor.metadata.labels.widget = 'true'
     }
 
     return crDescriptor
