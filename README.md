@@ -132,7 +132,7 @@ Build bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME] [--all-ms] [--all-mfe] [--all]
+  $ entando-bundle-cli build [NAME] [--all-ms | --all-mfe | --all]
 
 ARGUMENTS
   NAME  The name of the component to build
@@ -418,7 +418,7 @@ Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME] [--all-ms] [--all-mfe]
+  $ entando-bundle-cli run [NAME] [--all-ms | --all-mfe]
 
 ARGUMENTS
   NAME  The name of the component to run
