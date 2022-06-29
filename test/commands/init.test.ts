@@ -3,7 +3,6 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import * as inquirer from 'inquirer'
-import * as cp from 'node:child_process'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
 import { InitializerService } from '../../src/services/initializer-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
@@ -22,6 +21,7 @@ import {
   KEYCLOAK_REALM_CONFIG_FOLDER
 } from '../../src/paths'
 import { KEYCLOAK_REALM_FILE, KEYCLOAK_USERS_FILE } from '../../src/paths'
+import { ProcessExecutorService } from '../../src/services/process-executor-service'
 
 describe('init', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -39,13 +39,15 @@ describe('init', () => {
   })
 
   test
-    .stub(cp, 'execSync', sinon.stub().returns('Initialized git repo'))
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .command(['init', 'bundle-with-version', '--version=0.0.2'])
     .it('runs init bundle-with-version --version=0.0.2', () => {
       const bundleName = 'bundle-with-version'
 
       checkFoldersStructure(bundleName)
-      expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
+      expect(
+        (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+      ).to.equal(true)
 
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
@@ -57,13 +59,15 @@ describe('init', () => {
     })
 
   test
-    .stub(cp, 'execSync', sinon.stub().returns('Initialized git repo'))
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .command(['init', 'bundle-no-version'])
     .it('runs init bundle-no-version', () => {
       const bundleName = 'bundle-no-version'
 
       checkFoldersStructure(bundleName)
-      expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
+      expect(
+        (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+      ).to.equal(true)
 
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
@@ -89,7 +93,7 @@ describe('init', () => {
         .get(`${mockUri}/51`)
         .reply(200, [demoBundle])
     )
-    .stub(cp, 'execSync', sinon.stub().returns('Initialized git cmd'))
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .do(async () => {
       const init = new InitializerService({
         name: 'bundle-with-fromhub',
@@ -107,7 +111,9 @@ describe('init', () => {
       const bundleName = 'bundle-with-fromhub'
 
       checkFoldersStructure(bundleName)
-      expect((cp.execSync as sinon.SinonStub).called).to.equal(true)
+      expect(
+        (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+      ).to.equal(true)
 
       const bundleDescriptor = parseBundleDescriptor(bundleName)
       expect(bundleDescriptor.name).to.eq(bundleName)
@@ -153,7 +159,14 @@ describe('init', () => {
 
   test
     .stderr()
-    .stub(cp, 'execSync', sinon.stub().throws(new Error('git init error')))
+    .stub(
+      ProcessExecutorService,
+      'executeProcess',
+      sinon.stub().callsFake(options => {
+        options.errorStream!.write('git init error')
+        return Promise.resolve(1)
+      })
+    )
     .command(['init', 'bundle-exec-error'])
     .catch(error => {
       expect(error.message).to.contain('git init error')
