@@ -22,9 +22,11 @@ export type YamlAppBuilderWidgetDescriptor =
   BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder> & {
     params: WidgetParam[]
     ext: {
-      slot: MicroFrontendAppBuilderSlot
-      nav?: Nav[]
-      paths?: string[]
+      appBuilder: {
+        slot: MicroFrontendAppBuilderSlot
+        nav?: Nav[]
+        paths?: string[]
+      }
     }
   }
 
@@ -76,7 +78,6 @@ export type YamlBundleDescriptor = {
   components: {
     plugins: string[]
     widgets: string[]
-    'app-builder': string[]
   }
   global?: {
     nav: Nav[]

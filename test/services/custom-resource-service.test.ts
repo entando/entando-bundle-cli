@@ -10,8 +10,7 @@ describe('CustomResourceService', () => {
     description: 'This is an awesome bundle',
     components: {
       plugins: ['plugins/my-service.yaml', 'plugins/another-ms.yaml'],
-      widgets: ['widgets/another-mfe.yaml'],
-      'app-builder': ['widgets/jeff-mfe.yaml']
+      widgets: ['widgets/jeff-mfe.yaml', 'widgets/another-mfe.yaml']
     },
     descriptorVersion: 'v5',
     thumbnail: 'data:image/png;base64,abcdef'
@@ -32,8 +31,8 @@ describe('CustomResourceService', () => {
       )
       const desc = customResourceService.createCustomResource()
       expect(desc.metadata.name).to.eq('jeff-bundle-b03baccb')
-      expect(desc.metadata.labels.plugin).to.eq(true)
-      expect(desc.metadata.labels.widget).to.eq(true)
+      expect(desc.metadata.labels.plugin).to.eq('true')
+      expect(desc.metadata.labels.widget).to.eq('true')
       expect(desc.spec.details.name).to.eq(mockYmlBundleDescriptor.name)
       expect(desc.spec.details.description).to.eq(
         mockYmlBundleDescriptor.description
@@ -72,8 +71,8 @@ describe('CustomResourceService', () => {
       )
       const desc = customResourceService.createCustomResource()
       expect(desc.metadata.name).to.eq('jeff-bundle-b03baccb')
-      expect(desc.metadata.labels.plugin).to.eq(true)
-      expect(desc.metadata.labels.widget).to.eq(true)
+      expect(desc.metadata.labels.plugin).to.eq('true')
+      expect(desc.metadata.labels.widget).to.eq('true')
       expect(desc.spec.details.name).to.eq(mockYmlBundleDescriptor.name)
       expect(desc.spec.details.description).to.eq(
         mockYmlBundleDescriptor.description
@@ -99,32 +98,6 @@ describe('CustomResourceService', () => {
   )
 
   test.it(
-    'CustomResourceService should generate a valid CR when there are no plugins',
-    () => {
-      const mockYmlBundleDescriptor = {
-        name: 'jeff-bundle',
-        description: 'This is an awesome bundle',
-        components: {
-          plugins: [],
-          widgets: [],
-          'app-builder': ['widgets/jeff-mfe.yaml']
-        },
-        descriptorVersion: 'v5',
-        thumbnail: 'data:image/png;base64,abcdef'
-      }
-      customResourceService = new CustomResourceService(
-        'registry/repo/image',
-        ['0.0.2', '0.0.1'],
-        new Map(),
-        mockYmlBundleDescriptor
-      )
-      const desc = customResourceService.createCustomResource()
-      expect(desc.metadata.labels.plugin).to.eq(false)
-      expect(desc.metadata.labels.widget).to.eq(true)
-    }
-  )
-
-  test.it(
     'CustomResourceService should generate a valid CR when there are no plugins and no widgets',
     () => {
       const mockYmlBundleDescriptor = {
@@ -132,8 +105,7 @@ describe('CustomResourceService', () => {
         description: 'This is an awesome bundle',
         components: {
           plugins: [],
-          widgets: [],
-          'app-builder': []
+          widgets: []
         },
         descriptorVersion: 'v5',
         thumbnail: 'data:image/png;base64,abcdef'
@@ -145,8 +117,8 @@ describe('CustomResourceService', () => {
         mockYmlBundleDescriptor
       )
       const desc = customResourceService.createCustomResource()
-      expect(desc.metadata.labels.plugin).to.eq(false)
-      expect(desc.metadata.labels.widget).to.eq(false)
+      expect(desc.metadata.labels.plugin).to.eq('false')
+      expect(desc.metadata.labels.widget).to.eq('false')
     }
   )
 })

@@ -120,9 +120,11 @@ export class BundleDescriptorConverterService {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
         params: microFrontend.params || [],
         ext: {
-          slot: microFrontend.slot,
-          nav: microFrontend.nav,
-          ...('paths' in microFrontend && { paths: microFrontend.paths })
+          appBuilder: {
+            slot: microFrontend.slot,
+            nav: microFrontend.nav,
+            ...('paths' in microFrontend && { paths: microFrontend.paths })
+          }
         }
       }
     } else if (microFrontend.type === MicroFrontendType.WidgetConfig) {
@@ -207,8 +209,7 @@ export class BundleDescriptorConverterService {
       description: bundleDescriptor.description,
       components: {
         plugins: [],
-        widgets: [],
-        'app-builder': []
+        widgets: []
       },
       global: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
@@ -220,11 +221,7 @@ export class BundleDescriptorConverterService {
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =
         this.getMicroFrontendDescriptorRelativePath(microFrontend)
-      if (microFrontend.type === MicroFrontendType.Widget) {
-        yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
-      } else {
-        yamlBundleDescriptor.components['app-builder'].push(mfeDescriptorPath)
-      }
+      yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
     }
 
     for (const microservice of bundleDescriptor.microservices) {

@@ -106,8 +106,7 @@ export class BundleDescriptorHelper {
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION,
       components: {
         widgets: ['test-mfe'],
-        plugins: ['test-ms'],
-        'app-builder': ['test-ab']
+        plugins: ['test-ms']
       }
     }
   }

@@ -5,6 +5,7 @@ import { BundleDescriptor } from '../models/bundle-descriptor'
 import { MfeConfigService } from './mfe-config-service'
 import { MfeConfig } from '../models/mfe-config'
 import { CmService } from './cm-service'
+import { BundleService } from './bundle-service'
 
 export class ApiClaimService {
   private readonly bundleDescriptorService: BundleDescriptorService
@@ -34,18 +35,22 @@ export class ApiClaimService {
     this.updateMfeConfigApiClaim(mfeName, apiClaim.name, serviceUrl)
   }
 
-  public addExternalApiClaim(
+  public async addExternalApiClaim(
     mfeName: string,
     apiClaim: ExternalApiClaim
-  ): void {
-    const url = this.cmService.getBundleMicroserviceUrl(
-      apiClaim.bundle,
+  ): Promise<void> {
+    if (!process.env.ENTANDO_CLI_BASE_URL) {
+      throw new CLIError(
+        'Environment variable "ENTANDO_CLI_BASE_URL" should have a value'
+      )
+    }
+
+    const bundleId = BundleService.generateBundleId(apiClaim.bundle)
+    const { ingressPath } = await this.cmService.getBundleMicroservice(
+      bundleId,
       apiClaim.serviceName
     )
-
-    if (!url) {
-      throw new CLIError('Failed to get microservice URL')
-    }
+    const url = `${process.env.ENTANDO_CLI_BASE_URL}${ingressPath}`
 
     this.addApiClaim(mfeName, apiClaim)
     this.updateMfeConfigApiClaim(mfeName, apiClaim.name, url)

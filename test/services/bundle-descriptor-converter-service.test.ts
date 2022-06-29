@@ -228,9 +228,11 @@ describe('bundle-descriptor-converter-service', () => {
       descriptorVersion: 'v5',
       type: 'app-builder',
       ext: {
-        slot: 'content',
-        paths: [],
-        nav: []
+        appBuilder: {
+          slot: 'content',
+          paths: [],
+          nav: []
+        }
       },
       params: []
     })
@@ -292,8 +294,8 @@ describe('bundle-descriptor-converter-service', () => {
       description: 'test description',
       components: {
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
-        widgets: ['widgets/test-mfe.yaml'],
-        'app-builder': [
+        widgets: [
+          'widgets/test-mfe.yaml',
           'widgets/test-mfe-no-code.yaml',
           'widgets/test-app-builder-mfe.yaml'
         ]

@@ -11,8 +11,8 @@ export type CustomResourceDescriptor = {
   metadata: {
     name: string
     labels: {
-      plugin: boolean
-      widget: boolean
+      plugin: string
+      widget: string
       'bundle-type': string
     }
   }

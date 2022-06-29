@@ -32,11 +32,6 @@ export const YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<YamlBundleDes
           isArray: true,
           required: true,
           type: 'string'
-        },
-        'app-builder': {
-          isArray: true,
-          required: true,
-          type: 'string'
         }
       }
     },
