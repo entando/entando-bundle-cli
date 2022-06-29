@@ -21,8 +21,11 @@ export class GitService {
   public async initRepo(): Promise<void> {
     GitService.debug(`initializing git repository with name ${this.bundleName}`)
     const errorStream = new InMemoryWritable()
+    const posixBundleDir = FSService.toPosix(
+      this.fsService.getBundleDirectory()
+    )
     const result = await ProcessExecutorService.executeProcess({
-      command: `git -C ${this.fsService.getBundleDirectory()} init`,
+      command: `git -C ${posixBundleDir} init`,
       outputStream: GitService.debug.outputStream,
       errorStream
     })
@@ -54,7 +57,7 @@ export class GitService {
     GitService.debug(
       `removing origin git info directory (./.git) in bundle ${this.bundleName}`
     )
-    fs.rmSync(path.resolve(this.parentDirectory, `${this.bundleName}/.git`), {
+    fs.rmSync(path.resolve(this.parentDirectory, this.bundleName, '.git'), {
       recursive: true,
       force: true
     })

@@ -13,19 +13,20 @@ import { BundleDescriptorService } from '../../src/services/bundle-descriptor-se
 import { GitService } from '../../src/services/git-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
+import { FSService } from '../../src/services/fs-service'
 
 describe('git-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
   const defaultBundleName = 'git-mi'
+  let bundleDir: string
   let git: GitService
 
   beforeEach(() => {
-    fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
     git = new GitService(defaultBundleName, tempDirHelper.tmpDir)
   })
 
   afterEach(() => {
-    fs.rmSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName), {
+    fs.rmSync(bundleDir, {
       recursive: true,
       force: true
     })
@@ -33,14 +34,19 @@ describe('git-service', () => {
   })
 
   test.it('runs initRepo ', async () => {
+    const executeProcessStub = sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .resolves(0)
     await git.initRepo()
-
-    const filePath = path.resolve(
-      tempDirHelper.tmpDir,
-      defaultBundleName,
-      '.git'
+    bundleDir = FSService.toPosix(
+      path.join(tempDirHelper.tmpDir, defaultBundleName)
     )
-    expect(fs.existsSync(filePath)).to.eq(true)
+    sinon.assert.calledWith(
+      executeProcessStub,
+      sinon.match({
+        command: `git -C ${bundleDir} init`
+      })
+    )
   })
 
   test
@@ -74,10 +80,6 @@ describe('git-service', () => {
 
   test
     .do(async () => {
-      fs.rmSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName), {
-        recursive: true,
-        force: true
-      })
       const init = new InitializerService({
         name: defaultBundleName,
         parentDirectory: tempDirHelper.tmpDir,
@@ -124,18 +126,15 @@ describe('git-service', () => {
     .it('runs cloneRepo but throws error that needs debug')
 
   test
-    .do(async () => {
-      await git.initRepo()
+    .do(() => {
+      bundleDir = tempDirHelper.createInitializedBundleDir(defaultBundleName)
+      const gitFilePath = path.join(bundleDir, '.git')
+      fs.mkdirSync(gitFilePath)
+      expect(fs.existsSync(gitFilePath)).to.eq(true)
       git.degit()
+      expect(fs.existsSync(gitFilePath)).to.eq(false)
     })
-    .it('runs degit', () => {
-      const filePath = path.resolve(
-        tempDirHelper.tmpDir,
-        defaultBundleName,
-        '.git'
-      )
-      expect(fs.existsSync(filePath)).to.eq(false)
-    })
+    .it('runs degit')
 
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, CONFIG_FOLDER)
