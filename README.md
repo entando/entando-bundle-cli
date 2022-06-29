@@ -85,16 +85,16 @@ Add an external API claim to the specified MFE component
 
 ```
 USAGE
-  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] --bundle <value> --serviceName <value>
+  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] [--serviceName <value> --bundle <value>]
 
 ARGUMENTS
   MFENAME    Name of the Micro Frontend component
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --bundle=<value>       (required) Target Bundle Docker repository with the format <organization>/<repository> or
+  --bundle=<value>       Target Bundle Docker repository with the format <organization>/<repository> or
                          <registry>/<organization>/<repository>
-  --serviceName=<value>  (required) Microservice name within the target Bundle
+  --serviceName=<value>  Microservice name within the target Bundle
 
 DESCRIPTION
   Add an external API claim to the specified MFE component
@@ -577,6 +577,9 @@ EXAMPLES
 - `ENTANDO_BUNDLE_CLI_BIN_NAME`: customizes CLI name that appears in `USAGE` and `EXAMPLES` sections of the help (`entando-bundle-cli` by default)
 - `ENTANDO_CLI_CRANE_BIN`: path to the crane executable
 - `ENTANDO_CLI_DOCKER_CONFIG_PATH`: path to the Docker config file
+- `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
+- `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
+- `ENTANDO_CLI_BASE_URL`: Entando app base URL
 
 # Development environment setup
 

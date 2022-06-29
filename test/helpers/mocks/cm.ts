@@ -2,6 +2,7 @@ import * as sinon from 'sinon'
 
 export const MOCK_CM_URL = 'http://test-cm.eng-entando.com'
 export const MOCK_CM_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSl'
+export const MOCK_ENT_URL = 'http://test-app.eng-entando.com'
 
 export const MOCK_BUNDLES = [
   {
@@ -28,6 +29,7 @@ export function setCmEnv(): void {
   sinon.stub(process, 'env').value({
     ...process.env,
     ENTANDO_CLI_ECR_URL: MOCK_CM_URL,
-    ENTANDO_CLI_ECR_TOKEN: MOCK_CM_TOKEN
+    ENTANDO_CLI_ECR_TOKEN: MOCK_CM_TOKEN,
+    ENTANDO_CLI_BASE_URL: MOCK_ENT_URL
   })
 }

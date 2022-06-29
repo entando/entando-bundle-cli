@@ -83,4 +83,17 @@ describe('cm-api', () => {
         expect(response.data).to.eql(MOCK_BUNDLE_PLUGIN)
       }
     )
+
+  test
+    .do(() => {
+      cmAPI = new CmAPI(`${MOCK_CM_URL}/`, MOCK_CM_TOKEN)
+    })
+    .nock(MOCK_CM_URL, { reqheaders: { Authorization: () => true } }, api =>
+      api.get(`/bundles`).reply(200, { payload: MOCK_BUNDLES })
+    )
+    .it('handles base url with trailing slash', async () => {
+      const response = await cmAPI.getBundles()
+
+      expect(response.data).to.eql({ payload: MOCK_BUNDLES })
+    })
 })

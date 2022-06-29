@@ -22,9 +22,11 @@ export type YamlAppBuilderWidgetDescriptor =
   BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder> & {
     params: WidgetParam[]
     ext: {
-      slot: MicroFrontendAppBuilderSlot
-      nav?: Nav[]
-      paths?: string[]
+      appBuilder: {
+        slot: MicroFrontendAppBuilderSlot
+        nav?: Nav[]
+        paths?: string[]
+      }
     }
   }
 

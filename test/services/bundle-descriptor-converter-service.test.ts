@@ -228,9 +228,11 @@ describe('bundle-descriptor-converter-service', () => {
       descriptorVersion: 'v5',
       type: 'app-builder',
       ext: {
-        slot: 'content',
-        paths: [],
-        nav: []
+        appBuilder: {
+          slot: 'content',
+          paths: [],
+          nav: []
+        }
       },
       params: []
     })

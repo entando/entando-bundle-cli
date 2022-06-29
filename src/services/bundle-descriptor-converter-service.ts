@@ -120,9 +120,11 @@ export class BundleDescriptorConverterService {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
         params: microFrontend.params || [],
         ext: {
-          slot: microFrontend.slot,
-          nav: microFrontend.nav,
-          ...('paths' in microFrontend && { paths: microFrontend.paths })
+          appBuilder: {
+            slot: microFrontend.slot,
+            nav: microFrontend.nav,
+            ...('paths' in microFrontend && { paths: microFrontend.paths })
+          }
         }
       }
     } else if (microFrontend.type === MicroFrontendType.WidgetConfig) {
