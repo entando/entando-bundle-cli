@@ -32,8 +32,8 @@ describe('CustomResourceService', () => {
       )
       const desc = customResourceService.createCustomResource()
       expect(desc.metadata.name).to.eq('jeff-bundle-b03baccb')
-      expect(desc.metadata.labels.plugin).to.eq(true)
-      expect(desc.metadata.labels.widget).to.eq(true)
+      expect(desc.metadata.labels.plugin).to.eq('true')
+      expect(desc.metadata.labels.widget).to.eq('true')
       expect(desc.spec.details.name).to.eq(mockYmlBundleDescriptor.name)
       expect(desc.spec.details.description).to.eq(
         mockYmlBundleDescriptor.description
@@ -72,8 +72,8 @@ describe('CustomResourceService', () => {
       )
       const desc = customResourceService.createCustomResource()
       expect(desc.metadata.name).to.eq('jeff-bundle-b03baccb')
-      expect(desc.metadata.labels.plugin).to.eq(true)
-      expect(desc.metadata.labels.widget).to.eq(true)
+      expect(desc.metadata.labels.plugin).to.eq('true')
+      expect(desc.metadata.labels.widget).to.eq('true')
       expect(desc.spec.details.name).to.eq(mockYmlBundleDescriptor.name)
       expect(desc.spec.details.description).to.eq(
         mockYmlBundleDescriptor.description
@@ -119,8 +119,8 @@ describe('CustomResourceService', () => {
         mockYmlBundleDescriptor
       )
       const desc = customResourceService.createCustomResource()
-      expect(desc.metadata.labels.plugin).to.eq(false)
-      expect(desc.metadata.labels.widget).to.eq(true)
+      expect(desc.metadata.labels.plugin).to.eq('false')
+      expect(desc.metadata.labels.widget).to.eq('true')
     }
   )
 
@@ -145,8 +145,8 @@ describe('CustomResourceService', () => {
         mockYmlBundleDescriptor
       )
       const desc = customResourceService.createCustomResource()
-      expect(desc.metadata.labels.plugin).to.eq(false)
-      expect(desc.metadata.labels.widget).to.eq(false)
+      expect(desc.metadata.labels.plugin).to.eq('false')
+      expect(desc.metadata.labels.widget).to.eq('false')
     }
   )
 })
