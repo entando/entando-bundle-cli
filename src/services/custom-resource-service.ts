@@ -71,10 +71,7 @@ export class CustomResourceService {
       crDescriptor.metadata.labels.plugin = 'true'
     }
 
-    if (
-      this.yamlDescriptor.components.widgets.length > 0 ||
-      this.yamlDescriptor.components['app-builder'].length > 0
-    ) {
+    if (this.yamlDescriptor.components.widgets.length > 0) {
       crDescriptor.metadata.labels.widget = 'true'
     }
 
