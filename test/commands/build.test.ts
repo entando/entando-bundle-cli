@@ -51,7 +51,7 @@ describe('build command', () => {
     .command(['build', '--all-ms', '--all-mfe'])
     .catch(error => {
       expect(error.message).to.contain(
-        'Bad arguments. Please use the component name as argument or one of the available flags'
+        '--all-mfe= cannot also be provided when using --all-ms='
       )
     })
     .it('build command with multiple flags should return an error')

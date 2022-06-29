@@ -24,13 +24,16 @@ export default class Build extends BaseBuildCommand {
 
   static flags = {
     'all-ms': Flags.boolean({
-      description: 'Build all the bundle microservices'
+      description: 'Build all the bundle microservices',
+      exclusive: ['all-mfe', 'all']
     }),
     'all-mfe': Flags.boolean({
-      description: 'Build all the bundle micro frontends'
+      description: 'Build all the bundle micro frontends',
+      exclusive: ['all-ms', 'all']
     }),
     all: Flags.boolean({
-      description: 'Build all the bundle components'
+      description: 'Build all the bundle components',
+      exclusive: ['all-ms', 'all-mfe']
     })
   }
 

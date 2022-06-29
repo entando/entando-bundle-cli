@@ -26,10 +26,12 @@ export default class Run extends BaseExecutionCommand {
 
   static flags = {
     'all-ms': Flags.boolean({
-      description: 'Run all the bundle microservices'
+      description: 'Run all the bundle microservices',
+      exclusive: ['all-mfe']
     }),
     'all-mfe': Flags.boolean({
-      description: 'Run all the bundle micro frontends'
+      description: 'Run all the bundle micro frontends',
+      exclusive: ['all-ms']
     })
   }
 
@@ -101,7 +103,10 @@ export default class Run extends BaseExecutionCommand {
       component => new ColorizedWritable(component.name, maxPrefixLength)
     )
 
-    const executorService = new ParallelProcessExecutorService(executionOptions)
+    const executorService = new ParallelProcessExecutorService(
+      executionOptions,
+      10
+    )
 
     await executorService.execute()
   }

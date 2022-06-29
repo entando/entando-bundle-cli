@@ -69,7 +69,9 @@ describe('run command', () => {
     })
     .command(['run', '--all-ms', '--all-mfe'])
     .catch(error => {
-      expect(error.message).to.contain(BAD_ARGS_ERR)
+      expect(error.message).to.contain(
+        '--all-mfe= cannot also be provided when using --all-ms='
+      )
     })
     .it('run command with multiple flags should return an error')
 
