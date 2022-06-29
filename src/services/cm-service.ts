@@ -2,7 +2,6 @@ import { CLIError } from '@oclif/errors'
 import axios, { AxiosError } from 'axios'
 import { CmAPI } from '../api/cm-api'
 import { CmBundle, Plugin } from '../models/cm'
-import { debugFactory } from './debug-factory-service'
 
 class ApiError extends CLIError {
   constructor(message: string, error?: AxiosError | Error) {
@@ -21,7 +20,6 @@ class ApiError extends CLIError {
 }
 
 export class CmService {
-  private static debug = debugFactory(CmService)
   private readonly cmApi: CmAPI
 
   constructor() {
@@ -38,7 +36,6 @@ export class CmService {
   }
 
   public async getBundles(): Promise<CmBundle[]> {
-    CmService.debug(`fetching bundles from ${process.env.ENTANDO_CLI_ECR_URL}`)
     try {
       const response = await this.cmApi.getBundles()
       return response.data.payload
@@ -48,9 +45,6 @@ export class CmService {
   }
 
   public async getBundleMicroservices(bundleId: string): Promise<Plugin[]> {
-    CmService.debug(
-      `fetching microservices of bundle ${bundleId} from ${process.env.ENTANDO_CLI_ECR_URL}`
-    )
     try {
       const response = await this.cmApi.getBundlePlugins(bundleId)
       return response.data.payload
@@ -74,9 +68,6 @@ export class CmService {
     bundleId: string,
     serviceName: string
   ): Promise<Plugin> {
-    CmService.debug(
-      `fetching microservice ${serviceName} of bundle ${bundleId} from ${process.env.ENTANDO_CLI_ECR_URL}`
-    )
     try {
       const response = await this.cmApi.getBundlePlugin(bundleId, serviceName)
       return response.data
