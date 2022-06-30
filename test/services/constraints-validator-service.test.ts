@@ -208,6 +208,24 @@ describe('BundleDescriptorValidatorService', () => {
     .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].stack = 'invalid-stack'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "stack" is not valid. Allowed values are: react, angular'
+      )
+      expect(error.message).contain('$.microfrontends[1].stack')
+    })
+    .it('Validates micro frontend with invalid stack field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[1].apiClaims = [
         {
           name: 'bad-claim',
