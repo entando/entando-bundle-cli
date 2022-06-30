@@ -190,6 +190,36 @@ describe('pack', () => {
       }
     )
 
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-org-flag-custom-dockerfile'
+      )
+      setupBuildSuccess(bundleDir)
+    })
+    .command([
+      'pack',
+      '--org',
+      'flag-organization',
+      '--file',
+      'custom-Dockerfile'
+    ])
+    .it('runs pack using custom Dockerfile', ctx => {
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
+      const buildDockerImageStub =
+        DockerService.buildDockerImage as sinon.SinonStub
+      sinon.assert.calledOnceWithMatch(
+        buildDockerImageStub,
+        sinon.match({
+          organization: 'flag-organization',
+          dockerfile: 'custom-Dockerfile'
+        })
+      )
+    })
+
   let getComponentsStub: sinon.SinonStub
 
   test

@@ -64,7 +64,11 @@ export default class Pack extends BaseBuildCommand {
 
     await this.buildMicroservicesDockerImages(dockerOrganization)
 
-    await this.buildBundleDockerImage(bundleDescriptor, dockerOrganization)
+    await this.buildBundleDockerImage(
+      bundleDescriptor,
+      dockerOrganization,
+      flags.file
+    )
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {
@@ -134,7 +138,8 @@ export default class Pack extends BaseBuildCommand {
 
   private async buildBundleDockerImage(
     bundleDescriptor: BundleDescriptor,
-    dockerOrganization: string
+    dockerOrganization: string,
+    dockerfile?: string
   ) {
     this.log(color.bold.blue('Creating bundle package...'))
     CliUx.ux.action.start('Building Bundle Docker image')
@@ -166,6 +171,7 @@ export default class Pack extends BaseBuildCommand {
       organization: dockerOrganization,
       path: '.',
       tag: bundleDescriptor.version,
+      dockerfile,
       // Docker build output will be visible only in debug mode
       outputStream: Pack.debug.outputStream
     })
