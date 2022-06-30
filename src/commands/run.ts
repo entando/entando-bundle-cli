@@ -14,7 +14,8 @@ export default class Run extends BaseExecutionCommand {
   static examples = [
     '<%= config.bin %> <%= command.id %> my-component',
     '<%= config.bin %> <%= command.id %> --all-ms',
-    '<%= config.bin %> <%= command.id %> --all-mfe'
+    '<%= config.bin %> <%= command.id %> --all-mfe',
+    '<%= config.bin %> <%= command.id %> --all'
   ]
 
   static args = [
@@ -27,11 +28,15 @@ export default class Run extends BaseExecutionCommand {
   static flags = {
     'all-ms': Flags.boolean({
       description: 'Run all the bundle microservices',
-      exclusive: ['all-mfe']
+      exclusive: ['all-mfe', 'all']
     }),
     'all-mfe': Flags.boolean({
       description: 'Run all the bundle micro frontends',
-      exclusive: ['all-ms']
+      exclusive: ['all-ms', 'all']
+    }),
+    all: Flags.boolean({
+      description: 'Run all the bundle components',
+      exclusive: ['all-ms', 'all-mfe']
     })
   }
 
@@ -45,12 +50,15 @@ export default class Run extends BaseExecutionCommand {
       CliUx.ux.action.start(
         `Running all micro frontends. Press ctrl + c to exit.`
       )
-      await this.runAllComponents(Phase.Run, ComponentType.MICROFRONTEND)
+      await this.runAllComponents(ComponentType.MICROFRONTEND)
     } else if (flags['all-ms']) {
       CliUx.ux.action.start(
         `Running all microservices. Press ctrl + c to exit.`
       )
-      await this.runAllComponents(Phase.Run, ComponentType.MICROSERVICE)
+      await this.runAllComponents(ComponentType.MICROSERVICE)
+    } else if (flags.all) {
+      CliUx.ux.action.start(`Running all components. Press ctrl + c to exit.`)
+      await this.runAllComponents()
     } else {
       CliUx.ux.action.start(
         `Running component ${args.name}. Press ctrl + c to exit.`
@@ -76,21 +84,22 @@ export default class Run extends BaseExecutionCommand {
     }
   }
 
-  public async runAllComponents(
-    commandPhase: Phase,
-    componentType?: ComponentType
-  ): Promise<void> {
+  public async runAllComponents(componentType?: ComponentType): Promise<void> {
     switch (componentType) {
       case ComponentType.MICROSERVICE:
-        this.log(color.bold.blue(`Runnning all microservices`))
+        this.log(color.bold.blue(`Running all microservices`))
         break
       case ComponentType.MICROFRONTEND:
-        this.log(color.bold.blue(`Runnning all micro frontends`))
+        this.log(color.bold.blue(`Running all micro frontends`))
+        break
+      default:
+        this.log(color.bold.blue(`Running all components`))
         break
     }
 
     const componentService = new ComponentService()
     const components = componentService.getComponents(componentType)
+    const componentsSize = components.length
     let maxPrefixLength = 0
     for (const component of components) {
       const nameLength = component.name.length
@@ -99,13 +108,13 @@ export default class Run extends BaseExecutionCommand {
 
     const executionOptions = this.getExecutionOptions(
       components,
-      commandPhase,
+      Phase.Run,
       component => new ColorizedWritable(component.name, maxPrefixLength)
     )
 
     const executorService = new ParallelProcessExecutorService(
       executionOptions,
-      10
+      componentsSize
     )
 
     await executorService.execute()

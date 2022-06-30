@@ -418,12 +418,13 @@ Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME] [--all-ms | --all-mfe]
+  $ entando-bundle-cli run [NAME] [--all | [--all-ms | --all-mfe] | ]
 
 ARGUMENTS
   NAME  The name of the component to run
 
 FLAGS
+  --all      Run all the bundle components
   --all-mfe  Run all the bundle micro frontends
   --all-ms   Run all the bundle microservices
 
@@ -436,6 +437,8 @@ EXAMPLES
   $ entando-bundle-cli run --all-ms
 
   $ entando-bundle-cli run --all-mfe
+
+  $ entando-bundle-cli run --all
 ```
 
 _See code: [dist/commands/run.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/run.ts)_
