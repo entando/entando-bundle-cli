@@ -1,11 +1,11 @@
-import * as cp from 'node:child_process'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
-
 import { CLIError } from '@oclif/errors'
-
 import { debugFactory } from './debug-factory-service'
 import { FSService } from './fs-service'
+import { ProcessExecutorService } from './process-executor-service'
+import { InMemoryWritable } from '../utils'
+
 export class GitService {
   private static debug = debugFactory(GitService)
   private readonly bundleName: string
@@ -18,26 +18,38 @@ export class GitService {
     this.fsService = new FSService(name, parentDirectory)
   }
 
-  public initRepo(): void {
+  public async initRepo(): Promise<void> {
     GitService.debug(`initializing git repository with name ${this.bundleName}`)
-    try {
-      // Using stdio 'pipe' option to print stderr only through CLIError
-      cp.execSync(`git -C ${this.fsService.getBundleDirectory()} init`, {
-        stdio: 'pipe'
-      })
-    } catch (error) {
-      throw new CLIError(error as Error)
+    const errorStream = new InMemoryWritable()
+    const posixBundleDir = FSService.toPosix(
+      this.fsService.getBundleDirectory()
+    )
+    const result = await ProcessExecutorService.executeProcess({
+      command: `git -C ${posixBundleDir} init`,
+      outputStream: GitService.debug.outputStream,
+      errorStream
+    })
+    if (result !== 0) {
+      throw new CLIError(
+        errorStream.data.trim() ||
+          'Initialization of git repository failed. Enable debug mode to see more details.'
+      )
     }
   }
 
-  public cloneRepo(gitUrl: string): void {
+  public async cloneRepo(gitUrl: string): Promise<void> {
     GitService.debug(`cloning bundle ${this.bundleName}`)
-    try {
-      cp.execSync(`git clone --depth 1 ${gitUrl} ./${this.bundleName}`, {
-        stdio: 'pipe'
-      })
-    } catch (error) {
-      throw new CLIError(error as Error)
+    const errorStream = new InMemoryWritable()
+    const result = await ProcessExecutorService.executeProcess({
+      command: `git clone --depth 1 ${gitUrl} ./${this.bundleName}`,
+      outputStream: GitService.debug.outputStream,
+      errorStream
+    })
+    if (result !== 0) {
+      throw new CLIError(
+        errorStream.data.trim() ||
+          'Cloning of git repository failed. Enable debug mode to see more details.'
+      )
     }
   }
 
@@ -45,7 +57,7 @@ export class GitService {
     GitService.debug(
       `removing origin git info directory (./.git) in bundle ${this.bundleName}`
     )
-    fs.rmSync(path.resolve(this.parentDirectory, `${this.bundleName}/.git`), {
+    fs.rmSync(path.resolve(this.parentDirectory, this.bundleName, '.git'), {
       recursive: true,
       force: true
     })

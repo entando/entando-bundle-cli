@@ -16,12 +16,7 @@ import {
   ProcessExecutionOptions
 } from '../../src/services/process-executor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
-import * as path from 'node:path'
-import {
-  BUNDLE_DESCRIPTOR_NAME,
-  CONFIG_FOLDER,
-  DOCKER_CONFIG_FOLDER
-} from '../../src/paths'
+import { BUNDLE_DESCRIPTOR_NAME } from '../../src/paths'
 import * as YAML from 'yaml'
 
 describe('DockerService', () => {
@@ -138,35 +133,21 @@ describe('DockerService', () => {
     })
     .it('Checks Docker images existence and docker ls command fails')
 
-  test
-    .env({
-      ENTANDO_CLI_DOCKER_CONFIG_PATH: path.join(
-        'path',
-        'to',
-        '.docker',
-        'config.json'
-      )
-    })
-    .it('Perform docker login on default registry', async () => {
-      const executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
-        .resolves(1)
-        .onSecondCall()
-        .resolves(0)
-      await DockerService.login()
-      sinon.assert.calledWith(
-        executeProcessStub,
-        sinon.match({
-          command:
-            DOCKER_COMMAND +
-            ' --config ' +
-            path.join('path', 'to', '.docker') +
-            ' login ' +
-            DEFAULT_DOCKER_REGISTRY
-        })
-      )
-    })
+  test.it('Perform docker login on default registry', async () => {
+    const executeProcessStub = sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .resolves(1)
+      .onSecondCall()
+      .resolves(0)
+    await DockerService.login()
+    sinon.assert.calledWith(
+      executeProcessStub,
+      sinon.match({
+        command: DOCKER_COMMAND + ' login ' + DEFAULT_DOCKER_REGISTRY
+      })
+    )
+  })
 
   test.it('Perform docker login on custom registry', async () => {
     const executeProcessStub = sinon
@@ -176,11 +157,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command:
-          DOCKER_COMMAND +
-          ' --config ' +
-          path.join(...DOCKER_CONFIG_FOLDER) +
-          ' login my-registry'
+        command: DOCKER_COMMAND + ' login my-registry'
       })
     )
   })
@@ -281,41 +258,28 @@ describe('DockerService', () => {
     })
     .it('Docker image tag creation fails')
 
-  test
-    .env({
-      ENTANDO_CLI_DOCKER_CONFIG_PATH: path.join(
-        'path',
-        'to',
-        '.docker',
-        'config.json'
-      )
-    })
-    .it('Push image and retrieve digest', async () => {
-      const executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .callsFake(options => {
-          options.outputStream!.write('a0c: Pushed\n')
-          options.outputStream!.write('6p5: Pushed\n')
-          options.outputStream!.write(
-            '0.0.1: digest: sha256:52b239f9 size: 2213\n'
-          )
-          return Promise.resolve(0)
-        })
+  test.it('Push image and retrieve digest', async () => {
+    const executeProcessStub = sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .callsFake(options => {
+        options.outputStream!.write('a0c: Pushed\n')
+        options.outputStream!.write('6p5: Pushed\n')
+        options.outputStream!.write(
+          '0.0.1: digest: sha256:52b239f9 size: 2213\n'
+        )
+        return Promise.resolve(0)
+      })
 
-      const sha = await DockerService.pushImage('myimage')
+    const sha = await DockerService.pushImage('myimage')
 
-      sinon.assert.calledWith(
-        executeProcessStub,
-        sinon.match({
-          command:
-            DOCKER_COMMAND +
-            ' --config ' +
-            path.join('path', 'to', '.docker') +
-            ' push myimage'
-        })
-      )
-      expect(sha).eq('sha256:52b239f9')
-    })
+    sinon.assert.calledWith(
+      executeProcessStub,
+      sinon.match({
+        command: DOCKER_COMMAND + ' push myimage'
+      })
+    )
+    expect(sha).eq('sha256:52b239f9')
+  })
 
   test.it('Push image but unable to retrieve digest', async () => {
     const executeProcessStub = sinon
@@ -327,11 +291,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command:
-          DOCKER_COMMAND +
-          ' --config ' +
-          path.join(...DOCKER_CONFIG_FOLDER) +
-          ' push myimage'
+        command: DOCKER_COMMAND + ' push myimage'
       })
     )
     expect(sha).eq('')
@@ -384,13 +344,14 @@ describe('DockerService', () => {
           options.errorStream!.write('UNAUTHORIZED: authentication required')
           return Promise.resolve(1)
         })
-      await DockerService.listTags('registry/org/my-bundle')
+      await DockerService.listTags('my-registry/org/my-bundle')
     })
     .catch(error => {
-      expect(error.message).contain('Registry required authentication')
       expect(error.message).contain(
-        'Please verify that registry/org/my-bundle exists'
+        'Docker registry my-registry requires authentication'
       )
+      expect(error.message).contain('You are not logged in')
+      expect(error.message).contain('You are using a non-existing image')
     })
     .it('Tags retrieval fails if listing is not authorized')
 
@@ -408,13 +369,7 @@ describe('DockerService', () => {
 
   test
     .env({
-      ENTANDO_CLI_CRANE_BIN: undefined,
-      ENTANDO_CLI_DOCKER_CONFIG_PATH: path.join(
-        'path',
-        'to',
-        '.docker',
-        'config.json'
-      )
+      ENTANDO_CLI_CRANE_BIN: undefined
     })
     .it('Tags retrieval is successfull', async () => {
       const executeProcessStub = sinon
@@ -429,10 +384,7 @@ describe('DockerService', () => {
       sinon.assert.calledWith(
         executeProcessStub,
         sinon.match({
-          command: 'crane ls registry/org/my-bundle',
-          env: {
-            HOME: path.join('path', 'to')
-          }
+          command: 'crane ls registry/org/my-bundle'
         })
       )
     })
@@ -481,16 +433,10 @@ describe('DockerService', () => {
       expect(result.get('0.0.1')).eq('sha256:1234')
       sinon.assert.calledWith(stubParallelProcessExecutorService, [
         sinon.match({
-          command: 'path/to/crane digest registry/org/my-bundle:0.0.2',
-          env: {
-            HOME: CONFIG_FOLDER
-          }
+          command: 'path/to/crane digest registry/org/my-bundle:0.0.2'
         }),
         sinon.match({
-          command: 'path/to/crane digest registry/org/my-bundle:0.0.1',
-          env: {
-            HOME: CONFIG_FOLDER
-          }
+          command: 'path/to/crane digest registry/org/my-bundle:0.0.1'
         })
       ])
     })

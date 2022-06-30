@@ -94,4 +94,8 @@ export class FSService {
       JSON.stringify(data, null, JSON_INDENTATION_SPACES)
     )
   }
+
+  public static toPosix(filePath: string): string {
+    return filePath.split(path.sep).join(path.posix.sep)
+  }
 }

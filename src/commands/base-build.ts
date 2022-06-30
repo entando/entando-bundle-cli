@@ -1,7 +1,5 @@
 import { CliUx } from '@oclif/core'
-import {
-  Phase
-} from '../services/command-factory-service'
+import { Phase } from '../services/command-factory-service'
 import { ComponentService } from '../services/component-service'
 import {
   ParallelProcessExecutorService,
@@ -14,6 +12,7 @@ import { LOGS_FOLDER, OUTPUT_FOLDER } from '../paths'
 import { mkdirSync } from 'node:fs'
 import { color } from '@oclif/color'
 import { BaseExecutionCommand } from './base-execution-command'
+import { FSService } from '../services/fs-service'
 
 export abstract class BaseBuildCommand extends BaseExecutionCommand {
   static get hidden(): boolean {
@@ -61,7 +60,9 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
     const logFile = fs.createWriteStream(logFilePath)
 
     this.log(
-      `- Build output for ${component.name} will be available in ${logFilePath}`
+      `- Build output for ${
+        component.name
+      } will be available in ${FSService.toPosix(logFilePath)}`
     )
 
     return logFile

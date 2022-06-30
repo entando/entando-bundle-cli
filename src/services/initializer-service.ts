@@ -70,7 +70,7 @@ export class InitializerService {
     this.createGitignore()
     this.createConfigJson()
     this.createDefaultSvcFiles()
-    this.git.initRepo()
+    await this.git.initRepo()
   }
 
   private createBundleDirectories() {
@@ -102,9 +102,9 @@ export class InitializerService {
     const { name, version } = this.options
 
     this.filesys.checkBundleName()
-    this.git.cloneRepo(gitSrcRepoAddress)
+    await this.git.cloneRepo(gitSrcRepoAddress)
     this.git.degit()
-    this.git.initRepo()
+    await this.git.initRepo()
 
     this.createDefaultDirectories()
 
