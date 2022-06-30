@@ -23,7 +23,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
+@entando/entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -89,16 +89,16 @@ Add an external API claim to the specified MFE component
 
 ```
 USAGE
-  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] --bundle <value> --serviceName <value>
+  $ entando-bundle-cli api add-ext [MFENAME] [CLAIMNAME] [--serviceName <value> --bundle <value>]
 
 ARGUMENTS
   MFENAME    Name of the Micro Frontend component
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --bundle=<value>       (required) Target Bundle Docker repository with the format <organization>/<repository> or
+  --bundle=<value>       Target Bundle Docker repository with the format <organization>/<repository> or
                          <registry>/<organization>/<repository>
-  --serviceName=<value>  (required) Microservice name within the target Bundle
+  --serviceName=<value>  Microservice name within the target Bundle
 
 DESCRIPTION
   Add an external API claim to the specified MFE component
@@ -132,7 +132,7 @@ Build bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME] [--all-ms] [--all-mfe] [--all]
+  $ entando-bundle-cli build [NAME] [--all-ms | --all-mfe | --all]
 
 ARGUMENTS
   NAME  The name of the component to build
@@ -418,7 +418,7 @@ Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME] [--all-ms] [--all-mfe]
+  $ entando-bundle-cli run [NAME] [--all-ms | --all-mfe]
 
 ARGUMENTS
   NAME  The name of the component to run
