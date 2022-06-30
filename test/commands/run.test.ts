@@ -1,9 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
-import * as fs from 'node:fs'
-import * as path from 'node:path'
-import { MICROSERVICES_FOLDER } from '../../src/paths'
 import {
   ProcessExecutionResult,
   ProcessExecutorService
@@ -19,6 +16,7 @@ import {
 } from '../helpers/mocks/commands/build-mocks'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import * as executors from '../../src/services/process-executor-service'
+import { Component, ComponentType } from '../../src/models/component'
 
 describe('run command', () => {
   const BAD_ARGS_ERR =
@@ -87,13 +85,9 @@ describe('run command', () => {
 
   test
     .do(() => {
-      const bundleDir = tempDirHelper.createInitializedBundleDir(
-        'test-run-command-ms'
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, msNameSpringBoot),
-        { recursive: true }
-      )
+      tempDirHelper.createInitializedBundleDir('test-run-command-ms')
+      TempDirHelper.createComponentFolder(msSpringBoot)
+
       executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(0)
@@ -258,6 +252,61 @@ describe('run command', () => {
           command: 'npm install && npm start',
           outputStream: {
             prefix: 'test-mfe-react-2 |'
+          }
+        })
+      ])
+    })
+
+  test
+    .do(() => {
+      const componentList: Array<Component<ComponentType>> = [
+        ...msListSpringBoot,
+        ...mfeListReact
+      ]
+
+      tempDirHelper.createInitializedBundleDir('test-run-command-all')
+
+      TempDirHelper.createComponentsFolders(componentList)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(componentList)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0, 0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+
+      parallelExecutorStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .command(['run', '--all'])
+    .it('run all components', async () => {
+      sinon.assert.called(getComponentsStub)
+      sinon.assert.calledWith(parallelExecutorStub, [
+        sinon.match({
+          command: 'mvn spring-boot:run',
+          outputStream: {
+            prefix: 'test-ms-spring-boot-1 |'
+          }
+        }),
+        sinon.match({
+          command: 'mvn spring-boot:run',
+          outputStream: {
+            prefix: 'test-ms-spring-boot-2 |'
+          }
+        }),
+        sinon.match({
+          command: 'npm install && npm start',
+          outputStream: {
+            prefix: 'test-mfe-react-1      |'
+          }
+        }),
+        sinon.match({
+          command: 'npm install && npm start',
+          outputStream: {
+            prefix: 'test-mfe-react-2      |'
           }
         })
       ])

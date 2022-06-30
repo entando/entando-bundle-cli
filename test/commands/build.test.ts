@@ -3,7 +3,6 @@ import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { MICROSERVICES_FOLDER } from '../../src/paths'
 import {
   ProcessExecutionResult,
   ProcessExecutorService
@@ -82,13 +81,9 @@ describe('build command', () => {
 
   test
     .do(() => {
-      const bundleDir = tempDirHelper.createInitializedBundleDir(
-        'test-build-command-ms'
-      )
-      fs.mkdirSync(
-        path.resolve(bundleDir, MICROSERVICES_FOLDER, msNameSpringBoot),
-        { recursive: true }
-      )
+      tempDirHelper.createInitializedBundleDir('test-build-command-ms')
+      TempDirHelper.createComponentFolder(msSpringBoot)
+
       executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .resolves(0)
@@ -248,13 +243,13 @@ describe('build command', () => {
       )
     })
 
-  const componentList: Array<Component<ComponentType>> = [
-    ...msListSpringBoot,
-    ...mfeListReact
-  ]
-
   test
     .do(() => {
+      const componentList: Array<Component<ComponentType>> = [
+        ...msListSpringBoot,
+        ...mfeListReact
+      ]
+
       bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-build-command-all'
       )
