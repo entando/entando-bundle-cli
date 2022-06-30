@@ -144,6 +144,7 @@ export default class GenerateCr extends Command {
     if (flags.output) {
       fs.writeFileSync(flags.output, yamlContent)
     } else {
+      this.log('---')
       this.log(yamlContent)
     }
   }
