@@ -6,16 +6,18 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-* [entando-bundle-cli](#entando-bundle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-* [Environment variables](#environment-variables)
-* [Development environment setup](#development-environment-setup)
+
+- [entando-bundle-cli](#entando-bundle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+- [Environment variables](#environment-variables)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
@@ -27,34 +29,36 @@ USAGE
   $ entando-bundle-cli COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
-* [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
-* [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-* [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
-* [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
-* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-* [`entando-bundle-cli info`](#entando-bundle-cli-info)
-* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-* [`entando-bundle-cli list`](#entando-bundle-cli-list)
-* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-* [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
-* [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
-* [`entando-bundle-cli publish`](#entando-bundle-cli-publish)
-* [`entando-bundle-cli run [NAME]`](#entando-bundle-cli-run-name)
-* [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
-* [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
-* [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
-* [`entando-bundle-cli svc logs`](#entando-bundle-cli-svc-logs)
-* [`entando-bundle-cli svc restart`](#entando-bundle-cli-svc-restart)
-* [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
-* [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
+
+- [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+- [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
+- [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
+- [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
+- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli info`](#entando-bundle-cli-info)
+- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+- [`entando-bundle-cli list`](#entando-bundle-cli-list)
+- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+- [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
+- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+- [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+- [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
+- [`entando-bundle-cli publish`](#entando-bundle-cli-publish)
+- [`entando-bundle-cli run [NAME]`](#entando-bundle-cli-run-name)
+- [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
+- [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
+- [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+- [`entando-bundle-cli svc logs`](#entando-bundle-cli-svc-logs)
+- [`entando-bundle-cli svc restart`](#entando-bundle-cli-svc-restart)
+- [`entando-bundle-cli svc start`](#entando-bundle-cli-svc-start)
+- [`entando-bundle-cli svc stop`](#entando-bundle-cli-svc-stop)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -128,7 +132,7 @@ Build bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME] [--all-ms] [--all-mfe] [--all]
+  $ entando-bundle-cli build [NAME] [--all-ms | --all-mfe | --all]
 
 ARGUMENTS
   NAME  The name of the component to build
@@ -159,12 +163,13 @@ Generate the Entando Custom Resource (CR) for a bundle project
 
 ```
 USAGE
-  $ entando-bundle-cli generate-cr [-i <value>] [-d]
+  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-o <value>]
 
 FLAGS
-  -d, --digest         Include Docker images digests
-  -i, --image=<value>  Name of the bundle Docker image with the format <organization>/<repository> or
-                       <registry>/<organization>/<repository>
+  -d, --digest          Include Docker images digests
+  -i, --image=<value>   Name of the bundle Docker image with the format <organization>/<repository> or
+                        <registry>/<organization>/<repository>
+  -o, --output=<value>  Write the result to the specified output file
 
 DESCRIPTION
   Generate the Entando Custom Resource (CR) for a bundle project
@@ -177,6 +182,8 @@ EXAMPLES
   $ entando-bundle-cli generate-cr --image=my-registry/my-org/my-bundle
 
   $ entando-bundle-cli generate-cr --image=my-org/my-bundle --digest
+
+  $ entando-bundle-cli generate-cr -o my-cr.yml
 ```
 
 _See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/generate-cr.ts)_
@@ -411,19 +418,24 @@ Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME] [--all-ms]
+  $ entando-bundle-cli run [NAME] [--all-ms | --all-mfe]
 
 ARGUMENTS
   NAME  The name of the component to run
 
 FLAGS
-  --all-ms  Run all the bundle microservices
+  --all-mfe  Run all the bundle micro frontends
+  --all-ms   Run all the bundle microservices
 
 DESCRIPTION
   Run bundle components
 
 EXAMPLES
   $ entando-bundle-cli run my-component
+
+  $ entando-bundle-cli run --all-ms
+
+  $ entando-bundle-cli run --all-mfe
 ```
 
 _See code: [dist/commands/run.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/run.ts)_
@@ -569,6 +581,7 @@ EXAMPLES
 
   $ entando-bundle-cli svc stop ext-service1 ext-service2
 ```
+
 <!-- commandsstop -->
 
 # Environment variables

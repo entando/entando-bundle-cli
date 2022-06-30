@@ -18,7 +18,6 @@ export abstract class BaseExecutionCommand extends Command {
 
   public validateInputs(flagsLength: number, name?: string): void {
     if (
-      flagsLength > 1 ||
       (flagsLength > 0 && name !== undefined) ||
       (flagsLength === 0 && name === undefined)
     ) {
