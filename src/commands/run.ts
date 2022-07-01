@@ -93,13 +93,15 @@ export default class Run extends BaseExecutionCommand {
 
     switch (componentType) {
       case ComponentType.MICROSERVICE:
-        this.log(color.bold.blue(`Running ${componentsNames} microservices`))
+        this.log(color.bold.blue(`Running ${componentsNames} microservices...`))
         break
       case ComponentType.MICROFRONTEND:
-        this.log(color.bold.blue(`Running ${componentsNames} micro frontends`))
+        this.log(
+          color.bold.blue(`Running ${componentsNames} micro frontends...`)
+        )
         break
       default:
-        this.log(color.bold.blue(`Running ${componentsNames} components`))
+        this.log(color.bold.blue(`Running ${componentsNames} components...`))
         break
     }
 

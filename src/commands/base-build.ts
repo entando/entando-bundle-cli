@@ -30,13 +30,17 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
 
     switch (componentType) {
       case ComponentType.MICROSERVICE:
-        this.log(color.bold.blue(`Building ${componentsNames} microservices`))
+        this.log(
+          color.bold.blue(`Building ${componentsNames} microservices...`)
+        )
         break
       case ComponentType.MICROFRONTEND:
-        this.log(color.bold.blue(`Building ${componentsNames} micro frontends`))
+        this.log(
+          color.bold.blue(`Building ${componentsNames} micro frontends...`)
+        )
         break
       default:
-        this.log(color.bold.blue(`Building ${componentsNames} components`))
+        this.log(color.bold.blue(`Building ${componentsNames} components...`))
         break
     }
 
