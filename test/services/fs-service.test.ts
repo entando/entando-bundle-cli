@@ -107,6 +107,7 @@ describe('fs-service', () => {
             __dirname,
             '..',
             '..',
+            'src',
             RESOURCES_FOLDER,
             SVC_FOLDER,
             'default-mysql.yml'
