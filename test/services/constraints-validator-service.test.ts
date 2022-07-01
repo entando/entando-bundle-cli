@@ -35,7 +35,7 @@ describe('BundleDescriptorValidatorService', () => {
         '$.microservices[0].name'
       )
     })
-    .it('Validates required field')
+    .it('Validates microservice required name field')
 
   test
     .do(() => {
@@ -59,7 +59,7 @@ describe('BundleDescriptorValidatorService', () => {
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
-    .it('Validates field that allows only specific values')
+    .it('Validates api claim with invalid type field')
 
   test
     .do(() => {
@@ -84,7 +84,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
-      'Validates union type with a field that requires another field to exist'
+      'Validates external api claim type field dependency'
     )
 
   test
@@ -111,7 +111,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
-      'Validates union type with a field that requires another field to have a specific value'
+      'Validates api claim bundle field dependency'
     )
 
   test
@@ -128,7 +128,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('Field "apiClaims" should be an array')
       expect(error.message).contain('$.microfrontends[1].apiClaims')
     })
-    .it('Validates object instead of array')
+    .it('Validates micro frontend with invalid apiClaims field')
 
   test
     .do(() => {
@@ -144,7 +144,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('Field "microservices" is required')
       expect((error as JsonValidationError).jsonPath).eq('$.microservices')
     })
-    .it('Validates required array')
+    .it('Validates required microservices array')
 
   test
     .do(() => {
