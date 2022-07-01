@@ -559,4 +559,76 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].contextParams[0]')
     })
     .it('Validates micro frontend with invalid contextParams field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].nav = 'invalidvalue'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "nav" should be an array')
+      expect(error.message).contain('$.microfrontends[1].nav')
+    })
+    .it('Validates micro frontend with invalid nav field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].params = 'invalidvalue'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "params" should be an array')
+      expect(error.message).contain('$.microfrontends[0].params')
+    })
+    .it('Validates micro frontend with invalid params field')
 })
+
+test
+  .do(() => {
+    const invalidDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microfrontends[1].configMfe = 'config-mfe'
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain(
+      'Field "configMfe" requires field "type" to have value: widget'
+    )
+    expect(error.message).contain('$.microfrontends[1]')
+  })
+  .it('Validates micro frontend configMfe field dependency')
+
+test
+  .do(() => {
+    const invalidDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microfrontends[0].configMfe = 'test-mfe-1'
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain(
+      'Field "configMfe" value must not be equal to field "name" value'
+    )
+    expect(error.message).contain('$.microfrontends[0]')
+  })
+  .it(
+    'Validates widget micro frontend with configMfe field value equal to name field value'
+  )
