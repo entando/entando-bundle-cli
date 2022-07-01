@@ -23,7 +23,22 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
     commandPhase: Phase,
     componentType?: ComponentType
   ): Promise<void> {
-    this.log(color.bold.blue('Building components...'))
+    const componentService = new ComponentService()
+    const components = componentService.getComponents(componentType)
+
+    const componentsNames = components.map(comp => comp.name).join(', ')
+
+    switch (componentType) {
+      case ComponentType.MICROSERVICE:
+        this.log(color.bold.blue(`Building ${componentsNames} microservices`))
+        break
+      case ComponentType.MICROFRONTEND:
+        this.log(color.bold.blue(`Building ${componentsNames} micro frontends`))
+        break
+      default:
+        this.log(color.bold.blue(`Building ${componentsNames} components`))
+        break
+    }
 
     // Output and logs directories cleanup
     const outputFolder = path.resolve(...OUTPUT_FOLDER)
@@ -36,9 +51,6 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
     if (fs.existsSync(outputFolder)) {
       fs.rmSync(outputFolder, { recursive: true })
     }
-
-    const componentService = new ComponentService()
-    const components = componentService.getComponents(componentType)
 
     const executionOptions = this.getExecutionOptions(
       components,

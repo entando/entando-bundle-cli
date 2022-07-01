@@ -85,21 +85,24 @@ export default class Run extends BaseExecutionCommand {
   }
 
   public async runAllComponents(componentType?: ComponentType): Promise<void> {
-    switch (componentType) {
-      case ComponentType.MICROSERVICE:
-        this.log(color.bold.blue(`Running all microservices`))
-        break
-      case ComponentType.MICROFRONTEND:
-        this.log(color.bold.blue(`Running all micro frontends`))
-        break
-      default:
-        this.log(color.bold.blue(`Running all components`))
-        break
-    }
-
     const componentService = new ComponentService()
     const components = componentService.getComponents(componentType)
     const componentsSize = components.length
+
+    const componentsNames = components.map(comp => comp.name).join(', ')
+
+    switch (componentType) {
+      case ComponentType.MICROSERVICE:
+        this.log(color.bold.blue(`Running ${componentsNames} microservices`))
+        break
+      case ComponentType.MICROFRONTEND:
+        this.log(color.bold.blue(`Running ${componentsNames} micro frontends`))
+        break
+      default:
+        this.log(color.bold.blue(`Running ${componentsNames} components`))
+        break
+    }
+
     let maxPrefixLength = 0
     for (const component of components) {
       const nameLength = component.name.length
