@@ -13,7 +13,7 @@
     "node/no-extraneous-import": [
       "error",
       {
-        "allowModules": ["debug"]
+        "allowModules": ["debug", "cli-spinners"]
       }
     ]
   },

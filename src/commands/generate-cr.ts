@@ -21,6 +21,7 @@ import { CustomResourceService } from '../services/custom-resource-service'
 import * as YAML from 'yaml'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
+import { animatedProgress } from '../utils'
 
 export default class GenerateCr extends Command {
   static description =
@@ -111,7 +112,7 @@ export default class GenerateCr extends Command {
     if (flags.digest) {
       console.warn(color.bold.blue('Fetching bundle Docker repository tags'))
 
-      const progress = CliUx.ux.progress()
+      const progress = animatedProgress()
       progress.start(tags.length, 0)
 
       const digestsExecutor = DockerService.getDigestsExecutor(image, tags)

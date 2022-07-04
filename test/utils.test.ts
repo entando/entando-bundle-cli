@@ -1,5 +1,9 @@
 import { expect } from '@oclif/test'
-import { InMemoryWritable, ColorizedWritable } from '../src/utils'
+import {
+  InMemoryWritable,
+  ColorizedWritable,
+  animatedProgress
+} from '../src/utils'
 import { EOL } from 'node:os'
 import * as sinon from 'sinon'
 describe('Utilities', () => {
@@ -27,5 +31,42 @@ describe('Utilities', () => {
     } finally {
       sandbox.restore()
     }
+  })
+
+  it('Animated progress', () => {
+    const progress = animatedProgress()
+
+    const options = {
+      barCompleteString: '========================================',
+      barIncompleteString: '----------------------------------------',
+      barsize: 40
+    }
+    const params = {
+      progress: 0,
+      startTime: Date.now() - (3600 + 20 * 60 + 12) * 1000,
+      eta: 13,
+      value: 6,
+      total: 10
+    }
+    const payload: any = {}
+
+    let output = progress.formatter(options, params, payload)
+    expect(output).eq(
+      'progress [----------------------------------------] 0% | ETA: 13s | 6/10 | Time: 01:20:12'
+    )
+    expect(payload.index).eq(1)
+
+    params.progress = 0.3
+    output = progress.formatter(options, params, payload)
+    expect(output).eq(
+      'progress [============\\---------------------------] 30% | ETA: 13s | 6/10 | Time: 01:20:12'
+    )
+    expect(payload.index).eq(2)
+
+    params.progress = 1
+    output = progress.formatter(options, params, payload)
+    expect(output).eq(
+      'progress [========================================] 100% | ETA: 13s | 6/10 | Time: 01:20:12'
+    )
   })
 })
