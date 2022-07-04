@@ -6,6 +6,7 @@ import {
   ProcessExecutorService
 } from './process-executor-service'
 import { Writable } from 'node:stream'
+import * as os from 'node:os'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {
@@ -24,6 +25,7 @@ import { YamlBundleDescriptor } from '../models/yaml-bundle-descriptor'
 import { ConstraintsValidatorService } from './constraints-validator-service'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/yaml-bundle-descriptor-constraints'
 import * as YAML from 'yaml'
+import { FSService } from './fs-service'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
@@ -79,6 +81,51 @@ export class DockerService {
       options.tag
     )
     return `${DOCKER_COMMAND} build --platform "linux/amd64" -f ${dockerfile} -t ${dockerImageName} .`
+  }
+
+  public static async buildBundleDockerImage(
+    bundleDescriptor: BundleDescriptor,
+    dockerOrganization: string,
+    customDockerfile?: string
+  ): Promise<ProcessExecutionResult> {
+    const dockerfile =
+      customDockerfile ||
+      path.resolve(os.tmpdir(), 'Dockerfile-' + bundleDescriptor.name)
+
+    let generatedDockerfileContent: string
+
+    if (!customDockerfile) {
+      generatedDockerfileContent = 'FROM scratch\n'
+      generatedDockerfileContent += `LABEL org.entando.bundle-name="${bundleDescriptor.name}"\n`
+      generatedDockerfileContent += 'ADD .entando/output/descriptors/ .\n'
+      for (const mfe of bundleDescriptor.microfrontends) {
+        generatedDockerfileContent += `ADD microfrontends/${mfe.name}/build widgets/${mfe.name}\n`
+      }
+
+      fs.writeFileSync(dockerfile, generatedDockerfileContent)
+    }
+
+    const result = await DockerService.buildDockerImage({
+      name: bundleDescriptor.name,
+      organization: dockerOrganization,
+      path: '.',
+      tag: bundleDescriptor.version,
+      dockerfile: FSService.toPosix(dockerfile),
+      // Docker build output will be visible only in debug mode
+      outputStream: DockerService.debug.outputStream
+    })
+
+    if (!customDockerfile) {
+      if (result !== 0) {
+        DockerService.debug(
+          `Generated Dockerfile:\n${generatedDockerfileContent!}`
+        )
+      }
+
+      fs.rmSync(dockerfile)
+    }
+
+    return result
   }
 
   public static getDockerImageName(

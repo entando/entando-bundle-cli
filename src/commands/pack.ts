@@ -8,7 +8,6 @@ import {
   ConfigService,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../services/config-service'
-import { debugFactory } from '../services/debug-factory-service'
 import {
   DEFAULT_DOCKERFILE_NAME,
   DockerBuildOptions,
@@ -31,7 +30,8 @@ export default class Pack extends BaseBuildCommand {
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --org=my-org'
+    '<%= config.bin %> <%= command.id %> --org=my-org',
+    '<%= config.bin %> <%= command.id %> -f my-Dockerfile'
   ]
 
   static flags = {
@@ -41,12 +41,11 @@ export default class Pack extends BaseBuildCommand {
     }),
     file: Flags.string({
       char: 'f',
-      description: 'Bundle Dockerfile (default is Dockerfile)',
+      description:
+        'Bundle Dockerfile (by default it is automatically generated)',
       required: false
     })
   }
-
-  private static debug = debugFactory(Pack)
 
   configService = new ConfigService()
 
@@ -166,15 +165,11 @@ export default class Pack extends BaseBuildCommand {
 
     bundleDescriptorConverterService.generateYamlDescriptors(thumbnailInfo)
 
-    const result = await DockerService.buildDockerImage({
-      name: bundleDescriptor.name,
-      organization: dockerOrganization,
-      path: '.',
-      tag: bundleDescriptor.version,
-      dockerfile,
-      // Docker build output will be visible only in debug mode
-      outputStream: Pack.debug.outputStream
-    })
+    const result = await DockerService.buildBundleDockerImage(
+      bundleDescriptor,
+      dockerOrganization,
+      dockerfile
+    )
 
     if (result === 0) {
       CliUx.ux.action.stop(
