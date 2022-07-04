@@ -66,21 +66,6 @@ describe('fs-service', () => {
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
-    })
-    .it('run createFileFromTemplate', () => {
-      const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
-      filesys.createFileFromTemplate(['Dockerfile'], 'default-Dockerfile')
-      const filePath = path.resolve(
-        tempDirHelper.tmpDir,
-        defaultBundleName,
-        'Dockerfile'
-      )
-      expect(fs.existsSync(filePath)).to.eq(true)
-    })
-
-  test
-    .do(() => {
       fs.mkdirSync(
         path.resolve(tempDirHelper.tmpDir, defaultBundleName, SVC_FOLDER),
         { recursive: true }

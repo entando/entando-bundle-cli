@@ -42,7 +42,7 @@ describe('pack', () => {
       'generateYamlDescriptors'
     )
     stubBuildDockerImage = sinon
-      .stub(DockerService, 'buildDockerImage')
+      .stub(DockerService, 'buildBundleDockerImage')
       .resolves(0)
 
     stubProcessThumbnail = sinon.stub(
@@ -210,13 +210,12 @@ describe('pack', () => {
       expect(ctx.stderr).contain('2/2') // components build
       expect(ctx.stderr).contain('1/1') // docker images build
       const buildDockerImageStub =
-        DockerService.buildDockerImage as sinon.SinonStub
+        DockerService.buildBundleDockerImage as sinon.SinonStub
       sinon.assert.calledOnceWithMatch(
         buildDockerImageStub,
-        sinon.match({
-          organization: 'flag-organization',
-          dockerfile: 'custom-Dockerfile'
-        })
+        sinon.match.any,
+        'flag-organization',
+        'custom-Dockerfile'
       )
     })
 

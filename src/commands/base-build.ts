@@ -1,4 +1,3 @@
-import { CliUx } from '@oclif/core'
 import { Phase } from '../services/command-factory-service'
 import { ComponentService } from '../services/component-service'
 import {
@@ -13,6 +12,7 @@ import { mkdirSync } from 'node:fs'
 import { color } from '@oclif/color'
 import { BaseExecutionCommand } from './base-execution-command'
 import { FSService } from '../services/fs-service'
+import { animatedProgress } from '../utils'
 
 export abstract class BaseBuildCommand extends BaseExecutionCommand {
   static get hidden(): boolean {
@@ -88,7 +88,7 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
     executorService: ParallelProcessExecutorService,
     components: Array<Component<ComponentType>>
   ): Promise<void> {
-    const progress = CliUx.ux.progress()
+    const progress = animatedProgress()
     progress.start(components.length, 0)
 
     executorService.on('done', () => {

@@ -23,7 +23,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/0.0.1-SNAPSHOT darwin-x64 node-v14.19.1
+@entando/entando-bundle-cli/0.0.1-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -377,7 +377,7 @@ USAGE
   $ entando-bundle-cli pack [-o <value>] [-f <value>]
 
 FLAGS
-  -f, --file=<value>  Bundle Dockerfile (default is Dockerfile)
+  -f, --file=<value>  Bundle Dockerfile (by default it is automatically generated)
   -o, --org=<value>   Docker organization name
 
 DESCRIPTION
@@ -387,6 +387,8 @@ EXAMPLES
   $ entando-bundle-cli pack
 
   $ entando-bundle-cli pack --org=my-org
+
+  $ entando-bundle-cli pack -f my-Dockerfile
 ```
 
 _See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/pack.ts)_
@@ -418,7 +420,7 @@ Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME] [--all | [--all-ms | --all-mfe] | ]
+  $ entando-bundle-cli run [NAME] [--all-ms | --all-mfe | --all]
 
 ARGUMENTS
   NAME  The name of the component to run

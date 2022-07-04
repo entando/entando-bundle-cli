@@ -10,7 +10,6 @@ import {
 } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
-import { DockerService } from './docker-service'
 import { ComponentType } from '../models/component'
 import { ComponentService } from './component-service'
 import {
@@ -50,8 +49,6 @@ export class MicroFrontendService {
     }
 
     this.createMicroFrontendDirectory(mfe.name)
-
-    DockerService.addMicroFrontEndToDockerfile(this.bundleDir, mfe.name)
 
     this.addMicroFrontendDescriptor({
       ...mfe,
@@ -99,8 +96,6 @@ export class MicroFrontendService {
     }
 
     this.removeMicroFrontendDirectory(mfeName)
-
-    DockerService.removeMicroFrontendFromDockerfile(this.bundleDir, mfeName)
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
 

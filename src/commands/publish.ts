@@ -12,6 +12,7 @@ import {
   DEFAULT_DOCKER_REGISTRY,
   DockerService
 } from '../services/docker-service'
+import { animatedProgress } from '../utils'
 import Pack from './pack'
 
 export default class Publish extends Command {
@@ -159,7 +160,7 @@ export default class Publish extends Command {
       digest?: string
     }
 
-    const progress = CliUx.ux.progress()
+    const progress = animatedProgress()
     progress.start(images.length, 0)
     const results: DockerImage[] = []
     /* eslint-disable no-await-in-loop */

@@ -1,6 +1,8 @@
 import { Writable } from 'node:stream'
 import { EOL } from 'node:os'
 import color from '@oclif/color'
+import * as spinners from 'cli-spinners'
+import { CliUx } from '@oclif/core'
 
 export class InMemoryWritable extends Writable {
   data = ''
@@ -44,4 +46,35 @@ export class ColorizedWritable extends Writable {
 
     next()
   }
+}
+
+export function animatedProgress(): any {
+  return CliUx.ux.progress({
+    format(options: any, params: any, payload: any): string {
+      const completed = options.barCompleteString.slice(
+        0,
+        Math.round(params.progress * options.barsize)
+      )
+      const incompleted = options.barIncompleteString.slice(
+        Math.round(params.progress * options.barsize) + 1
+      )
+
+      const spinnerFrames = spinners.line.frames
+      const index = payload.index ?? 0
+      payload.index = (index + 1) % spinnerFrames.length
+
+      const animation = spinnerFrames[index]
+
+      const bar =
+        params.progress === 1 ? completed : completed + animation + incompleted
+
+      const elapsedTime = new Date(Date.now() - params.startTime)
+        .toISOString()
+        .slice(11, 19)
+
+      return `progress [${bar}] ${params.progress * 100}% | ETA: ${
+        params.eta
+      }s | ${params.value}/${params.total} | Time: ${elapsedTime}`
+    }
+  })
 }

@@ -66,7 +66,6 @@ export class InitializerService {
     this.filesys.checkBundleName()
     this.createBundleDirectories()
     this.createBundleDescriptor()
-    this.createDockerfile()
     this.createGitignore()
     this.createConfigJson()
     this.createDefaultSvcFiles()
@@ -153,15 +152,6 @@ export class InitializerService {
   public createGitignore(): void {
     InitializerService.debug('creating .gitignore')
     this.filesys.createFileFromTemplate(['.gitignore'], 'default-gitignore')
-  }
-
-  private createDockerfile() {
-    InitializerService.debug('creating Dockerfile')
-    this.filesys.createFileFromTemplate(
-      ['Dockerfile'],
-      'default-Dockerfile',
-      this.templateVariables
-    )
   }
 
   public createDefaultSvcFiles(): void {
