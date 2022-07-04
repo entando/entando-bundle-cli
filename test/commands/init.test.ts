@@ -179,7 +179,6 @@ describe('init', () => {
     checkBundleFile(bundleName, BUNDLE_DESCRIPTOR_FILE_NAME)
     checkBundleFile(bundleName, 'microservices')
     checkBundleFile(bundleName, 'microfrontends')
-    checkBundleFile(bundleName, 'Dockerfile')
     checkBundleFile(bundleName, '.gitignore')
     checkBundleFile(bundleName, SVC_FOLDER)
     checkBundleFile(bundleName, SVC_FOLDER, 'mysql.yml')
