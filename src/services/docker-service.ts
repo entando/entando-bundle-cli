@@ -9,12 +9,7 @@ import { Writable } from 'node:stream'
 import * as os from 'node:os'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import {
-  BUILD_FOLDER,
-  BUNDLE_DESCRIPTOR_NAME,
-  MICROFRONTENDS_FOLDER,
-  WIDGETS_FOLDER
-} from '../paths'
+import { BUNDLE_DESCRIPTOR_NAME } from '../paths'
 import { ComponentType } from '../models/component'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { ComponentService } from './component-service'
@@ -134,53 +129,6 @@ export class DockerService {
     tag: string
   ): string {
     return `${organization}/${name}:${tag}`
-  }
-
-  public static addMicroFrontEndToDockerfile(
-    bundleDir: string,
-    microFrontEndName: string
-  ): void {
-    DockerService.updateDockerfile(bundleDir, oldFileContent => {
-      return (
-        oldFileContent +
-        DockerService.getMicroFrontendDockerAddCommand(microFrontEndName)
-      )
-    })
-  }
-
-  public static removeMicroFrontendFromDockerfile(
-    bundleDir: string,
-    microFrontEndName: string
-  ): void {
-    DockerService.updateDockerfile(bundleDir, oldFileContent => {
-      return oldFileContent.replace(
-        DockerService.getMicroFrontendDockerAddCommand(microFrontEndName),
-        ''
-      )
-    })
-  }
-
-  private static updateDockerfile(
-    bundleDir: string,
-    dockerfileUpdater: (oldFileContent: string) => string
-  ) {
-    const dockerfilePath = path.resolve(bundleDir, DEFAULT_DOCKERFILE_NAME)
-    const oldFileContent = fs.readFileSync(dockerfilePath).toString()
-    const newDockerfileContent = dockerfileUpdater(oldFileContent)
-    fs.writeFileSync(dockerfilePath, newDockerfileContent)
-  }
-
-  private static getMicroFrontendDockerAddCommand(microFrontEndName: string) {
-    const microFrontendFromPath = path.posix.join(
-      MICROFRONTENDS_FOLDER,
-      microFrontEndName,
-      BUILD_FOLDER
-    )
-    const microFrontendToPath = path.posix.join(
-      WIDGETS_FOLDER,
-      microFrontEndName
-    )
-    return `ADD ${microFrontendFromPath} ${microFrontendToPath}\n`
   }
 
   public static async bundleImagesExists(
