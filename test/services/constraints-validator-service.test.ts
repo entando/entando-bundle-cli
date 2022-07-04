@@ -35,7 +35,7 @@ describe('BundleDescriptorValidatorService', () => {
         '$.microservices[0].name'
       )
     })
-    .it('Validates required field')
+    .it('Validates microservice required name field')
 
   test
     .do(() => {
@@ -59,7 +59,7 @@ describe('BundleDescriptorValidatorService', () => {
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
-    .it('Validates field that allows only specific values')
+    .it('Validates api claim with invalid type field')
 
   test
     .do(() => {
@@ -84,7 +84,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
-      'Validates union type with a field that requires another field to exist'
+      'Validates external api claim type field dependency'
     )
 
   test
@@ -111,7 +111,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
-      'Validates union type with a field that requires another field to have a specific value'
+      'Validates api claim bundle field dependency'
     )
 
   test
@@ -128,7 +128,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('Field "apiClaims" should be an array')
       expect(error.message).contain('$.microfrontends[1].apiClaims')
     })
-    .it('Validates object instead of array')
+    .it('Validates micro frontend with invalid apiClaims field')
 
   test
     .do(() => {
@@ -144,7 +144,7 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('Field "microservices" is required')
       expect((error as JsonValidationError).jsonPath).eq('$.microservices')
     })
-    .it('Validates required array')
+    .it('Validates required microservices array')
 
   test
     .do(() => {
@@ -203,6 +203,24 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].name')
     })
     .it('Validates name using RegExp')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].stack = 'invalid-stack'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "stack" is not valid. Allowed values are: react, angular'
+      )
+      expect(error.message).contain('$.microfrontends[1].stack')
+    })
+    .it('Validates micro frontend with invalid stack field')
 
   test
     .do(() => {
@@ -541,4 +559,76 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1].contextParams[0]')
     })
     .it('Validates micro frontend with invalid contextParams field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].nav = 'invalidvalue'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "nav" should be an array')
+      expect(error.message).contain('$.microfrontends[1].nav')
+    })
+    .it('Validates micro frontend with invalid nav field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].params = 'invalidvalue'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "params" should be an array')
+      expect(error.message).contain('$.microfrontends[0].params')
+    })
+    .it('Validates micro frontend with invalid params field')
 })
+
+test
+  .do(() => {
+    const invalidDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microfrontends[1].configMfe = 'config-mfe'
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain(
+      'Field "configMfe" requires field "type" to have value: widget'
+    )
+    expect(error.message).contain('$.microfrontends[1]')
+  })
+  .it('Validates micro frontend configMfe field dependency')
+
+test
+  .do(() => {
+    const invalidDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microfrontends[0].configMfe = 'test-mfe-1'
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain(
+      'Field "configMfe" value must not be equal to field "name" value'
+    )
+    expect(error.message).contain('$.microfrontends[0]')
+  })
+  .it(
+    'Validates widget micro frontend with configMfe field value equal to name field value'
+  )

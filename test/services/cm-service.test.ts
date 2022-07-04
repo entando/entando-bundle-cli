@@ -80,7 +80,10 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundlePlugins',
-      sinon.stub().resolves({ data: { payload: [MOCK_BUNDLE_PLUGIN] } })
+      sinon
+        .mock()
+        .withArgs(MOCK_BUNDLES[0].bundleId)
+        .resolves({ data: { payload: [MOCK_BUNDLE_PLUGIN] } })
     )
     .it(
       'getBundleMicroservices fetches all microservices of a bundle via CmAPI',
@@ -151,7 +154,10 @@ describe('cm-service', () => {
     .stub(
       CmAPI.prototype,
       'getBundlePlugin',
-      sinon.stub().resolves({ data: MOCK_BUNDLE_PLUGIN })
+      sinon
+        .mock()
+        .withArgs(MOCK_BUNDLES[0].bundleId, MOCK_BUNDLE_PLUGIN.pluginName)
+        .resolves({ data: MOCK_BUNDLE_PLUGIN })
     )
     .it(
       'getBundleMicroservice fetches a microservice of a bundle by name via CmAPI',
