@@ -170,9 +170,7 @@ export class InitializerService {
     const defaultPrefix = 'default-'
 
     const defaultYamls = fs
-      .readdirSync(
-        path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, SVC_FOLDER)
-      )
+      .readdirSync(path.resolve(__dirname, '..', RESOURCES_FOLDER, SVC_FOLDER))
       .filter(filename => filename.slice(-3) === 'yml')
       .map(filename => filename.replace(defaultPrefix, ''))
 
@@ -191,14 +189,12 @@ export class InitializerService {
     const keycloakRealm = path.join(
       __dirname,
       '..',
-      '..',
       RESOURCES_FOLDER,
       ...KEYCLOAK_REALM_CONFIG_FOLDER,
       KEYCLOAK_REALM_FILE
     )
     const keycloakUsers = path.join(
       __dirname,
-      '..',
       '..',
       RESOURCES_FOLDER,
       ...KEYCLOAK_REALM_CONFIG_FOLDER,

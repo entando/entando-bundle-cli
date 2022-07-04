@@ -29,6 +29,7 @@ describe('config-service', () => {
         __dirname,
         '..',
         '..',
+        'src',
         RESOURCES_FOLDER,
         DEFAULT_CONFIG_FILE
       ),

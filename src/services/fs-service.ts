@@ -65,7 +65,7 @@ export class FSService {
   ): void {
     const filePath = this.getBundleFilePath(...pathSegments)
     let templateFileContent = fs.readFileSync(
-      path.resolve(__dirname, '..', '..', RESOURCES_FOLDER, templateFileName),
+      path.resolve(__dirname, '..', RESOURCES_FOLDER, templateFileName),
       templateVariables ? 'utf8' : null
     ) as string
     if (templateVariables) {
