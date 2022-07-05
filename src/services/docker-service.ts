@@ -6,10 +6,9 @@ import {
   ProcessExecutorService
 } from './process-executor-service'
 import { Writable } from 'node:stream'
-import * as os from 'node:os'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { BUNDLE_DESCRIPTOR_NAME } from '../paths'
+import { BUNDLE_DESCRIPTOR_NAME, OUTPUT_FOLDER } from '../paths'
 import { ComponentType } from '../models/component'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { ComponentService } from './component-service'
@@ -85,12 +84,14 @@ export class DockerService {
   ): Promise<ProcessExecutionResult> {
     const dockerfile =
       customDockerfile ||
-      path.resolve(os.tmpdir(), 'Dockerfile-' + bundleDescriptor.name)
-
-    let generatedDockerfileContent: string
+      path.resolve(...OUTPUT_FOLDER, DEFAULT_DOCKERFILE_NAME)
 
     if (!customDockerfile) {
-      generatedDockerfileContent = 'FROM scratch\n'
+      DockerService.debug(
+        'Generating Dockerfile to ' + FSService.toPosix(dockerfile)
+      )
+
+      let generatedDockerfileContent = 'FROM scratch\n'
       generatedDockerfileContent += `LABEL org.entando.bundle-name="${bundleDescriptor.name}"\n`
       generatedDockerfileContent += 'ADD .entando/output/descriptors/ .\n'
       for (const mfe of bundleDescriptor.microfrontends) {
@@ -109,16 +110,6 @@ export class DockerService {
       // Docker build output will be visible only in debug mode
       outputStream: DockerService.debug.outputStream
     })
-
-    if (!customDockerfile) {
-      if (result !== 0) {
-        DockerService.debug(
-          `Generated Dockerfile:\n${generatedDockerfileContent!}`
-        )
-      }
-
-      fs.rmSync(dockerfile)
-    }
 
     return result
   }

@@ -41,7 +41,7 @@ describe('pack', () => {
       BundleDescriptorConverterService.prototype,
       'generateYamlDescriptors'
     )
-    stubBuildDockerImage = sinon
+    stubBuildBundleDockerImage = sinon
       .stub(DockerService, 'buildBundleDockerImage')
       .resolves(0)
 
@@ -60,7 +60,7 @@ describe('pack', () => {
       })
   })
 
-  let stubBuildDockerImage: sinon.SinonStub
+  let stubBuildBundleDockerImage: sinon.SinonStub
   let stubGenerateYamlDescriptors: sinon.SinonStub
   let stubProcessThumbnail: sinon.SinonStub
   let stubGetThumbInfo: sinon.SinonStub
@@ -95,7 +95,7 @@ describe('pack', () => {
       )
       sinon.assert.called(getComponentsStub)
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
-      sinon.assert.calledOnce(stubBuildDockerImage)
+      sinon.assert.calledOnce(stubBuildBundleDockerImage)
       sinon.assert.calledOnce(stubProcessThumbnail)
       expect(ctx.stderr).contain('2/2') // components build
       expect(ctx.stderr).contain('1/1') // docker images build
@@ -133,7 +133,7 @@ describe('pack', () => {
       )
       sinon.assert.called(getComponentsStub)
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
-      sinon.assert.calledOnce(stubBuildDockerImage)
+      sinon.assert.calledOnce(stubBuildBundleDockerImage)
       expect(ctx.stderr).contain('2/2') // components build
       expect(ctx.stderr).contain('1/1') // docker images build
     })
@@ -274,15 +274,15 @@ describe('pack', () => {
     .stdout()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-docker-build-fails')
-      stubBuildDockerImage.restore()
-      stubBuildDockerImage = sinon
-        .stub(DockerService, 'buildDockerImage')
+      stubBuildBundleDockerImage.restore()
+      stubBuildBundleDockerImage = sinon
+        .stub(DockerService, 'buildBundleDockerImage')
         .resolves(42)
     })
     .command(['pack', '--org', 'flag-organization'])
     .exit(42)
     .it('Docker build failure forwards exit code', ctx => {
-      sinon.assert.calledOnce(stubBuildDockerImage)
+      sinon.assert.calledOnce(stubBuildBundleDockerImage)
       expect(ctx.stderr).to.contain('Docker build failed with exit code')
     })
 
@@ -291,14 +291,14 @@ describe('pack', () => {
     .stdout()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-bundle-docker-not-found')
-      stubBuildDockerImage.restore()
-      stubBuildDockerImage = sinon
-        .stub(DockerService, 'buildDockerImage')
+      stubBuildBundleDockerImage.restore()
+      stubBuildBundleDockerImage = sinon
+        .stub(DockerService, 'buildBundleDockerImage')
         .resolves(new Error('command not found'))
     })
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
-      sinon.assert.calledOnce(stubBuildDockerImage)
+      sinon.assert.calledOnce(stubBuildBundleDockerImage)
       expect(error.message).to.contain('Docker build failed with cause')
     })
     .it('Docker build fails when command not found')
