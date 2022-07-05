@@ -2,6 +2,7 @@ import { test, expect } from '@oclif/test'
 
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import {
+  DEFAULT_DOCKERFILE_NAME,
   DEFAULT_DOCKER_REGISTRY,
   DockerService,
   DOCKER_COMMAND
@@ -16,11 +17,15 @@ import {
   ProcessExecutionOptions
 } from '../../src/services/process-executor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
-import { BUNDLE_DESCRIPTOR_NAME } from '../../src/paths'
+import { BUNDLE_DESCRIPTOR_NAME, OUTPUT_FOLDER } from '../../src/paths'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 
 describe('DockerService', () => {
+  const tempDirHelper = new TempDirHelper(__filename)
+
   afterEach(function () {
     sinon.restore()
   })
@@ -73,9 +78,9 @@ describe('DockerService', () => {
   })
 
   test.it('Builds bundle Docker image generating the Dockerfile', async () => {
+    tempDirHelper.createInitializedBundleDir('generates-dockerfile')
+
     const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-    const writeFileStub = sinon.stub(fs, 'writeFileSync')
-    const rmFileStub = sinon.stub(fs, 'rmSync')
     const executeProcessStub = sinon
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(0)
@@ -94,41 +99,28 @@ describe('DockerService', () => {
       'ADD microfrontends/test-mfe-2/build widgets/test-mfe-2\n'
     expectedContent +=
       'ADD microfrontends/test-mfe-3/build widgets/test-mfe-3\n'
-    sinon.assert.calledWith(writeFileStub, sinon.match.any, expectedContent)
+
+    const generatedDockerfile = path.resolve(
+      ...OUTPUT_FOLDER,
+      DEFAULT_DOCKERFILE_NAME
+    )
+    expect(fs.existsSync(generatedDockerfile)).eq(true)
+    expect(fs.readFileSync(generatedDockerfile).toString()).eq(expectedContent)
 
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
         command: sinon.match(
-          'Dockerfile-test-bundle -t my-org/test-bundle:0.0.1'
+          '.entando/output/Dockerfile -t my-org/test-bundle:0.0.1'
         )
       })
     )
 
-    sinon.assert.called(rmFileStub)
     expect(result).eq(0)
   })
 
-  test.it(
-    'Fails to build bundle Docker image generating the Dockerfile',
-    async () => {
-      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-      const writeFileStub = sinon.stub(fs, 'writeFileSync')
-      const rmFileStub = sinon.stub(fs, 'rmSync')
-      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
-      const result = await DockerService.buildBundleDockerImage(
-        bundleDescriptor,
-        'my-org'
-      )
-      sinon.assert.calledWith(writeFileStub)
-      sinon.assert.called(rmFileStub)
-      expect(result).eq(1)
-    }
-  )
-
   test.it('Builds bundle Docker image with custom Dockerfile', async () => {
     const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-    const rmFileStub = sinon.stub(fs, 'rmSync')
     const executeProcessStub = sinon
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(0)
@@ -145,7 +137,11 @@ describe('DockerService', () => {
         command: sinon.match('custom-Dockerfile -t my-org/test-bundle:0.0.1')
       })
     )
-    sinon.assert.neverCalledWith(rmFileStub)
+    const generatedDockerfile = path.resolve(
+      ...OUTPUT_FOLDER,
+      DEFAULT_DOCKERFILE_NAME
+    )
+    expect(fs.existsSync(generatedDockerfile)).eq(false)
     expect(result).eq(0)
   })
 
