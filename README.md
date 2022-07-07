@@ -39,7 +39,7 @@ USAGE
 - [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
 - [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
 - [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-- [`entando-bundle-cli build [NAME]`](#entando-bundle-cli-build-name)
+- [`entando-bundle-cli build`](#entando-bundle-cli-build)
 - [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 - [`entando-bundle-cli info`](#entando-bundle-cli-info)
@@ -51,7 +51,7 @@ USAGE
 - [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
 - [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
 - [`entando-bundle-cli publish`](#entando-bundle-cli-publish)
-- [`entando-bundle-cli run [NAME]`](#entando-bundle-cli-run-name)
+- [`entando-bundle-cli run`](#entando-bundle-cli-run)
 - [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
@@ -126,16 +126,13 @@ EXAMPLES
   $ entando-bundle-cli api rm my-mfe my-api-claim
 ```
 
-## `entando-bundle-cli build [NAME]`
+## `entando-bundle-cli build`
 
 Build bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli build [NAME] [--all-ms | --all-mfe | --all]
-
-ARGUMENTS
-  NAME  The name of the component to build
+  $ entando-bundle-cli build [--all-ms | --all-mfe | --all]
 
 FLAGS
   --all      Build all the bundle components
@@ -147,6 +144,8 @@ DESCRIPTION
 
 EXAMPLES
   $ entando-bundle-cli build my-component
+
+  $ entando-bundle-cli build my-component-1 my-component-2
 
   $ entando-bundle-cli build --all-ms
 
@@ -414,16 +413,13 @@ EXAMPLES
 
 _See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v0.0.1-SNAPSHOT/dist/commands/publish.ts)_
 
-## `entando-bundle-cli run [NAME]`
+## `entando-bundle-cli run`
 
 Run bundle components
 
 ```
 USAGE
-  $ entando-bundle-cli run [NAME] [--all-ms | --all-mfe | --all]
-
-ARGUMENTS
-  NAME  The name of the component to run
+  $ entando-bundle-cli run [--all-ms | --all-mfe | --all]
 
 FLAGS
   --all      Run all the bundle components
@@ -435,6 +431,8 @@ DESCRIPTION
 
 EXAMPLES
   $ entando-bundle-cli run my-component
+
+  $ entando-bundle-cli run my-component-1 my-component-2
 
   $ entando-bundle-cli run --all-ms
 
