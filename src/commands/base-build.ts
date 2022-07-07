@@ -44,6 +44,13 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
         break
     }
 
+    await this.buildComponents(components, commandPhase)
+  }
+
+  protected async buildComponents(
+    components: Array<Component<ComponentType>>,
+    commandPhase: Phase
+  ): Promise<void> {
     // Output and logs directories cleanup
     const outputFolder = path.resolve(...OUTPUT_FOLDER)
     const logsFolder = path.resolve(...LOGS_FOLDER)

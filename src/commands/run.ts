@@ -43,14 +43,11 @@ export default class Run extends BaseExecutionCommand {
 
     this.validateInputs(Object.keys(flags).length, argv.length)
 
-    const s = argv.join(', ')
-    console.log(`argv: ${s}`)
-
     if (argv.length > 1) {
       CliUx.ux.action.start(
         `Running components ${argv.join(', ')}. Press ctrl + c to exit.`
       )
-      await this.runComponentsList(argv)
+      await this.runMultipleComponents(argv)
     } else if (flags['all-mfe']) {
       CliUx.ux.action.start(
         `Running all micro frontends. Press ctrl + c to exit.`
@@ -89,10 +86,9 @@ export default class Run extends BaseExecutionCommand {
     }
   }
 
-  public async runComponentsList(componentList: string[]): Promise<void> {
+  public async runMultipleComponents(componentList: string[]): Promise<void> {
     const componentService = new ComponentService()
     const components: Array<Component<ComponentType>> = []
-    console.log(`componentList: ${componentList}`)
     for (const component of componentList) {
       components.push(componentService.getComponent(component))
     }
@@ -103,6 +99,7 @@ export default class Run extends BaseExecutionCommand {
   public async runAllComponents(componentType?: ComponentType): Promise<void> {
     const componentService = new ComponentService()
     let components: Array<Component<ComponentType>> = []
+    components = componentService.getComponents(componentType)
     const componentsNames = components.map(comp => comp.name).join(', ')
 
     switch (componentType) {
@@ -119,12 +116,12 @@ export default class Run extends BaseExecutionCommand {
         break
     }
 
-    components = componentService.getComponents(componentType)
-
     await this.runComponents(components)
   }
 
-  private async runComponents(components: Array<Component<ComponentType>>) {
+  public async runComponents(
+    components: Array<Component<ComponentType>>
+  ): Promise<void> {
     const componentsSize = components.length
 
     let maxPrefixLength = 0
