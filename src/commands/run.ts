@@ -2,7 +2,7 @@ import { CliUx, Flags } from '@oclif/core'
 import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
 import { Phase } from '../services/command-factory-service'
-import { ComponentType } from '../models/component'
+import { Component, ComponentType } from '../models/component'
 import { color } from '@oclif/color'
 import { ParallelProcessExecutorService } from '../services/process-executor-service'
 import { BaseExecutionCommand } from './base-execution-command'
@@ -11,18 +11,15 @@ import { ColorizedWritable } from '../utils'
 export default class Run extends BaseExecutionCommand {
   static description = 'Run bundle components'
 
+  // Disable argument validation for variable length arguments (list of components)
+  static strict = false
+
   static examples = [
     '<%= config.bin %> <%= command.id %> my-component',
+    '<%= config.bin %> <%= command.id %> my-component-1 my-component-2',
     '<%= config.bin %> <%= command.id %> --all-ms',
     '<%= config.bin %> <%= command.id %> --all-mfe',
     '<%= config.bin %> <%= command.id %> --all'
-  ]
-
-  static args = [
-    {
-      name: 'name',
-      description: 'The name of the component to run'
-    }
   ]
 
   static flags = {
@@ -42,11 +39,19 @@ export default class Run extends BaseExecutionCommand {
 
   public async run(): Promise<void> {
     BundleService.isValidBundleProject()
-    const { args, flags } = await this.parse(Run)
+    const { argv, flags } = await this.parse(Run)
 
-    this.validateInputs(Object.keys(flags).length, args.name)
+    this.validateInputs(Object.keys(flags).length, argv.length)
 
-    if (flags['all-mfe']) {
+    const s = argv.join(', ')
+    console.log(`argv: ${s}`)
+
+    if (argv.length > 1) {
+      CliUx.ux.action.start(
+        `Running components ${argv.join(', ')}. Press ctrl + c to exit.`
+      )
+      await this.runComponentsList(argv)
+    } else if (flags['all-mfe']) {
       CliUx.ux.action.start(
         `Running all micro frontends. Press ctrl + c to exit.`
       )
@@ -61,11 +66,11 @@ export default class Run extends BaseExecutionCommand {
       await this.runAllComponents()
     } else {
       CliUx.ux.action.start(
-        `Running component ${args.name}. Press ctrl + c to exit.`
+        `Running component ${argv[0]}. Press ctrl + c to exit.`
       )
 
       const componentService = new ComponentService()
-      const result = await componentService.run(args.name)
+      const result = await componentService.run(argv[0])
 
       if (result !== 0) {
         if (typeof result === 'number') {
@@ -84,11 +89,20 @@ export default class Run extends BaseExecutionCommand {
     }
   }
 
+  public async runComponentsList(componentList: string[]): Promise<void> {
+    const componentService = new ComponentService()
+    const components: Array<Component<ComponentType>> = []
+    console.log(`componentList: ${componentList}`)
+    for (const component of componentList) {
+      components.push(componentService.getComponent(component))
+    }
+
+    await this.runComponents(components)
+  }
+
   public async runAllComponents(componentType?: ComponentType): Promise<void> {
     const componentService = new ComponentService()
-    const components = componentService.getComponents(componentType)
-    const componentsSize = components.length
-
+    let components: Array<Component<ComponentType>> = []
     const componentsNames = components.map(comp => comp.name).join(', ')
 
     switch (componentType) {
@@ -104,6 +118,14 @@ export default class Run extends BaseExecutionCommand {
         this.log(color.bold.blue(`Running ${componentsNames} components...`))
         break
     }
+
+    components = componentService.getComponents(componentType)
+
+    await this.runComponents(components)
+  }
+
+  private async runComponents(components: Array<Component<ComponentType>>) {
+    const componentsSize = components.length
 
     let maxPrefixLength = 0
     for (const component of components) {
