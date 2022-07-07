@@ -4,6 +4,7 @@ version: '3.7'
 services:
   postgresql:
     image: postgres:%POSTGRES_DOCKER_IMAGE%
+    restart: always
     # If you want to relocate the postgres data (volume) to your local directory, uncomment the lines below
     # volumes:
     #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/postgresql/:/var/lib/postgresql/data/
