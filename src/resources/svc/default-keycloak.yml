@@ -3,6 +3,7 @@ version: '3.7'
 services:
   keycloak:
     image: entando/entando-keycloak:%KEYCLOAK_DOCKER_IMAGE%
+    restart: always
     command: [
         '-b',
         '0.0.0.0',
