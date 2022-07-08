@@ -24,7 +24,7 @@ import {
   BundleThumbnailService,
   ThumbnailStatusMessage
 } from '../services/bundle-thumbnail-service'
-import { PSCService } from '../services/psc-service'
+import { PSCDescriptors, PSCService } from '../services/psc-service'
 import { SUPPORTED_PSC_TYPES } from '../models/yaml-bundle-descriptor'
 
 export default class Pack extends BaseBuildCommand {
@@ -163,16 +163,19 @@ export default class Pack extends BaseBuildCommand {
       }
     }
 
-    const invalidFolders = PSCService.checkInvalidFolders()
-    if (invalidFolders.length > 0) {
-      this.warn(
-        `Following folders in ${PSC_FOLDER} are not valid and will be ignored: ${invalidFolders.join(
-          ', '
-        )}\nSupported PSC types are ${SUPPORTED_PSC_TYPES.join(', ')}`
-      )
-    }
+    let pscDescriptors: PSCDescriptors = {}
+    if (fs.existsSync(PSC_FOLDER)) {
+      const invalidFiles = PSCService.checkInvalidFiles()
+      if (invalidFiles.length > 0) {
+        this.warn(
+          `Following files in ${PSC_FOLDER} are not valid and will be ignored: ${invalidFiles.join(
+            ', '
+          )}\nSupported PSC types are ${SUPPORTED_PSC_TYPES.join(', ')}`
+        )
+      }
 
-    const pscDescriptors = PSCService.copyPSCFiles()
+      pscDescriptors = PSCService.copyPSCFiles()
+    }
 
     bundleDescriptorConverterService.generateYamlDescriptors(
       pscDescriptors,

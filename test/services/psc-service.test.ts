@@ -15,12 +15,15 @@ describe('PSC Service', () => {
     const pscFolder = path.resolve(bundleDir, PSC_FOLDER)
     const pageModelsFolder = path.join(pscFolder, 'pageModels')
     fs.mkdirSync(pageModelsFolder)
-    const invalidFolder = path.join(pscFolder, 'invalid')
+    const invalidFile = path.join(pscFolder, 'invalid-file')
+    fs.writeFileSync(invalidFile, '')
+    const invalidFolder = path.join(pscFolder, 'invalid-folder')
     fs.mkdirSync(invalidFolder)
 
-    const invalidFolders = PSCService.checkInvalidFolders()
+    const invalidFiles = PSCService.checkInvalidFiles()
 
-    expect(invalidFolders).deep.eq(['invalid'])
+    expect(invalidFiles.length).eq(2)
+    expect(invalidFiles).includes('invalid-file', 'invalid-folder')
   })
 
   it('Copies PSC files', () => {
@@ -63,11 +66,6 @@ describe('PSC Service', () => {
     verifyCopy('pageModels', 'my-page-model-descriptor.yaml')
     verifyCopy('pageModels', 'my-page-model.ftl')
     verifyCopy('pageModels', 'a', 'b', 'test.txt')
-  })
-
-  it('Handles unexisting platform folder', () => {
-    tempDirHelper.createUninitializedBundleDir()
-    PSCService.copyPSCFiles()
   })
 })
 

@@ -23,6 +23,7 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import {
   DESCRIPTORS_OUTPUT_FOLDER,
+  MICROFRONTENDS_FOLDER,
   MICROSERVICES_FOLDER,
   PSC_FOLDER
 } from '../../src/paths'
@@ -407,8 +408,32 @@ describe('pack', () => {
       )
       expect(fs.existsSync(copiedFile)).true
       expect(ctx.stderr).contain(
-        `Following folders in ${PSC_FOLDER} are not valid`
+        `Following files in ${PSC_FOLDER} are not valid`
       )
+      sinon.assert.calledOnce(stubGenerateYamlDescriptors)
+    })
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-no-components'
+      )
+
+      fs.rmdirSync(path.join(bundleDir, PSC_FOLDER), { recursive: true })
+      fs.rmdirSync(path.join(bundleDir, MICROSERVICES_FOLDER), {
+        recursive: true
+      })
+      fs.rmdirSync(path.join(bundleDir, MICROFRONTENDS_FOLDER), {
+        recursive: true
+      })
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .it('Packs bundle without component folders displays warnings', ctx => {
+      expect(ctx.stderr).contain(`Folder ${PSC_FOLDER} is missing`)
+      expect(ctx.stderr).contain(`Folder ${MICROSERVICES_FOLDER} is missing`)
+      expect(ctx.stderr).contain(`Folder ${MICROFRONTENDS_FOLDER} is missing`)
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
     })
 
