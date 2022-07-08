@@ -132,6 +132,14 @@ describe('ms add', () => {
 
   test
     .stderr()
+    .command(['ms add', 'too-long'.repeat(20)])
+    .catch(error => {
+      expect(error.message).to.contain('Microservice name is too long')
+    })
+    .it('exits with an error if microservice name is too long')
+
+  test
+    .stderr()
     .command(['ms add', 'existing-ms-dir'])
     .catch(error => {
       expect(error.message).to.contain('existing-ms-dir already exists')

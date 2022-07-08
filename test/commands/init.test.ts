@@ -146,7 +146,15 @@ describe('init', () => {
     .catch(error => {
       expect(error.message).to.contain('not a valid bundle name')
     })
-    .it('validates bundle name')
+    .it('validates bundle name format')
+
+  test
+    .stderr()
+    .command(['init', 'too-long'.repeat(20)])
+    .catch(error => {
+      expect(error.message).to.contain('Bundle name is too long')
+    })
+    .it('validates bundle name length')
 
   test
     .stderr()

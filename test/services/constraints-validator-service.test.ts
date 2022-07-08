@@ -83,9 +83,7 @@ describe('BundleDescriptorValidatorService', () => {
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
-    .it(
-      'Validates external api claim type field dependency'
-    )
+    .it('Validates external api claim type field dependency')
 
   test
     .do(() => {
@@ -110,9 +108,7 @@ describe('BundleDescriptorValidatorService', () => {
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
-    .it(
-      'Validates api claim bundle field dependency'
-    )
+    .it('Validates api claim bundle field dependency')
 
   test
     .do(() => {
@@ -632,3 +628,67 @@ test
   .it(
     'Validates widget micro frontend with configMfe field value equal to name field value'
   )
+
+test
+  .do(() => {
+    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.name = 'too-long'.repeat(20)
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain('Field "name" is too long')
+    expect(error.message).contain('$.name')
+  })
+  .it('Validates bundle name too long')
+
+test
+  .do(() => {
+    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microservices[0].name = 'too-long'.repeat(20)
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain('Field "name" is too long')
+    expect(error.message).contain('$.microservices[0].name')
+  })
+  .it('Validates microservices name too long')
+
+test
+  .do(() => {
+    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microfrontends[0].name = 'too-long'.repeat(20)
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain('Field "name" is too long')
+    expect(error.message).contain('$.microfrontends[0].name')
+  })
+  .it('Validates microfrontend name too long')
+
+test
+  .do(() => {
+    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+    invalidDescriptor.microservices[0].ingressPath = 'too-long'.repeat(20)
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      invalidDescriptor,
+      BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+  .catch(error => {
+    expect(error.message).contain('Field "ingressPath" is too long')
+    expect(error.message).contain('$.microservices[0].ingressPath')
+  })
+  .it('Validates ingressPath too long')

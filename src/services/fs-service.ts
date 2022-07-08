@@ -5,7 +5,8 @@ import { debugFactory } from './debug-factory-service'
 import { GITKEEP_FILE, RESOURCES_FOLDER } from '../paths'
 import {
   ALLOWED_NAME_REGEXP,
-  INVALID_NAME_MESSAGE
+  INVALID_NAME_MESSAGE,
+  MAX_NAME_LENGTH
 } from '../models/bundle-descriptor-constraints'
 
 const JSON_INDENTATION_SPACES = 4
@@ -30,6 +31,12 @@ export class FSService {
     if (!ALLOWED_NAME_REGEXP.test(this.bundleName)) {
       throw new CLIError(
         `'${this.bundleName}' is not a valid bundle name. ${INVALID_NAME_MESSAGE}`
+      )
+    }
+
+    if (this.bundleName.length > MAX_NAME_LENGTH) {
+      throw new CLIError(
+        `Bundle name is too long. The maximum length is ${MAX_NAME_LENGTH}`
       )
     }
   }

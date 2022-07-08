@@ -160,6 +160,14 @@ describe('mfe add', () => {
 
   test
     .stderr()
+    .command(['mfe add', 'too-long'.repeat(20)])
+    .catch(error => {
+      expect(error.message).to.contain('Micro Frontend name is too long')
+    })
+    .it('exits with an error if micro frontend name is too long')
+
+  test
+    .stderr()
     .command(['mfe add', 'existing-mfe-dir'])
     .catch(error => {
       expect(error.message).to.contain('existing-mfe-dir already exists')

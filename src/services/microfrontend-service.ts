@@ -14,20 +14,19 @@ import { ComponentType } from '../models/component'
 import { ComponentService } from './component-service'
 import {
   ALLOWED_NAME_REGEXP,
-  INVALID_NAME_MESSAGE
+  INVALID_NAME_MESSAGE,
+  MAX_NAME_LENGTH
 } from '../models/bundle-descriptor-constraints'
 
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
 
 export class MicroFrontendService {
-  private readonly bundleDir: string
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentService: ComponentService
 
   constructor() {
-    this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
     this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
@@ -45,6 +44,12 @@ export class MicroFrontendService {
     if (!ALLOWED_NAME_REGEXP.test(mfe.name)) {
       throw new CLIError(
         `'${mfe.name}' is not a valid Micro Frontend name. ${INVALID_NAME_MESSAGE}`
+      )
+    }
+
+    if (mfe.name.length > MAX_NAME_LENGTH) {
+      throw new CLIError(
+        `Micro Frontend name is too long. The maximum length is ${MAX_NAME_LENGTH}`
       )
     }
 

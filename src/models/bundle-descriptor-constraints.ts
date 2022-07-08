@@ -25,10 +25,12 @@ import {
   regexp,
   UnionTypeConstraints,
   values,
-  valueNotEqualTo
+  valueNotEqualTo,
+  maxLength
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
+export const MAX_NAME_LENGTH = 50
 export const INVALID_NAME_MESSAGE =
   'Only alphanumeric characters, underscore and dash are allowed'
 export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP = /^[\w-]+\/[\w-]+$/
@@ -41,6 +43,7 @@ export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   'Valid format is <registry>/<organization>/<repository>'
@@ -171,7 +174,7 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   name: {
     required: true,
     type: 'string',
-    validators: [nameRegExpValidator]
+    validators: [nameRegExpValidator, nameLengthValidator]
   },
   stack: {
     required: true,
@@ -189,7 +192,8 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   },
   ingressPath: {
     required: false,
-    type: 'string'
+    type: 'string',
+    validators: [nameLengthValidator]
   },
   healthCheckPath: {
     required: true,
@@ -244,7 +248,7 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
     name: {
       required: true,
       type: 'string',
-      validators: [nameRegExpValidator]
+      validators: [nameRegExpValidator, nameLengthValidator]
     },
     stack: {
       required: true,
@@ -318,7 +322,7 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
     name: {
       required: true,
       type: 'string',
-      validators: [nameRegExpValidator]
+      validators: [nameRegExpValidator, nameLengthValidator]
     },
     stack: {
       required: true,
@@ -374,7 +378,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
     name: {
       required: true,
       type: 'string',
-      validators: [nameRegExpValidator]
+      validators: [nameRegExpValidator, nameLengthValidator]
     },
     stack: {
       required: true,
@@ -436,7 +440,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
     name: {
       required: true,
       type: 'string',
-      validators: [nameRegExpValidator]
+      validators: [nameRegExpValidator, nameLengthValidator]
     },
     stack: {
       required: true,
@@ -537,7 +541,7 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
     name: {
       required: true,
       type: 'string',
-      validators: [nameRegExpValidator]
+      validators: [nameRegExpValidator, nameLengthValidator]
     },
     description: {
       required: false,
