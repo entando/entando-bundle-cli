@@ -18,7 +18,11 @@ import {
   CONFIG_FILE,
   BUNDLE_DESCRIPTOR_FILE_NAME,
   SVC_FOLDER,
-  KEYCLOAK_REALM_CONFIG_FOLDER
+  KEYCLOAK_REALM_CONFIG_FOLDER,
+  GITKEEP_FILE,
+  MICROFRONTENDS_FOLDER,
+  MICROSERVICES_FOLDER,
+  PSC_FOLDER
 } from '../../src/paths'
 import { KEYCLOAK_REALM_FILE, KEYCLOAK_USERS_FILE } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
@@ -177,8 +181,9 @@ describe('init', () => {
     checkBundleFile(bundleName, CONFIG_FOLDER)
     checkBundleFile(bundleName, CONFIG_FOLDER, CONFIG_FILE)
     checkBundleFile(bundleName, BUNDLE_DESCRIPTOR_FILE_NAME)
-    checkBundleFile(bundleName, 'microservices')
-    checkBundleFile(bundleName, 'microfrontends')
+    checkBundleFile(bundleName, MICROSERVICES_FOLDER, GITKEEP_FILE)
+    checkBundleFile(bundleName, MICROFRONTENDS_FOLDER, GITKEEP_FILE)
+    checkBundleFile(bundleName, PSC_FOLDER, GITKEEP_FILE)
     checkBundleFile(bundleName, '.gitignore')
     checkBundleFile(bundleName, SVC_FOLDER)
     checkBundleFile(bundleName, SVC_FOLDER, 'mysql.yml')

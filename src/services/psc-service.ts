@@ -15,9 +15,11 @@ export type PSCDescriptors = {
 export class PSCService {
   public static checkInvalidFolders(): string[] {
     const invalidFolders: string[] = []
-    for (const subFolder of fs.readdirSync(PSC_FOLDER)) {
-      if (!isSupportedPSC(subFolder)) {
-        invalidFolders.push(subFolder)
+    for (const subFolder of fs
+      .readdirSync(PSC_FOLDER, { withFileTypes: true })
+      .filter(file => file.isDirectory())) {
+      if (!isSupportedPSC(subFolder.name)) {
+        invalidFolders.push(subFolder.name)
       }
     }
 
@@ -29,16 +31,22 @@ export class PSCService {
     const descriptorsMap: PSCDescriptors = {}
 
     if (fs.existsSync(PSC_FOLDER)) {
-      for (const subFolder of fs.readdirSync(PSC_FOLDER)) {
-        if (isSupportedPSC(subFolder)) {
-          const source = path.join(PSC_FOLDER, subFolder)
+      for (const subFolder of fs
+        .readdirSync(PSC_FOLDER, { withFileTypes: true })
+        .filter(file => file.isDirectory())) {
+        const subFolderName = subFolder.name
+        if (isSupportedPSC(subFolderName)) {
+          const source = path.join(PSC_FOLDER, subFolderName)
           const descriptors = fs
             .readdirSync(source)
             .filter(name => name.match(DESCRIPTOR_EXTENSIONS_REGEX))
-          descriptorsMap[subFolder] = descriptors.map(
-            descriptor => `${subFolder}/${descriptor}`
+          descriptorsMap[subFolderName] = descriptors.map(
+            descriptor => `${subFolderName}/${descriptor}`
           )
-          PSCService.copyRecursive(source, path.join(destination, subFolder))
+          PSCService.copyRecursive(
+            source,
+            path.join(destination, subFolderName)
+          )
         }
       }
     }

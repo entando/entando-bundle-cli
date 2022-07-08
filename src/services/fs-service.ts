@@ -2,7 +2,7 @@ import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { debugFactory } from './debug-factory-service'
-import { RESOURCES_FOLDER } from '../paths'
+import { GITKEEP_FILE, RESOURCES_FOLDER } from '../paths'
 import {
   ALLOWED_NAME_REGEXP,
   INVALID_NAME_MESSAGE
@@ -81,9 +81,22 @@ export class FSService {
     fs.writeFileSync(filePath, templateFileContent)
   }
 
-  public createSubDirectoryIfNotExist(...subDirectories: string[]): void {
-    if (!fs.existsSync(this.getBundleFilePath(...subDirectories))) {
-      fs.mkdirSync(this.getBundleFilePath(...subDirectories))
+  public createSubDirectoryIfNotExist(...subDirectories: string[]): string {
+    const directoryPath = this.getBundleFilePath(...subDirectories)
+    if (!fs.existsSync(directoryPath)) {
+      fs.mkdirSync(directoryPath)
+    }
+
+    return directoryPath
+  }
+
+  public createEmptySubDirectoryForGitIfNotExist(
+    ...subDirectories: string[]
+  ): void {
+    const directoryPath = this.createSubDirectoryIfNotExist(...subDirectories)
+    const gitKeepFile = path.join(directoryPath, GITKEEP_FILE)
+    if (!fs.existsSync(gitKeepFile)) {
+      fs.writeFileSync(gitKeepFile, '')
     }
   }
 
