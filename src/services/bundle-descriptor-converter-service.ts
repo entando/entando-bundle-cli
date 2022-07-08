@@ -10,6 +10,7 @@ import {
 } from '../models/bundle-descriptor'
 import {
   BaseYamlWidgetDescriptor,
+  SupportedComponents,
   YamlAppBuilderWidgetDescriptor,
   YamlBundleDescriptor,
   YamlExternalApiClaim,
@@ -34,6 +35,7 @@ import { ComponentType } from '../models/component'
 import { DockerService } from './docker-service'
 import { BundleThumbnailInfo } from './bundle-thumbnail-service'
 import { BundleService } from './bundle-service'
+import { PSCDescriptors } from './psc-service'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v5'
 const WIDGET_DESCRIPTOR_VERSION = 'v5'
@@ -51,7 +53,10 @@ export class BundleDescriptorConverterService {
     this.dockerOrganization = dockerOrganization
   }
 
-  public generateYamlDescriptors(thumbnail?: BundleThumbnailInfo): void {
+  public generateYamlDescriptors(
+    pscDescriptors: PSCDescriptors,
+    thumbnail?: BundleThumbnailInfo
+  ): void {
     const bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
 
     for (const microFrontend of bundleDescriptor.microfrontends) {
@@ -72,7 +77,11 @@ export class BundleDescriptorConverterService {
       )
     }
 
-    this.generateBundleYamlDescriptor(bundleDescriptor, thumbnail)
+    this.generateBundleYamlDescriptor(
+      bundleDescriptor,
+      pscDescriptors,
+      thumbnail
+    )
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
@@ -202,32 +211,40 @@ export class BundleDescriptorConverterService {
 
   private generateBundleYamlDescriptor(
     bundleDescriptor: BundleDescriptor,
+    pscDescriptors: PSCDescriptors,
     thumbnail?: BundleThumbnailInfo
   ) {
     const yamlBundleDescriptor: YamlBundleDescriptor = {
       name: bundleDescriptor.name,
       description: bundleDescriptor.description,
-      components: {
-        plugins: [],
-        widgets: []
-      },
+      components: {},
       global: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
     }
-    if (thumbnail?.base64 !== '') {
-      yamlBundleDescriptor.thumbnail = thumbnail?.base64
+    if (thumbnail?.base64) {
+      yamlBundleDescriptor.thumbnail = thumbnail.base64
     }
 
     for (const microFrontend of bundleDescriptor.microfrontends) {
       const mfeDescriptorPath =
         this.getMicroFrontendDescriptorRelativePath(microFrontend)
-      yamlBundleDescriptor.components.widgets.push(mfeDescriptorPath)
+      this.addDescriptor(yamlBundleDescriptor, 'widgets', mfeDescriptorPath)
     }
 
     for (const microservice of bundleDescriptor.microservices) {
       const msDescriptorPath =
         this.getMicroserviceDescriptorRelativePath(microservice)
-      yamlBundleDescriptor.components.plugins.push(msDescriptorPath)
+      this.addDescriptor(yamlBundleDescriptor, 'plugins', msDescriptorPath)
+    }
+
+    for (const [key, values] of Object.entries(pscDescriptors)) {
+      for (const value of values) {
+        this.addDescriptor(
+          yamlBundleDescriptor,
+          key as SupportedComponents,
+          value
+        )
+      }
     }
 
     const filePath = path.join(
@@ -235,6 +252,16 @@ export class BundleDescriptorConverterService {
       BUNDLE_DESCRIPTOR_NAME
     )
     this.writeYamlFile(filePath, yamlBundleDescriptor)
+  }
+
+  private addDescriptor(
+    yamlBundleDescriptor: YamlBundleDescriptor,
+    componentType: SupportedComponents,
+    descriptorPath: string
+  ) {
+    const descriptors = yamlBundleDescriptor.components[componentType] || []
+    descriptors.push(descriptorPath)
+    yamlBundleDescriptor.components[componentType] = descriptors
   }
 
   private getMicroFrontendDescriptorRelativePath(microFrontend: MicroFrontend) {

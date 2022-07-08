@@ -21,7 +21,11 @@ import { ProcessExecutionResult } from '../../src/services/process-executor-serv
 import * as executors from '../../src/services/process-executor-service'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
-import { MICROSERVICES_FOLDER } from '../../src/paths'
+import {
+  DESCRIPTORS_OUTPUT_FOLDER,
+  MICROSERVICES_FOLDER,
+  PSC_FOLDER
+} from '../../src/paths'
 import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import {
@@ -379,6 +383,34 @@ describe('pack', () => {
         expect(ctx.stderr).contain('1/1') // components build
       }
     )
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      const bundleDir =
+        tempDirHelper.createInitializedBundleDir('test-bundle-psc')
+
+      const groupsFolder = path.join(bundleDir, PSC_FOLDER, 'groups')
+      fs.mkdirSync(groupsFolder)
+      fs.writeFileSync(path.join(groupsFolder, 'groups.yml'), '')
+
+      const invalidFolder = path.join(bundleDir, PSC_FOLDER, 'invalid')
+      fs.mkdirSync(invalidFolder)
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .it('Packs bundle with PSC', ctx => {
+      const copiedFile = path.join(
+        ...DESCRIPTORS_OUTPUT_FOLDER,
+        'groups',
+        'groups.yml'
+      )
+      expect(fs.existsSync(copiedFile)).true
+      expect(ctx.stderr).contain(
+        `Following folders in ${PSC_FOLDER} are not valid`
+      )
+      sinon.assert.calledOnce(stubGenerateYamlDescriptors)
+    })
 
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [

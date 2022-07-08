@@ -11,7 +11,7 @@ import {
   OUTPUT_FOLDER,
   MICROFRONTENDS_FOLDER,
   MICROSERVICES_FOLDER,
-  EPC_FOLDER,
+  PSC_FOLDER,
   KEYCLOAK_REALM_CONFIG_FOLDER,
   KEYCLOAK_DB_FOLDER,
   KEYCLOAK_REALM_FILE,
@@ -85,7 +85,7 @@ export class InitializerService {
     })
     fs.mkdirSync(this.filesys.getBundleFilePath(MICROSERVICES_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(MICROFRONTENDS_FOLDER))
-    fs.mkdirSync(this.filesys.getBundleFilePath(EPC_FOLDER))
+    fs.mkdirSync(this.filesys.getBundleFilePath(PSC_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(SVC_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(...KEYCLOAK_FOLDER))
     fs.mkdirSync(

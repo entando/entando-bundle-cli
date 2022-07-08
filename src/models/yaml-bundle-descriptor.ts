@@ -70,14 +70,32 @@ export type YamlPluginDescriptor = {
   environmentVariables?: EnvironmentVariable[]
 }
 
+export const SUPPORTED_PSC_TYPES = [
+  'fragments',
+  'categories',
+  'pages',
+  'pageTemplates',
+  'contentTypes',
+  'contentTemplates',
+  'contents',
+  'assets',
+  'groups',
+  'labels',
+  'languages',
+  'pageModels',
+  'contentModels'
+] as const
+
+export type SupportedPSC = typeof SUPPORTED_PSC_TYPES[number]
+export type SupportedComponents = SupportedPSC | 'plugins' | 'widgets'
+
 export type YamlBundleDescriptor = {
   name: string
   descriptorVersion: string
   description?: string
   thumbnail?: string
   components: {
-    plugins: string[]
-    widgets: string[]
+    [key in SupportedComponents]?: string[]
   }
   global?: {
     nav: Nav[]

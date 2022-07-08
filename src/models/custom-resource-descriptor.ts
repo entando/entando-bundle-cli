@@ -5,14 +5,33 @@ export type CustomResourceTag = {
   tarball: string
 }
 
+export const CUSTOM_RESOURCE_COMPONENT_LABELS = [
+  'plugin',
+  'widget',
+  'asset',
+  'category',
+  'contentTemplate',
+  'contentType',
+  'content',
+  'fragment',
+  'group',
+  'label',
+  'language',
+  'page',
+  'pageTemplate'
+] as const
+
+export type CustomResourceComponentLabels =
+  typeof CUSTOM_RESOURCE_COMPONENT_LABELS[number]
+
 export type CustomResourceDescriptor = {
   apiVersion: string
   kind: string
   metadata: {
     name: string
     labels: {
-      plugin: string
-      widget: string
+      [key in CustomResourceComponentLabels]?: 'true' | 'false'
+    } & {
       'bundle-type': string
     }
   }

@@ -1,10 +1,37 @@
-import { CustomResourceDescriptor } from '../models/custom-resource-descriptor'
-import { YamlBundleDescriptor } from '../models/yaml-bundle-descriptor'
+import {
+  CustomResourceComponentLabels,
+  CustomResourceDescriptor
+} from '../models/custom-resource-descriptor'
+import {
+  SupportedComponents,
+  YamlBundleDescriptor
+} from '../models/yaml-bundle-descriptor'
 import { BundleService } from './bundle-service'
 
 const TARBALL_PREFIX = 'docker://'
 const API_VERSION = 'entando.org/v1'
 const KIND = 'EntandoDeBundle'
+
+const LABELS_MAPPING: Record<
+  SupportedComponents,
+  CustomResourceComponentLabels
+> = {
+  plugins: 'plugin',
+  widgets: 'widget',
+  assets: 'asset',
+  categories: 'category',
+  contentTemplates: 'contentTemplate',
+  contentModels: 'contentTemplate', // renaming old nomenclature
+  contentTypes: 'contentType',
+  contents: 'content',
+  fragments: 'fragment',
+  groups: 'group',
+  labels: 'label',
+  languages: 'language',
+  pages: 'page',
+  pageTemplates: 'pageTemplate',
+  pageModels: 'pageTemplate' // renaming old nomenclature
+}
 
 export class CustomResourceService {
   private readonly image: string
@@ -37,8 +64,6 @@ export class CustomResourceService {
           '-' +
           BundleService.generateBundleId(this.image),
         labels: {
-          plugin: 'false',
-          widget: 'false',
           'bundle-type': 'standard-bundle'
         }
       },
@@ -67,12 +92,11 @@ export class CustomResourceService {
       })
     }
 
-    if (this.yamlDescriptor.components.plugins.length > 0) {
-      crDescriptor.metadata.labels.plugin = 'true'
-    }
-
-    if (this.yamlDescriptor.components.widgets.length > 0) {
-      crDescriptor.metadata.labels.widget = 'true'
+    // Adding components labels
+    for (const [key, mapping] of Object.entries(LABELS_MAPPING)) {
+      if (this.yamlDescriptor.components[key as SupportedComponents]?.length) {
+        crDescriptor.metadata.labels[mapping] = 'true'
+      }
     }
 
     return crDescriptor

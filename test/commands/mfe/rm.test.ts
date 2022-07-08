@@ -57,7 +57,7 @@ describe('mfe rm', () => {
 
       const bundleDescriptorConverterService =
         new BundleDescriptorConverterService('test-docker-org')
-      bundleDescriptorConverterService.generateYamlDescriptors()
+      bundleDescriptorConverterService.generateYamlDescriptors({})
     })
     .command(['mfe rm', defaultMfeName])
     .it('removes a micro frontend', () => {

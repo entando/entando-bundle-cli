@@ -26,10 +26,7 @@ describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
   test.it('test bundle descriptors conversion', () => {
-    const bundleDir = path.resolve(tempDirHelper.tmpDir, 'test-bundle')
-    fs.mkdirSync(bundleDir, { recursive: true })
-
-    process.chdir(bundleDir)
+    const bundleDir = tempDirHelper.createInitializedBundleDir('test-bundle')
 
     const bundleDescriptorService = new BundleDescriptorService()
 
@@ -130,6 +127,16 @@ describe('bundle-descriptor-converter-service', () => {
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
           nav: []
+        },
+        {
+          name: 'test-mfe-no-params',
+          customElement: 'test-mfe-no-params',
+          stack: MicroFrontendStack.React,
+          type: MicroFrontendType.Widget,
+          group: 'free',
+          titles: {
+            en: 'no-params title'
+          }
         }
       ]
     })
@@ -153,12 +160,17 @@ describe('bundle-descriptor-converter-service', () => {
 
     const converterService = new BundleDescriptorConverterService('docker-org')
 
-    converterService.generateYamlDescriptors({
-      path: `${bundleDir}/thumbnail.png`,
-      size: 47,
-      status: ThumbnailStatusMessage.OK,
-      base64: Buffer.from('this is a thumbnail').toString('base64')
-    })
+    converterService.generateYamlDescriptors(
+      {
+        assets: ['assets/my-image.yml']
+      },
+      {
+        path: `${bundleDir}/thumbnail.png`,
+        size: 47,
+        status: ThumbnailStatusMessage.OK,
+        base64: Buffer.from('this is a thumbnail').toString('base64')
+      }
+    )
 
     const mfeDescriptorPath = path.resolve(
       bundleDir,
@@ -237,6 +249,25 @@ describe('bundle-descriptor-converter-service', () => {
       params: []
     })
 
+    const mfeNoParamsDescriptorPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      'widgets',
+      'test-mfe-no-params.yaml'
+    )
+    checkYamlFile(mfeNoParamsDescriptorPath, {
+      name: 'test-mfe-no-params',
+      customElement: 'test-mfe-no-params',
+      group: 'free',
+      descriptorVersion: 'v5',
+      type: 'widget',
+      titles: {
+        en: 'no-params title'
+      },
+      params: []
+    })
+
     const msDescriptorPath = path.resolve(
       bundleDir,
       ...OUTPUT_FOLDER,
@@ -293,11 +324,13 @@ describe('bundle-descriptor-converter-service', () => {
       descriptorVersion: 'v5',
       description: 'test description',
       components: {
+        assets: ['assets/my-image.yml'],
         plugins: ['plugins/test-ms.yaml', 'plugins/test-ms-no-dbms.yaml'],
         widgets: [
           'widgets/test-mfe.yaml',
           'widgets/test-mfe-no-code.yaml',
-          'widgets/test-app-builder-mfe.yaml'
+          'widgets/test-app-builder-mfe.yaml',
+          'widgets/test-mfe-no-params.yaml'
         ]
       },
       global: {
@@ -306,6 +339,28 @@ describe('bundle-descriptor-converter-service', () => {
         ]
       },
       thumbnail: Buffer.from('this is a thumbnail').toString('base64')
+    })
+  })
+
+  test.it('test bundle without thumbnail', () => {
+    const bundleDir = tempDirHelper.createInitializedBundleDir(
+      'test-bundle-no-thumbnail'
+    )
+    const bundleDescriptorPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      BUNDLE_DESCRIPTOR_NAME
+    )
+
+    const converterService = new BundleDescriptorConverterService('docker-org')
+    converterService.generateYamlDescriptors({})
+
+    checkYamlFile(bundleDescriptorPath, {
+      name: 'test-bundle-no-thumbnail',
+      descriptorVersion: 'v5',
+      description: 'test-bundle-no-thumbnail description',
+      components: {}
     })
   })
 })

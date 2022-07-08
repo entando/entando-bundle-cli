@@ -40,7 +40,7 @@ describe('Remove Microservice', () => {
 
       const bundleDescriptorConverterService =
         new BundleDescriptorConverterService('test-docker-org')
-      bundleDescriptorConverterService.generateYamlDescriptors()
+      bundleDescriptorConverterService.generateYamlDescriptors({})
 
       expect(
         bundleDescriptor.microservices.some(ms => ms.name === 'test-ms')
