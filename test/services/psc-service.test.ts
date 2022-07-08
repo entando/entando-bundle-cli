@@ -49,6 +49,18 @@ describe('PSC Service', () => {
     fs.writeFileSync(path.join(groupsFolder, 'my-group-1-descriptor.yml'), '')
     fs.writeFileSync(path.join(groupsFolder, 'my-group-2-descriptor.yml'), '')
 
+    const assetsFolder = path.join(pscFolder, 'assets')
+    fs.mkdirSync(assetsFolder)
+
+    const asset36Folder = path.join(assetsFolder, '36')
+    fs.mkdirSync(asset36Folder)
+    fs.writeFileSync(path.join(asset36Folder, '36-descriptor.yaml'), '')
+
+    const asset42Folder = path.join(assetsFolder, '42')
+    fs.mkdirSync(asset42Folder)
+    fs.writeFileSync(path.join(asset42Folder, '42-descriptor.yaml'), '')
+    fs.writeFileSync(path.join(asset42Folder, '42.jpg'), '')
+
     const invalidFolder = path.join(pscFolder, 'invalid')
     fs.mkdirSync(invalidFolder)
     fs.writeFileSync(path.join(invalidFolder, 'my-descriptor.yaml'), '')
@@ -61,11 +73,17 @@ describe('PSC Service', () => {
     expect(descriptors.pageModels).deep.eq([
       'pageModels/my-page-model-descriptor.yaml'
     ])
+    expect(descriptors.assets!.length).eq(2)
+    expect(descriptors.assets).includes('assets/36/36-descriptor.yaml')
+    expect(descriptors.assets).includes('assets/42/42-descriptor.yaml')
     expect((descriptors as any).invalid).undefined
 
     verifyCopy('pageModels', 'my-page-model-descriptor.yaml')
     verifyCopy('pageModels', 'my-page-model.ftl')
     verifyCopy('pageModels', 'a', 'b', 'test.txt')
+    verifyCopy('assets', '36', '36-descriptor.yaml')
+    verifyCopy('assets', '42', '42-descriptor.yaml')
+    verifyCopy('assets', '42', '42.jpg')
   })
 })
 

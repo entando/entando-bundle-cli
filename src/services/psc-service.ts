@@ -34,29 +34,40 @@ export class PSCService {
       const subFolderName = subFolder.name
       if (isSupportedPSC(subFolderName)) {
         const source = path.join(PSC_FOLDER, subFolderName)
-        const descriptors = fs
-          .readdirSync(source)
-          .filter(name => name.match(DESCRIPTOR_EXTENSIONS_REGEX))
-        descriptorsMap[subFolderName] = descriptors.map(
-          descriptor => `${subFolderName}/${descriptor}`
+        const descriptors: string[] = []
+        PSCService.copyRecursiveAndAddDescriptors(
+          source,
+          path.join(destination, subFolderName),
+          descriptors
         )
-        PSCService.copyRecursive(source, path.join(destination, subFolderName))
+        descriptorsMap[subFolderName] = descriptors.map(descriptor =>
+          descriptor.slice(PSC_FOLDER.length + 1)
+        )
       }
     }
 
     return descriptorsMap
   }
 
-  private static copyRecursive(source: string, destination: string) {
+  private static copyRecursiveAndAddDescriptors(
+    source: string,
+    destination: string,
+    descriptors: string[]
+  ) {
     if (fs.statSync(source).isDirectory()) {
       fs.mkdirSync(destination, { recursive: true })
       for (const file of fs.readdirSync(source)) {
-        PSCService.copyRecursive(
+        PSCService.copyRecursiveAndAddDescriptors(
           path.join(source, file),
-          path.join(destination, file)
+          path.join(destination, file),
+          descriptors
         )
       }
     } else {
+      if (DESCRIPTOR_EXTENSIONS_REGEX.test(source)) {
+        descriptors.push(source)
+      }
+
       fs.copyFileSync(source, destination)
     }
   }
