@@ -15,7 +15,7 @@ import {
 } from '../services/docker-service'
 import { BaseBuildCommand } from './base-build'
 import * as path from 'node:path'
-import { MICROSERVICES_FOLDER } from '../paths'
+import { MICROSERVICES_FOLDER, PSC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
@@ -24,6 +24,8 @@ import {
   BundleThumbnailService,
   ThumbnailStatusMessage
 } from '../services/bundle-thumbnail-service'
+import { PSCService } from '../services/psc-service'
+import { SUPPORTED_PSC_TYPES } from '../models/yaml-bundle-descriptor'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -153,9 +155,7 @@ export default class Pack extends BaseBuildCommand {
     if (thumbnailInfo.status !== ThumbnailStatusMessage.OK) {
       switch (thumbnailInfo.status) {
         case ThumbnailStatusMessage.FILESIZE_EXCEEDED:
-          this.log(
-            `${color.bold.red('Warning:')} ${color.red(thumbnailInfo.status)}`
-          )
+          this.warn(thumbnailInfo.status)
           break
         case ThumbnailStatusMessage.NO_THUMBNAIL:
         default:
@@ -163,7 +163,21 @@ export default class Pack extends BaseBuildCommand {
       }
     }
 
-    bundleDescriptorConverterService.generateYamlDescriptors(thumbnailInfo)
+    const invalidFiles = PSCService.checkInvalidFiles()
+    if (invalidFiles.length > 0) {
+      this.warn(
+        `Following files in ${PSC_FOLDER} are not valid and will be ignored: ${invalidFiles.join(
+          ', '
+        )}\nSupported PSC types are ${SUPPORTED_PSC_TYPES.join(', ')}`
+      )
+    }
+
+    const pscDescriptors = PSCService.copyPSCFiles()
+
+    bundleDescriptorConverterService.generateYamlDescriptors(
+      pscDescriptors,
+      thumbnailInfo
+    )
 
     const result = await DockerService.buildBundleDockerImage(
       bundleDescriptor,

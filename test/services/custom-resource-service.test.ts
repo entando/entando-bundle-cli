@@ -1,5 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
+import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
 import { CustomResourceService } from '../../src/services/custom-resource-service'
 
 describe('CustomResourceService', () => {
@@ -97,28 +98,30 @@ describe('CustomResourceService', () => {
     }
   )
 
-  test.it(
-    'CustomResourceService should generate a valid CR when there are no plugins and no widgets',
-    () => {
-      const mockYmlBundleDescriptor = {
-        name: 'jeff-bundle',
-        description: 'This is an awesome bundle',
-        components: {
-          plugins: [],
-          widgets: []
-        },
-        descriptorVersion: 'v5',
-        thumbnail: 'data:image/png;base64,abcdef'
-      }
-      customResourceService = new CustomResourceService(
-        'registry/repo/image',
-        ['0.0.2', '0.0.1'],
-        new Map(),
-        mockYmlBundleDescriptor
-      )
-      const desc = customResourceService.createCustomResource()
-      expect(desc.metadata.labels.plugin).to.eq('false')
-      expect(desc.metadata.labels.widget).to.eq('false')
+  test.it('CustomResourceService should generate component labels', () => {
+    const mockYmlBundleDescriptor: YamlBundleDescriptor = {
+      name: 'jeff-bundle',
+      description: 'This is an awesome bundle',
+      components: {
+        widgets: ['widgets/widget.yaml'],
+        assets: ['assets/image.yaml'],
+        categories: ['categories/categories.yaml'],
+        labels: []
+      },
+      descriptorVersion: 'v5',
+      thumbnail: 'data:image/png;base64,abcdef'
     }
-  )
+    customResourceService = new CustomResourceService(
+      'registry/repo/image',
+      ['0.0.2', '0.0.1'],
+      new Map(),
+      mockYmlBundleDescriptor
+    )
+    const desc = customResourceService.createCustomResource()
+    expect(desc.metadata.labels.plugin).undefined
+    expect(desc.metadata.labels.widget).to.eq('true')
+    expect(desc.metadata.labels.asset).to.eq('true')
+    expect(desc.metadata.labels.category).to.eq('true')
+    expect(desc.metadata.labels.label).undefined
+  })
 })

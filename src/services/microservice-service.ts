@@ -7,9 +7,11 @@ import { ComponentService } from './component-service'
 import { ComponentType } from '../models/component'
 import {
   ALLOWED_NAME_REGEXP,
-  INVALID_NAME_MESSAGE
+  INVALID_NAME_MESSAGE,
+  MAX_NAME_LENGTH
 } from '../models/bundle-descriptor-constraints'
 import { MICROSERVICES_FOLDER } from '../paths'
+import { FSService } from './fs-service'
 
 const DEFAULT_HEALTH_CHECK_PATH = '/api/health'
 
@@ -39,6 +41,13 @@ export class MicroserviceService {
       )
     }
 
+    if (ms.name.length > MAX_NAME_LENGTH) {
+      throw new CLIError(
+        `Microservice name is too long. The maximum length is ${MAX_NAME_LENGTH}`
+      )
+    }
+
+    FSService.removeGitKeepFile(this.microservicesPath)
     this.createMicroserviceDirectory(ms.name)
 
     this.addMicroserviceDescriptor({
@@ -63,6 +72,10 @@ export class MicroserviceService {
     fs.rmSync(msDir, { recursive: true, force: true })
 
     microservices.splice(msIndex, 1)
+
+    if (microservices.length === 0) {
+      FSService.addGitKeepFile(this.microservicesPath)
+    }
 
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
 

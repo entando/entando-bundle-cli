@@ -56,10 +56,10 @@ describe('Utilities', () => {
     )
     expect(payload.index).eq(1)
 
-    params.progress = 0.3
+    params.progress = 1 / 3
     output = progress.formatter(options, params, payload)
     expect(output).eq(
-      'progress [============\\---------------------------] 30% | ETA: 13s | 6/10 | Time: 01:20:12'
+      'progress [=============\\--------------------------] 33% | ETA: 13s | 6/10 | Time: 01:20:12'
     )
     expect(payload.index).eq(2)
 

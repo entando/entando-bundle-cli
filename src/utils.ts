@@ -72,9 +72,9 @@ export function animatedProgress(): any {
         .toISOString()
         .slice(11, 19)
 
-      return `progress [${bar}] ${params.progress * 100}% | ETA: ${
-        params.eta
-      }s | ${params.value}/${params.total} | Time: ${elapsedTime}`
+      const percentage = Math.round(params.progress * 100)
+
+      return `progress [${bar}] ${percentage}% | ETA: ${params.eta}s | ${params.value}/${params.total} | Time: ${elapsedTime}`
     }
   })
 }

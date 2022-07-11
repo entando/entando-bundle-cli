@@ -25,12 +25,77 @@ export const YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<YamlBundleDes
       children: {
         plugins: {
           isArray: true,
-          required: true,
+          required: false,
           type: 'string'
         },
         widgets: {
           isArray: true,
-          required: true,
+          required: false,
+          type: 'string'
+        },
+        assets: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        categories: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        contentModels: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        contentTemplates: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        contentTypes: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        contents: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        fragments: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        groups: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        labels: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        languages: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        pageModels: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        pageTemplates: {
+          isArray: true,
+          required: false,
+          type: 'string'
+        },
+        pages: {
+          isArray: true,
+          required: false,
           type: 'string'
         }
       }

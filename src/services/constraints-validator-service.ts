@@ -151,6 +151,17 @@ export function values(
   }
 }
 
+export function maxLength(limit: number): Validator {
+  return function (key: string, field: any, jsonPath: JsonPath): void {
+    if ((field as string).length > limit) {
+      throw new JsonValidationError(
+        `Field "${key}" is too long. The maximum length is ${limit}`,
+        jsonPath
+      )
+    }
+  }
+}
+
 export function isMapOfStrings(
   key: string,
   field: unknown,

@@ -14,20 +14,20 @@ import { ComponentType } from '../models/component'
 import { ComponentService } from './component-service'
 import {
   ALLOWED_NAME_REGEXP,
-  INVALID_NAME_MESSAGE
+  INVALID_NAME_MESSAGE,
+  MAX_NAME_LENGTH
 } from '../models/bundle-descriptor-constraints'
+import { FSService } from './fs-service'
 
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
 
 export class MicroFrontendService {
-  private readonly bundleDir: string
   private readonly microfrontendsPath: string
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentService: ComponentService
 
   constructor() {
-    this.bundleDir = process.cwd()
     this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
     this.bundleDescriptorService = new BundleDescriptorService()
     this.componentService = new ComponentService()
@@ -48,6 +48,13 @@ export class MicroFrontendService {
       )
     }
 
+    if (mfe.name.length > MAX_NAME_LENGTH) {
+      throw new CLIError(
+        `Micro Frontend name is too long. The maximum length is ${MAX_NAME_LENGTH}`
+      )
+    }
+
+    FSService.removeGitKeepFile(this.microfrontendsPath)
     this.createMicroFrontendDirectory(mfe.name)
 
     this.addMicroFrontendDescriptor({
@@ -96,6 +103,10 @@ export class MicroFrontendService {
     }
 
     this.removeMicroFrontendDirectory(mfeName)
+
+    if (updatedBundleDescriptor.microfrontends.length === 0) {
+      FSService.addGitKeepFile(this.microfrontendsPath)
+    }
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
 

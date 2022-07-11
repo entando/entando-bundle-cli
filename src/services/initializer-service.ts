@@ -11,7 +11,7 @@ import {
   OUTPUT_FOLDER,
   MICROFRONTENDS_FOLDER,
   MICROSERVICES_FOLDER,
-  EPC_FOLDER,
+  PSC_FOLDER,
   KEYCLOAK_REALM_CONFIG_FOLDER,
   KEYCLOAK_DB_FOLDER,
   KEYCLOAK_REALM_FILE,
@@ -83,9 +83,9 @@ export class InitializerService {
     fs.mkdirSync(this.filesys.getBundleFilePath(...OUTPUT_FOLDER), {
       recursive: true
     })
-    fs.mkdirSync(this.filesys.getBundleFilePath(MICROSERVICES_FOLDER))
-    fs.mkdirSync(this.filesys.getBundleFilePath(MICROFRONTENDS_FOLDER))
-    fs.mkdirSync(this.filesys.getBundleFilePath(EPC_FOLDER))
+    this.filesys.createEmptySubDirectoryForGitIfNotExist(MICROSERVICES_FOLDER)
+    this.filesys.createEmptySubDirectoryForGitIfNotExist(MICROFRONTENDS_FOLDER)
+    this.filesys.createEmptySubDirectoryForGitIfNotExist(PSC_FOLDER)
     fs.mkdirSync(this.filesys.getBundleFilePath(SVC_FOLDER))
     fs.mkdirSync(this.filesys.getBundleFilePath(...KEYCLOAK_FOLDER))
     fs.mkdirSync(
@@ -119,8 +119,9 @@ export class InitializerService {
   }
 
   private async createDefaultDirectories() {
-    this.filesys.createSubDirectoryIfNotExist(MICROSERVICES_FOLDER)
-    this.filesys.createSubDirectoryIfNotExist(MICROFRONTENDS_FOLDER)
+    this.filesys.createEmptySubDirectoryForGitIfNotExist(MICROSERVICES_FOLDER)
+    this.filesys.createEmptySubDirectoryForGitIfNotExist(MICROFRONTENDS_FOLDER)
+    this.filesys.createEmptySubDirectoryForGitIfNotExist(PSC_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(CONFIG_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(...OUTPUT_FOLDER)
     this.filesys.createSubDirectoryIfNotExist(SVC_FOLDER)

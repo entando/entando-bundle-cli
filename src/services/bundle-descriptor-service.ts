@@ -45,7 +45,7 @@ export class BundleDescriptorService {
     FSService.writeJSON(this.bundleFilePath, bundleDescriptor)
   }
 
-  public validateBundleDescriptor(): void {
+  public validateBundleDescriptor(): BundleDescriptor {
     if (!fs.existsSync(this.bundleFilePath)) {
       throw new CLIError(MISSING_DESCRIPTOR_ERROR)
     }
@@ -53,13 +53,15 @@ export class BundleDescriptorService {
     const descriptorFileContent = fs.readFileSync(this.bundleFilePath, 'utf-8')
     try {
       const parsedDescriptor: any = JSON.parse(descriptorFileContent)
-      ConstraintsValidatorService.validateObjectConstraints(
-        parsedDescriptor,
-        BUNDLE_DESCRIPTOR_CONSTRAINTS
-      )
+      const bundleDescriptor =
+        ConstraintsValidatorService.validateObjectConstraints(
+          parsedDescriptor,
+          BUNDLE_DESCRIPTOR_CONSTRAINTS
+        )
       const componentService = new ComponentService()
       componentService.checkDuplicatedComponentNames()
       componentService.checkConfigMfes()
+      return bundleDescriptor
     } catch (error) {
       throw new CLIError(
         BUNDLE_DESCRIPTOR_FILE_NAME +
