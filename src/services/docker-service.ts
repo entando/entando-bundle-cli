@@ -20,6 +20,7 @@ import { ConstraintsValidatorService } from './constraints-validator-service'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/yaml-bundle-descriptor-constraints'
 import * as YAML from 'yaml'
 import { FSService } from './fs-service'
+import { DEFAULT_MFE_BUILD_FOLDER } from './microfrontend-service'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
@@ -95,7 +96,7 @@ export class DockerService {
       generatedDockerfileContent += `LABEL org.entando.bundle-name="${bundleDescriptor.name}"\n`
       generatedDockerfileContent += 'ADD .entando/output/descriptors/ .\n'
       for (const mfe of bundleDescriptor.microfrontends) {
-        const buildFolder = mfe.buildFolder || 'build'
+        const buildFolder = mfe.buildFolder || DEFAULT_MFE_BUILD_FOLDER
         generatedDockerfileContent += `ADD microfrontends/${mfe.name}/${buildFolder} widgets/${mfe.name}\n`
       }
 

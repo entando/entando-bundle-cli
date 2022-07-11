@@ -17,6 +17,7 @@ import {
   INVALID_NAME_MESSAGE
 } from '../models/bundle-descriptor-constraints'
 
+export const DEFAULT_MFE_BUILD_FOLDER = 'build'
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
 
