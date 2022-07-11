@@ -101,9 +101,22 @@ export class FSService {
     ...subDirectories: string[]
   ): void {
     const directoryPath = this.createSubDirectoryIfNotExist(...subDirectories)
+    if (fs.readdirSync(directoryPath).length === 0) {
+      FSService.addGitKeepFile(directoryPath)
+    }
+  }
+
+  public static addGitKeepFile(directoryPath: string): void {
     const gitKeepFile = path.join(directoryPath, GITKEEP_FILE)
     if (!fs.existsSync(gitKeepFile)) {
       fs.writeFileSync(gitKeepFile, '')
+    }
+  }
+
+  public static removeGitKeepFile(directoryPath: string): void {
+    const gitKeepFile = path.join(directoryPath, GITKEEP_FILE)
+    if (fs.existsSync(gitKeepFile)) {
+      fs.rmSync(gitKeepFile)
     }
   }
 

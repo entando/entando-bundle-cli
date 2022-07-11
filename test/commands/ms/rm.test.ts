@@ -9,7 +9,11 @@ import {
 import { MicroserviceService } from '../../../src/services/microservice-service'
 import { DBMS, Microservice } from '../../../src/models/bundle-descriptor'
 import { MicroserviceStack } from '../../../src/models/component'
-import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
+import {
+  DESCRIPTORS_OUTPUT_FOLDER,
+  GITKEEP_FILE,
+  MICROSERVICES_FOLDER
+} from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 import { ComponentDescriptorService } from '../../../src/services/component-descriptor-service'
 
@@ -78,4 +82,28 @@ describe('Remove Microservice', () => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('Returns error if Bundle directory not initialized')
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-bundle-remove-all-ms')
+      expect(
+        fs.existsSync(path.join(MICROSERVICES_FOLDER, GITKEEP_FILE))
+      ).to.eq(true)
+    })
+    .command(['ms add', 'ms1'])
+    .command(['ms add', 'ms2'])
+    .command(['ms rm', 'ms1'])
+    .do(() => {
+      expect(
+        fs.existsSync(path.join(MICROSERVICES_FOLDER, GITKEEP_FILE))
+      ).to.eq(false)
+    })
+    .command(['ms rm', 'ms2'])
+    .it(`Restores ${GITKEEP_FILE} when last microservice is removed`, () => {
+      expect(
+        fs.existsSync(path.join(MICROSERVICES_FOLDER, GITKEEP_FILE))
+      ).to.eq(true)
+    })
 })

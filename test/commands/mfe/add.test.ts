@@ -1,7 +1,11 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
+import {
+  BUNDLE_DESCRIPTOR_FILE_NAME,
+  GITKEEP_FILE,
+  MICROFRONTENDS_FOLDER
+} from '../../../src/paths'
 import {
   BundleDescriptor,
   MicroFrontend,
@@ -34,6 +38,7 @@ describe('mfe add', () => {
 
   const tempDirHelper = new TempDirHelper(__filename)
   let tempBundleDir: string
+  let microfrontendsDir: string
 
   let bundleDescriptorService: BundleDescriptorService
 
@@ -41,7 +46,10 @@ describe('mfe add', () => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
     )
-    const microfrontendsDir = path.resolve(tempBundleDir, 'microfrontends')
+    microfrontendsDir = path.resolve(tempBundleDir, MICROFRONTENDS_FOLDER)
+    expect(fs.existsSync(path.join(microfrontendsDir, GITKEEP_FILE))).to.eq(
+      true
+    )
     fs.mkdirSync(path.resolve(microfrontendsDir, 'existing-mfe-dir'))
   })
 
@@ -110,9 +118,7 @@ describe('mfe add', () => {
       'adds a new micro frontend to bundle having an existing micro frontend',
       () => {
         const mfeNames = ['mfe1', 'mfe2']
-        const dirCont: string[] = fs.readdirSync(
-          path.resolve(tempBundleDir, 'microfrontends')
-        )
+        const dirCont: string[] = fs.readdirSync(microfrontendsDir)
         const { microfrontends } = bundleDescriptorService.getBundleDescriptor()
 
         expect(mfeNames.every(name => dirCont.includes(name))).to.eq(true)
@@ -282,10 +288,14 @@ describe('mfe add', () => {
   function expectMfePathExists(mfeName: string) {
     const filePath: string = path.resolve(
       tempBundleDir,
-      'microfrontends',
+      MICROFRONTENDS_FOLDER,
       mfeName
     )
 
     expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+    expect(
+      fs.existsSync(path.resolve(microfrontendsDir, GITKEEP_FILE)),
+      `${GITKEEP_FILE} file wasn't removed`
+    ).to.eq(false)
   }
 })

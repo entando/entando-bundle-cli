@@ -11,6 +11,7 @@ import {
   MAX_NAME_LENGTH
 } from '../models/bundle-descriptor-constraints'
 import { MICROSERVICES_FOLDER } from '../paths'
+import { FSService } from './fs-service'
 
 const DEFAULT_HEALTH_CHECK_PATH = '/api/health'
 
@@ -46,6 +47,7 @@ export class MicroserviceService {
       )
     }
 
+    FSService.removeGitKeepFile(this.microservicesPath)
     this.createMicroserviceDirectory(ms.name)
 
     this.addMicroserviceDescriptor({
@@ -70,6 +72,10 @@ export class MicroserviceService {
     fs.rmSync(msDir, { recursive: true, force: true })
 
     microservices.splice(msIndex, 1)
+
+    if (microservices.length === 0) {
+      FSService.addGitKeepFile(this.microservicesPath)
+    }
 
     this.bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
 

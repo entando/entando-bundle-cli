@@ -1,7 +1,11 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../../src/paths'
+import {
+  BUNDLE_DESCRIPTOR_FILE_NAME,
+  GITKEEP_FILE,
+  MICROSERVICES_FOLDER
+} from '../../../src/paths'
 import {
   BundleDescriptor,
   Microservice,
@@ -31,13 +35,16 @@ describe('ms add', () => {
 
   const tempDirHelper = new TempDirHelper(__filename)
   let tempBundleDir: string
+  let microservicesDir: string
+
   let bundleDescriptorService: BundleDescriptorService
 
   before(() => {
     tempBundleDir = tempDirHelper.createInitializedBundleDir(
       bundleDescriptor.name
     )
-    const microservicesDir = path.resolve(tempBundleDir, 'microservices')
+    microservicesDir = path.resolve(tempBundleDir, MICROSERVICES_FOLDER)
+    expect(fs.existsSync(path.join(microservicesDir, GITKEEP_FILE))).to.eq(true)
     fs.mkdirSync(path.resolve(microservicesDir, 'existing-ms-dir'))
   })
 
@@ -53,13 +60,17 @@ describe('ms add', () => {
       const msName = 'default-ms'
       const filePath: string = path.resolve(
         tempBundleDir,
-        'microservices',
+        MICROSERVICES_FOLDER,
         msName
       )
       const updatedBundleDescriptor: BundleDescriptor =
         bundleDescriptorService.getBundleDescriptor()
 
       expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+      expect(
+        fs.existsSync(path.join(microservicesDir, GITKEEP_FILE)),
+        `${GITKEEP_FILE} file wasn't removed`
+      ).to.eq(false)
       expect(updatedBundleDescriptor).to.eql({
         ...bundleDescriptor,
         microservices: [
@@ -77,7 +88,7 @@ describe('ms add', () => {
       const msName = 'node-ms'
       const filePath: string = path.resolve(
         tempBundleDir,
-        'microservices',
+        MICROSERVICES_FOLDER,
         msName
       )
       const updatedBundleDescriptor: BundleDescriptor =
@@ -98,7 +109,7 @@ describe('ms add', () => {
 
   test
     .do(() => {
-      fs.mkdirSync(path.resolve(tempBundleDir, 'microservices', 'ms1'))
+      fs.mkdirSync(path.resolve(tempBundleDir, MICROSERVICES_FOLDER, 'ms1'))
       const microservices: Microservice[] = [
         ComponentHelper.newMicroservice('ms1')
       ]
@@ -112,9 +123,7 @@ describe('ms add', () => {
       'adds a new microservice to bundle having an existing microservice',
       () => {
         const msNames = ['ms1', 'ms2']
-        const dirCont: string[] = fs.readdirSync(
-          path.resolve(tempBundleDir, 'microservices')
-        )
+        const dirCont: string[] = fs.readdirSync(microservicesDir)
         const { microservices } = bundleDescriptorService.getBundleDescriptor()
 
         expect(msNames.every(name => dirCont.includes(name))).to.eq(true)

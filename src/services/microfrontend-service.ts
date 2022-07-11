@@ -17,6 +17,7 @@ import {
   INVALID_NAME_MESSAGE,
   MAX_NAME_LENGTH
 } from '../models/bundle-descriptor-constraints'
+import { FSService } from './fs-service'
 
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
@@ -53,6 +54,7 @@ export class MicroFrontendService {
       )
     }
 
+    FSService.removeGitKeepFile(this.microfrontendsPath)
     this.createMicroFrontendDirectory(mfe.name)
 
     this.addMicroFrontendDescriptor({
@@ -101,6 +103,10 @@ export class MicroFrontendService {
     }
 
     this.removeMicroFrontendDirectory(mfeName)
+
+    if (updatedBundleDescriptor.microfrontends.length === 0) {
+      FSService.addGitKeepFile(this.microfrontendsPath)
+    }
 
     this.bundleDescriptorService.writeBundleDescriptor(updatedBundleDescriptor)
 

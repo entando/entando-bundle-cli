@@ -6,7 +6,11 @@ import {
   MicroFrontendType
 } from '../../../src/models/bundle-descriptor'
 import { MicroFrontendStack } from '../../../src/models/component'
-import { DESCRIPTORS_OUTPUT_FOLDER } from '../../../src/paths'
+import {
+  DESCRIPTORS_OUTPUT_FOLDER,
+  GITKEEP_FILE,
+  MICROFRONTENDS_FOLDER
+} from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
@@ -52,7 +56,7 @@ describe('mfe rm', () => {
   test
     .do(() => {
       fs.mkdirSync(
-        path.resolve(tempBundleDir, 'microfrontends', 'default-stack-mfe')
+        path.resolve(tempBundleDir, MICROFRONTENDS_FOLDER, 'default-stack-mfe')
       )
 
       const bundleDescriptorConverterService =
@@ -63,7 +67,7 @@ describe('mfe rm', () => {
     .it('removes a micro frontend', () => {
       const filePath: string = path.resolve(
         tempBundleDir,
-        'microfrontends',
+        MICROFRONTENDS_FOLDER,
         defaultMfeName
       )
       const bundleDescriptor: BundleDescriptor =
@@ -102,4 +106,28 @@ describe('mfe rm', () => {
       expect(error.message).to.contain(`does not exist`)
     })
     .it('exits with an error if the micro frontend folder does not exist')
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-bundle-remove-all-mfe')
+      expect(
+        fs.existsSync(path.join(MICROFRONTENDS_FOLDER, GITKEEP_FILE))
+      ).to.eq(true)
+    })
+    .command(['mfe add', 'mfe1'])
+    .command(['mfe add', 'mfe2'])
+    .command(['mfe rm', 'mfe1'])
+    .do(() => {
+      expect(
+        fs.existsSync(path.join(MICROFRONTENDS_FOLDER, GITKEEP_FILE))
+      ).to.eq(false)
+    })
+    .command(['mfe rm', 'mfe2'])
+    .it(`restores ${GITKEEP_FILE} when last micro frontend is removed`, () => {
+      expect(
+        fs.existsSync(path.join(MICROFRONTENDS_FOLDER, GITKEEP_FILE))
+      ).to.eq(true)
+    })
 })
