@@ -95,7 +95,8 @@ export class DockerService {
       generatedDockerfileContent += `LABEL org.entando.bundle-name="${bundleDescriptor.name}"\n`
       generatedDockerfileContent += 'ADD .entando/output/descriptors/ .\n'
       for (const mfe of bundleDescriptor.microfrontends) {
-        generatedDockerfileContent += `ADD microfrontends/${mfe.name}/build widgets/${mfe.name}\n`
+        const buildFolder = mfe.buildFolder || 'build'
+        generatedDockerfileContent += `ADD microfrontends/${mfe.name}/${buildFolder} widgets/${mfe.name}\n`
       }
 
       fs.writeFileSync(dockerfile, generatedDockerfileContent)

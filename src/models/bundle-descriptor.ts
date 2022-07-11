@@ -62,6 +62,7 @@ type BaseMicroFrontend = {
   stack: MicroFrontendStack
   group: string
   publicFolder?: string
+  buildFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   commands?: {
     build?: string

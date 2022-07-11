@@ -260,6 +260,10 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       type: 'string'
     },
+    buildFolder: {
+      required: false,
+      type: 'string'
+    },
     group: {
       required: true,
       type: 'string'
@@ -329,6 +333,10 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       required: false,
       type: 'string'
     },
+    buildFolder: {
+      required: false,
+      type: 'string'
+    },
     group: {
       required: true,
       type: 'string'
@@ -382,6 +390,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       validators: [values(MicroFrontendStack)]
     },
     publicFolder: {
+      required: false,
+      type: 'string'
+    },
+    buildFolder: {
       required: false,
       type: 'string'
     },
@@ -444,6 +456,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       validators: [values(MicroFrontendStack)]
     },
     publicFolder: {
+      required: false,
+      type: 'string'
+    },
+    buildFolder: {
       required: false,
       type: 'string'
     },
