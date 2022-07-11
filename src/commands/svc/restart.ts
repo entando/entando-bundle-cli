@@ -13,7 +13,7 @@ export default class Restart extends SvcProcessResult {
     '<%= config.bin %> <%= command.id %> ext-service1 ext-service2'
   ]
 
-  static usage = '<%= command.id %> [service...] [--all]'
+  static usage = 'svc restart [service...] [--all]'
 
   static flags = {
     all: Flags.boolean({

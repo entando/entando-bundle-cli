@@ -55,10 +55,10 @@ USAGE
 - [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
 - [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
 - [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
-- [`entando-bundle-cli svc:logs [service...] [--all]`](#entando-bundle-cli-svclogs-service---all)
-- [`entando-bundle-cli svc:restart [service...] [--all]`](#entando-bundle-cli-svcrestart-service---all)
-- [`entando-bundle-cli svc:start [service...] [--all]`](#entando-bundle-cli-svcstart-service---all)
-- [`entando-bundle-cli svc:stop [service...] [--all]`](#entando-bundle-cli-svcstop-service---all)
+- [`entando-bundle-cli svc logs [service...] [--all]`](#entando-bundle-cli-svc-logs-service---all)
+- [`entando-bundle-cli svc restart [service...] [--all]`](#entando-bundle-cli-svc-restart-service---all)
+- [`entando-bundle-cli svc start [service...] [--all]`](#entando-bundle-cli-svc-start-service---all)
+- [`entando-bundle-cli svc stop [service...] [--all]`](#entando-bundle-cli-svc-stop-service---all)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 

@@ -13,7 +13,7 @@ export default class Start extends SvcProcessResult {
     '<%= config.bin %> <%= command.id %> ext-service1 ext-service2'
   ]
 
-  static usage = '<%= command.id %> [service...] [--all]'
+  static usage = 'svc start [service...] [--all]'
 
   static flags = {
     all: Flags.boolean({
