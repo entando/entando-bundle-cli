@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import { SVC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
+import { CreateDefaultSvcService } from './create-default-svc-service'
 import {
   ProcessExecutorService,
   ProcessExecutionResult
@@ -38,7 +39,7 @@ export class SvcService {
 
   public getAllServices(): string[] {
     SvcService.debug('getting all services in svc folder')
-    return fs
+    const existingServices = fs
       .readdirSync(path.resolve(this.parentDirectory, SVC_FOLDER))
       .filter(
         filename =>
@@ -46,6 +47,12 @@ export class SvcService {
           this.serviceFileType
       )
       .map(filename => filename.slice(0, -4))
+    return [
+      ...new Set([
+        ...CreateDefaultSvcService.getDefaultServices(),
+        ...existingServices
+      ])
+    ]
   }
 
   public getAvailableServices(): string[] {
@@ -68,6 +75,11 @@ export class SvcService {
       throw new CLIError(`Service ${service} is already enabled`)
     }
 
+    if (CreateDefaultSvcService.getDefaultServices().includes(service)) {
+      const defaultSvcService = new CreateDefaultSvcService()
+      defaultSvcService.createYamlFile(service)
+    }
+
     svc.push(service)
 
     this.bundleDescriptorService.writeBundleDescriptor({
@@ -84,6 +96,11 @@ export class SvcService {
 
     if (!activeServices.includes(service)) {
       throw new CLIError(`Service ${service} is not enabled`)
+    }
+
+    if (CreateDefaultSvcService.getDefaultServices().includes(service)) {
+      const defaultSvcService = new CreateDefaultSvcService()
+      defaultSvcService.deleteYamlFile(service)
     }
 
     const svc = activeServices.filter(

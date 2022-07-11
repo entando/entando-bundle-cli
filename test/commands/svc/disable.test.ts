@@ -1,4 +1,5 @@
 import { expect, test } from '@oclif/test'
+import * as fs from 'node:fs'
 import * as sinon from 'sinon'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
@@ -26,6 +27,7 @@ describe('svc disable', () => {
   test
     .stdout()
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .stub(fs, 'rmSync', sinon.stub().returns(1))
     .command(['svc disable', 'keycloak'])
     .it('disable a service successfully', () => {
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()

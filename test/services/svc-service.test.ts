@@ -12,15 +12,18 @@ describe('svc-service', () => {
   let bundleDirectory: string
   let bundleDescriptorService: BundleDescriptorService
   const tempDirHelper = new TempDirHelper(__filename)
+  let svcService: SvcService
 
   before(() => {
     bundleDirectory = tempDirHelper.createInitializedBundleDir('sample-bundle')
-    fs.rmSync(path.resolve(bundleDirectory, 'svc', 'mysql.yml'))
     bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
   })
 
   beforeEach(() => {
     process.chdir(bundleDirectory)
+    svcService = new SvcService('entando-bundle-cli')
+    svcService.enableService('keycloak')
+    svcService.enableService('postgresql')
   })
 
   afterEach(() => {
@@ -29,15 +32,27 @@ describe('svc-service', () => {
       ...bundleDescriptor,
       svc: []
     })
+    const svcfiles = ['postgresql.yml', 'mysql.yml', 'postgresql.yml']
+    for (const svcfile of svcfiles) {
+      const filepath = path.resolve(bundleDirectory, 'svc', svcfile)
+      if (fs.existsSync(filepath)) {
+        fs.rmSync(filepath)
+      }
+    }
+
+    const keycloakLoc = path.resolve(bundleDirectory, 'svc', 'keycloak')
+    if (fs.existsSync(keycloakLoc)) {
+      fs.rmSync(keycloakLoc, { recursive: true })
+    }
   })
 
   test.it('run getAllServices method', () => {
     const svcService: SvcService = new SvcService('entando-bundle-cli')
     const services = svcService.getAllServices()
-    expect(services).to.have.length(2)
+    expect(services).to.have.length(3)
     expect(services).to.includes('keycloak')
     expect(services).to.includes('postgresql')
-    expect(services).to.not.includes('mysql')
+    expect(services).to.includes('mysql')
   })
 
   test
@@ -51,15 +66,15 @@ describe('svc-service', () => {
     .it('run getAvailableServices method', () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
       const services = svcService.getAvailableServices()
-      expect(services).to.have.length(1)
+      expect(services).to.have.length(2)
       expect(services).to.includes('postgresql')
+      expect(services).to.includes('mysql')
       expect(services).to.not.includes('keycloak')
-      expect(services).to.not.includes('mysql')
     })
 
   test.it('enable a service successfully', () => {
     const svcService: SvcService = new SvcService('entando-bundle-cli')
-    expect(() => svcService.enableService('keycloak')).to.not.throw(CLIError)
+    expect(() => svcService.enableService('mysql')).to.not.throw(CLIError)
   })
 
   test.it('enable a service that does not exist in svc folder', () => {
@@ -90,9 +105,7 @@ describe('svc-service', () => {
       'svc that is non-existent in bundle descriptor creates svc attribute',
       () => {
         const svcService: SvcService = new SvcService('entando-bundle-cli')
-        expect(() => svcService.enableService('keycloak')).to.not.throw(
-          CLIError
-        )
+        expect(() => svcService.enableService('mysql')).to.not.throw(CLIError)
         const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
         expect(bundleDescriptor).to.haveOwnProperty('svc')
       }
@@ -130,7 +143,7 @@ describe('svc-service', () => {
 
   test.it('disable a service that is not enabled', async () => {
     const svcService: SvcService = new SvcService('entando-bundle-cli')
-    expect(() => svcService.disableService('keycloak')).to.throw(CLIError)
+    expect(() => svcService.disableService('mysql')).to.throw(CLIError)
   })
 
   test

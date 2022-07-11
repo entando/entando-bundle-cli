@@ -24,7 +24,6 @@ import {
   MICROSERVICES_FOLDER,
   PSC_FOLDER
 } from '../../src/paths'
-import { KEYCLOAK_REALM_FILE, KEYCLOAK_USERS_FILE } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 
 describe('init', () => {
@@ -194,19 +193,6 @@ describe('init', () => {
     checkBundleFile(bundleName, PSC_FOLDER, GITKEEP_FILE)
     checkBundleFile(bundleName, '.gitignore')
     checkBundleFile(bundleName, SVC_FOLDER)
-    checkBundleFile(bundleName, SVC_FOLDER, 'mysql.yml')
-    checkBundleFile(bundleName, SVC_FOLDER, 'postgresql.yml')
-    checkBundleFile(bundleName, SVC_FOLDER, 'keycloak.yml')
-    checkBundleFile(
-      bundleName,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER,
-      KEYCLOAK_REALM_FILE
-    )
-    checkBundleFile(
-      bundleName,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER,
-      KEYCLOAK_USERS_FILE
-    )
   }
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
