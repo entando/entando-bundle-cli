@@ -289,4 +289,51 @@ describe('build command', () => {
         false
       )
     })
+
+  test
+    .do(() => {
+      const componentList: Array<Component<ComponentType>> = [
+        ...msListSpringBoot,
+        ...mfeListReact
+      ]
+
+      bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-build-command-multiple'
+      )
+      TempDirHelper.createComponentsFolders(componentList)
+
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(componentList)
+
+      fs.mkdirSync(path.resolve(bundleDir, ...LOGS_FOLDER), {
+        recursive: true
+      })
+
+      fs.mkdirSync(path.resolve(bundleDir, ...OUTPUT_FOLDER), {
+        recursive: true
+      })
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .command(['build', 'test-ms-spring-boot-1', 'test-mfe-react-1'])
+    .it('build multiple componenents', async ctx => {
+      sinon.assert.called(getComponentsStub)
+      expect(ctx.stderr).contain('2/2')
+      expect(fs.existsSync(path.resolve(bundleDir, ...LOGS_FOLDER))).to.eq(true)
+      expect(fs.existsSync(path.resolve(bundleDir, ...OUTPUT_FOLDER))).to.eq(
+        false
+      )
+    })
 })

@@ -311,4 +311,47 @@ describe('run command', () => {
         })
       ])
     })
+
+  test
+    .do(() => {
+      const componentList: Array<Component<ComponentType>> = [
+        ...msListSpringBoot,
+        ...mfeListReact
+      ]
+
+      tempDirHelper.createInitializedBundleDir('test-run-command-multiple')
+
+      TempDirHelper.createComponentsFolders(componentList)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(componentList)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+
+      parallelExecutorStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .command(['run', 'test-ms-spring-boot-1', 'test-mfe-react-1'])
+    .it('run multiple components', async () => {
+      sinon.assert.called(getComponentsStub)
+      sinon.assert.calledWith(parallelExecutorStub, [
+        sinon.match({
+          command: 'mvn spring-boot:run',
+          outputStream: {
+            prefix: 'test-ms-spring-boot-1 |'
+          }
+        }),
+        sinon.match({
+          command: 'npm install && npm start',
+          outputStream: {
+            prefix: 'test-mfe-react-1      |'
+          }
+        })
+      ])
+    })
 })

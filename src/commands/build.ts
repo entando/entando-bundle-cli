@@ -3,24 +3,23 @@ import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
 import { BaseBuildCommand } from './base-build'
 import { Phase } from '../services/command-factory-service'
-import { ComponentType } from '../models/component'
+import { Component, ComponentType } from '../models/component'
 
 export default class Build extends BaseBuildCommand {
   static description = 'Build bundle components'
+  // Disable argument validation for variable length arguments (list of components)
+  static strict = false
 
   static examples = [
     '<%= config.bin %> <%= command.id %> my-component',
+    '<%= config.bin %> <%= command.id %> my-component-1 my-component-2',
     '<%= config.bin %> <%= command.id %> --all-ms',
     '<%= config.bin %> <%= command.id %> --all-mfe',
     '<%= config.bin %> <%= command.id %> --all'
   ]
 
-  static args = [
-    {
-      name: 'name',
-      description: 'The name of the component to build'
-    }
-  ]
+  static usage =
+    '<%= command.id %> [component...] [--all-ms | --all-mfe | --all]'
 
   static flags = {
     'all-ms': Flags.boolean({
@@ -39,21 +38,23 @@ export default class Build extends BaseBuildCommand {
 
   public async run(): Promise<void> {
     BundleService.isValidBundleProject()
-    const { args, flags } = await this.parse(Build)
+    const { argv, flags } = await this.parse(Build)
 
-    this.validateInputs(Object.keys(flags).length, args.name)
+    this.validateInputs(Object.keys(flags).length, argv.length)
 
-    if (flags['all-mfe']) {
+    if (argv.length > 1) {
+      await this.buildMultipleComponents(argv)
+    } else if (flags['all-mfe']) {
       await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
     } else if (flags['all-ms']) {
       await this.buildAllComponents(Phase.Build, ComponentType.MICROSERVICE)
     } else if (flags.all) {
       await this.buildAllComponents(Phase.Build)
     } else {
-      CliUx.ux.action.start(`Building component ${args.name}`)
+      CliUx.ux.action.start(`Building component ${argv[0]}...`)
 
       const componentService = new ComponentService()
-      const result = await componentService.build(args.name)
+      const result = await componentService.build(argv[0])
 
       if (result !== 0) {
         if (typeof result === 'number') {
@@ -72,5 +73,15 @@ export default class Build extends BaseBuildCommand {
 
       CliUx.ux.action.stop()
     }
+  }
+
+  public async buildMultipleComponents(componentList: string[]): Promise<void> {
+    const componentService = new ComponentService()
+    const components: Array<Component<ComponentType>> = []
+    for (const component of componentList) {
+      components.push(componentService.getComponent(component))
+    }
+
+    await this.buildComponents(components, Phase.Build)
   }
 }

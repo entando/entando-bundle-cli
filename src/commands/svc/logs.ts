@@ -13,6 +13,8 @@ export default class Logs extends SvcProcessResult {
     '<%= config.bin %> <%= command.id %> ext-service1 ext-service2'
   ]
 
+  static usage = 'svc logs [service...] [--all]'
+
   static flags = {
     all: Flags.boolean({
       description:
