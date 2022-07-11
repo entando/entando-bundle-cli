@@ -18,6 +18,9 @@ export default class Build extends BaseBuildCommand {
     '<%= config.bin %> <%= command.id %> --all'
   ]
 
+  static usage =
+    '<%= command.id %> [component...] [--all-ms | --all-mfe | --all]'
+
   static flags = {
     'all-ms': Flags.boolean({
       description: 'Build all the bundle microservices',

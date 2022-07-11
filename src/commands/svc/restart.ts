@@ -13,6 +13,8 @@ export default class Restart extends SvcProcessResult {
     '<%= config.bin %> <%= command.id %> ext-service1 ext-service2'
   ]
 
+  static usage = '<%= command.id %> [service...] [--all]'
+
   static flags = {
     all: Flags.boolean({
       description: 'Restarts all enabled services in the bundle descriptor'

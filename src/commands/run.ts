@@ -22,6 +22,9 @@ export default class Run extends BaseExecutionCommand {
     '<%= config.bin %> <%= command.id %> --all'
   ]
 
+  static usage =
+    '<%= command.id %> [component...] [--all-ms | --all-mfe | --all]'
+
   static flags = {
     'all-ms': Flags.boolean({
       description: 'Run all the bundle microservices',
