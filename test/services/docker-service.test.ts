@@ -98,7 +98,7 @@ describe('DockerService', () => {
     expectedContent +=
       'ADD microfrontends/test-mfe-2/build widgets/test-mfe-2\n'
     expectedContent +=
-      'ADD microfrontends/test-mfe-3/build widgets/test-mfe-3\n'
+      'ADD microfrontends/test-mfe-3/custombuildfolder widgets/test-mfe-3\n'
 
     const generatedDockerfile = path.resolve(
       ...OUTPUT_FOLDER,

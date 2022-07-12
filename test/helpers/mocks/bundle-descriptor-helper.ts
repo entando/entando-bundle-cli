@@ -92,6 +92,7 @@ export class BundleDescriptorHelper {
           type: MicroFrontendType.AppBuilder,
           group: 'free',
           publicFolder: 'public',
+          buildFolder: 'custombuildfolder',
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
           params: []
