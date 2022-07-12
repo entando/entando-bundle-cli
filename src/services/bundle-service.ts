@@ -4,7 +4,8 @@ import * as path from 'node:path'
 import {
   MICROFRONTENDS_FOLDER,
   MICROSERVICES_FOLDER,
-  PSC_FOLDER
+  PSC_FOLDER,
+  SVC_FOLDER
 } from '../paths'
 import { FSService } from './fs-service'
 
@@ -18,6 +19,7 @@ export class BundleService {
     )
 
     fsService.createEmptySubDirectoryForGitIfNotExist(PSC_FOLDER)
+    fsService.createEmptySubDirectoryForGitIfNotExist(SVC_FOLDER)
     fsService.createEmptySubDirectoryForGitIfNotExist(MICROFRONTENDS_FOLDER)
     fsService.createEmptySubDirectoryForGitIfNotExist(MICROSERVICES_FOLDER)
   }
