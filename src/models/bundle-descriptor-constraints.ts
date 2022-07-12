@@ -29,10 +29,14 @@ import {
   maxLength
 } from '../services/constraints-validator-service'
 
-export const ALLOWED_NAME_REGEXP = /^[\w-]+$/
+export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
+export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
+export const MAX_VERSION_LENGTH = 128
 export const MAX_NAME_LENGTH = 50
 export const INVALID_NAME_MESSAGE =
-  'Only alphanumeric characters, underscore and dash are allowed'
+  'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
+export const INVALID_VERSION_MESSAGE =
+  'Version may contain lowercase and uppercase letters, digits, underscores, periods and dashes. Version may not start with a period or a dash.'
 export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP = /^[\w-]+\/[\w-]+$/
 export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
   /^[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
@@ -43,6 +47,10 @@ export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 
 const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+const versionRegExpValidator = regexp(
+  ALLOWED_VERSION_REGEXP,
+  INVALID_VERSION_MESSAGE
+)
 const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
@@ -565,7 +573,8 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
     },
     version: {
       required: true,
-      type: 'string'
+      type: 'string',
+      validators: [versionRegExpValidator, maxLength(MAX_VERSION_LENGTH)]
     },
     type: {
       required: true,

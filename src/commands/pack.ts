@@ -26,6 +26,10 @@ import {
 } from '../services/bundle-thumbnail-service'
 import { PSCService } from '../services/psc-service'
 import { SUPPORTED_PSC_TYPES } from '../models/yaml-bundle-descriptor'
+import {
+  ALLOWED_VERSION_REGEXP,
+  INVALID_VERSION_MESSAGE
+} from '../models/bundle-descriptor-constraints'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -104,6 +108,14 @@ export default class Pack extends BaseBuildCommand {
     const microservices = componentService.getVersionedComponents(
       ComponentType.MICROSERVICE
     )
+
+    for (const microservice of microservices) {
+      if (!ALLOWED_VERSION_REGEXP.test(microservice.version)) {
+        this.error(
+          `Version of ${microservice.name} is not valid. ${INVALID_VERSION_MESSAGE}`
+        )
+      }
+    }
 
     this.log(color.bold.blue('Building microservices Docker images...'))
 
