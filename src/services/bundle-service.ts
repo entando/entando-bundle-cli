@@ -10,11 +10,10 @@ import { FSService } from './fs-service'
 
 export class BundleService {
   public static isValidBundleProject(): void {
-    const bundleDescriptor =
-      new BundleDescriptorService().validateBundleDescriptor()
+    new BundleDescriptorService().validateBundleDescriptor()
 
     const fsService = new FSService(
-      bundleDescriptor.name,
+      path.basename(process.cwd()),
       path.dirname(process.cwd())
     )
 

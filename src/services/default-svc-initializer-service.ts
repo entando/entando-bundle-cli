@@ -30,8 +30,8 @@ export class DefaultSvcInitializerService {
     )
     this.bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
     this.filesys = new FSService(
-      this.bundleDescriptor.name,
-      this.parentDirectory
+      path.basename(process.cwd()),
+      path.dirname(process.cwd())
     )
     this.initializeTemplateVariables()
   }
