@@ -1,23 +1,15 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { FSService } from './fs-service'
-import {
-  RESOURCES_FOLDER,
-  SVC_FOLDER,
-  KEYCLOAK_FOLDER,
-  KEYCLOAK_REALM_CONFIG_FOLDER,
-  KEYCLOAK_DB_FOLDER,
-  KEYCLOAK_REALM_FILE,
-  KEYCLOAK_USERS_FILE
-} from '../paths'
+import { RESOURCES_FOLDER, SVC_FOLDER } from '../paths'
 import { debugFactory } from './debug-factory-service'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 
 const defaultSvcPrefix = 'default-'
 
-export class CreateDefaultSvcService {
-  private static debug = debugFactory(CreateDefaultSvcService)
+export class DefaultSvcInitializerService {
+  private static debug = debugFactory(DefaultSvcInitializerService)
   public static getDefaultServices(): string[] {
     return fs
       .readdirSync(path.resolve(__dirname, '..', RESOURCES_FOLDER, SVC_FOLDER))
@@ -58,7 +50,7 @@ export class CreateDefaultSvcService {
   }
 
   public createYamlFile(service: string): void {
-    CreateDefaultSvcService.debug(`creating svc file ${service}`)
+    DefaultSvcInitializerService.debug(`creating svc file ${service}`)
     this.filesys.createFileFromTemplate(
       [this.parentDirectory, SVC_FOLDER, `${service}.yml`],
       path.join(
@@ -70,14 +62,29 @@ export class CreateDefaultSvcService {
       ),
       this.templateVariables
     )
-    if (service === 'keycloak') {
-      this.createKeyCloakFoldersIfNotExist()
-      this.createKeycloakFilesFromTemplate()
+    const supportSourceFolderPath = path.join(
+      __dirname,
+      '..',
+      RESOURCES_FOLDER,
+      SVC_FOLDER,
+      service
+    )
+    const supportDestFolderPath = path.join(
+      this.parentDirectory,
+      SVC_FOLDER,
+      service
+    )
+
+    if (fs.existsSync(supportSourceFolderPath)) {
+      FSService.copyFolderRecursiveSync(
+        supportSourceFolderPath,
+        supportDestFolderPath
+      )
     }
   }
 
   public deleteYamlFile(service: string): void {
-    CreateDefaultSvcService.debug(`removing svc file ${service}`)
+    DefaultSvcInitializerService.debug(`removing svc file ${service}`)
     const ymlPath = path.resolve(
       this.parentDirectory,
       SVC_FOLDER,
@@ -87,64 +94,10 @@ export class CreateDefaultSvcService {
       fs.rmSync(ymlPath)
     }
 
-    if (service === 'keycloak') {
-      const keycloakPath = path.resolve(
-        this.parentDirectory,
-        ...KEYCLOAK_FOLDER
-      )
-      if (fs.existsSync(keycloakPath)) {
-        fs.rmSync(keycloakPath, { recursive: true })
-      }
+    const folderPath = path.resolve(this.parentDirectory, SVC_FOLDER, service)
+
+    if (fs.existsSync(folderPath)) {
+      fs.rmSync(folderPath, { recursive: true })
     }
-  }
-
-  private createKeyCloakFoldersIfNotExist() {
-    this.filesys.createSubDirectoryIfNotExist(
-      this.parentDirectory,
-      ...KEYCLOAK_FOLDER
-    )
-    this.filesys.createSubDirectoryIfNotExist(
-      this.parentDirectory,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER
-    )
-    this.filesys.createSubDirectoryIfNotExist(
-      this.parentDirectory,
-      ...KEYCLOAK_DB_FOLDER
-    )
-  }
-
-  private createKeycloakFilesFromTemplate() {
-    const keycloakRealm = path.join(
-      __dirname,
-      '..',
-      RESOURCES_FOLDER,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER,
-      KEYCLOAK_REALM_FILE
-    )
-    const keycloakUsers = path.join(
-      __dirname,
-      '..',
-      RESOURCES_FOLDER,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER,
-      KEYCLOAK_USERS_FILE
-    )
-
-    this.filesys.createFileFromTemplate(
-      [
-        this.parentDirectory,
-        ...KEYCLOAK_REALM_CONFIG_FOLDER,
-        KEYCLOAK_REALM_FILE
-      ],
-      keycloakRealm
-    )
-
-    this.filesys.createFileFromTemplate(
-      [
-        this.parentDirectory,
-        ...KEYCLOAK_REALM_CONFIG_FOLDER,
-        KEYCLOAK_USERS_FILE
-      ],
-      keycloakUsers
-    )
   }
 }

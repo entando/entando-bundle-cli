@@ -32,7 +32,10 @@ export default class List extends Command {
           : '\n Enabled Services'
       }
     }
-    CliUx.ux.table(serviceData, columns)
+    CliUx.ux.table(
+      serviceData.length > 0 ? serviceData : [{ service: 'No services found' }],
+      columns
+    )
     if (flags.available) {
       this.log(
         color.bold.blue(

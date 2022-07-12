@@ -4,7 +4,7 @@ import * as path from 'node:path'
 import { SVC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
-import { CreateDefaultSvcService } from './create-default-svc-service'
+import { DefaultSvcInitializerService } from './default-svc-initializer-service'
 import {
   ProcessExecutorService,
   ProcessExecutionResult
@@ -49,7 +49,7 @@ export class SvcService {
       .map(filename => filename.slice(0, -4))
     return [
       ...new Set([
-        ...CreateDefaultSvcService.getDefaultServices(),
+        ...DefaultSvcInitializerService.getDefaultServices(),
         ...existingServices
       ])
     ]
@@ -75,8 +75,8 @@ export class SvcService {
       throw new CLIError(`Service ${service} is already enabled`)
     }
 
-    if (CreateDefaultSvcService.getDefaultServices().includes(service)) {
-      const defaultSvcService = new CreateDefaultSvcService()
+    if (DefaultSvcInitializerService.getDefaultServices().includes(service)) {
+      const defaultSvcService = new DefaultSvcInitializerService()
       defaultSvcService.createYamlFile(service)
     }
 
@@ -98,8 +98,8 @@ export class SvcService {
       throw new CLIError(`Service ${service} is not enabled`)
     }
 
-    if (CreateDefaultSvcService.getDefaultServices().includes(service)) {
-      const defaultSvcService = new CreateDefaultSvcService()
+    if (DefaultSvcInitializerService.getDefaultServices().includes(service)) {
+      const defaultSvcService = new DefaultSvcInitializerService()
       defaultSvcService.deleteYamlFile(service)
     }
 

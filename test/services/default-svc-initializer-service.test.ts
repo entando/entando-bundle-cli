@@ -2,7 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
-import { CreateDefaultSvcService } from '../../src/services/create-default-svc-service'
+import { DefaultSvcInitializerService } from '../../src/services/default-svc-initializer-service'
 import { SvcService } from '../../src/services/svc-service'
 import {
   SVC_FOLDER,
@@ -41,7 +41,7 @@ describe('create-default-svc-service', () => {
   })
 
   test.it('list default services', () => {
-    const defaultSvcs = CreateDefaultSvcService.getDefaultServices()
+    const defaultSvcs = DefaultSvcInitializerService.getDefaultServices()
     expect(defaultSvcs).have.length(3)
     expect(defaultSvcs).contain('keycloak')
     expect(defaultSvcs).contain('mysql')
@@ -49,13 +49,13 @@ describe('create-default-svc-service', () => {
   })
 
   test.it('test createYamlFile', () => {
-    const defSvc = new CreateDefaultSvcService()
+    const defSvc = new DefaultSvcInitializerService()
     defSvc.createYamlFile('mysql')
     checkBundleFile(BUNDLENAME, SVC_FOLDER, 'mysql.yml')
   })
 
   test.it('test createYamlFile with keycloak', () => {
-    const defSvc = new CreateDefaultSvcService()
+    const defSvc = new DefaultSvcInitializerService()
     defSvc.createYamlFile('keycloak')
     checkBundleFile(BUNDLENAME, SVC_FOLDER, 'keycloak.yml')
     checkBundleFile(
@@ -76,7 +76,7 @@ describe('create-default-svc-service', () => {
       svcService.enableService('postgresql')
     })
     .it('test deleteYamlFile', () => {
-      const defSvc = new CreateDefaultSvcService()
+      const defSvc = new DefaultSvcInitializerService()
       defSvc.deleteYamlFile('postgresql')
       expect(
         fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'postgres.yml'))
@@ -89,7 +89,7 @@ describe('create-default-svc-service', () => {
       svcService.enableService('keycloak')
     })
     .it('test deleteYamlFile with keycloak', () => {
-      const defSvc = new CreateDefaultSvcService()
+      const defSvc = new DefaultSvcInitializerService()
       defSvc.deleteYamlFile('keycloak')
       expect(
         fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'keycloak.yml'))
