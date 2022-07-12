@@ -4,13 +4,7 @@ import * as path from 'node:path'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { DefaultSvcInitializerService } from '../../src/services/default-svc-initializer-service'
 import { SvcService } from '../../src/services/svc-service'
-import {
-  SVC_FOLDER,
-  KEYCLOAK_REALM_CONFIG_FOLDER,
-  KEYCLOAK_REALM_FILE,
-  KEYCLOAK_USERS_FILE,
-  KEYCLOAK_FOLDER
-} from '../../src/paths'
+import { SVC_FOLDER } from '../../src/paths'
 
 describe('create-default-svc-service', () => {
   let bundleDirectory: string
@@ -60,13 +54,17 @@ describe('create-default-svc-service', () => {
     checkBundleFile(BUNDLENAME, SVC_FOLDER, 'keycloak.yml')
     checkBundleFile(
       BUNDLENAME,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER,
-      KEYCLOAK_REALM_FILE
+      SVC_FOLDER,
+      'keycloak',
+      'realm-config',
+      'entando-dev-realm.json'
     )
     checkBundleFile(
       BUNDLENAME,
-      ...KEYCLOAK_REALM_CONFIG_FOLDER,
-      KEYCLOAK_USERS_FILE
+      SVC_FOLDER,
+      'keycloak',
+      'realm-config',
+      'entando-dev-users-0.json'
     )
   })
 
@@ -94,9 +92,9 @@ describe('create-default-svc-service', () => {
       expect(
         fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'keycloak.yml'))
       ).to.eq(false)
-      expect(fs.existsSync(path.resolve(BUNDLENAME, ...KEYCLOAK_FOLDER))).to.eq(
-        false
-      )
+      expect(
+        fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'keycloak'))
+      ).to.eq(false)
     })
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
