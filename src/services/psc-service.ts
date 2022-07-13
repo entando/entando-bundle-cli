@@ -5,6 +5,7 @@ import {
   SupportedPSC,
   SUPPORTED_PSC_TYPES
 } from '../models/yaml-bundle-descriptor'
+import { FSService } from './fs-service'
 
 const DESCRIPTOR_EXTENSIONS_REGEX = /\.ya?ml$/
 
@@ -41,7 +42,7 @@ export class PSCService {
           descriptors
         )
         descriptorsMap[subFolderName] = descriptors.map(descriptor =>
-          descriptor.slice(PSC_FOLDER.length + 1)
+          FSService.toPosix(descriptor.slice(PSC_FOLDER.length + 1))
         )
       }
     }
