@@ -172,7 +172,7 @@ export default class Publish extends Command {
     /* eslint-disable no-await-in-loop */
     try {
       for (const image of images) {
-        const digest = await DockerService.pushImage(image)
+        const digest = await DockerService.pushImage(image, registry)
         results.push({ name: image, digest })
         progress.update(progress.value + 1)
       }

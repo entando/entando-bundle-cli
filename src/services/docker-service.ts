@@ -292,19 +292,27 @@ export class DockerService {
     return targetImages
   }
 
-  public static async pushImage(image: string): Promise<string> {
+  public static async pushImage(
+    image: string,
+    registry: string
+  ): Promise<string> {
     const command = DOCKER_COMMAND + ' push ' + image
     const outputStream = new InMemoryWritable()
+    const errorStream = new InMemoryWritable()
     const result = await ProcessExecutorService.executeProcess({
       command,
-      errorStream: DockerService.debug.outputStream,
+      errorStream,
       outputStream
     })
     const output = outputStream.data
+    const error = errorStream.data
     if (result !== 0) {
       DockerService.debug(output)
+      DockerService.debug(output)
       throw new CLIError(
-        'Unable to push Docker image. Enable debug mode to see output of failed command.'
+        error.includes('denied')
+          ? `Unable to push docker image ${image}. Be sure that you have write access to that repository.\nYou may also logged in with a wrong user. Please execute "docker logout ${registry}" and try again`
+          : `Unable to push Docker image ${image}. Enable debug mode to see output of failed command.`
       )
     }
 

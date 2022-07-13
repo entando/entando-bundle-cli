@@ -344,7 +344,10 @@ describe('DockerService', () => {
         return Promise.resolve(0)
       })
 
-    const sha = await DockerService.pushImage('myimage')
+    const sha = await DockerService.pushImage(
+      'myimage',
+      DEFAULT_DOCKER_REGISTRY
+    )
 
     sinon.assert.calledWith(
       executeProcessStub,
@@ -360,7 +363,10 @@ describe('DockerService', () => {
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(0)
 
-    const sha = await DockerService.pushImage('myimage')
+    const sha = await DockerService.pushImage(
+      'myimage',
+      DEFAULT_DOCKER_REGISTRY
+    )
 
     sinon.assert.calledWith(
       executeProcessStub,
@@ -374,12 +380,29 @@ describe('DockerService', () => {
   test
     .do(async () => {
       sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
-      await DockerService.pushImage('myimage')
+      await DockerService.pushImage('myimage', DEFAULT_DOCKER_REGISTRY)
     })
     .catch(error => {
       expect(error.message).contain('Unable to push Docker image')
     })
-    .it('Error while pushing image')
+    .it('Generic error while pushing image')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(options => {
+          options.errorStream!.write(
+            'denied: requested access to the resource is denied'
+          )
+          return Promise.resolve(1)
+        })
+      await DockerService.pushImage('myimage', 'my-registry')
+    })
+    .catch(error => {
+      expect(error.message).contain('execute "docker logout my-registry"')
+    })
+    .it('Access denied error while pushing image')
 
   test
     .do(async () => {
