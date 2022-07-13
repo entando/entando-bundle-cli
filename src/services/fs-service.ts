@@ -106,6 +106,26 @@ export class FSService {
     }
   }
 
+  public static copyFolderRecursiveSync(
+    sourceFolder: string,
+    destFolder: string
+  ): void {
+    if (!fs.existsSync(destFolder)) {
+      fs.mkdirSync(destFolder)
+    }
+
+    const files = fs.readdirSync(sourceFolder)
+    for (const file of files) {
+      const currSource = path.join(sourceFolder, file)
+      const currTarget = path.join(destFolder, file)
+      if (fs.lstatSync(currSource).isDirectory()) {
+        FSService.copyFolderRecursiveSync(currSource, currTarget)
+      } else {
+        fs.copyFileSync(currSource, currTarget)
+      }
+    }
+  }
+
   public static addGitKeepFile(directoryPath: string): void {
     const gitKeepFile = path.join(directoryPath, GITKEEP_FILE)
     if (!fs.existsSync(gitKeepFile)) {

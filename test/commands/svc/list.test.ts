@@ -31,6 +31,21 @@ describe('svc list', () => {
     })
 
   test
+    .do(() => {
+      bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: []
+      })
+    })
+    .stdout()
+    .command(['svc list'])
+    .it('list active services successfully', ctx => {
+      expect(ctx.stdout).to.contain('No services found')
+    })
+
+  test
     .stdout()
     .command(['svc list', '--available'])
     .it('list available services', ctx => {
