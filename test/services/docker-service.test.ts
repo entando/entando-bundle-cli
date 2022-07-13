@@ -22,6 +22,7 @@ import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import { InMemoryWritable } from '../../src/utils'
 
 describe('DockerService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -207,39 +208,38 @@ describe('DockerService', () => {
     })
     .it('Checks Docker images existence and docker ls command fails')
 
-  test.it('Perform docker login on default registry', async () => {
+  test.it('Tries docker login with stored credentials', async () => {
     const executeProcessStub = sinon
       .stub(ProcessExecutorService, 'executeProcess')
-      .onFirstCall()
       .resolves(1)
-      .onSecondCall()
-      .resolves(0)
-    await DockerService.login()
-    sinon.assert.calledWith(
-      executeProcessStub,
-      sinon.match({
-        command: DOCKER_COMMAND + ' login ' + DEFAULT_DOCKER_REGISTRY
-      })
-    )
+    const result = await DockerService.tryLogin(DEFAULT_DOCKER_REGISTRY)
+    expect(result).eq(1)
+    sinon.assert.called(executeProcessStub)
   })
 
-  test.it('Perform docker login on custom registry', async () => {
+  test.it('Performs docker login on custom registry', async () => {
+    const stdinStub = new InMemoryWritable()
     const executeProcessStub = sinon
       .stub(ProcessExecutorService, 'executeProcess')
-      .resolves(0)
-    await DockerService.login('my-registry')
+      .callsFake(options => {
+        options.stdinWriter!(stdinStub)
+        return Promise.resolve(0)
+      })
+    await DockerService.login('username', 'password', 'my-registry')
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: DOCKER_COMMAND + ' login my-registry'
+        command:
+          DOCKER_COMMAND + ' login -u username --password-stdin my-registry'
       })
     )
+    expect(stdinStub.data).eq('password')
   })
 
   test
     .do(async () => {
       sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
-      await DockerService.login()
+      await DockerService.login('username', 'password', DEFAULT_DOCKER_REGISTRY)
     })
     .catch(error => {
       expect(error.message).contain('Docker login failed')

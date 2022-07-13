@@ -196,25 +196,34 @@ export class DockerService {
     return images
   }
 
-  public static async login(
-    registry: string = DEFAULT_DOCKER_REGISTRY
-  ): Promise<void> {
+  public static async tryLogin(
+    registry: string
+  ): Promise<ProcessExecutionResult> {
     const command = DOCKER_COMMAND + ' login ' + registry
 
-    const tryLogin = await ProcessExecutorService.executeProcess({
+    return ProcessExecutorService.executeProcess({
       command
     })
+  }
 
-    if (tryLogin !== 0) {
-      const result = await ProcessExecutorService.executeProcess({
-        command,
-        // prompt is shown to the user
-        stdio: 'inherit'
-      })
+  public static async login(
+    username: string,
+    password: string,
+    registry: string
+  ): Promise<void> {
+    const command = `${DOCKER_COMMAND} login -u ${username} --password-stdin ${registry}`
+    const result = await ProcessExecutorService.executeProcess({
+      command,
+      stdinWriter: (stdin: Writable) => {
+        stdin.write(password)
+        stdin.end()
+      },
+      outputStream: DockerService.debug.outputStream,
+      errorStream: DockerService.debug.outputStream
+    })
 
-      if (result !== 0) {
-        throw new CLIError('Docker login failed')
-      }
+    if (result !== 0) {
+      throw new CLIError('Docker login failed')
     }
   }
 

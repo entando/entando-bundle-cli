@@ -13,18 +13,23 @@ import {
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import Pack from '../../src/commands/pack'
 import { BundleService } from '../../src/services/bundle-service'
+import { CliUx } from '@oclif/core'
 
 describe('publish', () => {
   afterEach(() => {
     sinon.restore()
   })
 
+  let tryLoginStub: sinon.SinonStub
+  let loginStub: sinon.SinonStub
+
   beforeEach(() => {
     sinon.stub(BundleService, 'isValidBundleProject')
     sinon
       .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
       .returns(BundleDescriptorHelper.newBundleDescriptor())
-    sinon.stub(DockerService, 'login').resolves()
+    tryLoginStub = sinon.stub(DockerService, 'tryLogin').resolves(0)
+    loginStub = sinon.stub(DockerService, 'login').resolves()
   })
 
   test
@@ -188,6 +193,32 @@ describe('publish', () => {
     .stderr()
     .command(['publish', '--org', 'flag-organization'])
     .it('Successfully publish Docker images using flag organization', ctx => {
+      verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
+    })
+
+  test
+    .do(() => {
+      sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
+      sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
+      sinon
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(getImagesToPush('flag-organization'))
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
+
+      tryLoginStub.restore()
+      sinon.stub(DockerService, 'tryLogin').resolves(1)
+    })
+    .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves('user-data'))
+    .stdout()
+    .stderr()
+    .command(['publish', '--org', 'flag-organization'])
+    .it('Successfully publish Docker images promting for login', ctx => {
+      sinon.assert.calledWith(
+        loginStub,
+        'user-data',
+        'user-data',
+        DEFAULT_DOCKER_REGISTRY
+      )
       verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
     })
 

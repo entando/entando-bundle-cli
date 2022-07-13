@@ -2,7 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as cp from 'node:child_process'
 import { ChildProcess } from 'node:child_process'
 import { EventEmitter } from 'node:events'
-import { PassThrough } from 'node:stream'
+import { PassThrough, Writable } from 'node:stream'
 import * as sinon from 'sinon'
 import { InMemoryWritable } from '../../src/utils'
 
@@ -168,4 +168,21 @@ describe('ProcessExecutorService', () => {
       await promise
     }
   )
+
+  test.it('Writes to child process stdin', async () => {
+    const stubProcess = getStubProcess()
+    sinon.stub(cp, 'spawn').returns(stubProcess)
+    const testWritable = new InMemoryWritable()
+    stubProcess.stdin = testWritable
+    const promise = ProcessExecutorService.executeProcess({
+      command: 'test',
+      stdinWriter: (stdin: Writable) => {
+        stdin.write('this is written to stdin')
+        stdin.end()
+      }
+    })
+    stubProcess.emit('exit', 0, null)
+    await promise
+    expect(testWritable.data).eq('this is written to stdin')
+  })
 })
