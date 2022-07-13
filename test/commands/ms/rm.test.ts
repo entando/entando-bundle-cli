@@ -106,4 +106,15 @@ describe('Remove Microservice', () => {
         fs.existsSync(path.join(MICROSERVICES_FOLDER, GITKEEP_FILE))
       ).to.eq(true)
     })
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-bundle-ms-rm-missingargs')
+    })
+    .command('ms rm')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 1 required arg')
+      expect(error.message).to.contain('name')
+    })
+    .it('exits with an error if required argument is missing')
 })

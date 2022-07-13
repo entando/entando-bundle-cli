@@ -143,4 +143,13 @@ describe('api rm', () => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
     })
     .it('exits with error if current folder is not a Bundle project')
+
+  test
+    .command('api rm')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 2 required args')
+      expect(error.message).to.contain('mfeName')
+      expect(error.message).to.contain('claimName')
+    })
+    .it('exits with an error if required arguments are missing')
 })
