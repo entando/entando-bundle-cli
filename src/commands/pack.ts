@@ -28,7 +28,8 @@ import { PSCService } from '../services/psc-service'
 import { SUPPORTED_PSC_TYPES } from '../models/yaml-bundle-descriptor'
 import {
   ALLOWED_VERSION_REGEXP,
-  INVALID_VERSION_MESSAGE
+  INVALID_VERSION_MESSAGE,
+  MAX_VERSION_LENGTH
 } from '../models/bundle-descriptor-constraints'
 
 export default class Pack extends BaseBuildCommand {
@@ -113,6 +114,12 @@ export default class Pack extends BaseBuildCommand {
       if (!ALLOWED_VERSION_REGEXP.test(microservice.version)) {
         this.error(
           `Version of ${microservice.name} is not valid. ${INVALID_VERSION_MESSAGE}`
+        )
+      }
+
+      if (microservice.version.length > MAX_VERSION_LENGTH) {
+        this.error(
+          `Version of ${microservice.name} is too long. The maximum length is ${MAX_VERSION_LENGTH}`
         )
       }
     }

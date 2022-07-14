@@ -430,7 +430,27 @@ describe('pack', () => {
     .catch(error => {
       expect(error.message).contain('Version of invalid-ms is not valid')
     })
-    .it('Pack fails if microservices versions are invalid')
+    .it('Pack fails if microservices versions have an invalid format')
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-invalid-version')
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          name: 'invalid-ms',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot,
+          version: 'x'.repeat(500)
+        }
+      ])
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).contain('Version of invalid-ms is too long')
+    })
+    .it('Pack fails if microservices versions are too long')
 
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [
