@@ -412,6 +412,26 @@ describe('pack', () => {
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
     })
 
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-invalid-version')
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          name: 'invalid-ms',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot,
+          version: 'invalid version'
+        }
+      ])
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).contain('Version of invalid-ms is not valid')
+    })
+    .it('Pack fails if microservices versions are invalid')
+
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [
       {

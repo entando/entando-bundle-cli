@@ -7,6 +7,7 @@ import {
 import {
   BUNDLE_DESCRIPTOR_CONSTRAINTS,
   INVALID_NAME_MESSAGE,
+  INVALID_VERSION_MESSAGE,
   VALID_CONTEXT_PARAM_FORMAT
 } from '../../src/models/bundle-descriptor-constraints'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
@@ -589,106 +590,194 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[0].params')
     })
     .it('Validates micro frontend with invalid params field')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].configMfe = 'config-mfe'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "configMfe" requires field "type" to have value: widget'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+    .it('Validates micro frontend configMfe field dependency')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].configMfe = 'test-mfe-1'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "configMfe" value must not be equal to field "name" value'
+      )
+      expect(error.message).contain('$.microfrontends[0]')
+    })
+    .it(
+      'Validates widget micro frontend with configMfe field value equal to name field value'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.name = 'too-long'.repeat(20)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "name" is too long')
+      expect(error.message).contain('$.name')
+    })
+    .it('Validates bundle name too long')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microservices[0].name = 'too-long'.repeat(20)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "name" is too long')
+      expect(error.message).contain('$.microservices[0].name')
+    })
+    .it('Validates microservices name too long')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].name = 'too-long'.repeat(20)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "name" is too long')
+      expect(error.message).contain('$.microfrontends[0].name')
+    })
+    .it('Validates microfrontend name too long')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microservices[0].ingressPath = 'too-long'.repeat(20)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "ingressPath" is too long')
+      expect(error.message).contain('$.microservices[0].ingressPath')
+    })
+    .it('Validates ingressPath too long')
+
+  testInvalidBundleName('--starts-with-separator')
+  testInvalidBundleName('ends-with-separator--')
+  testInvalidBundleName('invalid___separator')
+  testInvalidBundleName('invalid..separator')
+  testInvalidBundleName('INVALID-NAME')
+  testInvalidBundleName('invalid name with spaces')
+
+  function testInvalidBundleName(invalidBundleName: string) {
+    test
+      .do(() => {
+        const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+        invalidDescriptor.name = invalidBundleName
+        ConstraintsValidatorService.validateObjectConstraints(
+          invalidDescriptor,
+          BUNDLE_DESCRIPTOR_CONSTRAINTS
+        )
+      })
+      .catch(error => {
+        expect(error.message).contain(
+          'Field "name" is not valid. ' + INVALID_NAME_MESSAGE
+        )
+        expect(error.message).contain('$.name')
+      })
+      .it(`Validates invalid bundle name "${invalidBundleName}"`)
+  }
+
+  test
+    .do(() => {
+      const validDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      validDescriptor.name = 'this---name__is.valid-123_abc'
+      ConstraintsValidatorService.validateObjectConstraints(
+        validDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('Validates valid bundle name')
+
+  testInvalidBundleVersion('.invalid-start-with-period')
+  testInvalidBundleVersion('-invalid-start-with-dash')
+  testInvalidBundleVersion('invalid version')
+
+  function testInvalidBundleVersion(invalidVersion: string) {
+    test
+      .do(() => {
+        const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+        invalidDescriptor.version = invalidVersion
+        ConstraintsValidatorService.validateObjectConstraints(
+          invalidDescriptor,
+          BUNDLE_DESCRIPTOR_CONSTRAINTS
+        )
+      })
+      .catch(error => {
+        expect(error.message).contain(
+          'Field "version" is not valid. ' + INVALID_VERSION_MESSAGE
+        )
+        expect(error.message).contain('$.version')
+      })
+      .it(`Validates invalid bundle version "${invalidVersion}"`)
+  }
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.version = 'x'.repeat(500)
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Field "version" is too long')
+      expect(error.message).contain('$.version')
+    })
+    .it('Validates bundle version too long')
+
+  test
+    .do(() => {
+      const validDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      validDescriptor.version = '__this---version__is.VALID-123_abc__'
+      ConstraintsValidatorService.validateObjectConstraints(
+        validDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('Validates valid bundle version')
 })
-
-test
-  .do(() => {
-    const invalidDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
-    invalidDescriptor.microfrontends[1].configMfe = 'config-mfe'
-
-    ConstraintsValidatorService.validateObjectConstraints(
-      invalidDescriptor,
-      BUNDLE_DESCRIPTOR_CONSTRAINTS
-    )
-  })
-  .catch(error => {
-    expect(error.message).contain(
-      'Field "configMfe" requires field "type" to have value: widget'
-    )
-    expect(error.message).contain('$.microfrontends[1]')
-  })
-  .it('Validates micro frontend configMfe field dependency')
-
-test
-  .do(() => {
-    const invalidDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
-    invalidDescriptor.microfrontends[0].configMfe = 'test-mfe-1'
-
-    ConstraintsValidatorService.validateObjectConstraints(
-      invalidDescriptor,
-      BUNDLE_DESCRIPTOR_CONSTRAINTS
-    )
-  })
-  .catch(error => {
-    expect(error.message).contain(
-      'Field "configMfe" value must not be equal to field "name" value'
-    )
-    expect(error.message).contain('$.microfrontends[0]')
-  })
-  .it(
-    'Validates widget micro frontend with configMfe field value equal to name field value'
-  )
-
-test
-  .do(() => {
-    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-    invalidDescriptor.name = 'too-long'.repeat(20)
-
-    ConstraintsValidatorService.validateObjectConstraints(
-      invalidDescriptor,
-      BUNDLE_DESCRIPTOR_CONSTRAINTS
-    )
-  })
-  .catch(error => {
-    expect(error.message).contain('Field "name" is too long')
-    expect(error.message).contain('$.name')
-  })
-  .it('Validates bundle name too long')
-
-test
-  .do(() => {
-    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-    invalidDescriptor.microservices[0].name = 'too-long'.repeat(20)
-
-    ConstraintsValidatorService.validateObjectConstraints(
-      invalidDescriptor,
-      BUNDLE_DESCRIPTOR_CONSTRAINTS
-    )
-  })
-  .catch(error => {
-    expect(error.message).contain('Field "name" is too long')
-    expect(error.message).contain('$.microservices[0].name')
-  })
-  .it('Validates microservices name too long')
-
-test
-  .do(() => {
-    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-    invalidDescriptor.microfrontends[0].name = 'too-long'.repeat(20)
-
-    ConstraintsValidatorService.validateObjectConstraints(
-      invalidDescriptor,
-      BUNDLE_DESCRIPTOR_CONSTRAINTS
-    )
-  })
-  .catch(error => {
-    expect(error.message).contain('Field "name" is too long')
-    expect(error.message).contain('$.microfrontends[0].name')
-  })
-  .it('Validates microfrontend name too long')
-
-test
-  .do(() => {
-    const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-    invalidDescriptor.microservices[0].ingressPath = 'too-long'.repeat(20)
-
-    ConstraintsValidatorService.validateObjectConstraints(
-      invalidDescriptor,
-      BUNDLE_DESCRIPTOR_CONSTRAINTS
-    )
-  })
-  .catch(error => {
-    expect(error.message).contain('Field "ingressPath" is too long')
-    expect(error.message).contain('$.microservices[0].ingressPath')
-  })
-  .it('Validates ingressPath too long')
