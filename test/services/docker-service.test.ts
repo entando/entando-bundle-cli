@@ -212,7 +212,9 @@ describe('DockerService', () => {
     const executeProcessStub = sinon
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(1)
-    const result = await DockerService.tryLogin(DEFAULT_DOCKER_REGISTRY)
+    const result = await DockerService.checkAuthentication(
+      DEFAULT_DOCKER_REGISTRY
+    )
     expect(result).eq(1)
     sinon.assert.called(executeProcessStub)
   })

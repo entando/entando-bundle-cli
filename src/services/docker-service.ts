@@ -196,7 +196,7 @@ export class DockerService {
     return images
   }
 
-  public static async tryLogin(
+  public static async checkAuthentication(
     registry: string
   ): Promise<ProcessExecutionResult> {
     const command = DOCKER_COMMAND + ' login ' + registry

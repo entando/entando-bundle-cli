@@ -129,7 +129,7 @@ export default class Publish extends Command {
     registry = registry ?? DEFAULT_DOCKER_REGISTRY
 
     this.log(color.bold.blue(`Login on Docker registry ${registry}`))
-    const loginResult = await DockerService.tryLogin(registry)
+    const loginResult = await DockerService.checkAuthentication(registry)
 
     if (loginResult !== 0) {
       const username = await CliUx.ux.prompt('Username')

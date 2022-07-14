@@ -20,7 +20,7 @@ describe('publish', () => {
     sinon.restore()
   })
 
-  let tryLoginStub: sinon.SinonStub
+  let checkAuthenticationStub: sinon.SinonStub
   let loginStub: sinon.SinonStub
 
   beforeEach(() => {
@@ -28,7 +28,9 @@ describe('publish', () => {
     sinon
       .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
       .returns(BundleDescriptorHelper.newBundleDescriptor())
-    tryLoginStub = sinon.stub(DockerService, 'tryLogin').resolves(0)
+    checkAuthenticationStub = sinon
+      .stub(DockerService, 'checkAuthentication')
+      .resolves(0)
     loginStub = sinon.stub(DockerService, 'login').resolves()
   })
 
@@ -205,8 +207,8 @@ describe('publish', () => {
         .resolves(getImagesToPush('flag-organization'))
       sinon.stub(DockerService, 'pushImage').resolves('sha:123')
 
-      tryLoginStub.restore()
-      sinon.stub(DockerService, 'tryLogin').resolves(1)
+      checkAuthenticationStub.restore()
+      sinon.stub(DockerService, 'checkAuthentication').resolves(1)
     })
     .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves('user-data'))
     .stdout()
