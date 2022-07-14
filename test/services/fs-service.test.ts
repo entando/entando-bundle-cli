@@ -1,4 +1,3 @@
-import { CLIError } from '@oclif/errors'
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
@@ -28,26 +27,6 @@ describe('fs-service', () => {
 
   after(() => {
     fs.rmSync(path.resolve(os.tmpdir(), writeJSONtestFile))
-  })
-
-  test.it('run checkBundleName', () => {
-    const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
-    expect(() => filesys.checkBundleName()).to.not.throw(CLIError)
-  })
-
-  test.it('run checkBundleName but has error', () => {
-    const filesys = new FSService('124!@', tempDirHelper.tmpDir)
-    expect(() => filesys.checkBundleName()).to.throw(CLIError)
-  })
-
-  test.it('run checkBundleDirectory', () => {
-    const filesys = new FSService(defaultBundleName, tempDirHelper.tmpDir)
-    expect(() => filesys.checkBundleDirectory()).to.not.throw(CLIError)
-  })
-
-  test.it('run checkBundleDirectory but has error', () => {
-    const filesys = new FSService('existing-bundle', tempDirHelper.tmpDir)
-    expect(() => filesys.checkBundleDirectory()).to.throw(CLIError)
   })
 
   test.it('run getBundleDirectory', () => {

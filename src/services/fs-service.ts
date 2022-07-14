@@ -1,13 +1,14 @@
-import { CLIError } from '@oclif/errors'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { debugFactory } from './debug-factory-service'
-import { GITKEEP_FILE, RESOURCES_FOLDER } from '../paths'
 import {
-  ALLOWED_NAME_REGEXP,
-  INVALID_NAME_MESSAGE,
-  MAX_NAME_LENGTH
-} from '../models/bundle-descriptor-constraints'
+  GITKEEP_FILE,
+  RESOURCES_FOLDER,
+  MICROFRONTENDS_FOLDER,
+  MICROSERVICES_FOLDER,
+  PSC_FOLDER,
+  SVC_FOLDER
+} from '../paths'
 
 const JSON_INDENTATION_SPACES = 4
 
@@ -18,47 +19,16 @@ interface TemplateVariables {
 export class FSService {
   private static debug = debugFactory(FSService)
 
-  private readonly bundleName: string
+  private readonly bundleFolder: string
   private readonly parentDirectory: string
 
-  constructor(name: string, parentDirectory: string) {
-    this.bundleName = name
+  constructor(folderName: string, parentDirectory: string) {
+    this.bundleFolder = folderName
     this.parentDirectory = parentDirectory
   }
 
-  public checkBundleName(): void {
-    FSService.debug('checking if bundle name is valid')
-    if (!ALLOWED_NAME_REGEXP.test(this.bundleName)) {
-      throw new CLIError(
-        `'${this.bundleName}' is not a valid bundle name. ${INVALID_NAME_MESSAGE}`
-      )
-    }
-
-    if (this.bundleName.length > MAX_NAME_LENGTH) {
-      throw new CLIError(
-        `Bundle name is too long. The maximum length is ${MAX_NAME_LENGTH}`
-      )
-    }
-  }
-
-  public checkBundleDirectory(): void {
-    FSService.debug('checking bundle directory if we have access')
-    const bundleDir = this.getBundleDirectory()
-
-    try {
-      fs.accessSync(this.parentDirectory, fs.constants.W_OK)
-    } catch {
-      throw new CLIError(`Directory ${this.parentDirectory} is not writable`)
-    }
-
-    FSService.debug('checking bundle directory it exists')
-    if (fs.existsSync(bundleDir)) {
-      throw new CLIError(`Directory ${bundleDir} already exists`)
-    }
-  }
-
   public getBundleDirectory(): string {
-    return path.resolve(this.parentDirectory, this.bundleName)
+    return path.resolve(this.parentDirectory, this.bundleFolder)
   }
 
   public getBundleFilePath(...pathSegments: string[]): string {
@@ -95,6 +65,13 @@ export class FSService {
     }
 
     return directoryPath
+  }
+
+  public createEmptySubdirectoriesForGitIfNotExist(): void {
+    this.createEmptySubDirectoryForGitIfNotExist(MICROSERVICES_FOLDER)
+    this.createEmptySubDirectoryForGitIfNotExist(MICROFRONTENDS_FOLDER)
+    this.createEmptySubDirectoryForGitIfNotExist(PSC_FOLDER)
+    this.createEmptySubDirectoryForGitIfNotExist(SVC_FOLDER)
   }
 
   public createEmptySubDirectoryForGitIfNotExist(
