@@ -206,6 +206,12 @@ export class DockerService {
     })
   }
 
+  /**
+   * The first version of this method let the 'docker login' command to ask username
+   * and password using the stdio 'inherit' option of child_process module.
+   * Unfortunately it caused ANSI color code to stop working on Windows, so the prompt
+   * for credentials is now handled directly by this CLI.
+   */
   public static async login(
     username: string,
     password: string,
