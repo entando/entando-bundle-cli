@@ -196,25 +196,40 @@ export class DockerService {
     return images
   }
 
-  public static async login(
-    registry: string = DEFAULT_DOCKER_REGISTRY
-  ): Promise<void> {
+  public static async checkAuthentication(
+    registry: string
+  ): Promise<ProcessExecutionResult> {
     const command = DOCKER_COMMAND + ' login ' + registry
 
-    const tryLogin = await ProcessExecutorService.executeProcess({
+    return ProcessExecutorService.executeProcess({
       command
     })
+  }
 
-    if (tryLogin !== 0) {
-      const result = await ProcessExecutorService.executeProcess({
-        command,
-        // prompt is shown to the user
-        stdio: 'inherit'
-      })
+  /**
+   * The first version of this method let the 'docker login' command to ask username
+   * and password using the stdio 'inherit' option of child_process module.
+   * Unfortunately it caused ANSI color code to stop working on Windows, so the prompt
+   * for credentials is now handled directly by this CLI.
+   */
+  public static async login(
+    username: string,
+    password: string,
+    registry: string
+  ): Promise<void> {
+    const command = `${DOCKER_COMMAND} login -u ${username} --password-stdin ${registry}`
+    const result = await ProcessExecutorService.executeProcess({
+      command,
+      stdinWriter: (stdin: Writable) => {
+        stdin.write(password)
+        stdin.end()
+      },
+      outputStream: DockerService.debug.outputStream,
+      errorStream: DockerService.debug.outputStream
+    })
 
-      if (result !== 0) {
-        throw new CLIError('Docker login failed')
-      }
+    if (result !== 0) {
+      throw new CLIError('Docker login failed')
     }
   }
 
@@ -283,19 +298,27 @@ export class DockerService {
     return targetImages
   }
 
-  public static async pushImage(image: string): Promise<string> {
+  public static async pushImage(
+    image: string,
+    registry: string
+  ): Promise<string> {
     const command = DOCKER_COMMAND + ' push ' + image
     const outputStream = new InMemoryWritable()
+    const errorStream = new InMemoryWritable()
     const result = await ProcessExecutorService.executeProcess({
       command,
-      errorStream: DockerService.debug.outputStream,
+      errorStream,
       outputStream
     })
     const output = outputStream.data
+    const error = errorStream.data
     if (result !== 0) {
       DockerService.debug(output)
+      DockerService.debug(output)
       throw new CLIError(
-        'Unable to push Docker image. Enable debug mode to see output of failed command.'
+        error.includes('denied')
+          ? `Unable to push docker image ${image}. Be sure that you have write access to that repository.\nYou may also logged in with a wrong user. Please execute "docker logout ${registry}" and try again`
+          : `Unable to push Docker image ${image}. Enable debug mode to see output of failed command.`
       )
     }
 

@@ -23,6 +23,7 @@ export type ProcessExecutionOptions = {
   errorStream?: Writable
   stdio?: StdioOptions
   env?: NodeJS.ProcessEnv
+  stdinWriter?: (stdin: Writable) => void
 }
 
 export type ProcessExecutionResult = number | Error | NodeJS.Signals
@@ -148,6 +149,10 @@ function setUpProcess(options: ProcessExecutionOptions) {
     stdio: options.stdio,
     env: options.env
   })
+
+  if (options.stdinWriter) {
+    options.stdinWriter(process.stdin!)
+  }
 
   if (process.stdout) {
     process.stdout.on('data', chunk => {

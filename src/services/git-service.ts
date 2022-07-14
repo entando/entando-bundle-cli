@@ -25,7 +25,7 @@ export class GitService {
       this.fsService.getBundleDirectory()
     )
     const result = await ProcessExecutorService.executeProcess({
-      command: `git -C ${posixBundleDir} init`,
+      command: `git -C '${posixBundleDir}' init`,
       outputStream: GitService.debug.outputStream,
       errorStream
     })

@@ -44,7 +44,7 @@ describe('git-service', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: `git -C ${bundleDir} init`
+        command: `git -C '${bundleDir}' init`
       })
     )
   })

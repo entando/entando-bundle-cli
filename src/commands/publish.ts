@@ -129,7 +129,13 @@ export default class Publish extends Command {
     registry = registry ?? DEFAULT_DOCKER_REGISTRY
 
     this.log(color.bold.blue(`Login on Docker registry ${registry}`))
-    await DockerService.login(registry)
+    const loginResult = await DockerService.checkAuthentication(registry)
+
+    if (loginResult !== 0) {
+      const username = await CliUx.ux.prompt('Username')
+      const password = await CliUx.ux.prompt('Password', { type: 'hide' })
+      await DockerService.login(username, password, registry)
+    }
 
     return registry
   }
@@ -166,7 +172,7 @@ export default class Publish extends Command {
     /* eslint-disable no-await-in-loop */
     try {
       for (const image of images) {
-        const digest = await DockerService.pushImage(image)
+        const digest = await DockerService.pushImage(image, registry)
         results.push({ name: image, digest })
         progress.update(progress.value + 1)
       }

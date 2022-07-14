@@ -50,23 +50,29 @@ describe('Utilities', () => {
     }
     const payload: any = {}
 
-    let output = progress.formatter(options, params, payload)
-    expect(output).eq(
-      'progress [----------------------------------------] 0% | ETA: 13s | 6/10 | Time: 01:20:12'
-    )
+    let output = progress.formatter(options, params, payload) as string
+    expect(
+      output.endsWith(
+        'progress [----------------------------------------] 0% | ETA: 13s | 6/10 | Time: 01:20:12'
+      )
+    ).true
     expect(payload.index).eq(1)
 
     params.progress = 1 / 3
-    output = progress.formatter(options, params, payload)
-    expect(output).eq(
-      'progress [=============\\--------------------------] 33% | ETA: 13s | 6/10 | Time: 01:20:12'
-    )
+    output = progress.formatter(options, params, payload) as string
+    expect(
+      output.endsWith(
+        'progress [=============\\--------------------------] 33% | ETA: 13s | 6/10 | Time: 01:20:12'
+      )
+    ).true
     expect(payload.index).eq(2)
 
     params.progress = 1
-    output = progress.formatter(options, params, payload)
-    expect(output).eq(
-      'progress [========================================] 100% | ETA: 13s | 6/10 | Time: 01:20:12'
-    )
+    output = progress.formatter(options, params, payload) as string
+    expect(
+      output.endsWith(
+        'progress [========================================] 100% | ETA: 13s | 6/10 | Time: 01:20:12'
+      )
+    ).true
   })
 })
