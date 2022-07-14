@@ -204,4 +204,12 @@ describe('ms add', () => {
     .it(
       'exits with an error if another component with the same name already exists'
     )
+
+  test
+    .command('ms add')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 1 required arg')
+      expect(error.message).to.contain('name')
+    })
+    .it('exits with an error if required argument is missing')
 })

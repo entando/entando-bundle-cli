@@ -52,4 +52,12 @@ describe('svc enable', () => {
       expect(error.message).to.contain('Service keycloak is already enabled')
     })
     .it('enable a service that is currently enabled')
+
+  test
+    .command('svc enable')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 1 required arg')
+      expect(error.message).to.contain('serviceName')
+    })
+    .it('exits with an error if required argument is missing')
 })

@@ -285,6 +285,14 @@ describe('mfe add', () => {
       })
   })
 
+  test
+    .command('mfe add')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 1 required arg')
+      expect(error.message).to.contain('name')
+    })
+    .it('exits with an error if required argument is missing')
+
   function expectMfePathExists(mfeName: string) {
     const filePath: string = path.resolve(
       tempBundleDir,

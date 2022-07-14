@@ -130,4 +130,12 @@ describe('mfe rm', () => {
         fs.existsSync(path.join(MICROFRONTENDS_FOLDER, GITKEEP_FILE))
       ).to.eq(true)
     })
+
+  test
+    .command('mfe rm')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 1 required arg')
+      expect(error.message).to.contain('name')
+    })
+    .it('exits with an error if required argument is missing')
 })

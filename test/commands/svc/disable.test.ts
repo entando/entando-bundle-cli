@@ -58,4 +58,12 @@ describe('svc disable', () => {
       expect(error.message).to.contain('Service mysql is not enabled')
     })
     .it('disable a service that is not enabled')
+
+  test
+    .command('svc disable')
+    .catch(error => {
+      expect(error.message).to.contain('Missing 1 required arg')
+      expect(error.message).to.contain('serviceName')
+    })
+    .it('exits with an error if required argument is missing')
 })
