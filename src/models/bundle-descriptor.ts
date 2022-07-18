@@ -37,6 +37,12 @@ export type WidgetParam = {
   description?: string
 }
 
+export type Commands = {
+  build?: string
+  run?: string
+  pack?: string
+}
+
 export type Microservice = {
   /** Component name. Version will be retrieved from the pom.xml, package.json */
   name: string
@@ -51,10 +57,7 @@ export type Microservice = {
   permissions?: Permission[]
   securityLevel?: SecurityLevel
   env?: EnvironmentVariable[]
-  commands?: {
-    build?: string
-    run?: string
-  }
+  commands?: Commands
 }
 
 type BaseMicroFrontend = {
@@ -64,10 +67,7 @@ type BaseMicroFrontend = {
   publicFolder?: string
   buildFolder?: string
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
-  commands?: {
-    build?: string
-    run?: string
-  }
+  commands?: Commands
   nav?: Nav[]
   customElement: string
 }

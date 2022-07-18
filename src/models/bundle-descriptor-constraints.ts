@@ -3,6 +3,7 @@ import {
   ApiType,
   AppBuilderMicroFrontend,
   BundleDescriptor,
+  Commands,
   DBMS,
   EnvironmentVariable,
   ExternalApiClaim,
@@ -178,6 +179,21 @@ export const PARAM_CONSTRAINTS: ObjectConstraints<WidgetParam> = {
   }
 }
 
+const COMMANDS_CONSTRAINTS: ObjectConstraints<Commands> = {
+  build: {
+    required: false,
+    type: 'string'
+  },
+  run: {
+    required: false,
+    type: 'string'
+  },
+  pack: {
+    required: false,
+    type: 'string'
+  }
+}
+
 const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   name: {
     required: true,
@@ -238,16 +254,7 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   },
   commands: {
     required: false,
-    children: {
-      build: {
-        required: false,
-        type: 'string'
-      },
-      run: {
-        required: false,
-        type: 'string'
-      }
-    }
+    children: COMMANDS_CONSTRAINTS
   }
 }
 
@@ -292,16 +299,7 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
     },
     commands: {
       required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
-        },
-        run: {
-          required: false,
-          type: 'string'
-        }
-      }
+      children: COMMANDS_CONSTRAINTS
     },
     customElement: {
       required: true,
@@ -365,16 +363,7 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
     },
     commands: {
       required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
-        },
-        run: {
-          required: false,
-          type: 'string'
-        }
-      }
+      children: COMMANDS_CONSTRAINTS
     },
     customElement: {
       required: true,
@@ -425,16 +414,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
     },
     commands: {
       required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
-        },
-        run: {
-          required: false,
-          type: 'string'
-        }
-      }
+      children: COMMANDS_CONSTRAINTS
     },
     customElement: {
       required: true,
@@ -491,16 +471,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
     },
     commands: {
       required: false,
-      children: {
-        build: {
-          required: false,
-          type: 'string'
-        },
-        run: {
-          required: false,
-          type: 'string'
-        }
-      }
+      children: COMMANDS_CONSTRAINTS
     },
     customElement: {
       required: true,
