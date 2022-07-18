@@ -13,6 +13,7 @@ import {
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as sinon from 'sinon'
 import {
+  Component,
   ComponentType,
   MicroFrontendStack,
   MicroserviceStack
@@ -253,9 +254,7 @@ describe('pack', () => {
           stack: MicroFrontendStack.React
         }
       ]
-      getComponentsStub = sinon
-        .stub(ComponentService.prototype, 'getComponents')
-        .returns(stubComponents)
+      stubComponentsForBuildError(stubComponents)
 
       stubParallelProcessExecutorService([
         0,
@@ -329,8 +328,6 @@ describe('pack', () => {
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
-
-      stubParallelProcessExecutorService([0])
     })
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
@@ -338,12 +335,7 @@ describe('pack', () => {
         'Unable to determine version for component ms1'
       )
     })
-    .it(
-      'Packaging stops if it is unable to retrieve component version',
-      ctx => {
-        expect(ctx.stderr).contain('1/1') // components build
-      }
-    )
+    .it('Packaging stops if it is unable to retrieve component version')
 
   test
     .stderr()
@@ -365,9 +357,7 @@ describe('pack', () => {
           stack: MicroserviceStack.SpringBoot
         }
       ]
-      getComponentsStub = sinon
-        .stub(ComponentService.prototype, 'getComponents')
-        .returns(stubComponents)
+      stubComponentsForBuildError(stubComponents)
 
       stubParallelProcessExecutorService([0])
     })
@@ -430,7 +420,48 @@ describe('pack', () => {
     .catch(error => {
       expect(error.message).contain('Version of invalid-ms is not valid')
     })
-    .it('Pack fails if microservices versions are invalid')
+    .it('Pack fails if microservices versions have an invalid format')
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-invalid-version')
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          name: 'invalid-ms',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot,
+          version: 'x'.repeat(500)
+        }
+      ])
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).contain('Version of invalid-ms is too long')
+    })
+    .it('Pack fails if microservices versions are too long')
+
+  function stubComponentsForBuildError(
+    stubComponents: Array<Component<ComponentType>>
+  ) {
+    getComponentsStub = sinon
+      .stub(ComponentService.prototype, 'getComponents')
+      .returns(stubComponents)
+
+    const versionedMicroservices = stubComponents
+      .filter(c => c.type === ComponentType.MICROSERVICE)
+      .map(c => {
+        return {
+          ...c,
+          version: '0.0.3'
+        }
+      })
+
+    sinon
+      .stub(ComponentService.prototype, 'getVersionedComponents')
+      .returns(versionedMicroservices)
+  }
 
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [
@@ -455,9 +486,14 @@ describe('pack', () => {
     fs.mkdirSync(ms1Dir, { recursive: true })
     fs.writeFileSync(ms1Dockerfile, '')
 
-    sinon
-      .stub(ComponentDescriptorService.prototype, 'getComponentVersion')
-      .returns('0.0.3')
+    sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+      {
+        name: 'ms1',
+        type: ComponentType.MICROSERVICE,
+        stack: MicroserviceStack.SpringBoot,
+        version: '0.0.3'
+      }
+    ])
 
     getComponentsStub = sinon
       .stub(ComponentService.prototype, 'getComponents')

@@ -1,5 +1,5 @@
 import { CliUx, Flags } from '@oclif/core'
-import { ComponentType } from '../models/component'
+import { ComponentType, VersionedComponent } from '../models/component'
 import { BundleDescriptorConverterService } from '../services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
 import { BundleService } from '../services/bundle-service'
@@ -28,7 +28,8 @@ import { PSCService } from '../services/psc-service'
 import { SUPPORTED_PSC_TYPES } from '../models/yaml-bundle-descriptor'
 import {
   ALLOWED_VERSION_REGEXP,
-  INVALID_VERSION_MESSAGE
+  INVALID_VERSION_MESSAGE,
+  MAX_VERSION_LENGTH
 } from '../models/bundle-descriptor-constraints'
 
 export default class Pack extends BaseBuildCommand {
@@ -63,17 +64,42 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
+    const microservices = this.getVersionedMicroservices()
+
     await this.buildAllComponents(Phase.Package)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    await this.buildMicroservicesDockerImages(dockerOrganization)
+    await this.buildMicroservicesDockerImages(microservices, dockerOrganization)
 
     await this.buildBundleDockerImage(
       bundleDescriptor,
       dockerOrganization,
       flags.file
     )
+  }
+
+  private getVersionedMicroservices(): VersionedComponent[] {
+    const componentService = new ComponentService()
+    const microservices = componentService.getVersionedComponents(
+      ComponentType.MICROSERVICE
+    )
+
+    for (const microservice of microservices) {
+      if (!ALLOWED_VERSION_REGEXP.test(microservice.version)) {
+        this.error(
+          `Version of ${microservice.name} is not valid. ${INVALID_VERSION_MESSAGE}`
+        )
+      }
+
+      if (microservice.version.length > MAX_VERSION_LENGTH) {
+        this.error(
+          `Version of ${microservice.name} is too long. The maximum length is ${MAX_VERSION_LENGTH}`
+        )
+      }
+    }
+
+    return microservices
   }
 
   private async getDockerOrganization(flagOrganization: string | undefined) {
@@ -103,20 +129,10 @@ export default class Pack extends BaseBuildCommand {
     return newOrganization
   }
 
-  private async buildMicroservicesDockerImages(dockerOrganization: string) {
-    const componentService = new ComponentService()
-    const microservices = componentService.getVersionedComponents(
-      ComponentType.MICROSERVICE
-    )
-
-    for (const microservice of microservices) {
-      if (!ALLOWED_VERSION_REGEXP.test(microservice.version)) {
-        this.error(
-          `Version of ${microservice.name} is not valid. ${INVALID_VERSION_MESSAGE}`
-        )
-      }
-    }
-
+  private async buildMicroservicesDockerImages(
+    microservices: VersionedComponent[],
+    dockerOrganization: string
+  ) {
     this.log(color.bold.blue('Building microservices Docker images...'))
 
     const buildOptions: DockerBuildOptions[] = []
