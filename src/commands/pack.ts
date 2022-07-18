@@ -66,7 +66,7 @@ export default class Pack extends BaseBuildCommand {
 
     const microservices = this.getVersionedMicroservices()
 
-    await this.buildAllComponents(Phase.Package)
+    await this.buildAllComponents(Phase.Pack)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 

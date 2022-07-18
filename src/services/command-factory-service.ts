@@ -1,11 +1,15 @@
-import { MicroFrontend, Microservice } from '../models/bundle-descriptor'
+import {
+  Commands,
+  MicroFrontend,
+  Microservice
+} from '../models/bundle-descriptor'
 import { Component, ComponentType, StackFor } from '../models/component'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 
 export enum Phase {
   Clean = 'clean',
   Build = 'build',
-  Package = 'package',
+  Pack = 'pack',
   Run = 'run'
 }
 
@@ -22,13 +26,13 @@ const DEFAULT_COMMANDS: CommandsDefinition = {
     angular: {
       clean: 'npm run clean',
       build: 'npm install && npm run build',
-      package: 'npm install && npm run build',
+      pack: 'npm install && npm run build',
       run: 'npm install && npm start'
     },
     react: {
       clean: 'npm run clean',
       build: 'npm install && npm run build',
-      package: 'npm install && npm run build',
+      pack: 'npm install && npm run build',
       run: 'npm install && npm start'
     }
   },
@@ -36,13 +40,13 @@ const DEFAULT_COMMANDS: CommandsDefinition = {
     'spring-boot': {
       clean: 'mvn clean',
       build: 'mvn test',
-      package: 'mvn clean package -DskipTests',
+      pack: 'mvn clean package -DskipTests',
       run: 'mvn spring-boot:run'
     },
     node: {
       clean: 'npm run clean',
       build: 'npm install && npm run build',
-      package: 'npm install && npm run build',
+      pack: 'npm install && npm run build',
       run: 'npm install && npm start'
     }
   }
@@ -71,6 +75,6 @@ export class CommandFactoryService {
       bundleDescriptorService.getBundleDescriptor()[`${component.type}s`]
     const commands = comps.find(({ name }) => name === component.name)?.commands
 
-    return commands && commands[phase as Phase.Build | Phase.Run]
+    return commands && commands[phase as keyof Commands]
   }
 }

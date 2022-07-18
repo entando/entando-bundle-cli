@@ -36,12 +36,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROSERVICE
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Build
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Build)
 
-      expect(commandOptions).to.eql('mvn test')
+      expect(command).to.eql('mvn test')
     })
 
   test
@@ -61,12 +58,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROFRONTEND
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Build
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Build)
 
-      expect(commandOptions).to.eql('npm install && npm run build')
+      expect(command).to.eql('npm install && npm run build')
     })
 
   test
@@ -75,7 +69,7 @@ describe('CommandFactoryService', () => {
         microservices: [
           {
             name: 'my-ms',
-            commands: { build: 'custommsbuild' }
+            commands: { build: 'custom-ms-build' }
           }
         ]
       }
@@ -91,12 +85,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROSERVICE
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Build
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Build)
 
-      expect(commandOptions).to.eql('custommsbuild')
+      expect(command).to.eql('custom-ms-build')
     })
 
   test
@@ -105,7 +96,7 @@ describe('CommandFactoryService', () => {
         microfrontends: [
           {
             name: 'my-mfe',
-            commands: { build: 'custommfebuild' }
+            commands: { build: 'custom-mfe-build' }
           }
         ]
       }
@@ -121,12 +112,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROFRONTEND
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Build
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Build)
 
-      expect(commandOptions).to.eql('custommfebuild')
+      expect(command).to.eql('custom-mfe-build')
     })
 
   test
@@ -146,12 +134,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROSERVICE
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Run
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Run)
 
-      expect(commandOptions).to.eql('mvn spring-boot:run')
+      expect(command).to.eql('mvn spring-boot:run')
     })
 
   test
@@ -171,12 +156,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROFRONTEND
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Run
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Run)
 
-      expect(commandOptions).to.eql('npm install && npm start')
+      expect(command).to.eql('npm install && npm start')
     })
 
   test
@@ -185,7 +167,7 @@ describe('CommandFactoryService', () => {
         microservices: [
           {
             name: 'my-ms',
-            commands: { run: 'custommsrun' }
+            commands: { run: 'custom-ms-run' }
           }
         ]
       }
@@ -201,12 +183,9 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROSERVICE
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Run
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Run)
 
-      expect(commandOptions).to.eql('custommsrun')
+      expect(command).to.eql('custom-ms-run')
     })
 
   test
@@ -215,7 +194,7 @@ describe('CommandFactoryService', () => {
         microfrontends: [
           {
             name: 'my-mfe',
-            commands: { run: 'custommferun' }
+            commands: { run: 'custom-mfe-run' }
           }
         ]
       }
@@ -231,11 +210,62 @@ describe('CommandFactoryService', () => {
         type: ComponentType.MICROFRONTEND
       }
 
-      const commandOptions = CommandFactoryService.getCommand(
-        component,
-        Phase.Run
-      )
+      const command = CommandFactoryService.getCommand(component, Phase.Run)
 
-      expect(commandOptions).to.eql('custommferun')
+      expect(command).to.eql('custom-mfe-run')
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = <BundleDescriptor>{
+        microfrontends: [
+          {
+            name: 'my-mfe',
+            commands: { pack: 'custom-mfe-pack' }
+          }
+        ]
+      }
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('MicroFrontend custom pack command', () => {
+      const component: Component<ComponentType.MICROFRONTEND> = {
+        name: 'my-mfe',
+        stack: MicroFrontendStack.React,
+        type: ComponentType.MICROFRONTEND
+      }
+
+      const command = CommandFactoryService.getCommand(component, Phase.Pack)
+
+      expect(command).to.eql('custom-mfe-pack')
+    })
+
+  test
+    .do(() => {
+      const bundleDescriptor = <BundleDescriptor>{
+        microservices: [
+          {
+            name: 'my-ms',
+            commands: { pack: 'custom-ms-pack' }
+          }
+        ]
+      }
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('Microservice custom pack command', () => {
+      const component: Component<ComponentType.MICROSERVICE> = {
+        name: 'my-ms',
+        stack: MicroserviceStack.SpringBoot,
+        type: ComponentType.MICROSERVICE
+      }
+
+      const command = CommandFactoryService.getCommand(component, Phase.Pack)
+
+      expect(command).to.eql('custom-ms-pack')
     })
 })
