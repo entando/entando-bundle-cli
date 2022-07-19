@@ -218,7 +218,7 @@ export class BundleDescriptorConverterService {
       name: bundleDescriptor.name,
       description: bundleDescriptor.description,
       components: {},
-      global: bundleDescriptor.global,
+      ext: bundleDescriptor.global,
       descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
     }
     if (thumbnail?.base64) {

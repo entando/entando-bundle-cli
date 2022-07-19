@@ -97,7 +97,7 @@ export type YamlBundleDescriptor = {
   components: {
     [key in SupportedComponents]?: string[]
   }
-  global?: {
+  ext?: {
     nav: Nav[]
   }
 }

@@ -100,7 +100,7 @@ export const YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<YamlBundleDes
         }
       }
     },
-    global: {
+    ext: {
       required: false,
       children: {
         nav: {
