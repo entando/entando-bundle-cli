@@ -48,8 +48,6 @@ export class ColorizedWritable extends Writable {
   }
 }
 
-const CLEAR_LINE_ESCAPE = process.platform === 'win32' ? '\u001B[A\u001B[K' : ''
-
 export function animatedProgress(): any {
   return CliUx.ux.progress({
     format(options: any, params: any, payload: any): string {
@@ -76,7 +74,7 @@ export function animatedProgress(): any {
 
       const percentage = Math.round(params.progress * 100)
 
-      return `${CLEAR_LINE_ESCAPE}progress [${bar}] ${percentage}% | ETA: ${params.eta}s | ${params.value}/${params.total} | Time: ${elapsedTime}`
+      return `progress [${bar}] ${percentage}% | ETA: ${params.eta}s | ${params.value}/${params.total} | Time: ${elapsedTime}`
     }
   })
 }
