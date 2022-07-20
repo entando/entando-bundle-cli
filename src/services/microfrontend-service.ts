@@ -19,6 +19,7 @@ import {
 } from '../models/bundle-descriptor-constraints'
 import { FSService } from './fs-service'
 
+export const PREFIX_INTERNAL_WIDGET = 'internal:'
 export const DEFAULT_MFE_BUILD_FOLDER = 'build'
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
@@ -94,7 +95,7 @@ export class MicroFrontendService {
     return (
       'configMfe' in mfe &&
       mfe.configMfe !== undefined &&
-      mfe.configMfe.slice(0, 9) !== 'internal:'
+      mfe.configMfe.slice(0, 9) !== PREFIX_INTERNAL_WIDGET
     )
   }
 

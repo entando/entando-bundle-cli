@@ -28,6 +28,7 @@ import {
 } from './process-executor-service'
 import { debugFactory } from './debug-factory-service'
 import { CommandFactoryService, Phase } from './command-factory-service'
+import { PREFIX_INTERNAL_WIDGET } from './microfrontend-service'
 
 const COMPTYPE_OUTPUT_FOLDER_MAP = {
   [ComponentType.MICROFRONTEND]: WIDGETS_FOLDER,
@@ -164,7 +165,7 @@ export class ComponentService {
     for (const mfe of allMfes) {
       if (
         mfe.configMfe &&
-        mfe.configMfe.slice(0, 9) !== 'internal:' &&
+        mfe.configMfe.slice(0, 9) !== PREFIX_INTERNAL_WIDGET &&
         allMfesWithTypes.findIndex(
           ({ name, type }) =>
             mfe.configMfe === name && type === MicroFrontendType.WidgetConfig
