@@ -333,7 +333,7 @@ describe('bundle-descriptor-converter-service', () => {
           'widgets/test-mfe-no-params.yaml'
         ]
       },
-      global: {
+      ext: {
         nav: [
           { label: { en: 'test', it: 'test' }, target: 'target', url: '/test' }
         ]
