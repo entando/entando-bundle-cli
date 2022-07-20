@@ -90,6 +90,33 @@ export class MicroFrontendService {
     return microfrontends.find(({ name }) => name === mfeName)
   }
 
+  private isConfigMfeSiblingWidget(mfe: MicroFrontend): boolean {
+    return (
+      'configMfe' in mfe &&
+      mfe.configMfe !== undefined &&
+      mfe.configMfe.slice(0, 9) !== 'internal:'
+    )
+  }
+
+  public findWidgetConfigReferences(mfeName: string): MicroFrontend[] {
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+    const { microfrontends: allMfes } = bundleDescriptor
+    const allMfesWithTypes = allMfes.map(({ name, type, ...others }) => ({
+      name,
+      type,
+      configMfe: 'configMfe' in others ? others.configMfe : undefined
+    }))
+    return allMfes.filter(
+      mfe =>
+        this.isConfigMfeSiblingWidget(mfe) &&
+        allMfesWithTypes.findIndex(
+          ({ type, configMfe }) =>
+            mfeName === configMfe && type !== MicroFrontendType.WidgetConfig
+        ) !== -1
+    )
+  }
+
   public removeMicroFrontend(mfeName: string): void {
     const mfe: MicroFrontend = this.getMicroFrontend(mfeName)
 
