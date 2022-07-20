@@ -1,9 +1,12 @@
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as sinon from 'sinon'
+import * as inquirer from 'inquirer'
 import {
   BundleDescriptor,
-  MicroFrontendType
+  MicroFrontendType,
+  WidgetMicroFrontend
 } from '../../../src/models/bundle-descriptor'
 import { MicroFrontendStack } from '../../../src/models/component'
 import {
@@ -36,6 +39,34 @@ describe('mfe rm', () => {
     ]
   }
 
+  const bundleDescriptorWithWidgetConfig: BundleDescriptor = {
+    name: 'bundle-mfe-test',
+    version: '0.0.1',
+    type: 'bundle',
+    microservices: [],
+    microfrontends: [
+      {
+        name: 'default-stack-mfe',
+        customElement: 'default-stack-mfe',
+        titles: { en: 'Default Stack MFE' },
+        stack: MicroFrontendStack.React,
+        type: MicroFrontendType.Widget,
+        group: 'group',
+        publicFolder: 'public',
+        configMfe: 'widget-config',
+        params: []
+      },
+      {
+        name: 'widget-config',
+        customElement: 'default-widget-config',
+        stack: MicroFrontendStack.React,
+        type: MicroFrontendType.WidgetConfig,
+        group: 'group',
+        publicFolder: 'public'
+      }
+    ]
+  }
+
   const tempDirHelper = new TempDirHelper(__filename)
   let tempBundleDir: string
 
@@ -51,6 +82,29 @@ describe('mfe rm', () => {
     process.chdir(tempBundleDir)
     bundleDescriptorService = new BundleDescriptorService()
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+  })
+
+  afterEach(() => {
+    sinon.restore()
+
+    const defaultMfeFolder = path.resolve(
+      tempBundleDir,
+      MICROFRONTENDS_FOLDER,
+      'default-stack-mfe'
+    )
+    const widgetConfigFolder = path.resolve(
+      tempBundleDir,
+      MICROFRONTENDS_FOLDER,
+      'widget-config'
+    )
+
+    if (fs.existsSync(defaultMfeFolder)) {
+      fs.rmdirSync(defaultMfeFolder)
+    }
+
+    if (fs.existsSync(widgetConfigFolder)) {
+      fs.rmdirSync(widgetConfigFolder)
+    }
   })
 
   test
@@ -85,6 +139,92 @@ describe('mfe rm', () => {
         microfrontends: []
       })
       expect(fs.existsSync(outputDescriptorPath)).to.eq(false)
+    })
+
+  test
+    .do(() => {
+      bundleDescriptorService = new BundleDescriptorService()
+      bundleDescriptorService.writeBundleDescriptor(
+        bundleDescriptorWithWidgetConfig
+      )
+      fs.mkdirSync(
+        path.resolve(tempBundleDir, MICROFRONTENDS_FOLDER, 'default-stack-mfe')
+      )
+      fs.mkdirSync(
+        path.resolve(tempBundleDir, MICROFRONTENDS_FOLDER, 'widget-config')
+      )
+
+      const bundleDescriptorConverterService =
+        new BundleDescriptorConverterService('test-docker-org')
+      bundleDescriptorConverterService.generateYamlDescriptors({})
+    })
+    .stub(inquirer, 'prompt', sinon.stub().resolves({ removeConfigs: false }))
+    .command(['mfe rm', 'widget-config'])
+    .catch(error => {
+      expect(error.message).to.contain('EXIT: 0')
+    })
+    .it(
+      'removes a widget config widget including references but not confirming it'
+    )
+
+  test
+    .stub(inquirer, 'prompt', sinon.stub().resolves({ removeConfigs: true }))
+    .do(() => {
+      bundleDescriptorService = new BundleDescriptorService()
+      bundleDescriptorService.writeBundleDescriptor(
+        bundleDescriptorWithWidgetConfig
+      )
+      fs.mkdirSync(
+        path.resolve(tempBundleDir, MICROFRONTENDS_FOLDER, 'default-stack-mfe')
+      )
+      fs.mkdirSync(
+        path.resolve(tempBundleDir, MICROFRONTENDS_FOLDER, 'widget-config')
+      )
+
+      const bundleDescriptorConverterService =
+        new BundleDescriptorConverterService('test-docker-org')
+      bundleDescriptorConverterService.generateYamlDescriptors({})
+    })
+    .command(['mfe rm', 'widget-config'])
+    .it('removes a widget config widget including references', () => {
+      const filePath: string = path.resolve(
+        tempBundleDir,
+        MICROFRONTENDS_FOLDER,
+        defaultMfeName
+      )
+
+      const filePathWidgetConfig: string = path.resolve(
+        tempBundleDir,
+        MICROFRONTENDS_FOLDER,
+        'widget-config'
+      )
+      const bundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+      const outputDescriptorPath: string = path.resolve(
+        tempBundleDir,
+        ...DESCRIPTORS_OUTPUT_FOLDER,
+        'widgets',
+        'default-stack-mfe.yaml'
+      )
+
+      const outputDescriptorWidgetConfigPath: string = path.resolve(
+        tempBundleDir,
+        ...DESCRIPTORS_OUTPUT_FOLDER,
+        'widgets',
+        'widget-config.yaml'
+      )
+
+      const [mfeWidget] = bundleDescriptorWithWidgetConfig.microfrontends
+      delete (mfeWidget as WidgetMicroFrontend).configMfe
+
+      expect(fs.existsSync(filePath)).to.eq(true)
+      expect(fs.existsSync(filePathWidgetConfig)).to.eq(false)
+      expect(bundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microfrontends: [mfeWidget]
+      })
+      expect(fs.existsSync(outputDescriptorPath)).to.eq(true)
+      expect(fs.existsSync(outputDescriptorWidgetConfigPath)).to.eq(false)
     })
 
   test

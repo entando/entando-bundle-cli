@@ -19,6 +19,7 @@ import {
 } from '../models/bundle-descriptor-constraints'
 import { FSService } from './fs-service'
 
+export const PREFIX_INTERNAL_WIDGET = 'internal:'
 export const DEFAULT_MFE_BUILD_FOLDER = 'build'
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
@@ -88,6 +89,33 @@ export class MicroFrontendService {
     const { microfrontends } = bundleDescriptor
 
     return microfrontends.find(({ name }) => name === mfeName)
+  }
+
+  private isConfigMfeSiblingWidget(mfe: MicroFrontend): boolean {
+    return (
+      'configMfe' in mfe &&
+      mfe.configMfe !== undefined &&
+      mfe.configMfe.slice(0, 9) !== PREFIX_INTERNAL_WIDGET
+    )
+  }
+
+  public findWidgetConfigReferences(mfeName: string): MicroFrontend[] {
+    const bundleDescriptor: BundleDescriptor =
+      this.bundleDescriptorService.getBundleDescriptor()
+    const { microfrontends: allMfes } = bundleDescriptor
+    const allMfesWithTypes = allMfes.map(({ name, type, ...others }) => ({
+      name,
+      type,
+      configMfe: 'configMfe' in others ? others.configMfe : undefined
+    }))
+    return allMfes.filter(
+      mfe =>
+        this.isConfigMfeSiblingWidget(mfe) &&
+        allMfesWithTypes.findIndex(
+          ({ type, configMfe }) =>
+            mfeName === configMfe && type !== MicroFrontendType.WidgetConfig
+        ) !== -1
+    )
   }
 
   public removeMicroFrontend(mfeName: string): void {

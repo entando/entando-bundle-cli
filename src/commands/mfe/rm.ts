@@ -1,4 +1,8 @@
 import { CliUx, Command } from '@oclif/core'
+import color from '@oclif/color'
+import * as inquirer from 'inquirer'
+import { WidgetMicroFrontend } from '../../models/bundle-descriptor'
+import { BundleDescriptorService } from '../../services/bundle-descriptor-service'
 import { BundleService } from '../../services/bundle-service'
 import { MicroFrontendService } from '../../services/microfrontend-service'
 
@@ -22,6 +26,52 @@ export default class Rm extends Command {
 
     const microFrontendService: MicroFrontendService =
       new MicroFrontendService()
+    const mfeReferences = microFrontendService.findWidgetConfigReferences(
+      args.name
+    )
+
+    if (mfeReferences.length > 0) {
+      const mfeReferenceNames = new Set(mfeReferences.map(({ name }) => name))
+
+      const { removeConfigs } = await inquirer.prompt([
+        {
+          name: 'removeConfigs',
+          message: `Reference to ${
+            args.name
+          } will be removed from ${color.bold.blue(
+            [...mfeReferenceNames].join(', ')
+          )}. Do you wish to continue?`,
+          default: false,
+          type: 'confirm'
+        }
+      ])
+
+      if (!removeConfigs) {
+        this.exit()
+      }
+
+      CliUx.ux.action.start(
+        `Removing Micro Frontend references to ${args.name}`
+      )
+
+      const bundleDescriptorService: BundleDescriptorService =
+        new BundleDescriptorService()
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+
+      const microfrontends = bundleDescriptor.microfrontends.map(mfe => {
+        if (mfeReferenceNames.has(mfe.name)) {
+          delete (mfe as WidgetMicroFrontend).configMfe
+        }
+
+        return mfe
+      })
+
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        microfrontends
+      })
+      CliUx.ux.action.stop()
+    }
 
     CliUx.ux.action.start(`Removing Micro Frontend ${args.name}`)
     microFrontendService.removeMicroFrontend(args.name)
