@@ -5,6 +5,14 @@
 .entando
 
 ######################
+# Build folders
+######################
+
+**/node_modules
+**/target
+**/build
+
+######################
 # IntelliJ IDEA
 ######################
 
@@ -17,4 +25,10 @@
 # Keycloak DB files
 ######################
 
-/svc/keycloak/keycloak-db
+/svc/keycloak/keycloak-db/*
+
+######################
+# Files to keep
+######################
+
+!.gitkeep
