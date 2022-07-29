@@ -109,8 +109,8 @@
     "typescript": "4.6.3"
   },
   "org_entando_dependencies": {
-    "mysql": "8.0.26",
-    "postgres": "13.4",
+    "mysql": "8.0.28",
+    "postgres": "14.1.0",
     "oracle": "18.4.0-xe",
     "keycloak": "7.0.0-ENG-3087-PR-23"
   }

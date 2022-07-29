@@ -3,16 +3,15 @@ version: '3.7'
 
 services:
   postgresql:
-    image: postgres:%POSTGRES_DOCKER_IMAGE%
+    image: entando/entando-postgres-rocky:%POSTGRES_DOCKER_IMAGE%
     restart: always
     # If you want to relocate the postgres data (volume) to your local directory, uncomment the lines below
     # volumes:
     #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/postgresql/:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=%BUNDLENAME%-user
-      - POSTGRES_PASSWORD=%BUNDLENAME%-password
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_DB=%BUNDLENAME%
+      - POSTGRESQL_USER=%BUNDLENAME%-user
+      - POSTGRESQL_PASSWORD=%BUNDLENAME%-password
+      - POSTGRESQL_DATABASE=%BUNDLENAME%
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:
