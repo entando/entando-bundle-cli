@@ -107,7 +107,12 @@ describe('bundle-descriptor-converter-service', () => {
               name: 'param1',
               description: 'this is param1'
             }
-          ]
+          ],
+          customUi: '<div>custom ui</div>',
+          parentName: 'parent-mfe',
+          paramsDefaults: {
+            param1: 'defaultvalue'
+          }
         },
         {
           name: 'test-mfe-no-code',
@@ -126,7 +131,9 @@ describe('bundle-descriptor-converter-service', () => {
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
-          nav: []
+          nav: [],
+          customUiPath: '/path/to/customUi',
+          parentCode: 'parent-mfe'
         },
         {
           name: 'test-mfe-no-params',
@@ -208,7 +215,12 @@ describe('bundle-descriptor-converter-service', () => {
           name: 'param1',
           description: 'this is param1'
         }
-      ]
+      ],
+      customUi: '<div>custom ui</div>',
+      parentName: 'parent-mfe',
+      paramsDefaults: {
+        param1: 'defaultvalue'
+      }
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(
@@ -223,7 +235,8 @@ describe('bundle-descriptor-converter-service', () => {
       customElement: 'test-mfe-no-code',
       group: 'free',
       descriptorVersion: 'v5',
-      type: 'widget-config'
+      type: 'widget-config',
+      params: []
     })
 
     const appBuilderMfeDescriptorPath = path.resolve(
@@ -246,7 +259,9 @@ describe('bundle-descriptor-converter-service', () => {
           nav: []
         }
       },
-      params: []
+      params: [],
+      customUiPath: '/path/to/customUi',
+      parentCode: 'parent-mfe'
     })
 
     const mfeNoParamsDescriptorPath = path.resolve(

@@ -116,7 +116,13 @@ export class BundleDescriptorConverterService {
       customElement: microFrontend.customElement,
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
-        : undefined
+        : undefined,
+      customUi: microFrontend.customUi,
+      customUiPath: microFrontend.customUiPath,
+      parentName: microFrontend.parentName,
+      parentCode: microFrontend.parentCode,
+      params: microFrontend.params || [],
+      paramsDefaults: microFrontend.paramsDefaults
     }
 
     let result:
@@ -127,7 +133,6 @@ export class BundleDescriptorConverterService {
     if (microFrontend.type === MicroFrontendType.AppBuilder) {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
-        params: microFrontend.params || [],
         ext: {
           appBuilder: {
             slot: microFrontend.slot,
@@ -144,7 +149,6 @@ export class BundleDescriptorConverterService {
     } else {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.Widget>),
-        params: microFrontend.params || [],
         titles: microFrontend.titles,
         nav: microFrontend.nav,
         configMfe: microFrontend.configMfe,
