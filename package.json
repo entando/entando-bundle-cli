@@ -111,6 +111,7 @@
   "org_entando_dependencies": {
     "mysql": "8.0.26",
     "postgres": "13.4",
+    "oracle": "18.4.0-xe",
     "keycloak": "7.0.0-ENG-3087-PR-23"
   }
 }

@@ -49,10 +49,11 @@ describe('svc-service', () => {
   test.it('run getAllServices method', () => {
     const svcService: SvcService = new SvcService('entando-bundle-cli')
     const services = svcService.getAllServices()
-    expect(services).to.have.length(3)
+    expect(services).to.have.length(4)
     expect(services).to.includes('keycloak')
     expect(services).to.includes('postgresql')
     expect(services).to.includes('mysql')
+    expect(services).to.includes('oracle')
   })
 
   test
@@ -66,9 +67,10 @@ describe('svc-service', () => {
     .it('run getAvailableServices method', () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
       const services = svcService.getAvailableServices()
-      expect(services).to.have.length(2)
+      expect(services).to.have.length(3)
       expect(services).to.includes('postgresql')
       expect(services).to.includes('mysql')
+      expect(services).to.includes('oracle')
       expect(services).to.not.includes('keycloak')
     })
 

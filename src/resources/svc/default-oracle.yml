@@ -1,0 +1,18 @@
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+version: '3.7'
+
+services:
+  oracle:
+    # notice that this image has a size of 2.84 GB and takes several minutes to boot
+    image: container-registry.oracle.com/database/express:%ORACLE_DOCKER_IMAGE%
+    restart: always
+    # If you want to relocate the oracle data (volume) to your local directory, uncomment the lines below
+    # volumes:
+    #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/oracle/:/opt/oracle/oradata
+    environment:
+      # database: XE, user: SYSTEM
+      - ORACLE_PWD=%BUNDLENAME%-password
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:1521:1521
