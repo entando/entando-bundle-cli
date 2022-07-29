@@ -95,7 +95,7 @@ export class MicroFrontendService {
     return (
       'configMfe' in mfe &&
       mfe.configMfe !== undefined &&
-      mfe.configMfe.slice(0, 9) !== PREFIX_GLOBAL_WIDGET
+      !mfe.configMfe.startsWith(PREFIX_GLOBAL_WIDGET)
     )
   }
 
