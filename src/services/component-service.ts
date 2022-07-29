@@ -28,7 +28,7 @@ import {
 } from './process-executor-service'
 import { debugFactory } from './debug-factory-service'
 import { CommandFactoryService, Phase } from './command-factory-service'
-import { PREFIX_INTERNAL_WIDGET } from './microfrontend-service'
+import { PREFIX_GLOBAL_WIDGET } from './microfrontend-service'
 
 const COMPTYPE_OUTPUT_FOLDER_MAP = {
   [ComponentType.MICROFRONTEND]: WIDGETS_FOLDER,
@@ -165,14 +165,14 @@ export class ComponentService {
     for (const mfe of allMfes) {
       if (
         mfe.configMfe &&
-        mfe.configMfe.slice(0, 9) !== PREFIX_INTERNAL_WIDGET &&
+        !mfe.configMfe.startsWith(PREFIX_GLOBAL_WIDGET) &&
         allMfesWithTypes.findIndex(
           ({ name, type }) =>
             mfe.configMfe === name && type === MicroFrontendType.WidgetConfig
         ) === -1
       ) {
         throw new CLIError(
-          `configMfe value ${mfe.configMfe} for MFE ${mfe.name} must be an existing widget-config MFE in the project or a platform provided config MFE, defined with the internal:<name> syntax`
+          `configMfe value ${mfe.configMfe} for MFE ${mfe.name} must be an existing widget-config MFE in the project or a platform provided config MFE, defined with the ${PREFIX_GLOBAL_WIDGET}<name> syntax`
         )
       }
     }

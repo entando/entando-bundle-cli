@@ -201,10 +201,31 @@ describe('component-service', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'configMfe value mfe-conf for MFE mfe-name-1 must be an existing widget-config MFE'
+        'configMfe value mfe-conf for MFE mfe-name-1 must be an existing widget-config MFE in the project or a platform provided config MFE, defined with the global:<name> syntax'
       )
     })
     .it(
       'Checks for config MFE that has invalid requirements with wrong widget type'
     )
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microfrontends = [
+        ComponentHelper.newMicroFrontend('mfe-name-1', {
+          type: MicroFrontendType.Widget,
+          configMfe: 'global:mfe-conf'
+        }),
+        ComponentHelper.newMicroFrontend('mfe-conf', {
+          type: MicroFrontendType.Widget
+        })
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+    })
+    .it('Checks for config MFE that has global prefix', () => {
+      expect(() => componentService.checkConfigMfes()).not.throw(CLIError)
+    })
 })
