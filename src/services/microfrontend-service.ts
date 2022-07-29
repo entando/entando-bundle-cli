@@ -19,7 +19,7 @@ import {
 } from '../models/bundle-descriptor-constraints'
 import { FSService } from './fs-service'
 
-export const PREFIX_INTERNAL_WIDGET = 'internal:'
+export const PREFIX_INTERNAL_WIDGET = 'global:'
 export const DEFAULT_MFE_BUILD_FOLDER = 'build'
 const DEFAULT_PUBLIC_FOLDER = 'public'
 const DEFAULT_GROUP = 'free'
