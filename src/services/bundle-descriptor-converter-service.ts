@@ -25,7 +25,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {
   BUNDLE_DESCRIPTOR_NAME,
-  CUSTOM_UI_EXTENSION,
+  CUSTOM_WIDGET_TEMPLATE_EXTENSION,
   DESCRIPTORS_OUTPUT_FOLDER,
   DESCRIPTOR_EXTENSION,
   MICROFRONTENDS_FOLDER,
@@ -90,7 +90,7 @@ export class BundleDescriptorConverterService {
     const customUiFile = path.resolve(
       MICROFRONTENDS_FOLDER,
       microFrontend.name,
-      `${microFrontend.name}${CUSTOM_UI_EXTENSION}`
+      `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
     )
     const customUiFileExists = fs.existsSync(customUiFile)
 
@@ -141,7 +141,7 @@ export class BundleDescriptorConverterService {
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
         : undefined,
       ...(customUiFileExists && {
-        customUiPath: `${microFrontend.name}${CUSTOM_UI_EXTENSION}`
+        customUiPath: `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
       }),
       parentName: microFrontend.parentName,
       parentCode: microFrontend.parentCode,
