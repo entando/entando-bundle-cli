@@ -103,6 +103,8 @@ export class BundleDescriptorConverterService {
     )
 
     if (customUiFileExists) {
+      console.info(`Custom widget template FTL found for MFE ${microFrontend.name}, including it`)
+
       fs.copyFileSync(
         customUiFile,
         path.resolve(
