@@ -24,6 +24,7 @@ export enum DBMS {
   None = 'none',
   PostgreSQL = 'postgresql',
   MySQL = 'mysql',
+  Oracle = 'oracle',
   Embedded = 'embedded'
 }
 

@@ -36,10 +36,11 @@ describe('create-default-svc-service', () => {
 
   test.it('list default services', () => {
     const defaultSvcs = DefaultSvcInitializerService.getDefaultServices()
-    expect(defaultSvcs).have.length(3)
+    expect(defaultSvcs).have.length(4)
     expect(defaultSvcs).contain('keycloak')
     expect(defaultSvcs).contain('mysql')
     expect(defaultSvcs).contain('postgresql')
+    expect(defaultSvcs).contain('oracle')
   })
 
   test.it('test createYamlFile', () => {

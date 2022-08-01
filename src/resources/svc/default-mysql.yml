@@ -3,7 +3,7 @@ version: '3.7'
 
 services:
   mysql:
-    image: mysql:%MYSQL_DOCKER_IMAGE%
+    image: entando/entando-mysql-rocky:%MYSQL_DOCKER_IMAGE%
     restart: always
     # If you want to relocate the mysql data (volume) to your local directory, uncomment the lines below
     # volumes:
