@@ -132,7 +132,6 @@ describe('bundle-descriptor-converter-service', () => {
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
           nav: [],
-          customUiPath: '/path/to/customUi',
           parentCode: 'parent-mfe'
         },
         {
@@ -147,6 +146,12 @@ describe('bundle-descriptor-converter-service', () => {
         }
       ]
     })
+
+    fs.mkdirSync(`${bundleDir}/microfrontends/test-app-builder-mfe`)
+    fs.writeFileSync(
+      `${bundleDir}/microfrontends/test-app-builder-mfe/test-app-builder-mfe.ftl`,
+      '<div>custom-ui</div>'
+    )
 
     fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
 
@@ -260,7 +265,7 @@ describe('bundle-descriptor-converter-service', () => {
         }
       },
       params: [],
-      customUiPath: '/path/to/customUi',
+      customUiPath: 'test-app-builder-mfe.ftl',
       parentCode: 'parent-mfe'
     })
 
@@ -355,6 +360,18 @@ describe('bundle-descriptor-converter-service', () => {
       },
       thumbnail: Buffer.from('this is a thumbnail').toString('base64')
     })
+
+    const testAppBuilderMfeCustomUiPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      'widgets',
+      'test-app-builder-mfe.ftl'
+    )
+    expect(
+      fs.existsSync(testAppBuilderMfeCustomUiPath),
+      `${testAppBuilderMfeCustomUiPath} wasn't created`
+    ).to.eq(true)
   })
 
   test.it('test bundle without thumbnail', () => {

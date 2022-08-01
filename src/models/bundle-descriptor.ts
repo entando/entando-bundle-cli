@@ -71,7 +71,6 @@ type BaseMicroFrontend = {
   nav?: Nav[]
   customElement: string
   customUi?: string
-  customUiPath?: string
   parentName?: string
   parentCode?: string
   params?: WidgetParam[]

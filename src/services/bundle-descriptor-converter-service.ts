@@ -25,8 +25,10 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {
   BUNDLE_DESCRIPTOR_NAME,
+  CUSTOM_UI_EXTENSION,
   DESCRIPTORS_OUTPUT_FOLDER,
   DESCRIPTOR_EXTENSION,
+  MICROFRONTENDS_FOLDER,
   PLUGINS_FOLDER,
   WIDGETS_FOLDER
 } from '../paths'
@@ -85,11 +87,31 @@ export class BundleDescriptorConverterService {
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
+    const customUiFile = path.resolve(
+      MICROFRONTENDS_FOLDER,
+      microFrontend.name,
+      `${microFrontend.name}${CUSTOM_UI_EXTENSION}`
+    )
+    const customUiFileExists = fs.existsSync(customUiFile)
+
     const widgetDescriptor:
       | YamlWidgetDescriptor
       | YamlWidgetConfigDescriptor
-      | YamlAppBuilderWidgetDescriptor =
-      this.mapMicroFrontendToYamlDescriptor(microFrontend)
+      | YamlAppBuilderWidgetDescriptor = this.mapMicroFrontendToYamlDescriptor(
+      microFrontend,
+      customUiFileExists
+    )
+
+    if (customUiFileExists) {
+      fs.copyFileSync(
+        customUiFile,
+        path.resolve(
+          ...DESCRIPTORS_OUTPUT_FOLDER,
+          WIDGETS_FOLDER,
+          path.basename(customUiFile)
+        )
+      )
+    }
 
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
@@ -100,7 +122,8 @@ export class BundleDescriptorConverterService {
   }
 
   private mapMicroFrontendToYamlDescriptor(
-    microFrontend: MicroFrontend
+    microFrontend: MicroFrontend,
+    customUiFileExists: boolean
   ):
     | YamlWidgetDescriptor
     | YamlWidgetConfigDescriptor
@@ -118,7 +141,9 @@ export class BundleDescriptorConverterService {
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
         : undefined,
       customUi: microFrontend.customUi,
-      customUiPath: microFrontend.customUiPath,
+      ...(customUiFileExists && {
+        customUiPath: `${microFrontend.name}${CUSTOM_UI_EXTENSION}`
+      }),
       parentName: microFrontend.parentName,
       parentCode: microFrontend.parentCode,
       params: microFrontend.params || [],
