@@ -108,7 +108,6 @@ describe('bundle-descriptor-converter-service', () => {
               description: 'this is param1'
             }
           ],
-          customUi: '<div>custom ui</div>',
           parentName: 'parent-mfe',
           paramsDefaults: {
             param1: 'defaultvalue'
@@ -221,7 +220,6 @@ describe('bundle-descriptor-converter-service', () => {
           description: 'this is param1'
         }
       ],
-      customUi: '<div>custom ui</div>',
       parentName: 'parent-mfe',
       paramsDefaults: {
         param1: 'defaultvalue'

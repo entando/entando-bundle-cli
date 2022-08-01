@@ -70,7 +70,6 @@ type BaseMicroFrontend = {
   commands?: Commands
   nav?: Nav[]
   customElement: string
-  customUi?: string
   parentName?: string
   parentCode?: string
   params?: WidgetParam[]

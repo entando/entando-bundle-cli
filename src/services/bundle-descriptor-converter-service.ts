@@ -140,7 +140,6 @@ export class BundleDescriptorConverterService {
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
         : undefined,
-      customUi: microFrontend.customUi,
       ...(customUiFileExists && {
         customUiPath: `${microFrontend.name}${CUSTOM_UI_EXTENSION}`
       }),

@@ -326,10 +326,6 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       children: PARAM_CONSTRAINTS
     },
-    customUi: {
-      required: false,
-      type: 'string'
-    },
     parentName: {
       required: false,
       type: 'string'
@@ -396,10 +392,6 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       isArray: true,
       required: false,
       children: PARAM_CONSTRAINTS
-    },
-    customUi: {
-      required: false,
-      type: 'string'
     },
     parentName: {
       required: false,
@@ -475,10 +467,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       children: PARAM_CONSTRAINTS
     },
-    customUi: {
-      required: false,
-      type: 'string'
-    },
     parentName: {
       required: false,
       type: 'string'
@@ -553,10 +541,6 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       isArray: true,
       required: false,
       children: PARAM_CONSTRAINTS
-    },
-    customUi: {
-      required: false,
-      type: 'string'
     },
     parentName: {
       required: false,
