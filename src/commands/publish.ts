@@ -85,7 +85,9 @@ export default class Publish extends Command {
       registry
     )
 
-    await this.pushImages(images, registry)
+    const pushedImages = await this.pushImages(images, registry)
+
+    this.displayResults(pushedImages, bundleDescriptor, organization, registry)
   }
 
   private async checkImagesUsingConfiguredOrganization(
@@ -158,13 +160,11 @@ export default class Publish extends Command {
     return images
   }
 
-  private async pushImages(images: string[], registry: string): Promise<void> {
+  private async pushImages(
+    images: string[],
+    registry: string
+  ): Promise<DockerImage[]> {
     this.log(color.bold.blue(`Pushing images to ${registry}`))
-
-    type DockerImage = {
-      name: string
-      digest?: string
-    }
 
     const progress = animatedProgress()
     progress.start(images.length, 0)
@@ -180,11 +180,47 @@ export default class Publish extends Command {
       progress.stop()
     }
 
+    return results
+  }
+
+  private displayResults(
+    results: DockerImage[],
+    bundleDescriptor: BundleDescriptor,
+    organization: string,
+    registry: string
+  ) {
     this.log(color.bold.blue('Images pushed successfully'))
 
-    CliUx.ux.table(results, {
-      name: {},
-      digest: {}
-    })
+    const bundleDockerImageName =
+      registry +
+      '/' +
+      DockerService.getDockerImageName(
+        organization,
+        bundleDescriptor.name,
+        bundleDescriptor.version
+      )
+
+    const microservicesImages = results.filter(
+      i => i.name !== bundleDockerImageName
+    )
+
+    if (microservicesImages.length > 0) {
+      this.log(color.bold.blue('\n Microservices'))
+      CliUx.ux.table(microservicesImages, {
+        name: {},
+        digest: {}
+      })
+    }
+
+    const bundleImage = results.find(i => i.name === bundleDockerImageName)!
+
+    this.log(`\n ${color.bold.blue('Bundle image')}`)
+    this.log(`   ${color.bold('Name')}: ${bundleImage.name}`)
+    this.log(` ${color.bold('Digest')}: ${bundleImage.digest}`)
   }
+}
+
+type DockerImage = {
+  name: string
+  digest?: string
 }

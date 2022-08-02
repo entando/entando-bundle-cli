@@ -286,6 +286,40 @@ describe('publish', () => {
         'my-custom-registry'
       )
     })
+
+  test
+    .do(() => {
+      sinon.stub(ConfigService.prototype, 'addOrUpdateProperty')
+      sinon.stub(DockerService, 'bundleImagesExists').resolves(true)
+      sinon
+        .stub(DockerService, 'setImagesRegistry')
+        .resolves(['my-custom-registry/my-organization/test-bundle:0.0.1'])
+      sinon.stub(DockerService, 'pushImage').resolves('sha:123')
+    })
+    .stdout()
+    .stderr()
+    .command([
+      'publish',
+      '--org',
+      'my-organization',
+      '--registry',
+      'my-custom-registry'
+    ])
+    .it('Successfully publish bundle without microservices', ctx => {
+      const pushImageStub = DockerService.pushImage as sinon.SinonStub
+      sinon.assert.calledWith(
+        pushImageStub,
+        'my-custom-registry/my-organization/test-bundle:0.0.1'
+      )
+      expect(ctx.stderr).contain('1/1')
+      expect(ctx.stdout).contain('Images pushed successfully')
+      expect(ctx.stdout).not.contain('Microservices')
+      expect(ctx.stdout).contain('Bundle image')
+      expect(ctx.stdout).match(
+        /Name:.*my-custom-registry\/my-organization\/test-bundle:0.0.1/
+      )
+      expect(ctx.stdout).match(/Digest:.*sha:123/)
+    })
 })
 
 function getImagesToPush(
@@ -322,8 +356,12 @@ function verifyPushedSuccessfully(
   )
   expect(stderr).contain('3/3')
   expect(stdout).contain('Images pushed successfully')
-  expect(stdout).contain(imagePrefix + '/test-bundle:0.0.1')
+  expect(stdout).contain('Microservices')
   expect(stdout).contain(imagePrefix + '/test-ms-spring-boot-1:0.0.2')
   expect(stdout).contain(imagePrefix + '/test-ms-spring-boot-2:0.0.3')
-  expect(stdout).contain('sha:123')
+  expect(stdout).contain('Bundle image')
+  expect(stdout).match(
+    new RegExp('Name:.*' + imagePrefix + '/test-bundle:0.0.1')
+  )
+  expect(stdout).match(/Digest:.*sha:123/)
 }
