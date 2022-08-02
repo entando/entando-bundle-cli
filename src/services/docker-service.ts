@@ -206,6 +206,7 @@ export class DockerService {
     })
   }
 
+  // eslint-disable-next-line valid-jsdoc
   /**
    * The first version of this method let the 'docker login' command to ask username
    * and password using the stdio 'inherit' option of child_process module.
