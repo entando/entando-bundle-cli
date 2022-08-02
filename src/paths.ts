@@ -16,3 +16,4 @@ export const BUILD_FOLDER = 'build'
 export const DESCRIPTOR_EXTENSION = '.yaml'
 export const BUNDLE_DESCRIPTOR_NAME = 'descriptor' + DESCRIPTOR_EXTENSION
 export const GITKEEP_FILE = '.gitkeep'
+export const CUSTOM_WIDGET_TEMPLATE_EXTENSION = '.ftl'

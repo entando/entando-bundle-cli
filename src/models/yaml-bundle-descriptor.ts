@@ -16,11 +16,15 @@ export type BaseYamlWidgetDescriptor<T extends MicroFrontendType> = {
   type: T
   apiClaims?: Array<YamlInternalApiClaim | YamlExternalApiClaim>
   customElement: string
+  customUiPath?: string
+  parentName?: string
+  parentCode?: string
+  params: WidgetParam[]
+  paramsDefaults?: { [name: string]: string }
 }
 
 export type YamlAppBuilderWidgetDescriptor =
   BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder> & {
-    params: WidgetParam[]
     ext: {
       appBuilder: {
         slot: MicroFrontendAppBuilderSlot
@@ -35,7 +39,6 @@ export type YamlWidgetDescriptor =
     titles: { [lang: string]: string }
     configMfe?: string
     contextParams?: string[]
-    params: WidgetParam[]
     nav?: Nav[]
   }
 

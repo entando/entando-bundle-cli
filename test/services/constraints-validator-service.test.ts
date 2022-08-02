@@ -780,4 +780,44 @@ describe('BundleDescriptorValidatorService', () => {
       )
     })
     .it('Validates valid bundle version')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].parentName = 'test name'
+      invalidDescriptor.microfrontends[1].parentCode = 'test_code'
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "parentName" cannot be present alongside field "parentCode"'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+    .it('Validates micro frontend exclusive fields parentName and parentCode')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].paramsDefaults = {
+        testParam: { a: 'invalid' }
+      }
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "paramsDefaults" is not valid. Should be a key-value map of strings'
+      )
+      expect(error.message).contain('$.microfrontends[0].paramsDefaults')
+    })
+    .it('Validates micro frontend paramsDefaults')
 })

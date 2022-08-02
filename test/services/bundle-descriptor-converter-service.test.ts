@@ -107,7 +107,11 @@ describe('bundle-descriptor-converter-service', () => {
               name: 'param1',
               description: 'this is param1'
             }
-          ]
+          ],
+          parentName: 'parent-mfe',
+          paramsDefaults: {
+            param1: 'defaultvalue'
+          }
         },
         {
           name: 'test-mfe-no-code',
@@ -126,7 +130,8 @@ describe('bundle-descriptor-converter-service', () => {
           publicFolder: 'public',
           slot: MicroFrontendAppBuilderSlot.Content,
           paths: [],
-          nav: []
+          nav: [],
+          parentCode: 'parent-mfe'
         },
         {
           name: 'test-mfe-no-params',
@@ -140,6 +145,12 @@ describe('bundle-descriptor-converter-service', () => {
         }
       ]
     })
+
+    fs.mkdirSync(`${bundleDir}/microfrontends/test-app-builder-mfe`)
+    fs.writeFileSync(
+      `${bundleDir}/microfrontends/test-app-builder-mfe/test-app-builder-mfe.ftl`,
+      '<div>custom-ui</div>'
+    )
 
     fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
 
@@ -208,7 +219,11 @@ describe('bundle-descriptor-converter-service', () => {
           name: 'param1',
           description: 'this is param1'
         }
-      ]
+      ],
+      parentName: 'parent-mfe',
+      paramsDefaults: {
+        param1: 'defaultvalue'
+      }
     })
 
     const mfeNoCodeDescriptorPath = path.resolve(
@@ -223,7 +238,8 @@ describe('bundle-descriptor-converter-service', () => {
       customElement: 'test-mfe-no-code',
       group: 'free',
       descriptorVersion: 'v5',
-      type: 'widget-config'
+      type: 'widget-config',
+      params: []
     })
 
     const appBuilderMfeDescriptorPath = path.resolve(
@@ -246,7 +262,9 @@ describe('bundle-descriptor-converter-service', () => {
           nav: []
         }
       },
-      params: []
+      params: [],
+      customUiPath: 'test-app-builder-mfe.ftl',
+      parentCode: 'parent-mfe'
     })
 
     const mfeNoParamsDescriptorPath = path.resolve(
@@ -340,6 +358,18 @@ describe('bundle-descriptor-converter-service', () => {
       },
       thumbnail: Buffer.from('this is a thumbnail').toString('base64')
     })
+
+    const testAppBuilderMfeCustomUiPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      'widgets',
+      'test-app-builder-mfe.ftl'
+    )
+    expect(
+      fs.existsSync(testAppBuilderMfeCustomUiPath),
+      `${testAppBuilderMfeCustomUiPath} wasn't created`
+    ).to.eq(true)
   })
 
   test.it('test bundle without thumbnail', () => {

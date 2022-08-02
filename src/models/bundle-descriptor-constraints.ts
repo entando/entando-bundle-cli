@@ -27,7 +27,8 @@ import {
   UnionTypeConstraints,
   values,
   valueNotEqualTo,
-  maxLength
+  maxLength,
+  exclusive
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
@@ -324,6 +325,19 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       isArray: true,
       required: false,
       children: PARAM_CONSTRAINTS
+    },
+    parentName: {
+      required: false,
+      type: 'string'
+    },
+    parentCode: {
+      required: false,
+      type: 'string'
+    },
+    paramsDefaults: {
+      required: false,
+      validators: [isMapOfStrings],
+      children: {}
     }
   }
 
@@ -373,6 +387,24 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       required: true,
       type: 'string',
       validators: [values(MicroFrontendType)]
+    },
+    params: {
+      isArray: true,
+      required: false,
+      children: PARAM_CONSTRAINTS
+    },
+    parentName: {
+      required: false,
+      type: 'string'
+    },
+    parentCode: {
+      required: false,
+      type: 'string'
+    },
+    paramsDefaults: {
+      required: false,
+      validators: [isMapOfStrings],
+      children: {}
     }
   }
 
@@ -434,6 +466,19 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       isArray: true,
       required: false,
       children: PARAM_CONSTRAINTS
+    },
+    parentName: {
+      required: false,
+      type: 'string'
+    },
+    parentCode: {
+      required: false,
+      type: 'string'
+    },
+    paramsDefaults: {
+      required: false,
+      validators: [isMapOfStrings],
+      children: {}
     }
   },
   {
@@ -496,6 +541,19 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       isArray: true,
       required: false,
       children: PARAM_CONSTRAINTS
+    },
+    parentName: {
+      required: false,
+      type: 'string'
+    },
+    parentCode: {
+      required: false,
+      type: 'string'
+    },
+    paramsDefaults: {
+      required: false,
+      validators: [isMapOfStrings],
+      children: {}
     }
   }
 ]
@@ -527,7 +585,8 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
     mutualDependency(
       { key: 'paths' },
       { key: 'slot', value: MicroFrontendAppBuilderSlot.Content }
-    )
+    ),
+    exclusive('parentName', 'parentCode')
   ]
 }
 

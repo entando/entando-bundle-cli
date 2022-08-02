@@ -25,8 +25,10 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {
   BUNDLE_DESCRIPTOR_NAME,
+  CUSTOM_WIDGET_TEMPLATE_EXTENSION,
   DESCRIPTORS_OUTPUT_FOLDER,
   DESCRIPTOR_EXTENSION,
+  MICROFRONTENDS_FOLDER,
   PLUGINS_FOLDER,
   WIDGETS_FOLDER
 } from '../paths'
@@ -85,11 +87,33 @@ export class BundleDescriptorConverterService {
   }
 
   private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
+    const customUiFile = path.resolve(
+      MICROFRONTENDS_FOLDER,
+      microFrontend.name,
+      `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
+    )
+    const customUiFileExists = fs.existsSync(customUiFile)
+
     const widgetDescriptor:
       | YamlWidgetDescriptor
       | YamlWidgetConfigDescriptor
-      | YamlAppBuilderWidgetDescriptor =
-      this.mapMicroFrontendToYamlDescriptor(microFrontend)
+      | YamlAppBuilderWidgetDescriptor = this.mapMicroFrontendToYamlDescriptor(
+      microFrontend,
+      customUiFileExists
+    )
+
+    if (customUiFileExists) {
+      console.info(`Custom widget template FTL found for MFE ${microFrontend.name}, including it`)
+
+      fs.copyFileSync(
+        customUiFile,
+        path.resolve(
+          ...DESCRIPTORS_OUTPUT_FOLDER,
+          WIDGETS_FOLDER,
+          path.basename(customUiFile)
+        )
+      )
+    }
 
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
@@ -100,7 +124,8 @@ export class BundleDescriptorConverterService {
   }
 
   private mapMicroFrontendToYamlDescriptor(
-    microFrontend: MicroFrontend
+    microFrontend: MicroFrontend,
+    customUiFileExists: boolean
   ):
     | YamlWidgetDescriptor
     | YamlWidgetConfigDescriptor
@@ -116,7 +141,14 @@ export class BundleDescriptorConverterService {
       customElement: microFrontend.customElement,
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
-        : undefined
+        : undefined,
+      ...(customUiFileExists && {
+        customUiPath: `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
+      }),
+      parentName: microFrontend.parentName,
+      parentCode: microFrontend.parentCode,
+      params: microFrontend.params || [],
+      paramsDefaults: microFrontend.paramsDefaults
     }
 
     let result:
@@ -127,7 +159,6 @@ export class BundleDescriptorConverterService {
     if (microFrontend.type === MicroFrontendType.AppBuilder) {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder>),
-        params: microFrontend.params || [],
         ext: {
           appBuilder: {
             slot: microFrontend.slot,
@@ -144,7 +175,6 @@ export class BundleDescriptorConverterService {
     } else {
       result = {
         ...(commonProperties as BaseYamlWidgetDescriptor<MicroFrontendType.Widget>),
-        params: microFrontend.params || [],
         titles: microFrontend.titles,
         nav: microFrontend.nav,
         configMfe: microFrontend.configMfe,

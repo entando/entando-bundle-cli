@@ -71,6 +71,10 @@ type BaseMicroFrontend = {
   commands?: Commands
   nav?: Nav[]
   customElement: string
+  parentName?: string
+  parentCode?: string
+  params?: WidgetParam[]
+  paramsDefaults?: { [name: string]: string }
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {
@@ -78,7 +82,6 @@ export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
   contextParams?: string[]
   configMfe?: string
-  params?: WidgetParam[]
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
@@ -87,7 +90,6 @@ export type WidgetConfigMicroFrontend = BaseMicroFrontend & {
 
 export type AppBuilderMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.AppBuilder
-  params?: WidgetParam[]
 } & (
     | {
         slot: Exclude<

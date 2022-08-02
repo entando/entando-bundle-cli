@@ -226,6 +226,20 @@ export function valueNotEqualTo(
   }
 }
 
+export function exclusive(
+  fieldKey1: string,
+  fieldKey2: string
+): UnionTypeValidator {
+  return function (object: any, jsonPath: JsonPath) {
+    if (object[fieldKey1] !== undefined && object[fieldKey2] !== undefined) {
+      throw new PrioritizedValidationError(
+        `Field "${fieldKey1}" cannot be present alongside field "${fieldKey2}"`,
+        jsonPath
+      )
+    }
+  }
+}
+
 export class ConstraintsValidatorService {
   public static validateObjectConstraints<T>(
     parsedObject: unknown,
