@@ -9,6 +9,8 @@ import {
   PSC_FOLDER
 } from '../../src/paths'
 import { BundleService } from '../../src/services/bundle-service'
+import { DEFAULT_DOCKER_REGISTRY } from '../../src/services/docker-service'
+import { TARBALL_PREFIX } from '../../src/services/custom-resource-service'
 
 describe('BundleService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -33,5 +35,24 @@ describe('BundleService', () => {
     expect(
       fs.existsSync(path.join(bundleDir, MICROFRONTENDS_FOLDER, GITKEEP_FILE))
     ).true
+  })
+
+  it('Generates bundleId when bundle name has no URL scheme', () => {
+    const bundleId = BundleService.generateBundleId(
+      DEFAULT_DOCKER_REGISTRY + '/entando/test-bundle'
+    )
+    expect(bundleId).eq('c7113057')
+  })
+
+  it('Generates bundleId removing URL scheme', () => {
+    const bundleId = BundleService.generateBundleId(
+      TARBALL_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/test-bundle'
+    )
+    expect(bundleId).eq('c7113057')
+  })
+
+  it('Generates bundleId adding the default registry', () => {
+    const bundleId = BundleService.generateBundleId('entando/test-bundle')
+    expect(bundleId).eq('c7113057')
   })
 })

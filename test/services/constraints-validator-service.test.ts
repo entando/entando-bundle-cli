@@ -239,7 +239,7 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'Field "bundle" is not valid. Valid format is <registry>/<organization>/<repository>'
+        'Field "bundle" is not valid. Valid format is (docker://)<registry>/<organization>/<repository>'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0].bundle')
     })
@@ -265,7 +265,7 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'Field "bundle" is not valid. Valid format is <registry>/<organization>/<repository>'
+        'Field "bundle" is not valid. Valid format is (docker://)<registry>/<organization>/<repository>'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0].bundle')
     })

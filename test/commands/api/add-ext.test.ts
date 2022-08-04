@@ -23,6 +23,7 @@ import {
   MOCK_BUNDLE_PLUGIN,
   setCmEnv
 } from '../../helpers/mocks/cm'
+import { TARBALL_PREFIX } from '../../../src/services/custom-resource-service'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -123,7 +124,10 @@ describe('api add-ext', () => {
                 name: 'ms1-api',
                 type: 'external',
                 serviceName: 'ms1',
-                bundle: DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+                bundle:
+                  TARBALL_PREFIX +
+                  DEFAULT_DOCKER_REGISTRY +
+                  '/entando/my-bundle'
               }
             ]
           }
@@ -154,7 +158,8 @@ describe('api add-ext', () => {
               name: 'ms1-api',
               type: 'external',
               serviceName: 'ms1',
-              bundle: DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+              bundle:
+                TARBALL_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
             }
           ]
         }
@@ -194,13 +199,16 @@ describe('api add-ext', () => {
                   name: 'ms1-api',
                   type: 'external',
                   serviceName: 'ms1',
-                  bundle: DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+                  bundle:
+                    TARBALL_PREFIX +
+                    DEFAULT_DOCKER_REGISTRY +
+                    '/entando/my-bundle'
                 },
                 {
                   name: 'ms2-api',
                   type: 'external',
                   serviceName: 'ms2',
-                  bundle: 'custom-registry/entando/my-bundle'
+                  bundle: TARBALL_PREFIX + 'custom-registry/entando/my-bundle'
                 }
               ]
             }
@@ -254,7 +262,10 @@ describe('api add-ext', () => {
                   name: 'ms1-api',
                   type: 'external',
                   serviceName: 'ms1',
-                  bundle: DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+                  bundle:
+                    TARBALL_PREFIX +
+                    DEFAULT_DOCKER_REGISTRY +
+                    '/entando/my-bundle'
                 }
               ]
             }
@@ -325,7 +336,7 @@ describe('api add-ext', () => {
       '--serviceName',
       'ms1',
       '--bundle',
-      'entando/my-bundle'
+      'docker://entando/my-bundle'
     ])
     .catch(error => {
       expect(error.message).to.contain('API claim ms1-api already exists')
@@ -409,7 +420,7 @@ describe('api add-ext', () => {
       'mfe1',
       'myextservice-api',
       '--bundle',
-      'custom-registry/entando/my-bundle'
+      'docker://custom-registry/entando/my-bundle'
     ])
     .it(
       'adds an external api claim to an mfe via interactive mode with specified bundle',
@@ -429,7 +440,7 @@ describe('api add-ext', () => {
                   name: 'myextservice-api',
                   type: 'external',
                   serviceName: MOCK_BUNDLE_PLUGIN.pluginName,
-                  bundle: 'custom-registry/entando/my-bundle'
+                  bundle: 'docker://custom-registry/entando/my-bundle'
                 }
               ]
             }

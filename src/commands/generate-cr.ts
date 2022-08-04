@@ -33,7 +33,7 @@ export default class GenerateCr extends Command {
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle',
-    '<%= config.bin %> <%= command.id %> --image=my-registry/my-org/my-bundle',
+    '<%= config.bin %> <%= command.id %> -i docker://my-registry/my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
     '<%= config.bin %> <%= command.id %> -o my-cr.yml'
   ]

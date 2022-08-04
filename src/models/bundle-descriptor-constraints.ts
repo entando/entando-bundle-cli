@@ -57,7 +57,7 @@ const versionRegExpValidator = regexp(
 const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
-  'Valid format is <registry>/<organization>/<repository>'
+  `Valid format is (${TARBALL_PREFIX})<registry>/<organization>/<repository>`
 )
 const contextParamRegExpValidator = regexp(
   /(page|info|systemParam)_[\dA-Za-z]*/,
