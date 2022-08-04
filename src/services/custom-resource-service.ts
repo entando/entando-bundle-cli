@@ -8,7 +8,7 @@ import {
 } from '../models/yaml-bundle-descriptor'
 import { BundleService } from './bundle-service'
 
-const TARBALL_PREFIX = 'docker://'
+export const TARBALL_PREFIX = 'docker://'
 const API_VERSION = 'entando.org/v1'
 const KIND = 'EntandoDeBundle'
 

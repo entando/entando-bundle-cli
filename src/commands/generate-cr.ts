@@ -17,7 +17,10 @@ import {
   DEFAULT_DOCKER_REGISTRY,
   DockerService
 } from '../services/docker-service'
-import { CustomResourceService } from '../services/custom-resource-service'
+import {
+  CustomResourceService,
+  TARBALL_PREFIX
+} from '../services/custom-resource-service'
 import * as YAML from 'yaml'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
@@ -61,6 +64,10 @@ export default class GenerateCr extends Command {
     let image = flags.image
 
     if (image) {
+      if (image.startsWith(TARBALL_PREFIX)) {
+        image = image.slice(TARBALL_PREFIX.length)
+      }
+
       if (ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP.test(image)) {
         image = `${DEFAULT_DOCKER_REGISTRY}/${image}`
       } else if (!ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP.test(image)) {
