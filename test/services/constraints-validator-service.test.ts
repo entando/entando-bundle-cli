@@ -851,4 +851,36 @@ describe('Validates YAML descriptor', () => {
       YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS
     )
   })
+
+  test
+    .do(() => {
+      const yamlBundleDescriptor: YamlBundleDescriptor = {
+        name: 'test-bundle',
+        descriptorVersion: 'v5',
+        components: {},
+        ext: {
+          nav: [
+            {
+              label: {
+                en: 'Entando Developers'
+              },
+              target: 'platform',
+              url: 'https://developer.entando.com/'
+            }
+          ]
+        }
+      }
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        yamlBundleDescriptor,
+        YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "target" is not valid. Allowed values are: internal, external'
+      )
+      expect(error.message).contain('$.ext.nav[0].target')
+    })
+    .it('Validates invalid nav target')
 })

@@ -162,7 +162,8 @@ export const NAV_CONSTRAINTS: ObjectConstraints<Nav> = {
   },
   target: {
     required: true,
-    type: 'string'
+    type: 'string',
+    validators: [values(['internal', 'external'])]
   },
   url: {
     required: true,
