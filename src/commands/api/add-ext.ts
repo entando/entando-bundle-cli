@@ -4,12 +4,12 @@ import { ApiType, ExternalApiClaim } from '../../models/bundle-descriptor'
 import {
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
-  VALID_BUNDLE_FORMAT
+  VALID_BUNDLE_FORMAT,
+  TARBALL_PREFIX
 } from '../../models/bundle-descriptor-constraints'
 import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
 import { CmService } from '../../services/cm-service'
-import { TARBALL_PREFIX } from '../../services/custom-resource-service'
 import { DEFAULT_DOCKER_REGISTRY } from '../../services/docker-service'
 
 export default class AddExt extends Command {

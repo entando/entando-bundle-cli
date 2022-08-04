@@ -23,7 +23,7 @@ import {
   MOCK_BUNDLE_PLUGIN,
   setCmEnv
 } from '../../helpers/mocks/cm'
-import { TARBALL_PREFIX } from '../../../src/services/custom-resource-service'
+import { TARBALL_PREFIX } from '../../../src/models/bundle-descriptor-constraints'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)

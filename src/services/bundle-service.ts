@@ -2,9 +2,11 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import * as crypto from 'node:crypto'
 import * as path from 'node:path'
 import { FSService } from './fs-service'
-import { TARBALL_PREFIX } from './custom-resource-service'
 import { DEFAULT_DOCKER_REGISTRY } from './docker-service'
-import { ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP } from '../models/bundle-descriptor-constraints'
+import {
+  ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
+  TARBALL_PREFIX
+} from '../models/bundle-descriptor-constraints'
 
 export class BundleService {
   public static isValidBundleProject(): void {

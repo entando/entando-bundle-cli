@@ -10,7 +10,7 @@ import {
 } from '../../src/paths'
 import { BundleService } from '../../src/services/bundle-service'
 import { DEFAULT_DOCKER_REGISTRY } from '../../src/services/docker-service'
-import { TARBALL_PREFIX } from '../../src/services/custom-resource-service'
+import { TARBALL_PREFIX } from '../../src/models/bundle-descriptor-constraints'
 
 describe('BundleService', () => {
   const tempDirHelper = new TempDirHelper(__filename)

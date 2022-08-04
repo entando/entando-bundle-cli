@@ -4,6 +4,7 @@ import color from '@oclif/color'
 import {
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
+  TARBALL_PREFIX,
   VALID_BUNDLE_FORMAT
 } from '../models/bundle-descriptor-constraints'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
@@ -17,10 +18,7 @@ import {
   DEFAULT_DOCKER_REGISTRY,
   DockerService
 } from '../services/docker-service'
-import {
-  CustomResourceService,
-  TARBALL_PREFIX
-} from '../services/custom-resource-service'
+import { CustomResourceService } from '../services/custom-resource-service'
 import * as YAML from 'yaml'
 import * as path from 'node:path'
 import * as fs from 'node:fs'

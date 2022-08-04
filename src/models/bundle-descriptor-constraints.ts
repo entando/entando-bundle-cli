@@ -30,7 +30,6 @@ import {
   maxLength,
   exclusive
 } from '../services/constraints-validator-service'
-import { TARBALL_PREFIX } from '../services/custom-resource-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
 export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
@@ -40,6 +39,7 @@ export const INVALID_NAME_MESSAGE =
   'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
 export const INVALID_VERSION_MESSAGE =
   'Version may contain lowercase and uppercase letters, digits, underscores, periods and dashes. Version may not start with a period or a dash.'
+export const TARBALL_PREFIX = 'docker://'
 export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP =
   /^(docker:\/\/)*[\w-]+\/[\w-]+$/
 export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =

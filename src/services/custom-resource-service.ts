@@ -1,3 +1,4 @@
+import { TARBALL_PREFIX } from '../models/bundle-descriptor-constraints'
 import {
   CustomResourceComponentLabels,
   CustomResourceDescriptor
@@ -8,7 +9,6 @@ import {
 } from '../models/yaml-bundle-descriptor'
 import { BundleService } from './bundle-service'
 
-export const TARBALL_PREFIX = 'docker://'
 const API_VERSION = 'entando.org/v1'
 const KIND = 'EntandoDeBundle'
 
