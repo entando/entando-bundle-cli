@@ -11,6 +11,8 @@ import {
   VALID_CONTEXT_PARAM_FORMAT
 } from '../../src/models/bundle-descriptor-constraints'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
+import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
+import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../../src/models/yaml-bundle-descriptor-constraints'
 
 describe('BundleDescriptorValidatorService', () => {
   test.it('No error thrown with valid object', () => {
@@ -239,7 +241,7 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'Field "bundle" is not valid. Valid format is <registry>/<organization>/<repository>'
+        'Field "bundle" is not valid. Valid format is [docker://]<registry>/<organization>/<repository>'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0].bundle')
     })
@@ -265,7 +267,7 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'Field "bundle" is not valid. Valid format is <registry>/<organization>/<repository>'
+        'Field "bundle" is not valid. Valid format is [docker://]<registry>/<organization>/<repository>'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0].bundle')
     })
@@ -820,4 +822,65 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[0].paramsDefaults')
     })
     .it('Validates micro frontend paramsDefaults')
+})
+
+describe('Validates YAML descriptor', () => {
+  it('Validates valid YAML descriptor', () => {
+    const yamlBundleDescriptor: YamlBundleDescriptor = {
+      name: 'test-bundle',
+      descriptorVersion: 'v5',
+      components: {
+        widgets: ['widgets/mfe1.yaml', 'widgets/mfe2.yaml'],
+        plugins: ['plugins/my-service.yaml']
+      },
+      ext: {
+        nav: [
+          {
+            label: {
+              en: 'Entando Developers'
+            },
+            target: 'external',
+            url: 'https://developer.entando.com/'
+          }
+        ]
+      }
+    }
+
+    ConstraintsValidatorService.validateObjectConstraints(
+      yamlBundleDescriptor,
+      YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS
+    )
+  })
+
+  test
+    .do(() => {
+      const yamlBundleDescriptor: YamlBundleDescriptor = {
+        name: 'test-bundle',
+        descriptorVersion: 'v5',
+        components: {},
+        ext: {
+          nav: [
+            {
+              label: {
+                en: 'Entando Developers'
+              },
+              target: 'platform',
+              url: 'https://developer.entando.com/'
+            }
+          ]
+        }
+      }
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        yamlBundleDescriptor,
+        YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "target" is not valid. Allowed values are: internal, external'
+      )
+      expect(error.message).contain('$.ext.nav[0].target')
+    })
+    .it('Validates invalid nav target')
 })

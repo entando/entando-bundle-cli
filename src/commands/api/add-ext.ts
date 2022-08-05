@@ -4,7 +4,8 @@ import { ApiType, ExternalApiClaim } from '../../models/bundle-descriptor'
 import {
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
-  VALID_BUNDLE_FORMAT
+  VALID_BUNDLE_FORMAT,
+  DOCKER_PREFIX
 } from '../../models/bundle-descriptor-constraints'
 import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
@@ -59,8 +60,7 @@ export default class AddExt extends Command {
         bundle = this.formatBundle(bundle)
       } else {
         const bundles = (await cmService.getBundles()).map(
-          // Removes the URL scheme
-          b => b.publicationUrl.replace(/(^\w+:|^)\/\//, '')
+          b => b.publicationUrl
         )
         bundle = await this.promptSelectBundle(bundles)
       }
@@ -125,12 +125,16 @@ export default class AddExt extends Command {
   }
 
   private formatBundle(bundle: string): string {
+    if (bundle.startsWith(DOCKER_PREFIX)) {
+      bundle = bundle.slice(DOCKER_PREFIX.length)
+    }
+
     if (bundle.match(ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP) !== null) {
-      return DEFAULT_DOCKER_REGISTRY + '/' + bundle
+      return DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/' + bundle
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP) !== null) {
-      return bundle
+      return DOCKER_PREFIX + bundle
     }
 
     this.error('Invalid bundle format. Please use ' + VALID_BUNDLE_FORMAT)

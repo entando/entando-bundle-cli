@@ -193,12 +193,18 @@ describe('generate-cr', () => {
       'generate-cr',
       '--digest',
       '--image',
-      'custom-registry.org/my-org/my-image'
+      'docker://custom-registry.org/my-org/my-image'
     ])
     .catch(error => {
       expect(error.message).contain('Unable to retrieve digests')
     })
-    .it('Generate CR with digests fails retrieving digests')
+    .it('Generate CR with digests fails retrieving digests', () => {
+      const listTagsStub = DockerService.listTags as sinon.SinonStub
+      sinon.assert.calledWith(
+        listTagsStub,
+        'custom-registry.org/my-org/my-image'
+      )
+    })
 
   test
     .do(() => {
@@ -206,11 +212,17 @@ describe('generate-cr', () => {
     })
     .stdout()
     .stderr()
-    .command(['generate-cr', '--image', 'my-org/my-image'])
+    .command(['generate-cr', '--image', 'docker://my-org/my-image'])
     .catch(error => {
       expect(error.message).contain('No tags found')
     })
-    .it('Generate CR fails if image has no tags')
+    .it('Generate CR fails if image has no tags', () => {
+      const listTagsStub = DockerService.listTags as sinon.SinonStub
+      sinon.assert.calledWith(
+        listTagsStub,
+        DEFAULT_DOCKER_REGISTRY + '/my-org/my-image'
+      )
+    })
 
   test
     .do(() => {

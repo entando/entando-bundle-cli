@@ -1,3 +1,4 @@
+import { DOCKER_PREFIX } from '../models/bundle-descriptor-constraints'
 import {
   CustomResourceComponentLabels,
   CustomResourceDescriptor
@@ -8,7 +9,6 @@ import {
 } from '../models/yaml-bundle-descriptor'
 import { BundleService } from './bundle-service'
 
-const TARBALL_PREFIX = 'docker://'
 const API_VERSION = 'entando.org/v1'
 const KIND = 'EntandoDeBundle'
 
@@ -86,7 +86,7 @@ export class CustomResourceService {
 
       crDescriptor.spec.tags.push({
         version: tag,
-        tarball: TARBALL_PREFIX + this.image,
+        tarball: DOCKER_PREFIX + this.image,
         integrity: this.digests.get(tag),
         shasum: this.digests.get(tag)
       })
