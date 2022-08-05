@@ -4,7 +4,7 @@ import color from '@oclif/color'
 import {
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
-  TARBALL_PREFIX,
+  DOCKER_PREFIX,
   VALID_BUNDLE_FORMAT
 } from '../models/bundle-descriptor-constraints'
 import { BundleDescriptorService } from '../services/bundle-descriptor-service'
@@ -31,7 +31,7 @@ export default class GenerateCr extends Command {
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle',
-    '<%= config.bin %> <%= command.id %> -i docker://my-registry/my-org/my-bundle',
+    '<%= config.bin %> <%= command.id %> -i my-registry/my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
     '<%= config.bin %> <%= command.id %> -o my-cr.yml'
   ]
@@ -62,8 +62,8 @@ export default class GenerateCr extends Command {
     let image = flags.image
 
     if (image) {
-      if (image.startsWith(TARBALL_PREFIX)) {
-        image = image.slice(TARBALL_PREFIX.length)
+      if (image.startsWith(DOCKER_PREFIX)) {
+        image = image.slice(DOCKER_PREFIX.length)
       }
 
       if (ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP.test(image)) {

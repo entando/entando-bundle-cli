@@ -39,12 +39,12 @@ export const INVALID_NAME_MESSAGE =
   'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
 export const INVALID_VERSION_MESSAGE =
   'Version may contain lowercase and uppercase letters, digits, underscores, periods and dashes. Version may not start with a period or a dash.'
-export const TARBALL_PREFIX = 'docker://'
+export const DOCKER_PREFIX = 'docker://'
 export const ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP =
   /^(docker:\/\/)*[\w-]+\/[\w-]+$/
 export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
   /^(docker:\/\/)*[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
-export const VALID_BUNDLE_FORMAT = `(${TARBALL_PREFIX})<organization>/<repository> or (${TARBALL_PREFIX})<registry>/<organization>/<repository>`
+export const VALID_BUNDLE_FORMAT = `[${DOCKER_PREFIX}]<organization>/<repository> or [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
 
 export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
@@ -57,7 +57,7 @@ const versionRegExpValidator = regexp(
 const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
-  `Valid format is (${TARBALL_PREFIX})<registry>/<organization>/<repository>`
+  `Valid format is [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
 )
 const contextParamRegExpValidator = regexp(
   /(page|info|systemParam)_[\dA-Za-z]*/,

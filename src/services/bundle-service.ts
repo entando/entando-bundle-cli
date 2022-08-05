@@ -5,7 +5,7 @@ import { FSService } from './fs-service'
 import { DEFAULT_DOCKER_REGISTRY } from './docker-service'
 import {
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
-  TARBALL_PREFIX
+  DOCKER_PREFIX
 } from '../models/bundle-descriptor-constraints'
 
 export class BundleService {
@@ -21,8 +21,8 @@ export class BundleService {
   }
 
   public static generateBundleId(bundle: string): string {
-    if (bundle.startsWith(TARBALL_PREFIX)) {
-      bundle = bundle.slice(TARBALL_PREFIX.length)
+    if (bundle.startsWith(DOCKER_PREFIX)) {
+      bundle = bundle.slice(DOCKER_PREFIX.length)
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP) !== null) {

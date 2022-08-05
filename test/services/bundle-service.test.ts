@@ -10,7 +10,7 @@ import {
 } from '../../src/paths'
 import { BundleService } from '../../src/services/bundle-service'
 import { DEFAULT_DOCKER_REGISTRY } from '../../src/services/docker-service'
-import { TARBALL_PREFIX } from '../../src/models/bundle-descriptor-constraints'
+import { DOCKER_PREFIX } from '../../src/models/bundle-descriptor-constraints'
 
 describe('BundleService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -46,7 +46,7 @@ describe('BundleService', () => {
 
   it('Generates bundleId removing URL scheme', () => {
     const bundleId = BundleService.generateBundleId(
-      TARBALL_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/test-bundle'
+      DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/test-bundle'
     )
     expect(bundleId).eq('c7113057')
   })

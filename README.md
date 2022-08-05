@@ -96,15 +96,15 @@ ARGUMENTS
   CLAIMNAME  Name of the API claim
 
 FLAGS
-  --bundle=<value>       Target Bundle Docker repository with the format (docker://)<organization>/<repository> or
-                         (docker://)<registry>/<organization>/<repository>
+  --bundle=<value>       Target Bundle Docker repository with the format [docker://]<organization>/<repository> or
+                         [docker://]<registry>/<organization>/<repository>
   --serviceName=<value>  Microservice name within the target Bundle
 
 DESCRIPTION
   Add an external API claim to the specified MFE component
 
 EXAMPLES
-  $ entando-bundle-cli api add-ext mfe1 ms1-api --bundle docker://registry.hub.docker.com/my-org/my-bundle --serviceName ms1
+  $ entando-bundle-cli api add-ext mfe1 ms1-api --bundle registry.hub.docker.com/my-org/my-bundle --serviceName ms1
 ```
 
 ## `entando-bundle-cli api rm MFENAME CLAIMNAME`
@@ -166,8 +166,8 @@ USAGE
 
 FLAGS
   -d, --digest          Include Docker images digests
-  -i, --image=<value>   Name of the bundle Docker image with the format (docker://)<organization>/<repository> or
-                        (docker://)<registry>/<organization>/<repository>
+  -i, --image=<value>   Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
+                        [docker://]<registry>/<organization>/<repository>
   -o, --output=<value>  Write the result to the specified output file
 
 DESCRIPTION
@@ -178,7 +178,7 @@ EXAMPLES
 
   $ entando-bundle-cli generate-cr --image=my-org/my-bundle
 
-  $ entando-bundle-cli generate-cr -i docker://my-registry/my-org/my-bundle
+  $ entando-bundle-cli generate-cr -i my-registry/my-org/my-bundle
 
   $ entando-bundle-cli generate-cr --image=my-org/my-bundle --digest
 

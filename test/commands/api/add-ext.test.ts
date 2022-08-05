@@ -23,7 +23,7 @@ import {
   MOCK_BUNDLE_PLUGIN,
   setCmEnv
 } from '../../helpers/mocks/cm'
-import { TARBALL_PREFIX } from '../../../src/models/bundle-descriptor-constraints'
+import { DOCKER_PREFIX } from '../../../src/models/bundle-descriptor-constraints'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -125,9 +125,7 @@ describe('api add-ext', () => {
                 type: 'external',
                 serviceName: 'ms1',
                 bundle:
-                  TARBALL_PREFIX +
-                  DEFAULT_DOCKER_REGISTRY +
-                  '/entando/my-bundle'
+                  DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
               }
             ]
           }
@@ -159,7 +157,7 @@ describe('api add-ext', () => {
               type: 'external',
               serviceName: 'ms1',
               bundle:
-                TARBALL_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+                DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
             }
           ]
         }
@@ -200,7 +198,7 @@ describe('api add-ext', () => {
                   type: 'external',
                   serviceName: 'ms1',
                   bundle:
-                    TARBALL_PREFIX +
+                    DOCKER_PREFIX +
                     DEFAULT_DOCKER_REGISTRY +
                     '/entando/my-bundle'
                 },
@@ -208,7 +206,7 @@ describe('api add-ext', () => {
                   name: 'ms2-api',
                   type: 'external',
                   serviceName: 'ms2',
-                  bundle: TARBALL_PREFIX + 'custom-registry/entando/my-bundle'
+                  bundle: DOCKER_PREFIX + 'custom-registry/entando/my-bundle'
                 }
               ]
             }
@@ -263,7 +261,7 @@ describe('api add-ext', () => {
                   type: 'external',
                   serviceName: 'ms1',
                   bundle:
-                    TARBALL_PREFIX +
+                    DOCKER_PREFIX +
                     DEFAULT_DOCKER_REGISTRY +
                     '/entando/my-bundle'
                 }

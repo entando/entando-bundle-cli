@@ -5,7 +5,7 @@ import {
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
   VALID_BUNDLE_FORMAT,
-  TARBALL_PREFIX
+  DOCKER_PREFIX
 } from '../../models/bundle-descriptor-constraints'
 import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
@@ -17,7 +17,7 @@ export default class AddExt extends Command {
     'Add an external API claim to the specified MFE component'
 
   static examples = [
-    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --bundle docker://registry.hub.docker.com/my-org/my-bundle --serviceName ms1'
+    '<%= config.bin %> <%= command.id %> mfe1 ms1-api --bundle registry.hub.docker.com/my-org/my-bundle --serviceName ms1'
   ]
 
   static args = [
@@ -125,16 +125,16 @@ export default class AddExt extends Command {
   }
 
   private formatBundle(bundle: string): string {
-    if (bundle.startsWith(TARBALL_PREFIX)) {
-      bundle = bundle.slice(TARBALL_PREFIX.length)
+    if (bundle.startsWith(DOCKER_PREFIX)) {
+      bundle = bundle.slice(DOCKER_PREFIX.length)
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP) !== null) {
-      return TARBALL_PREFIX + DEFAULT_DOCKER_REGISTRY + '/' + bundle
+      return DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/' + bundle
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP) !== null) {
-      return TARBALL_PREFIX + bundle
+      return DOCKER_PREFIX + bundle
     }
 
     this.error('Invalid bundle format. Please use ' + VALID_BUNDLE_FORMAT)

@@ -1,4 +1,4 @@
-import { TARBALL_PREFIX } from '../models/bundle-descriptor-constraints'
+import { DOCKER_PREFIX } from '../models/bundle-descriptor-constraints'
 import {
   CustomResourceComponentLabels,
   CustomResourceDescriptor
@@ -86,7 +86,7 @@ export class CustomResourceService {
 
       crDescriptor.spec.tags.push({
         version: tag,
-        tarball: TARBALL_PREFIX + this.image,
+        tarball: DOCKER_PREFIX + this.image,
         integrity: this.digests.get(tag),
         shasum: this.digests.get(tag)
       })
