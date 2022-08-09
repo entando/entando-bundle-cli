@@ -33,6 +33,9 @@ import {
   BundleThumbnailService,
   ThumbnailStatusMessage
 } from '../../src/services/bundle-thumbnail-service'
+import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
+import { MicroFrontendType } from '../../src/models/bundle-descriptor'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -401,6 +404,63 @@ describe('pack', () => {
       )
       sinon.assert.calledOnce(stubGenerateYamlDescriptors)
     })
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-widget-conflict'
+      )
+
+      const widgetsFolder = path.join(bundleDir, PSC_FOLDER, 'widgets')
+      fs.mkdirSync(widgetsFolder)
+      fs.writeFileSync(path.join(widgetsFolder, 'hello-widget.yaml'), '')
+
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microservices = []
+      bundleDescriptor.microfrontends = [
+        {
+          name: 'hello-widget',
+          customElement: 'hello-widget',
+          stack: MicroFrontendStack.Angular,
+          type: MicroFrontendType.Widget,
+          titles: {},
+          group: 'free'
+        }
+      ]
+
+      stubGenerateYamlDescriptors.restore()
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+
+      sinon.stub(ComponentService.prototype, 'getComponents').returns([
+        {
+          name: 'hello-widget',
+          type: ComponentType.MICROFRONTEND,
+          stack: MicroFrontendStack.Angular
+        }
+      ])
+
+      sinon
+        .stub(ComponentService.prototype, 'getVersionedComponents')
+        .returns([])
+
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(new StubParallelProcessExecutorService([0]))
+        .onSecondCall()
+        .returns(new StubParallelProcessExecutorService([]))
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).contain(
+        'Widget descriptor hello-widget.yaml already exists'
+      )
+    })
+    .it('Pack fails if widget in platform folder has the same name of a MFE')
 
   test
     .stdout()

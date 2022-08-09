@@ -86,11 +86,12 @@ export const SUPPORTED_PSC_TYPES = [
   'labels',
   'languages',
   'pageModels',
-  'contentModels'
+  'contentModels',
+  'widgets'
 ] as const
 
 export type SupportedPSC = typeof SUPPORTED_PSC_TYPES[number]
-export type SupportedComponents = SupportedPSC | 'plugins' | 'widgets'
+export type SupportedComponents = SupportedPSC | 'plugins'
 
 export type YamlBundleDescriptor = {
   name: string

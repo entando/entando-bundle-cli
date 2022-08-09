@@ -38,6 +38,7 @@ import { DockerService } from './docker-service'
 import { BundleThumbnailInfo } from './bundle-thumbnail-service'
 import { BundleService } from './bundle-service'
 import { PSCDescriptors } from './psc-service'
+import { CLIError } from '@oclif/errors'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v5'
 const WIDGET_DESCRIPTOR_VERSION = 'v5'
@@ -103,7 +104,9 @@ export class BundleDescriptorConverterService {
     )
 
     if (customUiFileExists) {
-      console.info(`Custom widget template FTL found for MFE ${microFrontend.name}, including it`)
+      console.info(
+        `Custom widget template FTL found for MFE ${microFrontend.name}, including it`
+      )
 
       fs.copyFileSync(
         customUiFile,
@@ -119,6 +122,14 @@ export class BundleDescriptorConverterService {
       ...DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroFrontendDescriptorRelativePath(microFrontend)
     )
+
+    if (fs.existsSync(filePath)) {
+      throw new CLIError(
+        `Widget descriptor ${path.basename(
+          filePath
+        )} already exists. Have you added a widget descriptor in the platform folder with the same name of a microfrontend?`
+      )
+    }
 
     this.writeYamlFile(filePath, widgetDescriptor)
   }
