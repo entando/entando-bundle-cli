@@ -12,7 +12,8 @@ import { MicroFrontendStack } from '../../../src/models/component'
 import {
   DESCRIPTORS_OUTPUT_FOLDER,
   GITKEEP_FILE,
-  MICROFRONTENDS_FOLDER
+  MICROFRONTENDS_FOLDER,
+  OUTPUT_FOLDER
 } from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
@@ -82,6 +83,9 @@ describe('mfe rm', () => {
     process.chdir(tempBundleDir)
     bundleDescriptorService = new BundleDescriptorService()
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
+    fs.rmdirSync(path.resolve(tempBundleDir, ...OUTPUT_FOLDER), {
+      recursive: true
+    })
   })
 
   afterEach(() => {

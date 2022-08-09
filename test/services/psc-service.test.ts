@@ -65,6 +65,10 @@ describe('PSC Service', () => {
     fs.mkdirSync(invalidFolder)
     fs.writeFileSync(path.join(invalidFolder, 'my-descriptor.yaml'), '')
 
+    const widgetsFolder = path.join(pscFolder, 'widgets')
+    fs.mkdirSync(widgetsFolder)
+    fs.writeFileSync(path.join(widgetsFolder, 'simple-widget.yaml'), '')
+
     const descriptors = PSCService.copyPSCFiles()
 
     expect(descriptors.groups!.length).eq(2)
@@ -84,6 +88,7 @@ describe('PSC Service', () => {
     verifyCopy('assets', '36', '36-descriptor.yaml')
     verifyCopy('assets', '42', '42-descriptor.yaml')
     verifyCopy('assets', '42', '42.jpg')
+    verifyCopy('widgets', 'simple-widget.yaml')
   })
 })
 
