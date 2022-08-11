@@ -114,18 +114,23 @@ export class InitializerService {
 
     this.createDefaultDirectories()
 
+    const bundleDescriptorService = new BundleDescriptorService(
+      this.filesys.getBundleDirectory()
+    )
+
     try {
-      const bundleDescriptorService = new BundleDescriptorService(
-        this.filesys.getBundleDirectory()
-      )
       const descriptor = bundleDescriptorService.getBundleDescriptor()
       bundleDescriptorService.writeBundleDescriptor({
         ...descriptor,
         name,
         version
       })
-    } catch {
-      if (process.env.ENTANDO_BUNDLE_CLI_NO_JSON_WARNING === 'false') {
+    } catch (error: any) {
+      if (
+        error instanceof Error &&
+        error.message.includes('no such file or directory') &&
+        process.env.ENTANDO_BUNDLE_CLI_NO_JSON_WARNING === 'false'
+      ) {
         Errors.warn(
           color.bold.yellow(
             "The selected item doesn't seem to be a valid Entando bundle as entando.json is missing or invalid. Please check it"
