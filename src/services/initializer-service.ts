@@ -17,6 +17,9 @@ import {
 import { FSService } from './fs-service'
 import { GitService } from './git-service'
 
+export const ERROR_NO_BUNDLE_DESCRIPTOR =
+  "The selected item doesn't seem to be a valid Entando bundle as entando.json is missing or invalid. Please check it"
+
 export interface InitializerOptions {
   name: string
   parentDirectory: string
@@ -112,15 +115,19 @@ export class InitializerService {
 
     this.createDefaultDirectories()
 
-    const bundleDescriptorService = new BundleDescriptorService(
-      this.filesys.getBundleDirectory()
-    )
-    const descriptor = bundleDescriptorService.getBundleDescriptor()
-    bundleDescriptorService.writeBundleDescriptor({
-      ...descriptor,
-      name,
-      version
-    })
+    try {
+      const bundleDescriptorService = new BundleDescriptorService(
+        this.filesys.getBundleDirectory()
+      )
+      const descriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...descriptor,
+        name,
+        version
+      })
+    } catch {
+      throw new CLIError(ERROR_NO_BUNDLE_DESCRIPTOR)
+    }
   }
 
   private async createDefaultDirectories() {

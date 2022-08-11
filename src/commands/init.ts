@@ -1,8 +1,13 @@
 import { CliUx, Command, Flags } from '@oclif/core'
 import * as inquirer from 'inquirer'
 import { HubService } from '../services/hub-service'
-import { InitializerService } from '../services/initializer-service'
+import {
+  InitializerService,
+  ERROR_NO_BUNDLE_DESCRIPTOR
+} from '../services/initializer-service'
 import { Bundle, BundleGroup } from '../api/hub-api'
+import { CLIError } from '@oclif/errors'
+import color from '@oclif/color'
 
 const DEFAULT_VERSION = '0.0.1'
 
@@ -62,10 +67,21 @@ export default class Init extends Command {
       CliUx.ux.action.start(
         `Fetching the selected bundle ${selectedBundle.bundleName} from PBC ${selectedBundleGroup.bundleGroupName} into a new project named ${args.name}`
       )
-      await initializer.performBundleInitFromGit(
-        selectedBundle.gitSrcRepoAddress
-      )
-      CliUx.ux.action.stop()
+      try {
+        await initializer.performBundleInitFromGit(
+          selectedBundle.gitSrcRepoAddress
+        )
+        CliUx.ux.action.stop()
+      } catch (error) {
+        CliUx.ux.action.stop()
+        if (error instanceof CLIError) {
+          if (error.message === ERROR_NO_BUNDLE_DESCRIPTOR) {
+            this.log(color.bold.yellow(ERROR_NO_BUNDLE_DESCRIPTOR))
+          } else {
+            throw error
+          }
+        }
+      }
     } else {
       CliUx.ux.action.start(
         `Initializing an empty bundle project named ${args.name}`

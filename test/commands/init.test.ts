@@ -122,6 +122,77 @@ describe('init', () => {
       expect(bundleDescriptor.version).to.eq('0.0.1')
     })
 
+  const noDescriptorBundlename = 'bundle-with-fromhub-nodescriptor'
+
+  test
+    .stdout()
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .reply(200, [demoBundle])
+    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .do(async () => {
+      const init = new InitializerService({
+        name: noDescriptorBundlename,
+        version: '0.0.1',
+        parentDirectory: process.cwd()
+      })
+
+      await init.performBundleInit()
+      fs.rmSync(
+        path.resolve(process.cwd(), noDescriptorBundlename, 'entando.json')
+      )
+    })
+    .command(['init', noDescriptorBundlename, '--version=0.0.1', '--from-hub'])
+    .it('runs init --from-hub but has no descriptor', ctx => {
+      expect(ctx.stdout).contains(
+        "The selected item doesn't seem to be a valid Entando bundle as entando.json"
+      )
+      expect(
+        (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+      ).to.equal(true)
+    })
+
+  test
+    .stderr()
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .reply(200, [demoBundle])
+    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .command([
+      'init',
+      'an-enormous-bundle-with-a-really-really-really-long-name',
+      '--version=0.0.1',
+      '--from-hub'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Bundle name is too long. The maximum length is 50'
+      )
+    })
+    .it('running init --from-hub exits if bundle folder name is long')
+
   test
     .stderr()
     .command(['init'])
