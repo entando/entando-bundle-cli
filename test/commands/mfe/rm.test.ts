@@ -83,9 +83,11 @@ describe('mfe rm', () => {
     process.chdir(tempBundleDir)
     bundleDescriptorService = new BundleDescriptorService()
     bundleDescriptorService.writeBundleDescriptor(bundleDescriptor)
-    fs.rmdirSync(path.resolve(tempBundleDir, ...OUTPUT_FOLDER), {
-      recursive: true
-    })
+    if (fs.existsSync(path.resolve(tempBundleDir, ...OUTPUT_FOLDER))) {
+      fs.rmdirSync(path.resolve(tempBundleDir, ...OUTPUT_FOLDER), {
+        recursive: true
+      })
+    }
   })
 
   afterEach(() => {
