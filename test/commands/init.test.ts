@@ -125,7 +125,7 @@ describe('init', () => {
   const noDescriptorBundlename = 'bundle-with-fromhub-nodescriptor'
 
   test
-    .stdout()
+    .stderr()
     .stub(
       inquirer,
       'prompt',
@@ -155,13 +155,56 @@ describe('init', () => {
     })
     .command(['init', noDescriptorBundlename, '--version=0.0.1', '--from-hub'])
     .it('runs init --from-hub but has no descriptor', ctx => {
-      expect(ctx.stdout).contains(
-        "The selected item doesn't seem to be a valid Entando bundle as entando.json"
-      )
+      expect(ctx.stderr).contains('entando.json is missing or invalid')
       expect(
         (ProcessExecutorService.executeProcess as sinon.SinonStub).called
       ).to.equal(true)
     })
+
+  test
+    .stderr()
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .reply(200, [demoBundle])
+    )
+    .env({ ENTANDO_BUNDLE_CLI_NO_JSON_WARNING: 'true' })
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .do(async () => {
+      fs.rmSync(path.resolve(process.cwd(), noDescriptorBundlename), {
+        recursive: true,
+        force: true
+      })
+      const init = new InitializerService({
+        name: noDescriptorBundlename,
+        version: '0.0.1',
+        parentDirectory: process.cwd()
+      })
+
+      await init.performBundleInit()
+      fs.rmSync(
+        path.resolve(process.cwd(), noDescriptorBundlename, 'entando.json')
+      )
+    })
+    .command(['init', noDescriptorBundlename, '--version=0.0.1', '--from-hub'])
+    .it(
+      'runs init --from-hub but has no descriptor - should not display warning message',
+      ctx => {
+        expect(ctx.stderr).not.contains('entando.json is missing or invalid')
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+      }
+    )
 
   test
     .stderr()

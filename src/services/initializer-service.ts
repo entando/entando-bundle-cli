@@ -1,4 +1,6 @@
 import * as fs from 'node:fs'
+import { Errors } from '@oclif/core'
+import color from '@oclif/color'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { debugFactory } from './debug-factory-service'
@@ -16,9 +18,6 @@ import {
 
 import { FSService } from './fs-service'
 import { GitService } from './git-service'
-
-export const ERROR_NO_BUNDLE_DESCRIPTOR =
-  "The selected item doesn't seem to be a valid Entando bundle as entando.json is missing or invalid. Please check it"
 
 export interface InitializerOptions {
   name: string
@@ -126,7 +125,13 @@ export class InitializerService {
         version
       })
     } catch {
-      throw new CLIError(ERROR_NO_BUNDLE_DESCRIPTOR)
+      if (process.env.ENTANDO_BUNDLE_CLI_NO_JSON_WARNING !== 'true') {
+        Errors.warn(
+          color.bold.yellow(
+            "The selected item doesn't seem to be a valid Entando bundle as entando.json is missing or invalid. Please check it"
+          )
+        )
+      }
     }
   }
 
