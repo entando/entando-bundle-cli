@@ -125,7 +125,7 @@ export class InitializerService {
         version
       })
     } catch {
-      if (process.env.ENTANDO_BUNDLE_CLI_NO_JSON_WARNING !== 'true') {
+      if (process.env.ENTANDO_BUNDLE_CLI_NO_JSON_WARNING === 'false') {
         Errors.warn(
           color.bold.yellow(
             "The selected item doesn't seem to be a valid Entando bundle as entando.json is missing or invalid. Please check it"

@@ -140,6 +140,7 @@ describe('init', () => {
         .get(`${mockUri}/51`)
         .reply(200, [demoBundle])
     )
+    .env({ ENTANDO_BUNDLE_CLI_NO_JSON_WARNING: 'false' })
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .do(async () => {
       const init = new InitializerService({
@@ -177,7 +178,6 @@ describe('init', () => {
         .get(`${mockUri}/51`)
         .reply(200, [demoBundle])
     )
-    .env({ ENTANDO_BUNDLE_CLI_NO_JSON_WARNING: 'true' })
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .do(async () => {
       fs.rmSync(path.resolve(process.cwd(), noDescriptorBundlename), {
