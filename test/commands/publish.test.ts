@@ -6,10 +6,7 @@ import {
   DOCKER_REGISTRY_PROPERTY,
   DOCKER_ORGANIZATION_PROPERTY
 } from '../../src/services/config-service'
-import {
-  DEFAULT_DOCKER_REGISTRY,
-  DockerService
-} from '../../src/services/docker-service'
+import { DockerService } from '../../src/services/docker-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import Pack from '../../src/commands/pack'
 import { BundleService } from '../../src/services/bundle-service'
@@ -219,7 +216,7 @@ describe('publish', () => {
         loginStub,
         'user-data',
         'user-data',
-        DEFAULT_DOCKER_REGISTRY
+        DockerService.getDefaultDockerRegistry()
       )
       verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'flag-organization')
     })
@@ -241,7 +238,7 @@ describe('publish', () => {
     .command('publish')
     .it('Successfully publish Docker images', ctx => {
       expect(ctx.stdout).contain(
-        'Login on Docker registry ' + DEFAULT_DOCKER_REGISTRY
+        'Login on Docker registry ' + DockerService.getDefaultDockerRegistry()
       )
       verifyPushedSuccessfully(ctx.stdout, ctx.stderr, 'myorganization')
     })
@@ -324,7 +321,7 @@ describe('publish', () => {
 
 function getImagesToPush(
   organization: string,
-  registry: string = DEFAULT_DOCKER_REGISTRY
+  registry: string = DockerService.getDefaultDockerRegistry()
 ) {
   const imagePrefix = registry + '/' + organization
   return [
@@ -338,7 +335,7 @@ function verifyPushedSuccessfully(
   stdout: string,
   stderr: string,
   organization: string,
-  registry: string = DEFAULT_DOCKER_REGISTRY
+  registry: string = DockerService.getDefaultDockerRegistry()
 ) {
   const imagePrefix = registry + '/' + organization
   const pushImageStub = DockerService.pushImage as sinon.SinonStub

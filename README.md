@@ -595,6 +595,7 @@ EXAMPLES
 - `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
 - `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
 - `ENTANDO_CLI_BASE_URL`: Entando app base URL
+- `ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY`: Default Docker registry (`registry.hub.docker.com` by default)
 
 # Development environment setup
 

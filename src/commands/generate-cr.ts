@@ -14,10 +14,7 @@ import {
   DOCKER_ORGANIZATION_PROPERTY,
   DOCKER_REGISTRY_PROPERTY
 } from '../services/config-service'
-import {
-  DEFAULT_DOCKER_REGISTRY,
-  DockerService
-} from '../services/docker-service'
+import { DockerService } from '../services/docker-service'
 import { CustomResourceService } from '../services/custom-resource-service'
 import * as YAML from 'yaml'
 import * as path from 'node:path'
@@ -67,7 +64,7 @@ export default class GenerateCr extends Command {
       }
 
       if (ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP.test(image)) {
-        image = `${DEFAULT_DOCKER_REGISTRY}/${image}`
+        image = `${DockerService.getDefaultDockerRegistry()}/${image}`
       } else if (!ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP.test(image)) {
         this.error(
           'Invalid bundle image format. Expected ' + VALID_BUNDLE_FORMAT
@@ -97,7 +94,7 @@ export default class GenerateCr extends Command {
 
       const registry =
         configService.getProperty(DOCKER_REGISTRY_PROPERTY) ??
-        DEFAULT_DOCKER_REGISTRY
+        DockerService.getDefaultDockerRegistry()
 
       const bundleDescriptorService = new BundleDescriptorService()
       const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()

@@ -23,8 +23,8 @@ import { FSService } from './fs-service'
 import { DEFAULT_MFE_BUILD_FOLDER } from './microfrontend-service'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
-export const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 export const DOCKER_COMMAND = 'docker'
+const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 const CRANE_BIN_NAME = 'crane'
 const ENTANDO_BUNDLE_NAME_LABEL = 'org.entando.bundle-name'
 
@@ -542,5 +542,11 @@ export class DockerService {
     return {
       command: `${baseCommand} ${craneCommand}`
     }
+  }
+
+  public static getDefaultDockerRegistry() {
+    return (
+      process.env.ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY ?? DEFAULT_DOCKER_REGISTRY
+    )
   }
 }

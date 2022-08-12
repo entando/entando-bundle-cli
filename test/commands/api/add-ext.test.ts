@@ -17,7 +17,7 @@ import { CmService } from '../../../src/services/cm-service'
 import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
-import { DEFAULT_DOCKER_REGISTRY } from '../../../src/services/docker-service'
+import { DockerService } from '../../../src/services/docker-service'
 import {
   MOCK_BUNDLES,
   MOCK_BUNDLE_PLUGIN,
@@ -125,7 +125,9 @@ describe('api add-ext', () => {
                 type: 'external',
                 serviceName: 'ms1',
                 bundle:
-                  DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+                  DOCKER_PREFIX +
+                  DockerService.getDefaultDockerRegistry() +
+                  '/entando/my-bundle'
               }
             ]
           }
@@ -157,7 +159,9 @@ describe('api add-ext', () => {
               type: 'external',
               serviceName: 'ms1',
               bundle:
-                DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+                DOCKER_PREFIX +
+                DockerService.getDefaultDockerRegistry() +
+                '/entando/my-bundle'
             }
           ]
         }
@@ -199,7 +203,7 @@ describe('api add-ext', () => {
                   serviceName: 'ms1',
                   bundle:
                     DOCKER_PREFIX +
-                    DEFAULT_DOCKER_REGISTRY +
+                    DockerService.getDefaultDockerRegistry() +
                     '/entando/my-bundle'
                 },
                 {
@@ -262,7 +266,7 @@ describe('api add-ext', () => {
                   serviceName: 'ms1',
                   bundle:
                     DOCKER_PREFIX +
-                    DEFAULT_DOCKER_REGISTRY +
+                    DockerService.getDefaultDockerRegistry() +
                     '/entando/my-bundle'
                 }
               ]
@@ -319,7 +323,8 @@ describe('api add-ext', () => {
               name: 'ms1-api',
               type: 'external',
               serviceName: 'ms1',
-              bundle: DEFAULT_DOCKER_REGISTRY + '/entando/my-bundle'
+              bundle:
+                DockerService.getDefaultDockerRegistry() + '/entando/my-bundle'
             }
           ]
         }
