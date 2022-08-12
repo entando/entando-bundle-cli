@@ -45,7 +45,9 @@ export default class Init extends Command {
       CliUx.ux.action.start(
         `Initializing a new bundle project named ${args.name} from an Entando Hub bundle template`
       )
-      const hubService = new HubService(flags['hub-url'])
+      const hubService = new HubService(
+        flags['hub-url'] || process.env.ENTANDO_CLI_DEFAULT_HUB
+      )
       const bundleGroups = await hubService.loadBundleGroups()
       CliUx.ux.action.stop()
       const selectedBundleGroup = await this.promptSelectBundleGroup(

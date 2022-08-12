@@ -595,6 +595,7 @@ EXAMPLES
 - `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
 - `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
 - `ENTANDO_CLI_BASE_URL`: Entando app base URL
+- `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://entando.com/entando-hub-api`
 
 # Development environment setup
 
