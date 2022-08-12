@@ -2,7 +2,7 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import * as crypto from 'node:crypto'
 import * as path from 'node:path'
 import { FSService } from './fs-service'
-import { DEFAULT_DOCKER_REGISTRY } from './docker-service'
+import { DockerService } from './docker-service'
 import {
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
   DOCKER_PREFIX
@@ -26,7 +26,7 @@ export class BundleService {
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP) !== null) {
-      bundle = DEFAULT_DOCKER_REGISTRY + '/' + bundle
+      bundle = DockerService.getDefaultDockerRegistry() + '/' + bundle
     }
 
     const sha256 = crypto.createHash('sha256').update(bundle).digest('hex')

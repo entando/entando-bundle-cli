@@ -8,10 +8,7 @@ import {
   DOCKER_ORGANIZATION_PROPERTY,
   DOCKER_REGISTRY_PROPERTY
 } from '../services/config-service'
-import {
-  DEFAULT_DOCKER_REGISTRY,
-  DockerService
-} from '../services/docker-service'
+import { DockerService } from '../services/docker-service'
 import { animatedProgress } from '../utils'
 import Pack from './pack'
 
@@ -25,7 +22,7 @@ export default class Publish extends Command {
   static flags = {
     registry: Flags.string({
       char: 'r',
-      description: `Docker registry (default is ${DEFAULT_DOCKER_REGISTRY})`,
+      description: `Docker registry (default is ${DockerService.getDefaultDockerRegistry()})`,
       required: false
     }),
     org: Flags.string({
@@ -128,7 +125,7 @@ export default class Publish extends Command {
       registry = configService.getProperty(DOCKER_REGISTRY_PROPERTY)
     }
 
-    registry = registry ?? DEFAULT_DOCKER_REGISTRY
+    registry = registry ?? DockerService.getDefaultDockerRegistry()
 
     this.log(color.bold.blue(`Login on Docker registry ${registry}`))
     const loginResult = await DockerService.checkAuthentication(registry)

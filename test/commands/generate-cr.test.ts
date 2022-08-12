@@ -7,10 +7,7 @@ import {
   DOCKER_REGISTRY_PROPERTY
 } from '../../src/services/config-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
-import {
-  DEFAULT_DOCKER_REGISTRY,
-  DockerService
-} from '../../src/services/docker-service'
+import { DockerService } from '../../src/services/docker-service'
 import * as sinon from 'sinon'
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
 import { CLIError } from '@oclif/errors'
@@ -56,7 +53,7 @@ describe('generate-cr', () => {
       const listTagsStub = DockerService.listTags as sinon.SinonStub
       sinon.assert.calledWith(
         listTagsStub,
-        `${DEFAULT_DOCKER_REGISTRY}/entando/my-bundle`
+        `${DockerService.getDefaultDockerRegistry()}/entando/my-bundle`
       )
     })
 
@@ -114,7 +111,7 @@ describe('generate-cr', () => {
       const listTagsStub = DockerService.listTags as sinon.SinonStub
       sinon.assert.calledWith(
         listTagsStub,
-        `${DEFAULT_DOCKER_REGISTRY}/my-org/test-bundle`
+        `${DockerService.getDefaultDockerRegistry()}/my-org/test-bundle`
       )
     })
 
@@ -220,7 +217,7 @@ describe('generate-cr', () => {
       const listTagsStub = DockerService.listTags as sinon.SinonStub
       sinon.assert.calledWith(
         listTagsStub,
-        DEFAULT_DOCKER_REGISTRY + '/my-org/my-image'
+        DockerService.getDefaultDockerRegistry() + '/my-org/my-image'
       )
     })
 

@@ -129,7 +129,8 @@ export class InitializerService {
       if (
         error instanceof Error &&
         error.message.includes('no such file or directory') &&
-        process.env.ENTANDO_BUNDLE_CLI_NO_JSON_WARNING === 'false'
+        process.env.ENTANDO_BUNDLE_CLI_INIT_SUPPRESS_NO_ENTANDO_JSON_WARNING ===
+          'false'
       ) {
         Errors.warn(
           color.bold.yellow(
