@@ -596,6 +596,7 @@ EXAMPLES
 - `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
 - `ENTANDO_CLI_BASE_URL`: Entando app base URL
 - `ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY`: Default Docker registry (`registry.hub.docker.com` by default)
+- `ENTANDO_BUNDLE_CLI_INIT_NO_JSON_WARNING`: Disables the warning about missing entando.json in bundles initialized from Hub (`false` by default)
 
 # Development environment setup
 
