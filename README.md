@@ -597,7 +597,7 @@ EXAMPLES
 - `ENTANDO_CLI_BASE_URL`: Entando app base URL
 - `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://entando.com/entando-hub-api`
 - `ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY`: Default Docker registry (`registry.hub.docker.com` by default)
-- `ENTANDO_BUNDLE_CLI_INIT_NO_JSON_WARNING`: Disables the warning about missing entando.json in bundles initialized from Hub (`false` by default)
+- `ENTANDO_BUNDLE_CLI_INIT_SUPPRESS_NO_ENTANDO_JSON_WARNING`: Disables the warning about missing entando.json in bundles initialized from Hub (`false` by default)
 
 # Development environment setup
 

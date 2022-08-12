@@ -140,7 +140,7 @@ describe('init', () => {
         .get(`${mockUri}/51`)
         .reply(200, [demoBundle])
     )
-    .env({ ENTANDO_BUNDLE_CLI_INIT_NO_JSON_WARNING: 'false' })
+    .env({ ENTANDO_BUNDLE_CLI_INIT_SUPPRESS_NO_ENTANDO_JSON_WARNING: 'false' })
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .do(async () => {
       const init = new InitializerService({
