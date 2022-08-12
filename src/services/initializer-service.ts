@@ -1,4 +1,6 @@
 import * as fs from 'node:fs'
+import { Errors } from '@oclif/core'
+import color from '@oclif/color'
 import { CLIError } from '@oclif/errors'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { debugFactory } from './debug-factory-service'
@@ -115,12 +117,28 @@ export class InitializerService {
     const bundleDescriptorService = new BundleDescriptorService(
       this.filesys.getBundleDirectory()
     )
-    const descriptor = bundleDescriptorService.getBundleDescriptor()
-    bundleDescriptorService.writeBundleDescriptor({
-      ...descriptor,
-      name,
-      version
-    })
+
+    try {
+      const descriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...descriptor,
+        name,
+        version
+      })
+    } catch (error: any) {
+      if (
+        error instanceof Error &&
+        error.message.includes('no such file or directory') &&
+        process.env.ENTANDO_BUNDLE_CLI_INIT_SUPPRESS_NO_ENTANDO_JSON_WARNING ===
+          'false'
+      ) {
+        Errors.warn(
+          color.bold.yellow(
+            "The selected item doesn't seem to be a valid Entando bundle as entando.json is missing or invalid. Please check it"
+          )
+        )
+      }
+    }
   }
 
   private async createDefaultDirectories() {

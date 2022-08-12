@@ -3,7 +3,6 @@ import { test, expect } from '@oclif/test'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import {
   DEFAULT_DOCKERFILE_NAME,
-  DEFAULT_DOCKER_REGISTRY,
   DockerService,
   DOCKER_COMMAND
 } from '../../src/services/docker-service'
@@ -213,7 +212,7 @@ describe('DockerService', () => {
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(1)
     const result = await DockerService.checkAuthentication(
-      DEFAULT_DOCKER_REGISTRY
+      DockerService.getDefaultDockerRegistry()
     )
     expect(result).eq(1)
     sinon.assert.called(executeProcessStub)
@@ -241,7 +240,11 @@ describe('DockerService', () => {
   test
     .do(async () => {
       sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
-      await DockerService.login('username', 'password', DEFAULT_DOCKER_REGISTRY)
+      await DockerService.login(
+        'username',
+        'password',
+        DockerService.getDefaultDockerRegistry()
+      )
     })
     .catch(error => {
       expect(error.message).contain('Docker login failed')
@@ -348,7 +351,7 @@ describe('DockerService', () => {
 
     const sha = await DockerService.pushImage(
       'myimage',
-      DEFAULT_DOCKER_REGISTRY
+      DockerService.getDefaultDockerRegistry()
     )
 
     sinon.assert.calledWith(
@@ -367,7 +370,7 @@ describe('DockerService', () => {
 
     const sha = await DockerService.pushImage(
       'myimage',
-      DEFAULT_DOCKER_REGISTRY
+      DockerService.getDefaultDockerRegistry()
     )
 
     sinon.assert.calledWith(
@@ -382,7 +385,10 @@ describe('DockerService', () => {
   test
     .do(async () => {
       sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
-      await DockerService.pushImage('myimage', DEFAULT_DOCKER_REGISTRY)
+      await DockerService.pushImage(
+        'myimage',
+        DockerService.getDefaultDockerRegistry()
+      )
     })
     .catch(error => {
       expect(error.message).contain('Unable to push Docker image')
@@ -870,5 +876,25 @@ describe('DockerService', () => {
     })
     .it(
       'Parsing of YAML bundle descriptor from Docker image fails if descriptor has invalid format'
+    )
+
+  test
+    .env({ ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY: undefined })
+    .do(() => {
+      const defaultRegistry = DockerService.getDefaultDockerRegistry()
+      expect(defaultRegistry).eq('registry.hub.docker.com')
+    })
+    .it(
+      'Default Docker registry is set if ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY is not defined'
+    )
+
+  test
+    .env({ ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY: 'custom-registry.org' })
+    .do(() => {
+      const defaultRegistry = DockerService.getDefaultDockerRegistry()
+      expect(defaultRegistry).eq('custom-registry.org')
+    })
+    .it(
+      'Default Docker registry is retrieved from ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY'
     )
 })

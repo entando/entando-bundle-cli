@@ -9,7 +9,7 @@ import {
   PSC_FOLDER
 } from '../../src/paths'
 import { BundleService } from '../../src/services/bundle-service'
-import { DEFAULT_DOCKER_REGISTRY } from '../../src/services/docker-service'
+import { DockerService } from '../../src/services/docker-service'
 import { DOCKER_PREFIX } from '../../src/models/bundle-descriptor-constraints'
 
 describe('BundleService', () => {
@@ -39,14 +39,16 @@ describe('BundleService', () => {
 
   it('Generates bundleId when bundle name has no URL scheme', () => {
     const bundleId = BundleService.generateBundleId(
-      DEFAULT_DOCKER_REGISTRY + '/entando/test-bundle'
+      DockerService.getDefaultDockerRegistry() + '/entando/test-bundle'
     )
     expect(bundleId).eq('c7113057')
   })
 
   it('Generates bundleId removing URL scheme', () => {
     const bundleId = BundleService.generateBundleId(
-      DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/entando/test-bundle'
+      DOCKER_PREFIX +
+        DockerService.getDefaultDockerRegistry() +
+        '/entando/test-bundle'
     )
     expect(bundleId).eq('c7113057')
   })

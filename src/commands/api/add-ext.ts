@@ -10,7 +10,7 @@ import {
 import { ApiClaimService } from '../../services/api-claim-service'
 import { BundleService } from '../../services/bundle-service'
 import { CmService } from '../../services/cm-service'
-import { DEFAULT_DOCKER_REGISTRY } from '../../services/docker-service'
+import { DockerService } from '../../services/docker-service'
 
 export default class AddExt extends Command {
   static description =
@@ -130,7 +130,9 @@ export default class AddExt extends Command {
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP) !== null) {
-      return DOCKER_PREFIX + DEFAULT_DOCKER_REGISTRY + '/' + bundle
+      return (
+        DOCKER_PREFIX + DockerService.getDefaultDockerRegistry() + '/' + bundle
+      )
     }
 
     if (bundle.match(ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP) !== null) {
