@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { debugFactory } from '../services/debug-factory-service'
 
 export type BundleGroup = {
   bundleGroupName: string
@@ -19,19 +20,23 @@ interface BundleGroupAPIParam {
 }
 
 export class HubAPI {
+  private static debug = debugFactory(HubAPI)
   private readonly baseUrl: string
 
   private readonly apiPath = '/ent/api/templates/bundlegroups'
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl
+    this.baseUrl = baseUrl.replace(/\/+$/, '')
   }
 
-  async callApi(uri: string, params?: BundleGroupAPIParam): Promise<any[]> {
-    const response = await axios(`${this.baseUrl}${uri}`, params ? { params } : {})
-    const { data } = response
-
-    return data
+  private async callApi(
+    endpoint: string,
+    params?: BundleGroupAPIParam
+  ): Promise<any[]> {
+    const url = `${this.baseUrl}${endpoint}`
+    HubAPI.debug(`Calling ${url}`)
+    const response = await axios(url, params ? { params } : {})
+    return response.data
   }
 
   getBundleGroups(name?: string): Promise<BundleGroup[]> {
