@@ -544,7 +544,7 @@ export class DockerService {
     }
   }
 
-  public static getDefaultDockerRegistry() {
+  public static getDefaultDockerRegistry(): string {
     return (
       process.env.ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY ?? DEFAULT_DOCKER_REGISTRY
     )
