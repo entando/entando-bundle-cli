@@ -87,7 +87,8 @@ export const SUPPORTED_PSC_TYPES = [
   'languages',
   'pageModels',
   'contentModels',
-  'widgets'
+  'widgets',
+  'resources'
 ] as const
 
 export type SupportedPSC = typeof SUPPORTED_PSC_TYPES[number]

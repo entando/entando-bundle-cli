@@ -97,6 +97,11 @@ export const YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<YamlBundleDes
           isArray: true,
           required: false,
           type: 'string'
+        },
+        resources: {
+          isArray: true,
+          required: false,
+          type: 'string'
         }
       }
     },

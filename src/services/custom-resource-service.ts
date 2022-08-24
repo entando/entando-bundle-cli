@@ -30,7 +30,8 @@ const LABELS_MAPPING: Record<
   languages: 'language',
   pages: 'page',
   pageTemplates: 'pageTemplate',
-  pageModels: 'pageTemplate' // renaming old nomenclature
+  pageModels: 'pageTemplate', // renaming old nomenclature
+  resources: 'resource'
 }
 
 export class CustomResourceService {
