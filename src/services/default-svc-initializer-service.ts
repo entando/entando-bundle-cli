@@ -49,10 +49,23 @@ export class DefaultSvcInitializerService {
     }
   }
 
-  public createYamlFile(service: string): void {
+  public initializeService(service: string): void {
+    const yamlPathSegments = [
+      this.parentDirectory,
+      SVC_FOLDER,
+      `${service}.yml`
+    ]
+
+    if (fs.existsSync(path.join(...yamlPathSegments))) {
+      DefaultSvcInitializerService.debug(
+        `svc file ${service}.yml already exists, skipping the creation`
+      )
+      return
+    }
+
     DefaultSvcInitializerService.debug(`creating svc file ${service}`)
     this.filesys.createFileFromTemplate(
-      [this.parentDirectory, SVC_FOLDER, `${service}.yml`],
+      yamlPathSegments,
       path.join(
         __dirname,
         '..',
@@ -80,24 +93,6 @@ export class DefaultSvcInitializerService {
         supportSourceFolderPath,
         supportDestFolderPath
       )
-    }
-  }
-
-  public deleteYamlFile(service: string): void {
-    DefaultSvcInitializerService.debug(`removing svc file ${service}`)
-    const ymlPath = path.resolve(
-      this.parentDirectory,
-      SVC_FOLDER,
-      `${service}.yml`
-    )
-    if (fs.existsSync(ymlPath)) {
-      fs.rmSync(ymlPath)
-    }
-
-    const folderPath = path.resolve(this.parentDirectory, SVC_FOLDER, service)
-
-    if (fs.existsSync(folderPath)) {
-      fs.rmSync(folderPath, { recursive: true })
     }
   }
 }
