@@ -58,7 +58,7 @@ export class DefaultSvcInitializerService {
 
     if (fs.existsSync(path.join(...yamlPathSegments))) {
       DefaultSvcInitializerService.debug(
-        `svc file ${service}.yml already exists, skipping the creation`
+        `svc file ${service}.yml already exists, skipping its creation`
       )
       return
     }

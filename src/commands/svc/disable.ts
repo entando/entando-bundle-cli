@@ -35,7 +35,7 @@ export default class Disable extends Command {
     let remove = flags.remove
     if (remove === undefined) {
       remove = await CliUx.ux.confirm(
-        'Remove service configuration and data in svc folder? [y/n]'
+        'Do you want to remove service configuration and data in svc folder? [y/n]'
       )
     }
 
