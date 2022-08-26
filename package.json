@@ -1,6 +1,6 @@
 {
   "name": "@entando/entando-bundle-cli",
-  "version": "1.0.1-SNAPSHOT",
+  "version": "1.0.1",
   "description": "Entando Bundle CLI",
   "author": "Entando",
   "bin": {
@@ -112,6 +112,6 @@
     "mysql": "8.0.28",
     "postgres": "14.1.0",
     "oracle": "18.4.0-xe",
-    "keycloak": "7.0.0-ENG-3087-PR-23"
+    "keycloak": "7.0.1"
   }
 }

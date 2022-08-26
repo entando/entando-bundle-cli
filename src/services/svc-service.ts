@@ -24,7 +24,7 @@ export class SvcService {
   private readonly parentDirectory: string
   private readonly configBin: string
   private readonly bundleDescriptorService: BundleDescriptorService
-  private readonly bundleDescriptor: BundleDescriptor
+  private bundleDescriptor: BundleDescriptor
 
   private readonly serviceFileType = 'yml'
 
@@ -77,18 +77,19 @@ export class SvcService {
 
     if (DefaultSvcInitializerService.getDefaultServices().includes(service)) {
       const defaultSvcService = new DefaultSvcInitializerService()
-      defaultSvcService.createYamlFile(service)
+      defaultSvcService.initializeService(service)
     }
 
     svc.push(service)
 
-    this.bundleDescriptorService.writeBundleDescriptor({
-      ...this.bundleDescriptor,
-      svc
-    })
+    this.bundleDescriptor.svc = svc
+    this.bundleDescriptorService.writeBundleDescriptor(this.bundleDescriptor)
   }
 
-  public disableService(service: string): Promise<ProcessExecutionResult> {
+  public disableService(
+    service: string,
+    removeData: boolean
+  ): Promise<ProcessExecutionResult> {
     SvcService.debug(`disabling service ${service}`)
     this.isServiceAvailable(service)
 
@@ -98,21 +99,37 @@ export class SvcService {
       throw new CLIError(`Service ${service} is not enabled`)
     }
 
-    if (DefaultSvcInitializerService.getDefaultServices().includes(service)) {
-      const defaultSvcService = new DefaultSvcInitializerService()
-      defaultSvcService.deleteYamlFile(service)
+    if (removeData) {
+      this.deleteServiceData(service)
     }
 
     const svc = activeServices.filter(
       currentService => currentService !== service
     )
 
-    this.bundleDescriptorService.writeBundleDescriptor({
-      ...this.bundleDescriptor,
-      svc
-    })
+    this.bundleDescriptor.svc = svc
+    this.bundleDescriptorService.writeBundleDescriptor(this.bundleDescriptor)
 
     return this.executeDockerComposeCommand(DockerComposeCommand.RM, [service])
+  }
+
+  private deleteServiceData(service: string): void {
+    const ymlPath = path.resolve(
+      this.parentDirectory,
+      SVC_FOLDER,
+      `${service}.yml`
+    )
+    if (fs.existsSync(ymlPath)) {
+      SvcService.debug(`removing svc file ${service}.yml`)
+      fs.rmSync(ymlPath)
+    }
+
+    const folderPath = path.resolve(this.parentDirectory, SVC_FOLDER, service)
+
+    if (fs.existsSync(folderPath)) {
+      SvcService.debug(`removing svc folder ${service}`)
+      fs.rmSync(folderPath, { recursive: true })
+    }
   }
 
   public startServices(services: string[]): Promise<ProcessExecutionResult> {

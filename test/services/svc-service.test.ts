@@ -7,6 +7,7 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { SvcService } from '../../src/services/svc-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
+import { SVC_FOLDER } from '../../src/paths'
 
 describe('svc-service', () => {
   let bundleDirectory: string
@@ -124,7 +125,7 @@ describe('svc-service', () => {
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .it('disable a service successfully', () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
-      expect(() => svcService.disableService('postgresql')).to.not.throw(
+      expect(() => svcService.disableService('postgresql', true)).to.not.throw(
         CLIError
       )
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
@@ -140,12 +141,12 @@ describe('svc-service', () => {
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
     .it('disable a service that does not exist in svc folder', () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
-      expect(() => svcService.disableService('win98')).to.throw(CLIError)
+      expect(() => svcService.disableService('win98', true)).to.throw(CLIError)
     })
 
   test.it('disable a service that is not enabled', async () => {
     const svcService: SvcService = new SvcService('entando-bundle-cli')
-    expect(() => svcService.disableService('mysql')).to.throw(CLIError)
+    expect(() => svcService.disableService('mysql', true)).to.throw(CLIError)
   })
 
   test
@@ -467,4 +468,40 @@ describe('svc-service', () => {
       const result = await svcService.logServices(['postgres'])
       expect(result).to.not.eq(0)
     })
+
+  test.it('disable custom service removing service data', () => {
+    const myServiceYaml = path.resolve(
+      bundleDirectory,
+      SVC_FOLDER,
+      'myservice.yml'
+    )
+    const myServiceFolder = path.resolve(
+      bundleDirectory,
+      SVC_FOLDER,
+      'myservice'
+    )
+    fs.writeFileSync(myServiceYaml, '')
+    fs.mkdirSync(myServiceFolder)
+    const svcService = new SvcService('entando-bundle-cli')
+    expect(svcService.getEnabledServices().includes('myservice')).false
+    svcService.enableService('myservice')
+    expect(svcService.getEnabledServices().includes('myservice')).true
+    svcService.disableService('myservice', true)
+    expect(svcService.getEnabledServices().includes('myservice')).false
+    expect(fs.existsSync(myServiceYaml)).false
+    expect(fs.existsSync(myServiceFolder)).false
+  })
+
+  test.it('disable service when YAML file has already been removed', () => {
+    const svcService = new SvcService('entando-bundle-cli')
+    expect(svcService.getEnabledServices().includes('postgresql')).true
+    const myServiceYaml = path.resolve(
+      bundleDirectory,
+      SVC_FOLDER,
+      'postgresql.yml'
+    )
+    fs.rmSync(myServiceYaml)
+    svcService.disableService('postgresql', true)
+    expect(svcService.getEnabledServices().includes('postgresql')).false
+  })
 })
