@@ -3,10 +3,14 @@ import {
   ApiType,
   BundleDescriptor,
   DBMS,
+  EnvironmentVariable,
+  EnvironmentVariableYaml,
   ExternalApiClaim,
   MicroFrontend,
   MicroFrontendType,
-  Microservice
+  Microservice,
+  SecretEnvironmentVariable,
+  SecretEnvironmentVariableYaml
 } from '../models/bundle-descriptor'
 import {
   BaseYamlWidgetDescriptor,
@@ -241,13 +245,42 @@ export class BundleDescriptorConverterService {
       roles: microservice.roles,
       permissions: microservice.permissions,
       securityLevel: microservice.securityLevel,
-      environmentVariables: microservice.env
+      environmentVariables: this.generateYamlEnvVar(microservice.env)
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroserviceDescriptorRelativePath(microservice)
     )
     this.writeYamlFile(filePath, pluginDescriptor)
+  }
+
+  private isSecretEnvironmentVariable(
+    env: EnvironmentVariable
+  ): env is SecretEnvironmentVariable {
+    return (env as SecretEnvironmentVariable).secretKeyRef !== undefined
+  }
+
+  private generateYamlEnvVar(envVars: EnvironmentVariable[] | undefined) {
+    if (envVars === undefined) return envVars
+    const yamlEnvVars: EnvironmentVariableYaml[] = []
+    for (const envVar of envVars) {
+      if (this.isSecretEnvironmentVariable(envVar)) {
+        const secretEnvVar: SecretEnvironmentVariableYaml = {
+          name: envVar.name,
+          valueFrom: {
+            secretKeyRef: {
+              name: envVar.secretKeyRef.name,
+              key: envVar.secretKeyRef.key
+            }
+          }
+        }
+        yamlEnvVars.push(secretEnvVar)
+      } else {
+        yamlEnvVars.push(envVar)
+      }
+    }
+
+    return yamlEnvVars
   }
 
   private generateBundleYamlDescriptor(

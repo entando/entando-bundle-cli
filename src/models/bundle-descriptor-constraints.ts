@@ -84,21 +84,16 @@ const ENVIRONMENT_VARIABLE_CONSTRAINTS: UnionTypeConstraints<EnvironmentVariable
           required: true,
           type: 'string'
         },
-        valueFrom: {
+        secretKeyRef: {
           required: true,
           children: {
-            secretKeyRef: {
+            name: {
               required: true,
-              children: {
-                name: {
-                  required: true,
-                  type: 'string'
-                },
-                key: {
-                  required: true,
-                  type: 'string'
-                }
-              }
+              type: 'string'
+            },
+            key: {
+              required: true,
+              type: 'string'
             }
           }
         }

@@ -1,7 +1,7 @@
 import {
   ApiType,
   DBMS,
-  EnvironmentVariable,
+  EnvironmentVariableYaml,
   MicroFrontendAppBuilderSlot,
   MicroFrontendType,
   Nav,
@@ -70,7 +70,7 @@ export type YamlPluginDescriptor = {
   roles?: string[]
   permissions?: Permission[]
   securityLevel?: string
-  environmentVariables?: EnvironmentVariable[]
+  environmentVariables?: EnvironmentVariableYaml[]
 }
 
 export const SUPPORTED_PSC_TYPES = [

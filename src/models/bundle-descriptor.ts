@@ -1,19 +1,35 @@
 import { MicroFrontendStack, MicroserviceStack } from './component'
 
 export type EnvironmentVariable =
-  | {
+  | SimpleEnvironmentVariable
+  | SecretEnvironmentVariable
+
+export type SimpleEnvironmentVariable = {
+  name: string
+  value: string
+}
+
+export type SecretEnvironmentVariable = {
+  name: string
+  secretKeyRef: {
+    name: string
+    key: string
+  }
+}
+
+export type SecretEnvironmentVariableYaml = {
+  name: string
+  valueFrom: {
+    secretKeyRef: {
       name: string
-      value: string
+      key: string
     }
-  | {
-      name: string
-      valueFrom: {
-        secretKeyRef: {
-          name: string
-          key: string
-        }
-      }
-    }
+  }
+}
+
+export type EnvironmentVariableYaml =
+  | SimpleEnvironmentVariable
+  | SecretEnvironmentVariableYaml
 
 export type Permission = {
   clientId: string
