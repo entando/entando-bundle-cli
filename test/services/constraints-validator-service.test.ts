@@ -370,10 +370,6 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain('Field "value" is required')
       expect(error.message).contain('Position: $.microservices[1].env[0].value')
-      // expect(error.message).contain('Field "valueFrom" is required')
-      //  expect(error.message).contain(
-      //    'Position: $.microservices[1].env[0].valueFrom'
-      //  )
     })
     .it('Validates microservice env field with no value or valueFrom fields')
 
