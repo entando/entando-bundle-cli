@@ -13,7 +13,7 @@
     "node/no-extraneous-import": [
       "error",
       {
-        "allowModules": ["debug", "cli-spinners"]
+        "allowModules": ["debug", "cli-spinners", "@oclif/screen"]
       }
     ]
   },
