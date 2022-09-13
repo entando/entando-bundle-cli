@@ -17,20 +17,6 @@ export type SecretEnvironmentVariable = {
   }
 }
 
-export type SecretEnvironmentVariableYaml = {
-  name: string
-  valueFrom: {
-    secretKeyRef: {
-      name: string
-      key: string
-    }
-  }
-}
-
-export type EnvironmentVariableYaml =
-  | SimpleEnvironmentVariable
-  | SecretEnvironmentVariableYaml
-
 export type Permission = {
   clientId: string
   role: string

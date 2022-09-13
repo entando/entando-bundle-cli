@@ -1,11 +1,11 @@
 import {
   ApiType,
   DBMS,
-  EnvironmentVariableYaml,
   MicroFrontendAppBuilderSlot,
   MicroFrontendType,
   Nav,
   Permission,
+  SimpleEnvironmentVariable,
   WidgetParam
 } from './bundle-descriptor'
 
@@ -22,6 +22,20 @@ export type BaseYamlWidgetDescriptor<T extends MicroFrontendType> = {
   params: WidgetParam[]
   paramsDefaults?: { [name: string]: string }
 }
+
+export type YamlSecretEnvironmentVariable = {
+  name: string
+  valueFrom: {
+    secretKeyRef: {
+      name: string
+      key: string
+    }
+  }
+}
+
+export type YamlEnvironmentVariable =
+  | SimpleEnvironmentVariable
+  | YamlSecretEnvironmentVariable
 
 export type YamlAppBuilderWidgetDescriptor =
   BaseYamlWidgetDescriptor<MicroFrontendType.AppBuilder> & {
@@ -70,7 +84,7 @@ export type YamlPluginDescriptor = {
   roles?: string[]
   permissions?: Permission[]
   securityLevel?: string
-  environmentVariables?: EnvironmentVariableYaml[]
+  environmentVariables?: YamlEnvironmentVariable[]
 }
 
 export const SUPPORTED_PSC_TYPES = [

@@ -4,22 +4,22 @@ import {
   BundleDescriptor,
   DBMS,
   EnvironmentVariable,
-  EnvironmentVariableYaml,
   ExternalApiClaim,
   MicroFrontend,
   MicroFrontendType,
   Microservice,
-  SecretEnvironmentVariable,
-  SecretEnvironmentVariableYaml
+  SecretEnvironmentVariable
 } from '../models/bundle-descriptor'
 import {
   BaseYamlWidgetDescriptor,
   SupportedComponents,
   YamlAppBuilderWidgetDescriptor,
   YamlBundleDescriptor,
+  YamlEnvironmentVariable,
   YamlExternalApiClaim,
   YamlInternalApiClaim,
   YamlPluginDescriptor,
+  YamlSecretEnvironmentVariable,
   YamlWidgetConfigDescriptor,
   YamlWidgetDescriptor
 } from '../models/yaml-bundle-descriptor'
@@ -262,10 +262,10 @@ export class BundleDescriptorConverterService {
 
   private generateYamlEnvVar(envVars: EnvironmentVariable[] | undefined) {
     if (envVars === undefined) return envVars
-    const yamlEnvVars: EnvironmentVariableYaml[] = []
+    const yamlEnvVars: YamlEnvironmentVariable[] = []
     for (const envVar of envVars) {
       if (this.isSecretEnvironmentVariable(envVar)) {
-        const secretEnvVar: SecretEnvironmentVariableYaml = {
+        const secretEnvVar: YamlSecretEnvironmentVariable = {
           name: envVar.name,
           valueFrom: {
             secretKeyRef: {
