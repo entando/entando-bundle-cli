@@ -18,7 +18,8 @@ export const CUSTOM_RESOURCE_COMPONENT_LABELS = [
   'label',
   'language',
   'page',
-  'pageTemplate'
+  'pageTemplate',
+  'resource'
 ] as const
 
 export type CustomResourceComponentLabels =

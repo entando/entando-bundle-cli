@@ -69,6 +69,10 @@ describe('PSC Service', () => {
     fs.mkdirSync(widgetsFolder)
     fs.writeFileSync(path.join(widgetsFolder, 'simple-widget.yaml'), '')
 
+    const resourcesFolder = path.join(pscFolder, 'resources')
+    fs.mkdirSync(resourcesFolder)
+    fs.writeFileSync(path.join(resourcesFolder, 'my-style.css'), '')
+
     const descriptors = PSCService.copyPSCFiles()
 
     expect(descriptors.groups!.length).eq(2)
@@ -89,6 +93,7 @@ describe('PSC Service', () => {
     verifyCopy('assets', '42', '42-descriptor.yaml')
     verifyCopy('assets', '42', '42.jpg')
     verifyCopy('widgets', 'simple-widget.yaml')
+    verifyCopy('resources', 'my-style.css')
   })
 })
 
