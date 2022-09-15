@@ -183,9 +183,9 @@ export default class Pack extends BaseBuildCommand {
     if (thumbnailInfo.status !== ThumbnailStatusMessage.OK) {
       switch (thumbnailInfo.status) {
         case ThumbnailStatusMessage.FILESIZE_EXCEEDED:
+        case ThumbnailStatusMessage.NO_THUMBNAIL:
           this.warn(thumbnailInfo.status)
           break
-        case ThumbnailStatusMessage.NO_THUMBNAIL:
         default:
           this.log(color.blue(thumbnailInfo.status))
       }

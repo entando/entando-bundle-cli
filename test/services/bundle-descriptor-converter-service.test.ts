@@ -59,6 +59,13 @@ describe('bundle-descriptor-converter-service', () => {
             {
               name: 'test-env1',
               value: 'test-value1'
+            },
+            {
+              name: 'test-secret-env-1',
+              secretKeyRef: {
+                name: 'test-secret-key-ref-name-1',
+                key: 'test-secret-key-ref-key-1'
+              }
             }
           ]
         },
@@ -312,6 +319,15 @@ describe('bundle-descriptor-converter-service', () => {
         {
           name: 'test-env1',
           value: 'test-value1'
+        },
+        {
+          name: 'test-secret-env-1',
+          valueFrom: {
+            secretKeyRef: {
+              name: 'test-secret-key-ref-name-1',
+              key: 'test-secret-key-ref-key-1'
+            }
+          }
         }
       ]
     })
