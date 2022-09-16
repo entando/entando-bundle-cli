@@ -181,14 +181,7 @@ export default class Pack extends BaseBuildCommand {
     const thumbnailInfo = thumbnailService.getThumbnailInfo()
 
     if (thumbnailInfo.status !== ThumbnailStatusMessage.OK) {
-      switch (thumbnailInfo.status) {
-        case ThumbnailStatusMessage.FILESIZE_EXCEEDED:
-        case ThumbnailStatusMessage.NO_THUMBNAIL:
-          this.warn(thumbnailInfo.status)
-          break
-        default:
-          this.log(color.blue(thumbnailInfo.status))
-      }
+      this.warn(thumbnailInfo.status)
     }
 
     const invalidFiles = PSCService.checkInvalidFiles()
