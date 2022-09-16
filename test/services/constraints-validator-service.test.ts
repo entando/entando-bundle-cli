@@ -413,6 +413,75 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
+      const category = 'category'
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].category = category
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('No error thrown with micro frontend of type widget and category field')
+
+  test
+    .do(() => {
+      const category = 'too-long'.repeat(20)
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].category = category
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "category" is too long. The maximum length is 80'
+      )
+      expect(error.message).contain('$.microfrontends[0]')
+    })
+    .it('Validates micro frontend of type widget and category too long')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[2].category = 'test'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "category" requires field "type" to have value: widget'
+      )
+      expect(error.message).contain('$.microfrontends[2]')
+    })
+    .it('Validates micro frontend with invalid category for type app-builder ')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].category = 'test'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "category" requires field "type" to have value: widget'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+
+    .it('Validates micro frontend with invalid category for type config ')
+
+  test
+    .do(() => {
       const invalidDescriptor: any =
         BundleDescriptorHelper.newBundleDescriptor()
       invalidDescriptor.microfrontends[1].titles = {

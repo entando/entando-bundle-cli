@@ -193,7 +193,8 @@ export class BundleDescriptorConverterService {
         titles: microFrontend.titles,
         nav: microFrontend.nav,
         configMfe: microFrontend.configMfe,
-        contextParams: microFrontend.contextParams
+        contextParams: microFrontend.contextParams,
+        category: microFrontend.category
       }
     }
 

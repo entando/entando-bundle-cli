@@ -84,6 +84,7 @@ export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
   contextParams?: string[]
   configMfe?: string
+  category?: string
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {

@@ -35,6 +35,7 @@ export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
 export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
 export const MAX_VERSION_LENGTH = 128
 export const MAX_NAME_LENGTH = 50
+export const MAX_WIDGET_CATEGORY_LENGTH = 80
 export const INVALID_NAME_MESSAGE =
   'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
 export const INVALID_VERSION_MESSAGE =
@@ -55,6 +56,7 @@ const versionRegExpValidator = regexp(
   INVALID_VERSION_MESSAGE
 )
 const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
+const widgetCategoryLengthValidator = maxLength(MAX_WIDGET_CATEGORY_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   `Valid format is [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
@@ -335,6 +337,11 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    category: {
+      required: false,
+      validators: [widgetCategoryLengthValidator],
+      type: 'string'
     }
   }
 
@@ -568,6 +575,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
     ),
     fieldDependsOn(
       { key: 'configMfe' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
+    fieldDependsOn(
+      { key: 'category' },
       { key: 'type', value: MicroFrontendType.Widget }
     ),
     valueNotEqualTo({ key: 'configMfe' }, { key: 'name' }),
