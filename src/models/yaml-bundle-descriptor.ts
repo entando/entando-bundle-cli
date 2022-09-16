@@ -54,6 +54,7 @@ export type YamlWidgetDescriptor =
     configMfe?: string
     contextParams?: string[]
     nav?: Nav[]
+    widgetCategory?: string
   }
 
 export type YamlWidgetConfigDescriptor =
