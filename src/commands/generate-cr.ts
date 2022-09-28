@@ -46,6 +46,11 @@ export default class GenerateCr extends Command {
     output: Flags.string({
       char: 'o',
       description: 'Write the result to the specified output file'
+    }),
+    force: Flags.boolean({
+      char: 'f',
+      description: 'Suppress the confirmation prompt in case of file overwrite',
+      dependsOn: ['output']
     })
   }
 
@@ -59,7 +64,7 @@ export default class GenerateCr extends Command {
         )
       }
 
-      if (fs.existsSync(flags.output)) {
+      if (fs.existsSync(flags.output) && !flags.force) {
         const overwrite = await CliUx.ux.confirm(
           color.yellow(
             `File ${flags.output} already exists. Do you want to overwrite it? [y/n]`

@@ -292,4 +292,40 @@ describe('generate-cr', () => {
         sinon.assert.calledOnce(listTagsStub)
       }
     )
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
+      const existingCr = path.join(tempDirHelper.tmpDir, 'existing-cr-3.yml')
+      fs.writeFileSync(existingCr, '')
+    })
+    .command([
+      'generate-cr',
+      '-f',
+      '-o',
+      'existing-cr-3.yml',
+      '-i',
+      'my-org/my-image'
+    ])
+    .it(
+      'Generate CR overwrites the existing file without asking confirmation',
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.calledOnce(listTagsStub)
+      }
+    )
+
+  test
+    .stdout()
+    .stderr()
+    .command(['generate-cr', '-f', '-i', 'my-org/my-image'])
+    .catch(error => {
+      expect(error.message).contain('must also be provided when using')
+    })
+    .it("generate-cr -f can't be used without -o")
 })
