@@ -212,4 +212,39 @@ describe('ms add', () => {
       expect(error.message).to.contain('name')
     })
     .it('exits with an error if required argument is missing')
+
+  test
+    .command(['ms add', 'ms-custom', '--stack', 'custom'])
+    .it('adds a microservice with custom stack', () => {
+      const msName = 'ms-custom'
+      const filePath: string = path.resolve(
+        tempBundleDir,
+        MICROSERVICES_FOLDER,
+        msName
+      )
+      const updatedBundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+
+      expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+      expect(
+        fs.existsSync(path.join(microservicesDir, GITKEEP_FILE)),
+        `${GITKEEP_FILE} file wasn't removed`
+      ).to.eq(false)
+      expect(updatedBundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microservices: [
+          {
+            ...defaultMsValues,
+            name: msName,
+            stack: MicroserviceStack.Custom,
+            commands: {
+              run: "echo 'Please edit this command to customize the run phase' && exit 1",
+              build:
+                "echo 'Please edit this command to customize the build phase' && exit 1",
+              pack: "echo 'Please edit this command to customize the pack phase' && exit 1"
+            }
+          }
+        ]
+      })
+    })
 })

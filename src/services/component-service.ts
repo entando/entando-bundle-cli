@@ -1,5 +1,6 @@
 import {
   BundleDescriptor,
+  Commands,
   MicroFrontend,
   MicroFrontendType,
   Microservice
@@ -208,4 +209,16 @@ export class ComponentService {
       ...('configMfe' in others ? { configMfe: others.configMfe } : {})
     })
   }
+
+  public static getPreFilledCommands(): Commands {
+    return {
+      build: getPreFilledCommand('build'),
+      run: getPreFilledCommand('run'),
+      pack: getPreFilledCommand('pack')
+    }
+  }
+}
+
+function getPreFilledCommand(phase: string): string {
+  return `echo 'Please edit this command to customize the ${phase} phase' && exit 1`
 }

@@ -231,6 +231,37 @@ describe('mfe add', () => {
       'exits with an error if another component with the same name already exists'
     )
 
+  test
+    .command(['mfe add', 'mfe-custom', '--stack', 'custom'])
+    .it('adds a microfrontend with custom stack', () => {
+      const mfeName = 'mfe-custom'
+      const updatedBundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+
+      expectMfePathExists(mfeName)
+      expect(updatedBundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microfrontends: [
+          {
+            ...defaultMfeValues,
+            name: mfeName,
+            customElement: mfeName,
+            stack: MicroFrontendStack.Custom,
+            commands: {
+              run: "echo 'Please edit this command to customize the run phase' && exit 1",
+              build:
+                "echo 'Please edit this command to customize the build phase' && exit 1",
+              pack: "echo 'Please edit this command to customize the pack phase' && exit 1"
+            },
+            titles: {
+              en: mfeName,
+              it: mfeName
+            }
+          }
+        ]
+      })
+    })
+
   context('type is app-builder', () => {
     test
       .command(['mfe add', 'ab-default-slot-mfe', '--type', 'app-builder'])
