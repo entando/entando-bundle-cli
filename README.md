@@ -284,8 +284,8 @@ Add a Micro Frontend component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli mfe add [NAME] [--stack react|angular] [--type app-builder|widget|widget-config]
-    [--slot primary-header|primary-menu|content]
+  $ entando-bundle-cli mfe add [NAME] [--stack react|angular|custom] [--type
+    app-builder|widget|widget-config] [--slot primary-header|primary-menu|content]
 
 ARGUMENTS
   NAME  Name of the Micro Frontend component
@@ -294,7 +294,7 @@ FLAGS
   --slot=<option>   Micro Frontend App Builder slot (only if type=app-builder)
                     <options: primary-header|primary-menu|content>
   --stack=<option>  [default: react] Micro Frontend stack
-                    <options: react|angular>
+                    <options: react|angular|custom>
   --type=<option>   [default: widget] Micro Frontend type
                     <options: app-builder|widget|widget-config>
 
@@ -331,14 +331,14 @@ Add a microservice component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot]
+  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot|custom]
 
 ARGUMENTS
   NAME  Name of the microservice component
 
 FLAGS
   --stack=<option>  [default: spring-boot] Microservice stack
-                    <options: node|spring-boot>
+                    <options: node|spring-boot|custom>
 
 DESCRIPTION
   Add a microservice component to the bundle

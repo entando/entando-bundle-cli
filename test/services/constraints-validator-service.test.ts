@@ -13,6 +13,10 @@ import {
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../../src/models/yaml-bundle-descriptor-constraints'
+import {
+  MicroFrontendStack,
+  MicroserviceStack
+} from '../../src/models/component'
 
 describe('BundleDescriptorValidatorService', () => {
   test.it('No error thrown with valid object', () => {
@@ -887,6 +891,61 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[0].paramsDefaults')
     })
     .it('Validates micro frontend paramsDefaults')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].stack = MicroFrontendStack.Custom
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Component "test-mfe-1" requires the "commands" fields since it has a custom stack'
+      )
+      expect(error.message).contain('$.microfrontends[0]')
+    })
+    .it('Validates microfrontend with custom stack and no commands')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const microservice = invalidDescriptor.microservices[0]
+      microservice.stack = MicroserviceStack.Custom
+      microservice.commands = {
+        build: 'custom-build.sh'
+      }
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Component "test-ms-spring-boot-1" requires to specify the "run" command since it has a custom stack'
+      )
+      expect(error.message).contain('$.microservices[0]')
+    })
+    .it('Validates microservice with custom stack and some missing commands')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const microservice = invalidDescriptor.microservices[0]
+      microservice.stack = MicroserviceStack.Custom
+      microservice.commands = {
+        build: 'custom-build.sh',
+        run: 'custom-run.sh',
+        pack: 'custom-pack.sh'
+      }
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('Validates microservice with custom stack and all the commands')
 })
 
 describe('Validates YAML descriptor', () => {

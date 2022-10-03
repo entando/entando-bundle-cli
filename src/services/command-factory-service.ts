@@ -15,7 +15,7 @@ export enum Phase {
 
 type CommandsDefinition = {
   [type in ComponentType]: {
-    [stack in StackFor<type>]: {
+    [stack in Exclude<StackFor<type>, 'custom'>]: {
       [phase in Phase]: string
     }
   }
@@ -60,9 +60,9 @@ export class CommandFactoryService {
     const customCommand: string | undefined =
       CommandFactoryService.getCustomCommand(component, phase)
 
-    return (
-      customCommand || DEFAULT_COMMANDS[component.type][component.stack][phase]
-    )
+    const stack = component.stack as Exclude<StackFor<T>, 'custom'>
+
+    return customCommand || DEFAULT_COMMANDS[component.type][stack][phase]
   }
 
   private static getCustomCommand<T extends ComponentType>(

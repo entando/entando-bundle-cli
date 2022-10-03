@@ -28,7 +28,9 @@ import {
   values,
   valueNotEqualTo,
   maxLength,
-  exclusive
+  exclusive,
+  JsonPath,
+  JsonValidationError
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
@@ -622,12 +624,14 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
     microservices: {
       isArray: true,
       required: true,
-      children: MICROSERVICE_CONSTRAINTS
+      children: MICROSERVICE_CONSTRAINTS,
+      validators: [microserviceValidator]
     },
     microfrontends: {
       isArray: true,
       required: true,
-      children: MICROFRONTEND_CONSTRAINTS
+      children: MICROFRONTEND_CONSTRAINTS,
+      validators: [microfrontendValidator]
     },
     svc: {
       isArray: true,
@@ -645,3 +649,47 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
       }
     }
   }
+
+function microfrontendValidator(
+  key: string,
+  field: unknown,
+  jsonPath: JsonPath
+): void {
+  const mfe = field as MicroFrontend
+  if (mfe.stack === MicroFrontendStack.Custom) {
+    validateCommands(mfe.commands, mfe.name, jsonPath)
+  }
+}
+
+function microserviceValidator(
+  key: string,
+  field: unknown,
+  jsonPath: JsonPath
+): void {
+  const ms = field as Microservice
+  if (ms.stack === MicroserviceStack.Custom) {
+    validateCommands(ms.commands, ms.name, jsonPath)
+  }
+}
+
+function validateCommands(
+  commands: Commands | undefined,
+  componentName: string,
+  jsonPath: JsonPath
+): void {
+  if (commands) {
+    for (const phase of Object.keys(COMMANDS_CONSTRAINTS)) {
+      if (!commands[phase as keyof Commands]) {
+        throw new JsonValidationError(
+          `Component "${componentName}" requires to specify the "${phase}" command since it has a custom stack`,
+          jsonPath
+        )
+      }
+    }
+  } else {
+    throw new JsonValidationError(
+      `Component "${componentName}" requires the "commands" fields since it has a custom stack`,
+      jsonPath
+    )
+  }
+}
