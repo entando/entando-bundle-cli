@@ -940,12 +940,40 @@ describe('BundleDescriptorValidatorService', () => {
         run: 'custom-run.sh',
         pack: 'custom-pack.sh'
       }
+      microservice.version = '1.0.0'
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
         BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
-    .it('Validates microservice with custom stack and all the commands')
+    .it(
+      'Validates microservice with custom stack, all the commands and version'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const microservice = invalidDescriptor.microservices[0]
+      microservice.stack = MicroserviceStack.Custom
+      microservice.commands = {
+        build: 'custom-build.sh',
+        run: 'custom-run.sh',
+        pack: 'custom-pack.sh'
+      }
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Component "test-ms-spring-boot-1" requires the "version" fields since it has a custom stack'
+      )
+      expect(error.message).contain('$.microservices[0]')
+    })
+    .it(
+      'Validates microservice with custom stack and all the commands but without version'
+    )
 })
 
 describe('Validates YAML descriptor', () => {

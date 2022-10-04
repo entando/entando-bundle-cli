@@ -228,4 +228,23 @@ describe('component-service', () => {
     .it('Checks for config MFE that has global prefix', () => {
       expect(() => componentService.checkConfigMfes()).not.throw(CLIError)
     })
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const mfe = ComponentHelper.newMicroFrontend('mfe-conf', {
+        type: MicroFrontendType.Widget
+      })
+      mfe.version = '0.0.6'
+      bundleDescriptor.microfrontends = [mfe]
+      bundleDescriptor.microservices = []
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+
+      const versionedComponents = componentService.getVersionedComponents()
+      expect(versionedComponents[0].version).eq('0.0.6')
+    })
+    .it('Returns version override')
 })

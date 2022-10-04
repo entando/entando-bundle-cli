@@ -4,7 +4,11 @@ import { CLIError } from '@oclif/errors'
 import { BundleDescriptor, Microservice } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentService } from './component-service'
-import { ComponentType, MicroserviceStack } from '../models/component'
+import {
+  ComponentType,
+  DEFAULT_VERSION,
+  MicroserviceStack
+} from '../models/component'
 import {
   ALLOWED_NAME_REGEXP,
   INVALID_NAME_MESSAGE,
@@ -102,6 +106,7 @@ export class MicroserviceService {
 
     if (ms.stack === MicroserviceStack.Custom) {
       ms.commands = ComponentService.getPreFilledCommands()
+      ms.version = DEFAULT_VERSION
     }
 
     const updatedBundleDescriptor: BundleDescriptor = {

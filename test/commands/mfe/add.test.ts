@@ -18,7 +18,10 @@ import {
 } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
-import { MicroFrontendStack } from '../../../src/models/component'
+import {
+  DEFAULT_VERSION,
+  MicroFrontendStack
+} from '../../../src/models/component'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -253,6 +256,7 @@ describe('mfe add', () => {
                 "echo 'Please edit this command to customize the build phase' && exit 1",
               pack: "echo 'Please edit this command to customize the pack phase' && exit 1"
             },
+            version: DEFAULT_VERSION,
             titles: {
               en: mfeName,
               it: mfeName

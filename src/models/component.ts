@@ -1,5 +1,7 @@
 import { MicroFrontendType } from './bundle-descriptor'
 
+export const DEFAULT_VERSION = '0.0.1'
+
 export enum MicroFrontendStack {
   React = 'react',
   Angular = 'angular',

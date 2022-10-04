@@ -61,6 +61,7 @@ export type Microservice = {
   securityLevel?: SecurityLevel
   env?: EnvironmentVariable[]
   commands?: Commands
+  version?: string
 }
 
 type BaseMicroFrontend = {
@@ -77,6 +78,7 @@ type BaseMicroFrontend = {
   parentCode?: string
   params?: WidgetParam[]
   paramsDefaults?: { [name: string]: string }
+  version?: string
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {

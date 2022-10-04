@@ -257,6 +257,10 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   commands: {
     required: false,
     children: COMMANDS_CONSTRAINTS
+  },
+  version: {
+    required: false,
+    type: 'string'
   }
 }
 
@@ -344,6 +348,10 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       validators: [widgetCategoryLengthValidator],
       type: 'string'
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -411,6 +419,10 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -485,6 +497,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   },
   {
@@ -560,6 +576,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   }
 ]
@@ -657,7 +677,7 @@ function microfrontendValidator(
 ): void {
   const mfe = field as MicroFrontend
   if (mfe.stack === MicroFrontendStack.Custom) {
-    validateCommands(mfe.commands, mfe.name, jsonPath)
+    validateCustomStack(mfe.name, mfe.commands, mfe.version, jsonPath)
   }
 }
 
@@ -668,13 +688,14 @@ function microserviceValidator(
 ): void {
   const ms = field as Microservice
   if (ms.stack === MicroserviceStack.Custom) {
-    validateCommands(ms.commands, ms.name, jsonPath)
+    validateCustomStack(ms.name, ms.commands, ms.version, jsonPath)
   }
 }
 
-function validateCommands(
-  commands: Commands | undefined,
+function validateCustomStack(
   componentName: string,
+  commands: Commands | undefined,
+  version: string | undefined,
   jsonPath: JsonPath
 ): void {
   if (commands) {
@@ -689,6 +710,13 @@ function validateCommands(
   } else {
     throw new JsonValidationError(
       `Component "${componentName}" requires the "commands" fields since it has a custom stack`,
+      jsonPath
+    )
+  }
+
+  if (!version) {
+    throw new JsonValidationError(
+      `Component "${componentName}" requires the "version" fields since it has a custom stack`,
       jsonPath
     )
   }

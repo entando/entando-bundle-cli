@@ -17,7 +17,10 @@ import {
 } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
-import { MicroserviceStack } from '../../../src/models/component'
+import {
+  DEFAULT_VERSION,
+  MicroserviceStack
+} from '../../../src/models/component'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -242,7 +245,8 @@ describe('ms add', () => {
               build:
                 "echo 'Please edit this command to customize the build phase' && exit 1",
               pack: "echo 'Please edit this command to customize the pack phase' && exit 1"
-            }
+            },
+            version: DEFAULT_VERSION
           }
         ]
       })

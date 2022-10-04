@@ -10,7 +10,11 @@ import {
 } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { MICROFRONTENDS_FOLDER } from '../paths'
-import { ComponentType, MicroFrontendStack } from '../models/component'
+import {
+  ComponentType,
+  DEFAULT_VERSION,
+  MicroFrontendStack
+} from '../models/component'
 import { ComponentService } from './component-service'
 import {
   ALLOWED_NAME_REGEXP,
@@ -182,6 +186,7 @@ export class MicroFrontendService {
 
     if (mfe.stack === MicroFrontendStack.Custom) {
       mfe.commands = ComponentService.getPreFilledCommands()
+      mfe.version = DEFAULT_VERSION
     }
 
     const updatedBundleDescriptor: BundleDescriptor = {
