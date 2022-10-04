@@ -3,8 +3,7 @@ import * as inquirer from 'inquirer'
 import { HubService } from '../services/hub-service'
 import { InitializerService } from '../services/initializer-service'
 import { Bundle, BundleGroup } from '../api/hub-api'
-
-const DEFAULT_VERSION = '0.0.1'
+import { DEFAULT_VERSION } from '../models/component'
 
 export default class Init extends Command {
   static description = 'Perform the scaffolding of a bundle project'

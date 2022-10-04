@@ -1,13 +1,17 @@
 import { MicroFrontendType } from './bundle-descriptor'
 
+export const DEFAULT_VERSION = '0.0.1'
+
 export enum MicroFrontendStack {
   React = 'react',
-  Angular = 'angular'
+  Angular = 'angular',
+  Custom = 'custom'
 }
 
 export enum MicroserviceStack {
   Node = 'node',
-  SpringBoot = 'spring-boot'
+  SpringBoot = 'spring-boot',
+  Custom = 'custom'
 }
 
 export enum ComponentType {
