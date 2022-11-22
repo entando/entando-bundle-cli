@@ -18,7 +18,10 @@ import {
 } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
-import { MicroFrontendStack } from '../../../src/models/component'
+import {
+  DEFAULT_VERSION,
+  MicroFrontendStack
+} from '../../../src/models/component'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -230,6 +233,38 @@ describe('mfe add', () => {
     .it(
       'exits with an error if another component with the same name already exists'
     )
+
+  test
+    .command(['mfe add', 'mfe-custom', '--stack', 'custom'])
+    .it('adds a microfrontend with custom stack', () => {
+      const mfeName = 'mfe-custom'
+      const updatedBundleDescriptor: BundleDescriptor =
+        bundleDescriptorService.getBundleDescriptor()
+
+      expectMfePathExists(mfeName)
+      expect(updatedBundleDescriptor).to.eql({
+        ...bundleDescriptor,
+        microfrontends: [
+          {
+            ...defaultMfeValues,
+            name: mfeName,
+            customElement: mfeName,
+            stack: MicroFrontendStack.Custom,
+            commands: {
+              run: "echo 'Please edit this command to customize the run phase' && exit 1",
+              build:
+                "echo 'Please edit this command to customize the build phase' && exit 1",
+              pack: "echo 'Please edit this command to customize the pack phase' && exit 1"
+            },
+            version: DEFAULT_VERSION,
+            titles: {
+              en: mfeName,
+              it: mfeName
+            }
+          }
+        ]
+      })
+    })
 
   context('type is app-builder', () => {
     test

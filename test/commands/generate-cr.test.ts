@@ -13,6 +13,8 @@ import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parall
 import { CLIError } from '@oclif/errors'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { CliUx } from '@oclif/core'
 
 describe('generate-cr', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -227,7 +229,6 @@ describe('generate-cr', () => {
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
         .resolves(yamlDescriptor)
-      tempDirHelper.createUninitializedBundleDir()
     })
     .stdout()
     .stderr()
@@ -246,4 +247,85 @@ describe('generate-cr', () => {
       )
     })
     .it("Generate CR fails if output file parent directory doesn't exist")
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+      const existingCr = path.join(tempDirHelper.tmpDir, 'existing-cr-1.yml')
+      fs.writeFileSync(existingCr, '')
+    })
+    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
+    .command(['generate-cr', '-o', 'existing-cr-1.yml'])
+    .it(
+      "Generate CR stops if user doesn't want to overwrite the existing file",
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.notCalled(listTagsStub)
+      }
+    )
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
+      const existingCr = path.join(tempDirHelper.tmpDir, 'existing-cr-2.yml')
+      fs.writeFileSync(existingCr, '')
+    })
+    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(true))
+    .command([
+      'generate-cr',
+      '-o',
+      'existing-cr-2.yml',
+      '-i',
+      'my-org/my-image'
+    ])
+    .it(
+      'Generate CR proceeds if user wants to overwrite the existing file',
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.calledOnce(listTagsStub)
+      }
+    )
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      sinon.stub(DockerService, 'listTags').resolves(tags)
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
+      const existingCr = path.join(tempDirHelper.tmpDir, 'existing-cr-3.yml')
+      fs.writeFileSync(existingCr, '')
+    })
+    .command([
+      'generate-cr',
+      '-f',
+      '-o',
+      'existing-cr-3.yml',
+      '-i',
+      'my-org/my-image'
+    ])
+    .it(
+      'Generate CR overwrites the existing file without asking confirmation',
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.calledOnce(listTagsStub)
+      }
+    )
+
+  test
+    .stdout()
+    .stderr()
+    .command(['generate-cr', '-f', '-i', 'my-org/my-image'])
+    .catch(error => {
+      expect(error.message).contain('must also be provided when using')
+    })
+    .it("generate-cr -f can't be used without -o")
 })

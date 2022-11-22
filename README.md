@@ -23,7 +23,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/1.0.0-SNAPSHOT linux-x64 node-v14.19.1
+@entando/entando-bundle-cli/1.1.0-SNAPSHOT linux-x64 node-v14.20.0
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -154,7 +154,7 @@ EXAMPLES
   $ entando-bundle-cli build --all
 ```
 
-_See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/build.ts)_
+_See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/build.ts)_
 
 ## `entando-bundle-cli generate-cr`
 
@@ -162,10 +162,11 @@ Generate the Entando Custom Resource (CR) for a bundle project
 
 ```
 USAGE
-  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-o <value>]
+  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-f -o <value>]
 
 FLAGS
   -d, --digest          Include Docker images digests
+  -f, --force           Suppress the confirmation prompt in case of file overwrite
   -i, --image=<value>   Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
                         [docker://]<registry>/<organization>/<repository>
   -o, --output=<value>  Write the result to the specified output file
@@ -185,7 +186,7 @@ EXAMPLES
   $ entando-bundle-cli generate-cr -o my-cr.yml
 ```
 
-_See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/generate-cr.ts)_
+_See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/generate-cr.ts)_
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -222,7 +223,7 @@ EXAMPLES
   $ entando-bundle-cli info
 ```
 
-_See code: [dist/commands/info.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/info.ts)_
+_See code: [dist/commands/info.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/info.ts)_
 
 ## `entando-bundle-cli init NAME`
 
@@ -251,7 +252,7 @@ EXAMPLES
   $ entando-bundle-cli init my-bundle --from-hub
 ```
 
-_See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/init.ts)_
+_See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/init.ts)_
 
 ## `entando-bundle-cli list`
 
@@ -276,7 +277,7 @@ EXAMPLES
   $ entando-bundle-cli list --ms --mfe
 ```
 
-_See code: [dist/commands/list.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/list.ts)_
+_See code: [dist/commands/list.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/list.ts)_
 
 ## `entando-bundle-cli mfe add NAME`
 
@@ -284,8 +285,8 @@ Add a Micro Frontend component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli mfe add [NAME] [--stack react|angular] [--type app-builder|widget|widget-config]
-    [--slot primary-header|primary-menu|content]
+  $ entando-bundle-cli mfe add [NAME] [--stack react|angular|custom] [--type
+    app-builder|widget|widget-config] [--slot primary-header|primary-menu|content]
 
 ARGUMENTS
   NAME  Name of the Micro Frontend component
@@ -294,7 +295,7 @@ FLAGS
   --slot=<option>   Micro Frontend App Builder slot (only if type=app-builder)
                     <options: primary-header|primary-menu|content>
   --stack=<option>  [default: react] Micro Frontend stack
-                    <options: react|angular>
+                    <options: react|angular|custom>
   --type=<option>   [default: widget] Micro Frontend type
                     <options: app-builder|widget|widget-config>
 
@@ -331,14 +332,14 @@ Add a microservice component to the bundle
 
 ```
 USAGE
-  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot]
+  $ entando-bundle-cli ms add [NAME] [--stack node|spring-boot|custom]
 
 ARGUMENTS
   NAME  Name of the microservice component
 
 FLAGS
   --stack=<option>  [default: spring-boot] Microservice stack
-                    <options: node|spring-boot>
+                    <options: node|spring-boot|custom>
 
 DESCRIPTION
   Add a microservice component to the bundle
@@ -390,7 +391,7 @@ EXAMPLES
   $ entando-bundle-cli pack -f my-Dockerfile
 ```
 
-_See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/pack.ts)_
+_See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/pack.ts)_
 
 ## `entando-bundle-cli publish`
 
@@ -411,7 +412,7 @@ EXAMPLES
   $ entando-bundle-cli publish --registry registry.hub.docker.com --org my-docker-organization
 ```
 
-_See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/publish.ts)_
+_See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/publish.ts)_
 
 ## `entando-bundle-cli run [component...] [--all-ms | --all-mfe | --all]`
 
@@ -441,7 +442,7 @@ EXAMPLES
   $ entando-bundle-cli run --all
 ```
 
-_See code: [dist/commands/run.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.0-SNAPSHOT/dist/commands/run.ts)_
+_See code: [dist/commands/run.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/run.ts)_
 
 ## `entando-bundle-cli svc disable SERVICENAME`
 
@@ -449,16 +450,23 @@ Disable auxiliary services
 
 ```
 USAGE
-  $ entando-bundle-cli svc disable [SERVICENAME]
+  $ entando-bundle-cli svc disable [SERVICENAME] [-r]
 
 ARGUMENTS
   SERVICENAME  Name of an available service
+
+FLAGS
+  -r, --[no-]remove  Remove service configuration and data in svc folder
 
 DESCRIPTION
   Disable auxiliary services
 
 EXAMPLES
   $ entando-bundle-cli svc disable external-service
+
+  $ entando-bundle-cli svc disable external-service --remove
+
+  $ entando-bundle-cli svc disable external-service --no-remove
 ```
 
 ## `entando-bundle-cli svc enable SERVICENAME`

@@ -13,6 +13,10 @@ import {
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../../src/models/yaml-bundle-descriptor-constraints'
+import {
+  MicroFrontendStack,
+  MicroserviceStack
+} from '../../src/models/component'
 
 describe('BundleDescriptorValidatorService', () => {
   test.it('No error thrown with valid object', () => {
@@ -370,10 +374,6 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain('Field "value" is required')
       expect(error.message).contain('Position: $.microservices[1].env[0].value')
-      expect(error.message).contain('Field "valueFrom" is required')
-      expect(error.message).contain(
-        'Position: $.microservices[1].env[0].valueFrom'
-      )
     })
     .it('Validates microservice env field with no value or valueFrom fields')
 
@@ -414,6 +414,75 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[1]')
     })
     .it('Validates micro frontend app-builder type field dependency')
+
+  test
+    .do(() => {
+      const category = 'category'
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].category = category
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('No error thrown with micro frontend of type widget and category field')
+
+  test
+    .do(() => {
+      const category = 'too-long'.repeat(20)
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].category = category
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "category" is too long. The maximum length is 80'
+      )
+      expect(error.message).contain('$.microfrontends[0]')
+    })
+    .it('Validates micro frontend of type widget and category too long')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[2].category = 'test'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "category" requires field "type" to have value: widget'
+      )
+      expect(error.message).contain('$.microfrontends[2]')
+    })
+    .it('Validates micro frontend with invalid category for type app-builder ')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].category = 'test'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "category" requires field "type" to have value: widget'
+      )
+      expect(error.message).contain('$.microfrontends[1]')
+    })
+
+    .it('Validates micro frontend with invalid category for type config ')
 
   test
     .do(() => {
@@ -822,6 +891,89 @@ describe('BundleDescriptorValidatorService', () => {
       expect(error.message).contain('$.microfrontends[0].paramsDefaults')
     })
     .it('Validates micro frontend paramsDefaults')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[0].stack = MicroFrontendStack.Custom
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Component "test-mfe-1" requires the "commands" fields since it has a custom stack'
+      )
+      expect(error.message).contain('$.microfrontends[0]')
+    })
+    .it('Validates microfrontend with custom stack and no commands')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const microservice = invalidDescriptor.microservices[0]
+      microservice.stack = MicroserviceStack.Custom
+      microservice.commands = {
+        build: 'custom-build.sh'
+      }
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Component "test-ms-spring-boot-1" requires to specify the "run" command since it has a custom stack'
+      )
+      expect(error.message).contain('$.microservices[0]')
+    })
+    .it('Validates microservice with custom stack and some missing commands')
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const microservice = invalidDescriptor.microservices[0]
+      microservice.stack = MicroserviceStack.Custom
+      microservice.commands = {
+        build: 'custom-build.sh',
+        run: 'custom-run.sh',
+        pack: 'custom-pack.sh'
+      }
+      microservice.version = '1.0.0'
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it(
+      'Validates microservice with custom stack, all the commands and version'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      const microservice = invalidDescriptor.microservices[0]
+      microservice.stack = MicroserviceStack.Custom
+      microservice.commands = {
+        build: 'custom-build.sh',
+        run: 'custom-run.sh',
+        pack: 'custom-pack.sh'
+      }
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Component "test-ms-spring-boot-1" requires the "version" fields since it has a custom stack'
+      )
+      expect(error.message).contain('$.microservices[0]')
+    })
+    .it(
+      'Validates microservice with custom stack and all the commands but without version'
+    )
 })
 
 describe('Validates YAML descriptor', () => {

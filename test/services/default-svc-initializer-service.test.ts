@@ -3,16 +3,17 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { DefaultSvcInitializerService } from '../../src/services/default-svc-initializer-service'
-import { SvcService } from '../../src/services/svc-service'
 import { SVC_FOLDER } from '../../src/paths'
 
 describe('create-default-svc-service', () => {
   let bundleDirectory: string
   const BUNDLENAME = 'sample-bundle'
   const tempDirHelper = new TempDirHelper(__filename)
+  let keycloakDir: string
 
   before(() => {
     bundleDirectory = tempDirHelper.createInitializedBundleDir(BUNDLENAME)
+    keycloakDir = path.resolve(bundleDirectory, SVC_FOLDER, 'keycloak')
   })
 
   beforeEach(() => {
@@ -20,17 +21,18 @@ describe('create-default-svc-service', () => {
   })
 
   afterEach(() => {
-    const svcfiles = ['postgresql.yml', 'mysql.yml', 'postgresql.yml']
-    for (const svcfile of svcfiles) {
+    const svcFolder = path.resolve(bundleDirectory, SVC_FOLDER)
+    for (const svcfile of fs
+      .readdirSync(svcFolder)
+      .filter(f => f.endsWith('.yml'))) {
       const filepath = path.resolve(bundleDirectory, SVC_FOLDER, svcfile)
       if (fs.existsSync(filepath)) {
         fs.rmSync(filepath)
       }
     }
 
-    const keycloakLoc = path.resolve(bundleDirectory, SVC_FOLDER, 'keycloak')
-    if (fs.existsSync(keycloakLoc)) {
-      fs.rmSync(keycloakLoc, { recursive: true })
+    if (fs.existsSync(keycloakDir)) {
+      fs.rmSync(keycloakDir, { recursive: true })
     }
   })
 
@@ -43,15 +45,15 @@ describe('create-default-svc-service', () => {
     expect(defaultSvcs).contain('oracle')
   })
 
-  test.it('test createYamlFile', () => {
+  test.it('test initializeService', () => {
     const defSvc = new DefaultSvcInitializerService()
-    defSvc.createYamlFile('mysql')
+    defSvc.initializeService('mysql')
     checkBundleFile(BUNDLENAME, SVC_FOLDER, 'mysql.yml')
   })
 
-  test.it('test createYamlFile with keycloak', () => {
+  test.it('test initializeService with keycloak', () => {
     const defSvc = new DefaultSvcInitializerService()
-    defSvc.createYamlFile('keycloak')
+    defSvc.initializeService('keycloak')
     checkBundleFile(BUNDLENAME, SVC_FOLDER, 'keycloak.yml')
     checkBundleFile(
       BUNDLENAME,
@@ -69,34 +71,25 @@ describe('create-default-svc-service', () => {
     )
   })
 
-  test
-    .do(() => {
-      const svcService = new SvcService('entando-bundle-cli')
-      svcService.enableService('postgresql')
-    })
-    .it('test deleteYamlFile', () => {
-      const defSvc = new DefaultSvcInitializerService()
-      defSvc.deleteYamlFile('postgresql')
-      expect(
-        fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'postgres.yml'))
-      ).to.eq(false)
-    })
+  test.it('skip the creation of default service if it already exists', () => {
+    const content = 'test-content'
+    const yamlFile = path.resolve(bundleDirectory, SVC_FOLDER, 'oracle.yml')
+    fs.writeFileSync(yamlFile, content)
+    const defSvc = new DefaultSvcInitializerService()
+    defSvc.initializeService('oracle')
+    expect(fs.readFileSync(yamlFile).toString()).to.eq(content)
+  })
 
-  test
-    .do(() => {
-      const svcService = new SvcService('entando-bundle-cli')
-      svcService.enableService('keycloak')
-    })
-    .it('test deleteYamlFile with keycloak', () => {
+  test.it(
+    'populate missing service folder even if parent already exists',
+    () => {
+      fs.mkdirSync(keycloakDir)
       const defSvc = new DefaultSvcInitializerService()
-      defSvc.deleteYamlFile('keycloak')
-      expect(
-        fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'keycloak.yml'))
-      ).to.eq(false)
-      expect(
-        fs.existsSync(path.resolve(BUNDLENAME, SVC_FOLDER, 'keycloak'))
-      ).to.eq(false)
-    })
+      defSvc.initializeService('keycloak')
+      checkBundleFile(BUNDLENAME, SVC_FOLDER, 'keycloak.yml')
+      expect(fs.readdirSync(keycloakDir).length).eq(2)
+    }
+  )
 
   function checkBundleFile(bundleName: string, ...pathSegments: string[]) {
     const filePath = path.resolve(

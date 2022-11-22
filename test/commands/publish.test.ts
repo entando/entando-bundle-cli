@@ -11,6 +11,7 @@ import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helpe
 import Pack from '../../src/commands/pack'
 import { BundleService } from '../../src/services/bundle-service'
 import { CliUx } from '@oclif/core'
+import * as Screen from '@oclif/screen'
 
 describe('publish', () => {
   afterEach(() => {
@@ -21,6 +22,7 @@ describe('publish', () => {
   let loginStub: sinon.SinonStub
 
   beforeEach(() => {
+    sinon.stub(Screen, 'stdtermwidth').value(150)
     sinon.stub(BundleService, 'isValidBundleProject')
     sinon
       .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')

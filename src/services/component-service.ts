@@ -1,5 +1,6 @@
 import {
   BundleDescriptor,
+  Commands,
   MicroFrontend,
   MicroFrontendType,
   Microservice
@@ -73,10 +74,16 @@ export class ComponentService {
   }
 
   public getVersionedComponents(type?: ComponentType): VersionedComponent[] {
-    return this.getComponents(type).map(comp => ({
-      ...comp,
-      version: this.componentDescriptorService.getComponentVersion(comp)
-    }))
+    return this.getComponents(type).map(comp => {
+      if ((comp as VersionedComponent).version) {
+        return comp as VersionedComponent
+      }
+
+      return {
+        ...comp,
+        version: this.componentDescriptorService.getComponentVersion(comp)
+      }
+    })
   }
 
   public static getComponentPath(component: Component<ComponentType>): string {
@@ -200,12 +207,31 @@ export class ComponentService {
   private mapComponentType(
     type: ComponentType
   ): (compToMap: MicroFrontend | Microservice) => Component<ComponentType> {
-    return ({ name, stack, ...others }) => ({
-      name,
-      stack,
-      type,
-      ...('type' in others ? { mfeType: others.type } : {}),
-      ...('configMfe' in others ? { configMfe: others.configMfe } : {})
-    })
+    return ({ name, stack, ...others }) => {
+      const component = {
+        name,
+        stack,
+        type,
+        ...('type' in others ? { mfeType: others.type } : {}),
+        ...('configMfe' in others ? { configMfe: others.configMfe } : {})
+      }
+      if (others.version) {
+        ;(component as VersionedComponent).version = others.version
+      }
+
+      return component
+    }
   }
+
+  public static getPreFilledCommands(): Commands {
+    return {
+      build: getPreFilledCommand('build'),
+      run: getPreFilledCommand('run'),
+      pack: getPreFilledCommand('pack')
+    }
+  }
+}
+
+function getPreFilledCommand(phase: string): string {
+  return `echo 'Please edit this command to customize the ${phase} phase' && exit 1`
 }

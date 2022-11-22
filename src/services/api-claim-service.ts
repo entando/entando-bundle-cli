@@ -10,12 +10,10 @@ import { BundleService } from './bundle-service'
 export class ApiClaimService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly mfeConfigService: MfeConfigService
-  private readonly cmService: CmService
 
   constructor() {
     this.bundleDescriptorService = new BundleDescriptorService()
     this.mfeConfigService = new MfeConfigService()
-    this.cmService = new CmService()
   }
 
   public addInternalApiClaim(
@@ -46,7 +44,8 @@ export class ApiClaimService {
     }
 
     const bundleId = BundleService.generateBundleId(apiClaim.bundle)
-    const { ingressPath } = await this.cmService.getBundleMicroservice(
+    const cmService = new CmService()
+    const { ingressPath } = await cmService.getBundleMicroservice(
       bundleId,
       apiClaim.serviceName
     )

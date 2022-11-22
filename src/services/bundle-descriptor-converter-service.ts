@@ -3,19 +3,23 @@ import {
   ApiType,
   BundleDescriptor,
   DBMS,
+  EnvironmentVariable,
   ExternalApiClaim,
   MicroFrontend,
   MicroFrontendType,
-  Microservice
+  Microservice,
+  SecretEnvironmentVariable
 } from '../models/bundle-descriptor'
 import {
   BaseYamlWidgetDescriptor,
   SupportedComponents,
   YamlAppBuilderWidgetDescriptor,
   YamlBundleDescriptor,
+  YamlEnvironmentVariable,
   YamlExternalApiClaim,
   YamlInternalApiClaim,
   YamlPluginDescriptor,
+  YamlSecretEnvironmentVariable,
   YamlWidgetConfigDescriptor,
   YamlWidgetDescriptor
 } from '../models/yaml-bundle-descriptor'
@@ -189,7 +193,8 @@ export class BundleDescriptorConverterService {
         titles: microFrontend.titles,
         nav: microFrontend.nav,
         configMfe: microFrontend.configMfe,
-        contextParams: microFrontend.contextParams
+        contextParams: microFrontend.contextParams,
+        widgetCategory: microFrontend.category
       }
     }
 
@@ -241,13 +246,42 @@ export class BundleDescriptorConverterService {
       roles: microservice.roles,
       permissions: microservice.permissions,
       securityLevel: microservice.securityLevel,
-      environmentVariables: microservice.env
+      environmentVariables: this.generateYamlEnvVar(microservice.env)
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,
       this.getMicroserviceDescriptorRelativePath(microservice)
     )
     this.writeYamlFile(filePath, pluginDescriptor)
+  }
+
+  private isSecretEnvironmentVariable(
+    env: EnvironmentVariable
+  ): env is SecretEnvironmentVariable {
+    return (env as SecretEnvironmentVariable).secretKeyRef !== undefined
+  }
+
+  private generateYamlEnvVar(envVars: EnvironmentVariable[] | undefined) {
+    if (envVars === undefined) return envVars
+    const yamlEnvVars: YamlEnvironmentVariable[] = []
+    for (const envVar of envVars) {
+      if (this.isSecretEnvironmentVariable(envVar)) {
+        const secretEnvVar: YamlSecretEnvironmentVariable = {
+          name: envVar.name,
+          valueFrom: {
+            secretKeyRef: {
+              name: envVar.secretKeyRef.name,
+              key: envVar.secretKeyRef.key
+            }
+          }
+        }
+        yamlEnvVars.push(secretEnvVar)
+      } else {
+        yamlEnvVars.push(envVar)
+      }
+    }
+
+    return yamlEnvVars
   }
 
   private generateBundleYamlDescriptor(

@@ -117,6 +117,7 @@ type ObjectArrayConstraints<T, K extends keyof T> =
       children:
         | ObjectConstraints<TypeOfArray<T[K]>>
         | UnionTypeConstraints<TypeOfArray<T[K]>>
+      validators?: Validator[]
     }
 
 type ArrayConstraints<T, K extends keyof T> =
@@ -377,7 +378,8 @@ function applyValidators<T>(
   value: any,
   constraint:
     | PrimitiveConstraints<T, keyof T>
-    | ChildObjectConstraints<T, keyof T>,
+    | ChildObjectConstraints<T, keyof T>
+    | ObjectArrayConstraints<T, keyof T>,
   jsonPath: JsonPath
 ): void {
   if (constraint.validators) {
@@ -396,6 +398,7 @@ function validateArrayConstraints<T>(
   if (Array.isArray(value)) {
     for (const [index, element] of Object.entries(value)) {
       const arrayPath = [...jsonPath, Number.parseInt(index, 10)]
+      applyValidators(key, element, constraint, arrayPath)
       if (isObjectArrayConstraints(constraint)) {
         validateConstraints(element, constraint.children, arrayPath)
       } else {

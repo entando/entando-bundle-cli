@@ -28,13 +28,16 @@ import {
   values,
   valueNotEqualTo,
   maxLength,
-  exclusive
+  exclusive,
+  JsonPath,
+  JsonValidationError
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
 export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
 export const MAX_VERSION_LENGTH = 128
 export const MAX_NAME_LENGTH = 50
+export const MAX_WIDGET_CATEGORY_LENGTH = 80
 export const INVALID_NAME_MESSAGE =
   'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
 export const INVALID_VERSION_MESSAGE =
@@ -55,6 +58,7 @@ const versionRegExpValidator = regexp(
   INVALID_VERSION_MESSAGE
 )
 const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
+const widgetCategoryLengthValidator = maxLength(MAX_WIDGET_CATEGORY_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   `Valid format is [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
@@ -84,21 +88,16 @@ const ENVIRONMENT_VARIABLE_CONSTRAINTS: UnionTypeConstraints<EnvironmentVariable
           required: true,
           type: 'string'
         },
-        valueFrom: {
+        secretKeyRef: {
           required: true,
           children: {
-            secretKeyRef: {
+            name: {
               required: true,
-              children: {
-                name: {
-                  required: true,
-                  type: 'string'
-                },
-                key: {
-                  required: true,
-                  type: 'string'
-                }
-              }
+              type: 'string'
+            },
+            key: {
+              required: true,
+              type: 'string'
             }
           }
         }
@@ -258,6 +257,10 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   commands: {
     required: false,
     children: COMMANDS_CONSTRAINTS
+  },
+  version: {
+    required: false,
+    type: 'string'
   }
 }
 
@@ -340,6 +343,15 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    category: {
+      required: false,
+      validators: [widgetCategoryLengthValidator],
+      type: 'string'
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -407,6 +419,10 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   }
 
@@ -481,6 +497,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   },
   {
@@ -556,6 +576,10 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       required: false,
       validators: [isMapOfStrings],
       children: {}
+    },
+    version: {
+      required: false,
+      type: 'string'
     }
   }
 ]
@@ -573,6 +597,10 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
     ),
     fieldDependsOn(
       { key: 'configMfe' },
+      { key: 'type', value: MicroFrontendType.Widget }
+    ),
+    fieldDependsOn(
+      { key: 'category' },
       { key: 'type', value: MicroFrontendType.Widget }
     ),
     valueNotEqualTo({ key: 'configMfe' }, { key: 'name' }),
@@ -616,12 +644,14 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
     microservices: {
       isArray: true,
       required: true,
-      children: MICROSERVICE_CONSTRAINTS
+      children: MICROSERVICE_CONSTRAINTS,
+      validators: [microserviceValidator]
     },
     microfrontends: {
       isArray: true,
       required: true,
-      children: MICROFRONTEND_CONSTRAINTS
+      children: MICROFRONTEND_CONSTRAINTS,
+      validators: [microfrontendValidator]
     },
     svc: {
       isArray: true,
@@ -639,3 +669,55 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
       }
     }
   }
+
+function microfrontendValidator(
+  key: string,
+  field: unknown,
+  jsonPath: JsonPath
+): void {
+  const mfe = field as MicroFrontend
+  if (mfe.stack === MicroFrontendStack.Custom) {
+    validateCustomStack(mfe.name, mfe.commands, mfe.version, jsonPath)
+  }
+}
+
+function microserviceValidator(
+  key: string,
+  field: unknown,
+  jsonPath: JsonPath
+): void {
+  const ms = field as Microservice
+  if (ms.stack === MicroserviceStack.Custom) {
+    validateCustomStack(ms.name, ms.commands, ms.version, jsonPath)
+  }
+}
+
+function validateCustomStack(
+  componentName: string,
+  commands: Commands | undefined,
+  version: string | undefined,
+  jsonPath: JsonPath
+): void {
+  if (commands) {
+    for (const phase of Object.keys(COMMANDS_CONSTRAINTS)) {
+      if (!commands[phase as keyof Commands]) {
+        throw new JsonValidationError(
+          `Component "${componentName}" requires to specify the "${phase}" command since it has a custom stack`,
+          jsonPath
+        )
+      }
+    }
+  } else {
+    throw new JsonValidationError(
+      `Component "${componentName}" requires the "commands" fields since it has a custom stack`,
+      jsonPath
+    )
+  }
+
+  if (!version) {
+    throw new JsonValidationError(
+      `Component "${componentName}" requires the "version" fields since it has a custom stack`,
+      jsonPath
+    )
+  }
+}

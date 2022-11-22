@@ -1,19 +1,21 @@
 import { MicroFrontendStack, MicroserviceStack } from './component'
 
 export type EnvironmentVariable =
-  | {
-      name: string
-      value: string
-    }
-  | {
-      name: string
-      valueFrom: {
-        secretKeyRef: {
-          name: string
-          key: string
-        }
-      }
-    }
+  | SimpleEnvironmentVariable
+  | SecretEnvironmentVariable
+
+export type SimpleEnvironmentVariable = {
+  name: string
+  value: string
+}
+
+export type SecretEnvironmentVariable = {
+  name: string
+  secretKeyRef: {
+    name: string
+    key: string
+  }
+}
 
 export type Permission = {
   clientId: string
@@ -59,6 +61,7 @@ export type Microservice = {
   securityLevel?: SecurityLevel
   env?: EnvironmentVariable[]
   commands?: Commands
+  version?: string
 }
 
 type BaseMicroFrontend = {
@@ -75,6 +78,7 @@ type BaseMicroFrontend = {
   parentCode?: string
   params?: WidgetParam[]
   paramsDefaults?: { [name: string]: string }
+  version?: string
 }
 
 export type WidgetMicroFrontend = BaseMicroFrontend & {
@@ -82,6 +86,7 @@ export type WidgetMicroFrontend = BaseMicroFrontend & {
   type: MicroFrontendType.Widget
   contextParams?: string[]
   configMfe?: string
+  category?: string
 }
 
 export type WidgetConfigMicroFrontend = BaseMicroFrontend & {

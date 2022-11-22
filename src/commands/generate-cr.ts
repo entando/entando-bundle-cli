@@ -46,14 +46,34 @@ export default class GenerateCr extends Command {
     output: Flags.string({
       char: 'o',
       description: 'Write the result to the specified output file'
+    }),
+    force: Flags.boolean({
+      char: 'f',
+      description: 'Suppress the confirmation prompt in case of file overwrite',
+      dependsOn: ['output']
     })
   }
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GenerateCr)
 
-    if (flags.output && !fs.existsSync(path.dirname(flags.output))) {
-      this.error("Parent directory for the specified output file doesn't exist")
+    if (flags.output) {
+      if (!fs.existsSync(path.dirname(flags.output))) {
+        this.error(
+          "Parent directory for the specified output file doesn't exist"
+        )
+      }
+
+      if (fs.existsSync(flags.output) && !flags.force) {
+        const overwrite = await CliUx.ux.confirm(
+          color.yellow(
+            `File ${flags.output} already exists. Do you want to overwrite it? [y/n]`
+          )
+        )
+        if (!overwrite) {
+          return
+        }
+      }
     }
 
     let image = flags.image
