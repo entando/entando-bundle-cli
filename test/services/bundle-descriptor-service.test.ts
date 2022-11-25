@@ -70,8 +70,7 @@ describe('BundleDescriptorService', () => {
       expect(error.message).contain(
         BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
       )
-      expect(error.message).contain('Malformed JSON at line')
-      expect(error.message).contain(0)
+      expect(error.message).contain('Malformed JSON at line 1')
     })
     .it('Error in JSON parse without colon')
 
@@ -96,8 +95,7 @@ describe('BundleDescriptorService', () => {
       expect(error.message).contain(
         BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
       )
-      expect(error.message).contain('Malformed JSON at line')
-      expect(error.message).contain(4)
+      expect(error.message).contain('Malformed JSON at line 4')
     })
     .it('Error in JSON parse without comma or curly brackets')
 
@@ -113,8 +111,7 @@ describe('BundleDescriptorService', () => {
       expect(error.message).contain(
         BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
       )
-      expect(error.message).contain('Malformed JSON at line')
-      expect(error.message).contain(0)
+      expect(error.message).contain('Malformed JSON at line 1')
     })
     .it('Error in JSON parse with oneline input')
 

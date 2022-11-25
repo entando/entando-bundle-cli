@@ -11,6 +11,8 @@ import { ComponentService } from './component-service'
 export const MISSING_DESCRIPTOR_ERROR =
   'Bundle descriptor not found. Is this an initialized Bundle project?'
 
+const SPACES = ' '.repeat(7)
+
 type MandatoryBundleFields = { name: string; version: string; type: string }
 
 export class BundleDescriptorService {
@@ -109,8 +111,8 @@ export class BundleDescriptorService {
   }
 
   private displayError(indexCharPosition: number, text: string): string {
-    const tmp = text.slice(0, indexCharPosition)
-    const lineNumber = tmp.split('\n').length - 1
+    const tmp = text.slice(0, indexCharPosition).split('\n')
+    const lineNumber = tmp.length
 
     if (text.includes('\n') === false) {
       return (
@@ -124,19 +126,20 @@ export class BundleDescriptorService {
     }
 
     const textArray = text.split('\n')
-    const toReplace = textArray[lineNumber]
-    const replaced = text.replace(toReplace, `>>>>>> ${toReplace}`)
+    const target =
+      tmp.pop()!.trim().length === 0 ? lineNumber - 2 : lineNumber - 1
+    textArray[target] = `>>>>>> ${textArray[target]}`
 
-    const displayError = replaced
-      .split('\n')
-      .slice(lineNumber > 0 ? lineNumber - 1 : 0, lineNumber + 2)
+    const displayError = textArray
+      .slice(target > 0 ? target - 1 : 0, target + 2)
+      .map(item => (item.includes('>>>>>>') === false ? SPACES + item : item))
       .join('\n')
 
     return (
       BUNDLE_DESCRIPTOR_FILE_NAME +
       ' is not valid.\n' +
       'Malformed JSON at line ' +
-      lineNumber +
+      (target + 1) +
       '\n' +
       displayError
     )
