@@ -111,27 +111,24 @@ export class BundleDescriptorService {
   }
 
   private displayError(indexCharPosition: number, text: string): string {
-    const tmp = text.slice(0, indexCharPosition).split('\n')
-    const lineNumber = tmp.length
-
     if (text.includes('\n') === false) {
       return (
         BUNDLE_DESCRIPTOR_FILE_NAME +
         ' is not valid.\n' +
-        'Malformed JSON at line ' +
-        lineNumber +
+        'Malformed JSON at line 1' +
         ' and column ' +
         indexCharPosition
       )
     }
 
+    let lineNumber = this.getLineNumber(text, indexCharPosition)
+    lineNumber === -1 ? (lineNumber = 1) : lineNumber
+
     const textArray = text.split('\n')
-    const target =
-      tmp.pop()!.trim().length === 0 ? lineNumber - 2 : lineNumber - 1
-    textArray[target] = `>>>>>> ${textArray[target]}`
+    textArray[lineNumber - 1] = `>>>>>> ${textArray[lineNumber - 1]}`
 
     const displayError = textArray
-      .slice(target > 0 ? target - 1 : 0, target + 2)
+      .slice(lineNumber > 1 ? lineNumber - 2 : 0, lineNumber + 1)
       .map(item => (item.includes('>>>>>>') === false ? SPACES + item : item))
       .join('\n')
 
@@ -139,9 +136,23 @@ export class BundleDescriptorService {
       BUNDLE_DESCRIPTOR_FILE_NAME +
       ' is not valid.\n' +
       'Malformed JSON at line ' +
-      (target + 1) +
+      lineNumber +
       '\n' +
       displayError
     )
+  }
+
+  private getLineNumber(data: string, indexChar: number): number {
+    const lines = data.split('\n')
+    let totalLength = 0
+
+    for (const [indexLine, line] of lines.entries()) {
+      totalLength += line.length + 1
+      if (totalLength >= indexChar) {
+        return indexLine + 1
+      }
+    }
+
+    return -1
   }
 }

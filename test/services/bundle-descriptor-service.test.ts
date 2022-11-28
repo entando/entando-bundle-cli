@@ -25,6 +25,175 @@ describe('BundleDescriptorService', () => {
     sinon.restore()
   })
 
+  const mocks = [
+    {
+      expectedLineError: 6,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot"
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 9,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      },`
+    },
+    {
+      expectedLineError: 3,
+      body: `{
+        "microservices": [
+          {,
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 3,
+      body: `{
+        "microservices": [
+          {,
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 3,
+      body: `{
+        "microservices": [
+          ,{
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 1,
+      body: `{,
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 1,
+      body: `,{
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 1,
+      body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
+    },
+    {
+      expectedLineError: 5,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service"
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 1,
+      body: `{"microservices",
+       [],
+       "version":"0.0.1"}`
+    },
+    {
+      expectedLineError: 5,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot",[
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 5,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot",]
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 5,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            ["stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 5,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            ]"stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }
+        ]
+      }`
+    },
+    {
+      expectedLineError: 7,
+      body: `{
+        "microservices": [
+          {
+            "name": "my-service",
+            "stack": "spring-boot",
+            "healthCheckPath": "/health"
+          }}
+        ]
+      }`
+    }
+  ]
+
   test
     .do(() => {
       sinon
@@ -62,62 +231,6 @@ describe('BundleDescriptorService', () => {
   test
     .do(() => {
       const bundleDescriptorService = new BundleDescriptorService()
-      bundleDescriptorService.writeDescriptor(`{"microservices",
-      [],"version":"0.0.1"}`)
-      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
-    })
-    .catch(error => {
-      expect(error.message).contain(
-        BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
-      )
-      expect(error.message).contain('Malformed JSON at line 1')
-    })
-    .it('Error in JSON parse without colon')
-
-  test
-    .do(() => {
-      const bundleDescriptorService = new BundleDescriptorService()
-      bundleDescriptorService.writeDescriptor(
-        `{
-            "microservices": [
-            {
-                "name": "my-service"
-                "stack": "spring-boot",
-                "healthCheckPath": "/health"
-            }
-          ]
-        }`
-      )
-
-      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
-    })
-    .catch(error => {
-      expect(error.message).contain(
-        BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
-      )
-      expect(error.message).contain('Malformed JSON at line 4')
-    })
-    .it('Error in JSON parse without comma or curly brackets')
-
-  test
-    .do(() => {
-      const bundleDescriptorService = new BundleDescriptorService()
-      bundleDescriptorService.writeDescriptor(
-        `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
-      )
-      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
-    })
-    .catch(error => {
-      expect(error.message).contain(
-        BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
-      )
-      expect(error.message).contain('Malformed JSON at line 1')
-    })
-    .it('Error in JSON parse with oneline input')
-
-  test
-    .do(() => {
-      const bundleDescriptorService = new BundleDescriptorService()
       bundleDescriptorService.writeDescriptor(
         `{"microservices": [{"name": "my-service","stack": "spring-boot","healthCheckPath": "/health"}]}`
       )
@@ -132,4 +245,69 @@ describe('BundleDescriptorService', () => {
       )
     })
     .it('Error in JSON parse without position')
+
+  for (const [index, mock] of mocks.entries()) {
+    test
+      .do(() => {
+        const bundleDescriptorService = new BundleDescriptorService()
+        bundleDescriptorService.writeDescriptor(mock.body)
+        new BundleDescriptorService(bundleDir).validateBundleDescriptor()
+      })
+      .catch(error => {
+        // debug
+        // console.log(`error: ` + error.message)
+        expect(error.message).contain(
+          BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
+        )
+        expect(error.message).contain(
+          'Malformed JSON at line ' + mock.expectedLineError
+        )
+      })
+      .it(
+        `Test with mock ${index} Error in JSON parse on line ${mock.expectedLineError}`
+      )
+  }
+
+  test
+    .do(() => {
+      const bundleDescriptorService = new BundleDescriptorService()
+      bundleDescriptorService.writeDescriptor(
+        `{"microservices": [{"name": "my-service","stack": "spring-boot","healthCheckPath": "/health"}]}`
+      )
+      sinon
+        .stub(JSON, 'parse')
+        .throws(new Error('generic error from JSON parse'))
+      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
+      )
+    })
+    .it('Generic Error from JSON parse')
+
+  test
+    .do(() => {
+      const bundleDescriptorService = new BundleDescriptorService()
+      bundleDescriptorService.writeDescriptor(
+        `{
+          "microservices": [
+            {
+              "name": "my-service",
+              "stack": "spring-boot",
+              "healthCheckPath": "/health"
+            }
+          ]
+        }`
+      )
+      sinon.stub(JSON, 'parse').throws(new SyntaxError('position 64532'))
+      new BundleDescriptorService(bundleDir).validateBundleDescriptor()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
+      )
+      expect(error.message).contain('Malformed JSON at line 1')
+    })
+    .it('overflow position from JSON parse')
 })
