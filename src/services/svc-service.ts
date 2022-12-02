@@ -7,7 +7,8 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import { DefaultSvcInitializerService } from './default-svc-initializer-service'
 import {
   ProcessExecutorService,
-  ProcessExecutionResult
+  ProcessExecutionResult,
+  ProcessExecutionOptions
 } from './process-executor-service'
 
 import { debugFactory } from './debug-factory-service'
@@ -167,17 +168,20 @@ export class SvcService {
     return this.executeDockerComposeCommand(DockerComposeCommand.LOGS, services)
   }
 
-  private executeDockerComposeCommand(
+  private async executeDockerComposeCommand(
     serviceType: DockerComposeCommand,
     services: string[]
   ): Promise<ProcessExecutionResult> {
-    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
+    const COMPOSE_OPTIONS = ` -p ${this.bundleDescriptor.name} ${services
       .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
       .join(' ')} ${serviceType} ${services
       .map(service => `${service}`)
       .join(' ')}`
 
-    return ProcessExecutorService.executeProcess({
+    let COMPOSE_COMMAND = `docker compose`
+    let cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
+
+    const options: ProcessExecutionOptions = {
       command: cmd,
       outputStream:
         serviceType === DockerComposeCommand.LOGS
@@ -188,7 +192,20 @@ export class SvcService {
           ? process.stdout
           : SvcService.debug.outputStream,
       workDir: this.parentDirectory
-    })
+    }
+
+    let code = await ProcessExecutorService.executeProcess(options)
+
+    if (Number(code) === 125) {
+      COMPOSE_COMMAND = `docker-compose`
+      cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
+      code = await ProcessExecutorService.executeProcess({
+        ...options,
+        command: cmd
+      })
+    }
+
+    return code
   }
 
   private precheckEnabledServices(services: string[]): void {

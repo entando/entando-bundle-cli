@@ -35,7 +35,7 @@ describe('svc logs', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p my-bundle -f svc/keycloak.yml -f svc/postgresql.yml logs -f keycloak postgresql'
+        'docker compose -p my-bundle -f svc/keycloak.yml -f svc/postgresql.yml logs -f keycloak postgresql'
       )
     })
 
@@ -49,7 +49,7 @@ describe('svc logs', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p my-bundle -f svc/keycloak.yml logs -f keycloak'
+        'docker compose -p my-bundle -f svc/keycloak.yml logs -f keycloak'
       )
     })
 

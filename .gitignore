@@ -10,3 +10,4 @@ oclif.manifest.json
 .idea
 *.tsbuildinfo
 yarn.lock
+.vscode

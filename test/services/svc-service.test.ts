@@ -133,7 +133,7 @@ describe('svc-service', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/postgresql.yml rm -f -s postgresql'
+        'docker compose -p sample-bundle -f svc/postgresql.yml rm -f -s postgresql'
       )
     })
 
@@ -184,7 +184,7 @@ describe('svc-service', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
+        'docker compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
       )
     })
 
@@ -261,7 +261,7 @@ describe('svc-service', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml stop mysql'
+        'docker compose -p sample-bundle -f svc/mysql.yml stop mysql'
       )
     })
 
@@ -336,7 +336,7 @@ describe('svc-service', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/postgresql.yml restart postgresql'
+        'docker compose -p sample-bundle -f svc/postgresql.yml restart postgresql'
       )
     })
 
@@ -411,7 +411,7 @@ describe('svc-service', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml logs -f mysql'
+        'docker compose -p sample-bundle -f svc/mysql.yml logs -f mysql'
       )
     })
 

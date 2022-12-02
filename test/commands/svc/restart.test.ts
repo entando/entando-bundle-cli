@@ -35,7 +35,7 @@ describe('svc restart', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p my-bundle -f svc/keycloak.yml -f svc/postgresql.yml restart keycloak postgresql'
+        'docker compose -p my-bundle -f svc/keycloak.yml -f svc/postgresql.yml restart keycloak postgresql'
       )
     })
 
@@ -49,7 +49,7 @@ describe('svc restart', () => {
       expect(runStub.args[0]).to.have.length(1)
       expect(runStub.args[0][0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p my-bundle -f svc/keycloak.yml restart keycloak'
+        'docker compose -p my-bundle -f svc/keycloak.yml restart keycloak'
       )
     })
 
