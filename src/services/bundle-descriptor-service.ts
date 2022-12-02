@@ -57,7 +57,7 @@ export class BundleDescriptorService {
     }
 
     const descriptorFileContent = fs.readFileSync(this.bundleFilePath, 'utf-8')
-    const parsedDescriptor = this.parseData(descriptorFileContent)
+    const parsedDescriptor = this.parseDescriptor(descriptorFileContent)
 
     try {
       const bundleDescriptor =
@@ -78,7 +78,7 @@ export class BundleDescriptorService {
     }
   }
 
-  private parseData(descriptorFileContent: string): any {
+  private parseDescriptor(descriptorFileContent: string): any {
     try {
       const parsedDescriptor = JSON.parse(descriptorFileContent)
       return parsedDescriptor
