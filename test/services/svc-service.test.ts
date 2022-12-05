@@ -28,6 +28,7 @@ describe('svc-service', () => {
   })
 
   afterEach(() => {
+    sinon.restore()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
     bundleDescriptorService.writeBundleDescriptor({
       ...bundleDescriptor,
@@ -504,4 +505,85 @@ describe('svc-service', () => {
     svcService.disableService('postgresql', true)
     expect(svcService.getEnabledServices().includes('postgresql')).false
   })
+
+  test.it(
+    'start an enabled service listed in descriptor with docker-compose when docker compose is not available',
+    async () => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+
+      const svcService: SvcService = new SvcService('entando-bundle-cli')
+      const stub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      stub.onCall(0).resolves(125)
+      stub.onCall(1).resolves(0)
+      await svcService.startServices(['mysql'])
+
+      expect(stub.getCall(0).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
+      )
+
+      expect(stub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
+      )
+    }
+  )
+
+  test.it(
+    'stop an enabled service listed in descriptor with docker-compose when docker compose is not available',
+    async () => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+
+      const svcService: SvcService = new SvcService('entando-bundle-cli')
+      const stub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      stub.onCall(0).resolves(125)
+      stub.onCall(1).resolves(0)
+      await svcService.stopServices(['mysql'])
+
+      expect(stub.getCall(0).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/mysql.yml stop mysql'
+      )
+
+      expect(stub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml stop mysql'
+      )
+    }
+  )
+
+  test.it(
+    'restart an enabled service listed in descriptor with docker-compose when docker compose is not available',
+    async () => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+
+      const svcService: SvcService = new SvcService('entando-bundle-cli')
+      const stub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      stub.onCall(0).resolves(125)
+      stub.onCall(1).resolves(0)
+      await svcService.restartServices(['mysql'])
+
+      expect(stub.getCall(0).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/mysql.yml restart mysql'
+      )
+
+      expect(stub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml restart mysql'
+      )
+    }
+  )
 })
