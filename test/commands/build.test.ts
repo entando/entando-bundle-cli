@@ -227,6 +227,33 @@ describe('build command', () => {
 
   test
     .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command-exit-code')
+
+      TempDirHelper.createComponentsFolders(msListSpringBoot)
+
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(msListSpringBoot)
+
+      const stubResults: ProcessExecutionResult[] = [1, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .command(['build', '--all-ms'])
+    .exit(1)
+    .it('build all with errors should exit with code 1')
+
+  test
+    .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms-stdout')
 
       TempDirHelper.createComponentsFolders(msListSpringBoot)
