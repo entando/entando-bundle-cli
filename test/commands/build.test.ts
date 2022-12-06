@@ -77,7 +77,23 @@ describe('build command', () => {
         'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     })
-    .it('build with missing required arg name ')
+    .it('build with missing required arg name')
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir(
+        'test-build-command-stdout-no-args'
+      )
+    })
+    .command(['build', '--stdout'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Bad arguments. Please use the component name as argument or one of the available flags'
+      )
+    })
+    .it(
+      'build command with --stdout flag and without args should return an error'
+    )
 
   test
     .do(() => {
