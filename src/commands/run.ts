@@ -44,7 +44,7 @@ export default class Run extends BaseExecutionCommand {
     BundleService.isValidBundleProject()
     const { argv, flags } = await this.parse(Run)
 
-    this.validateInputs(Object.keys(flags).length, argv.length)
+    this.validateInputs(argv, flags)
 
     if (argv.length > 1) {
       CliUx.ux.action.start(

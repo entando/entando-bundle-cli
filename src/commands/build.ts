@@ -43,7 +43,7 @@ export default class Build extends BaseBuildCommand {
     BundleService.isValidBundleProject()
     const { argv, flags } = await this.parse(Build)
 
-    this.validateInputs(Object.keys(flags).length, argv.length)
+    this.validateInputs(argv, flags)
 
     if (argv.length > 1) {
       await this.buildMultipleComponents(argv, flags.stdout)
