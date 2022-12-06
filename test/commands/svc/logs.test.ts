@@ -32,7 +32,7 @@ describe('svc logs', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
         'docker compose -p my-bundle -f svc/keycloak.yml -f svc/postgresql.yml logs -f keycloak postgresql'
       )
@@ -46,7 +46,7 @@ describe('svc logs', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
         'docker compose -p my-bundle -f svc/keycloak.yml logs -f keycloak'
       )

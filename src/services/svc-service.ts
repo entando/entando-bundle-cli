@@ -12,6 +12,7 @@ import {
 } from './process-executor-service'
 
 import { debugFactory } from './debug-factory-service'
+import { EXIT_CODES } from '../utils'
 
 enum DockerComposeCommand {
   UP = 'up --build -d',
@@ -172,17 +173,17 @@ export class SvcService {
     serviceType: DockerComposeCommand,
     services: string[]
   ): Promise<ProcessExecutionResult> {
+    let COMPOSE_COMMAND = `docker compose`
     const COMPOSE_OPTIONS = ` -p ${this.bundleDescriptor.name} ${services
       .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
       .join(' ')} ${serviceType} ${services
       .map(service => `${service}`)
       .join(' ')}`
 
-    let COMPOSE_COMMAND = `docker compose`
     let cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
 
     const options: ProcessExecutionOptions = {
-      command: cmd,
+      command: COMPOSE_COMMAND,
       outputStream:
         serviceType === DockerComposeCommand.LOGS
           ? process.stdout
@@ -194,18 +195,14 @@ export class SvcService {
       workDir: this.parentDirectory
     }
 
-    let code = await ProcessExecutorService.executeProcess(options)
+    // detect the presence docker-compose-plugin
+    const code = await ProcessExecutorService.executeProcess(options)
+    code === EXIT_CODES.GENERIC_ERROR
+      ? (COMPOSE_COMMAND = `docker-compose`)
+      : COMPOSE_COMMAND
+    cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
 
-    if (Number(code) === 125) {
-      COMPOSE_COMMAND = `docker-compose`
-      cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
-      code = await ProcessExecutorService.executeProcess({
-        ...options,
-        command: cmd
-      })
-    }
-
-    return code
+    return ProcessExecutorService.executeProcess({ ...options, command: cmd })
   }
 
   private precheckEnabledServices(services: string[]): void {

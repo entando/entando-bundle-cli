@@ -32,7 +32,7 @@ describe('svc start', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
         'docker compose -p sample-bundle -f svc/postgresql.yml -f svc/mysql.yml up --build -d postgresql mysql'
       )
@@ -46,7 +46,7 @@ describe('svc start', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
         'docker compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
       )

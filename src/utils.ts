@@ -4,6 +4,11 @@ import color from '@oclif/color'
 import * as spinners from 'cli-spinners'
 import { CliUx } from '@oclif/core'
 
+export const EXIT_CODES = {
+  SUCCESS: 0,
+  GENERIC_ERROR: 1
+}
+
 export class InMemoryWritable extends Writable {
   data = ''
   public _write = (
