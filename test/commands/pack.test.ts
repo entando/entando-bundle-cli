@@ -175,6 +175,23 @@ describe('pack', () => {
     .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-pack-stdout'
+      )
+      setupBuildSuccess(bundleDir)
+    })
+    .command(['pack', '--org', 'flag-organization', '--stdout'])
+    .it('runs pack --org flag-organization --stdout', ctx => {
+      sinon.assert.called(stubGetThumbInfo)
+      // progressbar is disabled when logging directly to stdout
+      expect(ctx.stderr).not.contain('2/2')
+      expect(ctx.stderr).not.contain('1/1')
+    })
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-org-flag-with-existing-conf'
       )
       const configService = new ConfigService()

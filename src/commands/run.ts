@@ -127,16 +127,14 @@ export default class Run extends BaseExecutionCommand {
   ): Promise<void> {
     const componentsSize = components.length
 
-    let maxPrefixLength = 0
-    for (const component of components) {
-      const nameLength = component.name.length
-      if (component.name.length > maxPrefixLength) maxPrefixLength = nameLength
-    }
-
     const executionOptions = this.getExecutionOptions(
       components,
       Phase.Run,
-      component => new ColorizedWritable(component.name, maxPrefixLength)
+      component =>
+        new ColorizedWritable(
+          component.name,
+          this.getMaxPrefixLength(components)
+        )
     )
 
     const executorService = new ParallelProcessExecutorService(

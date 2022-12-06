@@ -205,6 +205,36 @@ describe('build command', () => {
       expect(ctx.stderr).contain('2/2')
     })
 
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command-ms-stdout')
+
+      TempDirHelper.createComponentsFolders(msListSpringBoot)
+
+      executeProcessStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(msListSpringBoot)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .command(['build', '--all-ms', '--stdout'])
+    .it('build all spring-boot microservices logging to stdout', async ctx => {
+      sinon.assert.called(getComponentsStub)
+      // progressbar is disabled when logging directly to stdout
+      expect(ctx.stderr).not.contain('2/2')
+    })
+
   let bundleDir: string
 
   test

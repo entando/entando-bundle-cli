@@ -28,6 +28,18 @@ export abstract class BaseExecutionCommand extends Command {
     }
   }
 
+  public getMaxPrefixLength(
+    components: Array<Component<ComponentType>>
+  ): number {
+    let maxPrefixLength = 0
+    for (const component of components) {
+      const nameLength = component.name.length
+      if (component.name.length > maxPrefixLength) maxPrefixLength = nameLength
+    }
+
+    return maxPrefixLength
+  }
+
   public getExecutionOptions(
     components: Array<Component<ComponentType>>,
     commandPhase: Phase,
