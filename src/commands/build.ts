@@ -33,6 +33,9 @@ export default class Build extends BaseBuildCommand {
     all: Flags.boolean({
       description: 'Build all the bundle components',
       exclusive: ['all-ms', 'all-mfe']
+    }),
+    stdout: Flags.boolean({
+      description: 'Log build output to standard output'
     })
   }
 
@@ -43,13 +46,21 @@ export default class Build extends BaseBuildCommand {
     this.validateInputs(Object.keys(flags).length, argv.length)
 
     if (argv.length > 1) {
-      await this.buildMultipleComponents(argv)
+      await this.buildMultipleComponents(argv, flags.stdout)
     } else if (flags['all-mfe']) {
-      await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
+      await this.buildAllComponents(
+        Phase.Build,
+        flags.stdout,
+        ComponentType.MICROFRONTEND
+      )
     } else if (flags['all-ms']) {
-      await this.buildAllComponents(Phase.Build, ComponentType.MICROSERVICE)
+      await this.buildAllComponents(
+        Phase.Build,
+        flags.stdout,
+        ComponentType.MICROSERVICE
+      )
     } else if (flags.all) {
-      await this.buildAllComponents(Phase.Build)
+      await this.buildAllComponents(Phase.Build, flags.stdout)
     } else {
       CliUx.ux.action.start(`Building component ${argv[0]}...`)
 
@@ -75,13 +86,16 @@ export default class Build extends BaseBuildCommand {
     }
   }
 
-  public async buildMultipleComponents(componentList: string[]): Promise<void> {
+  public async buildMultipleComponents(
+    componentList: string[],
+    stdout: boolean
+  ): Promise<void> {
     const componentService = new ComponentService()
     const components: Array<Component<ComponentType>> = []
     for (const component of componentList) {
       components.push(componentService.getComponent(component))
     }
 
-    await this.buildComponents(components, Phase.Build)
+    await this.buildComponents(components, Phase.Build, stdout)
   }
 }
