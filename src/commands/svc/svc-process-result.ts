@@ -32,8 +32,7 @@ export abstract class SvcProcessResult extends Command {
         this.error(
           `${serviceType} service failed, exited with code 1 and message ${this.getErrorMessage(
             result
-          )}`,
-          { exit: 1 }
+          )}`
         )
       }
     }

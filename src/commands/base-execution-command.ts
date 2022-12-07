@@ -27,8 +27,7 @@ export abstract class BaseExecutionCommand extends Command {
       (!hasComponentsSelector && argv.length === 0)
     ) {
       this.error(
-        'Bad arguments. Please use the component name as argument or one of the available flags',
-        { exit: 1 }
+        'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     }
   }
