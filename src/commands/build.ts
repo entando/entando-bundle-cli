@@ -35,7 +35,7 @@ export default class Build extends BaseBuildCommand {
       exclusive: ['all-ms', 'all-mfe']
     }),
     stdout: Flags.boolean({
-      description: 'Log build output to standard output'
+      description: 'Print build output to stdout instead of files'
     })
   }
 
