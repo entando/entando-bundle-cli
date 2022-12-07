@@ -17,6 +17,7 @@ import {
 import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-process'
 import * as executors from '../../src/services/process-executor-service'
 import { Component, ComponentType } from '../../src/models/component'
+import { CLIError } from '@oclif/errors'
 
 describe('run command', () => {
   const BAD_ARGS_ERR =
@@ -38,6 +39,7 @@ describe('run command', () => {
     .command(['run', 'test-ms-not-found'])
     .catch(error => {
       expect(error.message).to.contain('not exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('run spring-boot microservice folder not exists')
 
@@ -48,6 +50,7 @@ describe('run command', () => {
     .command(['run', '--all-ms', 'my-component'])
     .catch(error => {
       expect(error.message).to.contain(BAD_ARGS_ERR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('run command with flag and name arg should return an error')
 
@@ -58,6 +61,7 @@ describe('run command', () => {
     .command(['run', '--all-mfe', 'my-component'])
     .catch(error => {
       expect(error.message).to.contain(BAD_ARGS_ERR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('run command with flag and name arg should return an error')
 
@@ -70,6 +74,7 @@ describe('run command', () => {
       expect(error.message).to.contain(
         '--all-mfe= cannot also be provided when using --all-ms='
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('run command with multiple flags should return an error')
 
@@ -80,6 +85,7 @@ describe('run command', () => {
     .command(['run'])
     .catch(error => {
       expect(error.message).to.contain(BAD_ARGS_ERR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('run with missing required arg name')
 
@@ -122,7 +128,7 @@ describe('run command', () => {
         .resolves(new Error('Command not found'))
     })
     .command(['run', msNameSpringBoot])
-    .exit(1)
+    .exit(2)
     .it('run spring-boot microservice exits with code 1')
 
   test
@@ -133,6 +139,7 @@ describe('run command', () => {
     .command(['run', 'test-mfe-not-found'])
     .catch(error => {
       expect(error.message).to.contain('not exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('run react micro frontend folder not exists')
 
@@ -174,7 +181,7 @@ describe('run command', () => {
         .resolves(new Error('Command not found'))
     })
     .command(['run', mfeNameReact])
-    .exit(1)
+    .exit(2)
     .it('run react micro frontend exits with code 1')
 
   let getComponentsStub: sinon.SinonStub

@@ -24,6 +24,7 @@ import {
   PSC_FOLDER
 } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
+import { CLIError } from '@oclif/errors'
 
 describe('init', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -233,6 +234,7 @@ describe('init', () => {
       expect(error.message).to.contain(
         'Bundle name is too long. The maximum length is 50'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('running init --from-hub exits if bundle folder name is long')
 
@@ -241,6 +243,7 @@ describe('init', () => {
     .command(['init'])
     .catch(error => {
       expect(error.message).to.contain('required')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('validates required argument')
 
@@ -249,6 +252,7 @@ describe('init', () => {
     .command(['init', 'existing-bundle'])
     .catch(error => {
       expect(error.message).to.contain('existing-bundle already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits if bundle folder already exists')
 
@@ -257,6 +261,7 @@ describe('init', () => {
     .command(['init', 'invalid name'])
     .catch(error => {
       expect(error.message).to.contain('not a valid bundle name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('validates bundle name format')
 
@@ -265,6 +270,7 @@ describe('init', () => {
     .command(['init', 'too-long'.repeat(20)])
     .catch(error => {
       expect(error.message).to.contain('Bundle name is too long')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('validates bundle name length')
 
@@ -278,6 +284,7 @@ describe('init', () => {
     .command(['init', 'bundle-no-permission'])
     .catch(error => {
       expect(error.message).to.contain('is not writable')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('handles a not writable parent directory')
 
@@ -294,6 +301,7 @@ describe('init', () => {
     .command(['init', 'bundle-exec-error'])
     .catch(error => {
       expect(error.message).to.contain('git init error')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('handles git command error')
 

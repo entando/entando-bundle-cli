@@ -4,6 +4,7 @@ import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 import { SvcService } from '../../../src/services/svc-service'
+import { CLIError } from '@oclif/errors'
 
 describe('svc start', () => {
   let bundleDirectory: string
@@ -57,6 +58,7 @@ describe('svc start', () => {
     .command(['svc start'])
     .catch(error => {
       expect(error.message).to.contain('At least one service name is required.')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('start without any arguments and flags')
 
@@ -65,6 +67,7 @@ describe('svc start', () => {
     .command(['svc start', 'win98'])
     .catch(error => {
       expect(error.message).to.contain('Service win98 is not enabled.')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('start an unlisted service')
 
@@ -76,6 +79,7 @@ describe('svc start', () => {
       expect(error.message).to.contain(
         'Starting service(s) mysql failed, exited with code 404'
       )
+      expect((error as CLIError).oclif.exit).eq(404)
     })
     .it('start command unsuccessful - exits with error code', () => {
       const runStub = SvcService.prototype.startServices as sinon.SinonStub
@@ -96,6 +100,7 @@ describe('svc start', () => {
       expect(error.message).to.contain(
         'Command failed due to error: an error you cannot refuse'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('start command unsuccessful - exits with Error instance', () => {
       const runStub = SvcService.prototype.startServices as sinon.SinonStub
@@ -116,6 +121,7 @@ describe('svc start', () => {
       expect(error.message).to.contain(
         'Process killed by signal antikeycloakhertz'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('start command unsuccessful - exits with signal', () => {
       const runStub = SvcService.prototype.startServices as sinon.SinonStub

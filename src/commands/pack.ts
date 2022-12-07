@@ -230,9 +230,8 @@ export default class Pack extends BaseBuildCommand {
     } else if (typeof result === 'number') {
       this.error(
         `Docker build failed with exit code ${result}. Enable debug mode to see docker build output`,
-        { exit: false }
+        { exit: result as number }
       )
-      this.exit(result as number)
     } else {
       this.error(
         `Docker build failed with cause: ${this.getErrorMessage(result)}`
