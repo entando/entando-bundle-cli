@@ -7,6 +7,7 @@ import { BundleDescriptorService } from '../../../src/services/bundle-descriptor
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 import { SVC_FOLDER } from '../../../src/paths'
 import { CliUx } from '@oclif/core'
+import { CLIError } from '@oclif/errors'
 
 describe('svc disable', () => {
   let bundleDirectory: string
@@ -94,6 +95,7 @@ describe('svc disable', () => {
     .command(['svc disable', '--remove', 'win386'])
     .catch(error => {
       expect(error.message).to.contain('Service win386 does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('disable a service that is unavailable')
 
@@ -102,6 +104,7 @@ describe('svc disable', () => {
     .command(['svc disable', '--remove', 'mysql'])
     .catch(error => {
       expect(error.message).to.contain('Service mysql is not enabled')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('disable a service that is not enabled')
 
@@ -110,6 +113,7 @@ describe('svc disable', () => {
     .catch(error => {
       expect(error.message).to.contain('Missing 1 required arg')
       expect(error.message).to.contain('serviceName')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required argument is missing')
 

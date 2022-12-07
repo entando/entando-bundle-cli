@@ -40,6 +40,7 @@ import { BundleDescriptorService } from '../../src/services/bundle-descriptor-se
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { MicroFrontendType } from '../../src/models/bundle-descriptor'
 import * as cp from 'node:child_process'
+import { CLIError } from '@oclif/errors'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -339,6 +340,7 @@ describe('pack', () => {
     .catch(error => {
       expect(error.message).to.contain('components failed to build')
       sinon.assert.calledThrice(getComponentsStub)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Build failure stops package command', ctx => {
       expect(ctx.stderr).contain('4/4') // components build
@@ -355,11 +357,12 @@ describe('pack', () => {
         .resolves(42)
     })
     .command(['pack', '--org', 'flag-organization'])
-    .exit(42)
-    .it('Docker build failure forwards exit code', ctx => {
+    .catch(error => {
       sinon.assert.calledOnce(stubBuildBundleDockerImage)
-      expect(ctx.stderr).to.contain('Docker build failed with exit code')
+      expect(error.message).to.contain('Docker build failed with exit code')
+      expect((error as CLIError).oclif.exit).eq(42)
     })
+    .it('Docker build failure forwards exit code')
 
   test
     .stderr()
@@ -375,6 +378,7 @@ describe('pack', () => {
     .catch(error => {
       sinon.assert.calledOnce(stubBuildBundleDockerImage)
       expect(error.message).to.contain('Docker build failed with cause')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Docker build fails when command not found')
 
@@ -406,6 +410,7 @@ describe('pack', () => {
       expect(error.message).to.contain(
         'Unable to determine version for component ms1'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Packaging stops if it is unable to retrieve component version')
 
@@ -438,6 +443,7 @@ describe('pack', () => {
       expect(error.message).to.contain(
         'Dockerfile not found for microservice ms1'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       "Packaging stops if a microservice folder doesn't contain a Dockerfile",
@@ -528,6 +534,7 @@ describe('pack', () => {
       expect(error.message).contain(
         'Widget descriptor hello-widget.yaml already exists'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if widget in platform folder has the same name of a MFE')
 
@@ -548,6 +555,7 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       expect(error.message).contain('Version of invalid-ms is not valid')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if microservices versions have an invalid format')
 
@@ -568,6 +576,7 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       expect(error.message).contain('Version of invalid-ms is too long')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if microservices versions are too long')
 

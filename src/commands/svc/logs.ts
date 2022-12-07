@@ -31,8 +31,7 @@ export default class Logs extends SvcProcessResult {
 
     if (!flags.all && argv.length === 0) {
       this.error(
-        'At least one service name is required. You can also use `--all` flag to display logs of all enabled services',
-        { exit: 1 }
+        'At least one service name is required. You can also use `--all` flag to display logs of all enabled services'
       )
     }
 

@@ -31,6 +31,7 @@ describe('generate-cr', () => {
     .catch(error => {
       expect(error.message).contain('not an initialized bundle project')
       expect(error.message).contain('Use the --image flag')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Exits if is not a valid bundle project')
 
@@ -39,6 +40,7 @@ describe('generate-cr', () => {
     .command(['generate-cr', '--image', 'invalid-format'])
     .catch(error => {
       expect(error.message).contain('Invalid bundle image format')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Exits if image flag has invalid format')
 
@@ -89,6 +91,7 @@ describe('generate-cr', () => {
       expect(error.message).contain(
         'Docker organization not configured for the project'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Exits if Docker organization is not found')
 
@@ -196,6 +199,7 @@ describe('generate-cr', () => {
     ])
     .catch(error => {
       expect(error.message).contain('Unable to retrieve digests')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Generate CR with digests fails retrieving digests', () => {
       const listTagsStub = DockerService.listTags as sinon.SinonStub
@@ -214,6 +218,7 @@ describe('generate-cr', () => {
     .command(['generate-cr', '--image', 'docker://my-org/my-image'])
     .catch(error => {
       expect(error.message).contain('No tags found')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Generate CR fails if image has no tags', () => {
       const listTagsStub = DockerService.listTags as sinon.SinonStub
@@ -245,6 +250,7 @@ describe('generate-cr', () => {
       expect(error.message).contain(
         "Parent directory for the specified output file doesn't exist"
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it("Generate CR fails if output file parent directory doesn't exist")
 
@@ -326,6 +332,7 @@ describe('generate-cr', () => {
     .command(['generate-cr', '-f', '-i', 'my-org/my-image'])
     .catch(error => {
       expect(error.message).contain('must also be provided when using')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it("generate-cr -f can't be used without -o")
 })

@@ -18,6 +18,7 @@ import {
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
+import { CLIError } from '@oclif/errors'
 
 describe('mfe rm', () => {
   const defaultMfeName = 'default-stack-mfe'
@@ -166,9 +167,7 @@ describe('mfe rm', () => {
     })
     .stub(inquirer, 'prompt', sinon.stub().resolves({ removeConfigs: false }))
     .command(['mfe rm', 'widget-config'])
-    .catch(error => {
-      expect(error.message).to.contain('EXIT: 0')
-    })
+    .exit(0)
     .it(
       'removes a widget config widget including references but not confirming it'
     )
@@ -240,6 +239,7 @@ describe('mfe rm', () => {
       expect(error.message).to.contain(
         'jojoma does not exist in the microfrontends section of the Bundle descriptor'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       'exits with an error if the micro frontend does not exist in the descriptor'
@@ -250,6 +250,7 @@ describe('mfe rm', () => {
     .command(['mfe rm', defaultMfeName])
     .catch(error => {
       expect(error.message).to.contain(`does not exist`)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if the micro frontend folder does not exist')
 
@@ -282,6 +283,7 @@ describe('mfe rm', () => {
     .catch(error => {
       expect(error.message).to.contain('Missing 1 required arg')
       expect(error.message).to.contain('name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required argument is missing')
 })

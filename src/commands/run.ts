@@ -81,8 +81,7 @@ export default class Run extends BaseExecutionCommand {
           this.error(
             `Run failed, exit with code 1 and message ${this.getErrorMessage(
               result
-            )}`,
-            { exit: 1 }
+            )}`
           )
         }
       }
