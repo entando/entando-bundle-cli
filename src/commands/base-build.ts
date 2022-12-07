@@ -142,7 +142,7 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
       }
 
       errorMessage += 'See log files for more information'
-      this.error(errorMessage)
+      this.error(errorMessage, { exit: 1 })
     }
   }
 }
