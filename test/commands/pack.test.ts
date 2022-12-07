@@ -28,7 +28,10 @@ import {
   PSC_FOLDER
 } from '../../src/paths'
 import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
-import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import {
+  getStubProcess,
+  StubParallelProcessExecutorService
+} from '../helpers/mocks/stub-process'
 import {
   BundleThumbnailService,
   ThumbnailStatusMessage
@@ -36,6 +39,7 @@ import {
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { MicroFrontendType } from '../../src/models/bundle-descriptor'
+import * as cp from 'node:child_process'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -177,11 +181,59 @@ describe('pack', () => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-pack-stdout'
       )
-      setupBuildSuccess(bundleDir)
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot
+        }
+      ]
+
+      const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, 'ms1')
+      const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
+      fs.mkdirSync(ms1Dir, { recursive: true })
+      fs.writeFileSync(ms1Dockerfile, '')
+
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot,
+          version: '0.0.3'
+        }
+      ])
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      const stubProcess1 = getStubProcess()
+      setTimeout(() => {
+        stubProcess1.stdout!.emit('data', 'build message\n')
+        stubProcess1.emit('exit', 0, null)
+      }, 500)
+
+      const stubProcess2 = getStubProcess()
+      setTimeout(() => {
+        stubProcess2.stdout!.emit('data', 'pack message\n')
+        stubProcess2.emit('exit', 0, null)
+      }, 700)
+
+      sinon
+        .stub(cp, 'spawn')
+        .onFirstCall()
+        .returns(stubProcess1)
+        .onSecondCall()
+        .returns(stubProcess2)
     })
     .command(['pack', '--org', 'flag-organization', '--stdout'])
     .it('runs pack --org flag-organization --stdout', ctx => {
       sinon.assert.called(stubGetThumbInfo)
+      expect(ctx.stdout).contain('Building ms1 components')
+      expect(ctx.stdout).match(/ms1 |.*build message/)
+      expect(ctx.stdout).contain('Building microservices Docker images')
+      expect(ctx.stdout).match(/ms1 |.*pack message/)
+      expect(ctx.stdout).contain('Creating bundle package')
       // progressbar is disabled when logging directly to stdout
       expect(ctx.stderr).not.contain('2/2')
       expect(ctx.stderr).not.contain('1/1')
