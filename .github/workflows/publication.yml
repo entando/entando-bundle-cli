@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 env:
-  ENTANDO_OPT_USE_PPL_TAG: "v1.4.1"
+  ENTANDO_OPT_USE_PPL_TAG: "v1.4.2"
   ENTANDO_OPT_DATA_REPO: "${{ secrets.ENTANDO_OPT_DATA_REPO }}"
   ENTANDO_OPT_DATA_REPO_TOKEN: "${{ secrets.ENTANDO_OPT_DATA_REPO_TOKEN }}"
   ENTANDO_OPT_ENVIRONMENT_NAMES: "${{ secrets.ENTANDO_OPT_ENVIRONMENT_NAMES }}"
@@ -62,7 +62,9 @@ jobs:
           export ENTANDO_OPT_AWS_SECRET_ACCESS_KEY="${{ secrets.ENTANDO_OPT_AWS_SECRET_ACCESS_KEY }}"
 
           ~/ppl-run generic PUBLISH --id "PUBLICATION" \
-            --lcd "$LOCAL_CLONE_DIR"
+            --lcd "$LOCAL_CLONE_DIR" \
+            --token "$ENTANDO_BOT_TOKEN" \
+          ;
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
