@@ -14,7 +14,7 @@ import {
   msListSpringBoot,
   mfeListReact
 } from '../helpers/mocks/commands/build-mocks'
-import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-process'
 import * as executors from '../../src/services/process-executor-service'
 import { Component, ComponentType } from '../../src/models/component'
 

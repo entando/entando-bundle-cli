@@ -9,7 +9,10 @@ import {
 } from '../../src/services/process-executor-service'
 import { ComponentService } from '../../src/services/component-service'
 import { Component, ComponentType } from '../../src/models/component'
-import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import {
+  getStubProcess,
+  StubParallelProcessExecutorService
+} from '../helpers/mocks/stub-process'
 import * as executors from '../../src/services/process-executor-service'
 import {
   msSpringBoot,
@@ -20,6 +23,7 @@ import {
   mfeNameReact
 } from '../helpers/mocks/commands/build-mocks'
 import { LOGS_FOLDER, OUTPUT_FOLDER } from '../../src/paths'
+import * as cp from 'node:child_process'
 
 describe('build command', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -235,18 +239,32 @@ describe('build command', () => {
         .stub(ComponentService.prototype, 'getComponents')
         .returns(msListSpringBoot)
 
-      const stubResults: ProcessExecutionResult[] = [0, 0]
+      const stubProcess1 = getStubProcess()
+      setTimeout(() => {
+        stubProcess1.stdout!.emit('data', 'info message 1\n')
+        stubProcess1.emit('exit', 0, null)
+      }, 500)
 
-      stubParallelProcessExecutorService =
-        new StubParallelProcessExecutorService(stubResults)
+      const stubProcess2 = getStubProcess()
+      setTimeout(() => {
+        stubProcess2.stdout!.emit('data', 'info message 2\n')
+        stubProcess2.emit('exit', 0, null)
+      }, 500)
+
       sinon
-        .stub(executors, 'ParallelProcessExecutorService')
-        .returns(stubParallelProcessExecutorService)
+        .stub(cp, 'spawn')
+        .onFirstCall()
+        .returns(stubProcess1)
+        .onSecondCall()
+        .returns(stubProcess2)
     })
+    .stdout()
     .stderr()
     .command(['build', '--all-ms', '--stdout'])
     .it('build all spring-boot microservices logging to stdout', async ctx => {
       sinon.assert.called(getComponentsStub)
+      expect(ctx.stdout).matches(/test-ms-spring-boot-1 |.*info message1/)
+      expect(ctx.stdout).matches(/test-ms-spring-boot-2 |.*info message2/)
       // progressbar is disabled when logging directly to stdout
       expect(ctx.stderr).not.contain('2/2')
     })
