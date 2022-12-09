@@ -132,7 +132,7 @@ describe('svc-service', () => {
     expect(runStub.called).to.equal(true)
     expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
       'command',
-      'docker compose'
+      'docker compose > /dev/null 2>&1'
     )
     expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
       'command',
@@ -188,7 +188,7 @@ describe('svc-service', () => {
       expect(runStub.called).to.equal(true)
       expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
       expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
@@ -270,7 +270,7 @@ describe('svc-service', () => {
       expect(runStub.called).to.equal(true)
       expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
       expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
@@ -350,7 +350,7 @@ describe('svc-service', () => {
       expect(runStub.called).to.equal(true)
       expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
       expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
@@ -430,7 +430,7 @@ describe('svc-service', () => {
       expect(runStub.called).to.equal(true)
       expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
       expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
@@ -545,7 +545,7 @@ describe('svc-service', () => {
 
       expect(stub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
 
       expect(stub.getCall(1).args[0]).to.haveOwnProperty(
@@ -572,7 +572,7 @@ describe('svc-service', () => {
 
       expect(stub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
 
       expect(stub.getCall(1).args[0]).to.haveOwnProperty(
@@ -599,7 +599,7 @@ describe('svc-service', () => {
 
       expect(stub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker compose'
+        'docker compose > /dev/null 2>&1'
       )
 
       expect(stub.getCall(1).args[0]).to.haveOwnProperty(
