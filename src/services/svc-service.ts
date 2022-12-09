@@ -196,13 +196,13 @@ export class SvcService {
     // detects the presence docker-compose-plugin
     SvcService.debug(`detecting the presence of docker-compose-plugin`)
     const code = await ProcessExecutorService.executeProcess(options)
-    let foundcomposeplugin
+    let composePluginFound
 
     code === EXIT_CODES.GENERIC_ERROR
-      ? ((COMPOSE_COMMAND = `docker-compose`), (foundcomposeplugin = false))
-      : ((COMPOSE_COMMAND = `docker compose`), (foundcomposeplugin = true))
+      ? ((COMPOSE_COMMAND = `docker-compose`), (composePluginFound = false))
+      : ((COMPOSE_COMMAND = `docker compose`), (composePluginFound = true))
 
-    SvcService.debug(`docker-compose-plugin found: ${foundcomposeplugin}`)
+    SvcService.debug(`docker-compose-plugin found: ${composePluginFound}`)
 
     const cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
 
