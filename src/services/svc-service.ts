@@ -173,14 +173,12 @@ export class SvcService {
     serviceType: DockerComposeCommand,
     services: string[]
   ): Promise<ProcessExecutionResult> {
-    let COMPOSE_COMMAND = `docker compose`
+    let COMPOSE_COMMAND = `docker compose > /dev/null 2>&1`
     const COMPOSE_OPTIONS = ` -p ${this.bundleDescriptor.name} ${services
       .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
       .join(' ')} ${serviceType} ${services
       .map(service => `${service}`)
       .join(' ')}`
-
-    let cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
 
     const options: ProcessExecutionOptions = {
       command: COMPOSE_COMMAND,
@@ -195,12 +193,18 @@ export class SvcService {
       workDir: this.parentDirectory
     }
 
-    // detect the presence docker-compose-plugin
+    // detects the presence docker-compose-plugin
+    SvcService.debug(`detecting the presence of docker-compose-plugin`)
     const code = await ProcessExecutorService.executeProcess(options)
+    let foundcomposeplugin
+
     code === EXIT_CODES.GENERIC_ERROR
-      ? (COMPOSE_COMMAND = `docker-compose`)
-      : COMPOSE_COMMAND
-    cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
+      ? ((COMPOSE_COMMAND = `docker-compose`), (foundcomposeplugin = false))
+      : ((COMPOSE_COMMAND = `docker compose`), (foundcomposeplugin = true))
+
+    SvcService.debug(`docker-compose-plugin found: ${foundcomposeplugin}`)
+
+    const cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
 
     return ProcessExecutorService.executeProcess({ ...options, command: cmd })
   }
