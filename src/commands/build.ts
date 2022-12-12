@@ -4,6 +4,7 @@ import { ComponentService } from '../services/component-service'
 import { BaseBuildCommand } from './base-build'
 import { Phase } from '../services/command-factory-service'
 import { Component, ComponentType } from '../models/component'
+import { DEFAULT_PARALLEL_PROCESSES_SIZE } from '../services/process-executor-service'
 
 export default class Build extends BaseBuildCommand {
   static description = 'Build bundle components'
@@ -36,6 +37,11 @@ export default class Build extends BaseBuildCommand {
     }),
     stdout: Flags.boolean({
       description: 'Print build output to stdout instead of files'
+    }),
+    'max-parallel': Flags.integer({
+      description:
+        'Maximum number of processes running at the same time. Default value is ' +
+        DEFAULT_PARALLEL_PROCESSES_SIZE
     })
   }
 
@@ -45,22 +51,26 @@ export default class Build extends BaseBuildCommand {
 
     this.validateInputs(argv, flags)
 
+    const parallelism = flags['max-parallel']
+
     if (argv.length > 1) {
-      await this.buildMultipleComponents(argv, flags.stdout)
+      await this.buildMultipleComponents(argv, flags.stdout, parallelism)
     } else if (flags['all-mfe']) {
       await this.buildAllComponents(
         Phase.Build,
         flags.stdout,
+        parallelism,
         ComponentType.MICROFRONTEND
       )
     } else if (flags['all-ms']) {
       await this.buildAllComponents(
         Phase.Build,
         flags.stdout,
+        parallelism,
         ComponentType.MICROSERVICE
       )
     } else if (flags.all) {
-      await this.buildAllComponents(Phase.Build, flags.stdout)
+      await this.buildAllComponents(Phase.Build, flags.stdout, parallelism)
     } else {
       CliUx.ux.action.start(`Building component ${argv[0]}...`)
 
@@ -87,7 +97,8 @@ export default class Build extends BaseBuildCommand {
 
   public async buildMultipleComponents(
     componentList: string[],
-    stdout: boolean
+    stdout: boolean,
+    parallelism: number | undefined
   ): Promise<void> {
     const componentService = new ComponentService()
     const components: Array<Component<ComponentType>> = []
@@ -95,6 +106,6 @@ export default class Build extends BaseBuildCommand {
       components.push(componentService.getComponent(component))
     }
 
-    await this.buildComponents(components, Phase.Build, stdout)
+    await this.buildComponents(components, Phase.Build, stdout, parallelism)
   }
 }

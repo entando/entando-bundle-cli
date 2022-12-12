@@ -32,6 +32,7 @@ import {
   MAX_VERSION_LENGTH
 } from '../models/bundle-descriptor-constraints'
 import { ColorizedWritable } from '../utils'
+import { DEFAULT_PARALLEL_PROCESSES_SIZE } from '../services/process-executor-service'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -55,6 +56,11 @@ export default class Pack extends BaseBuildCommand {
     }),
     stdout: Flags.boolean({
       description: 'Log build output to standard output'
+    }),
+    'max-parallel': Flags.integer({
+      description:
+        'Maximum number of processes running at the same time. Default value is ' +
+        DEFAULT_PARALLEL_PROCESSES_SIZE
     })
   }
 
@@ -65,19 +71,23 @@ export default class Pack extends BaseBuildCommand {
 
     const { flags } = await this.parse(Pack)
 
+    this.validateMaxParallel(flags)
+
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+    const parallelism = flags['max-parallel']
 
     const microservices = this.getVersionedMicroservices()
 
-    await this.buildAllComponents(Phase.Pack, flags.stdout)
+    await this.buildAllComponents(Phase.Pack, flags.stdout, parallelism)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
     await this.buildMicroservicesDockerImages(
       microservices,
       dockerOrganization,
-      flags.stdout
+      flags.stdout,
+      parallelism
     )
 
     await this.buildBundleDockerImage(
@@ -140,7 +150,8 @@ export default class Pack extends BaseBuildCommand {
   private async buildMicroservicesDockerImages(
     microservices: VersionedComponent[],
     dockerOrganization: string,
-    stdout: boolean
+    stdout: boolean,
+    parallelism: number | undefined
   ) {
     this.log(color.bold.blue('Building microservices Docker images...'))
 
@@ -172,8 +183,10 @@ export default class Pack extends BaseBuildCommand {
       })
     }
 
-    const executorService =
-      DockerService.getDockerImagesExecutorService(buildOptions)
+    const executorService = DockerService.getDockerImagesExecutorService(
+      buildOptions,
+      parallelism
+    )
 
     await this.parallelBuild(executorService, microservices, stdout)
   }
