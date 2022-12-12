@@ -30,6 +30,17 @@ export abstract class BaseExecutionCommand extends Command {
         'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     }
+
+    this.validateMaxParallel(flags)
+  }
+
+  public validateMaxParallel(flags: Record<string, unknown>): void {
+    if (
+      flags['max-parallel'] !== undefined &&
+      (flags['max-parallel'] as number) <= 0
+    ) {
+      this.error('Value of flag --max-parallel should be greater than 0')
+    }
   }
 
   public getMaxPrefixLength(
