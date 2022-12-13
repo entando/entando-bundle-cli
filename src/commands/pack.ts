@@ -13,7 +13,7 @@ import {
   DockerBuildOptions,
   DockerService
 } from '../services/docker-service'
-import { BaseBuildCommand } from './base-build'
+import { BaseBuildCommand, BuildOptions } from './base-build'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER, PSC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
@@ -61,6 +61,10 @@ export default class Pack extends BaseBuildCommand {
       description:
         'Maximum number of processes running at the same time. Default value is ' +
         DEFAULT_PARALLEL_PROCESSES_SIZE
+    }),
+    'fail-fast': Flags.boolean({
+      description:
+        'Allow to fail the pack command as soon as one of the sub-tasks fails'
     })
   }
 
@@ -75,19 +79,23 @@ export default class Pack extends BaseBuildCommand {
 
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-    const parallelism = flags['max-parallel']
+
+    const buildOptions = {
+      stdout: flags.stdout,
+      parallelism: flags['max-parallel'],
+      failFast: flags['fail-fast']
+    }
 
     const microservices = this.getVersionedMicroservices()
 
-    await this.buildAllComponents(Phase.Pack, flags.stdout, parallelism)
+    await this.buildAllComponents(Phase.Pack, buildOptions)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
     await this.buildMicroservicesDockerImages(
       microservices,
       dockerOrganization,
-      flags.stdout,
-      parallelism
+      buildOptions
     )
 
     await this.buildBundleDockerImage(
@@ -150,12 +158,11 @@ export default class Pack extends BaseBuildCommand {
   private async buildMicroservicesDockerImages(
     microservices: VersionedComponent[],
     dockerOrganization: string,
-    stdout: boolean,
-    parallelism: number | undefined
+    buildOptions: BuildOptions
   ) {
     this.log(color.bold.blue('Building microservices Docker images...'))
 
-    const buildOptions: DockerBuildOptions[] = []
+    const dockerBuildOptions: DockerBuildOptions[] = []
 
     const maxPrefixLength = this.getMaxPrefixLength(microservices)
 
@@ -170,11 +177,11 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      const outputStream = stdout
+      const outputStream = buildOptions.stdout
         ? new ColorizedWritable(microservice.name, maxPrefixLength)
         : this.getBuildOutputLogFile(microservice, true)
 
-      buildOptions.push({
+      dockerBuildOptions.push({
         name: microservice.name,
         organization: dockerOrganization,
         path: msPath,
@@ -184,11 +191,16 @@ export default class Pack extends BaseBuildCommand {
     }
 
     const executorService = DockerService.getDockerImagesExecutorService(
-      buildOptions,
-      parallelism
+      dockerBuildOptions,
+      buildOptions.parallelism,
+      buildOptions.failFast
     )
 
-    await this.parallelBuild(executorService, microservices, stdout)
+    await this.parallelBuild(
+      executorService,
+      microservices,
+      buildOptions.stdout
+    )
   }
 
   private async buildBundleDockerImage(
