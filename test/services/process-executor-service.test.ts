@@ -169,4 +169,61 @@ describe('ProcessExecutorService', () => {
     await promise
     expect(testWritable.data).eq('this is written to stdin')
   })
+
+  test.it('Terminate on non-zero exit code with failFast option', async () => {
+    const parallelProcessesOptions = [{ command: 'cmd1' }, { command: 'cmd2' }]
+
+    const stubProcess1 = getStubProcess()
+    const stubProcess2 = getStubProcess()
+
+    sinon
+      .stub(cp, 'spawn')
+      .onFirstCall()
+      .returns(stubProcess1)
+      .onSecondCall()
+      .returns(stubProcess2)
+
+    const parallelExecutor = new ParallelProcessExecutorService(
+      parallelProcessesOptions,
+      1,
+      true
+    )
+    const promise = parallelExecutor.execute()
+
+    stubProcess1.emit('exit', 1, null)
+
+    const results = await promise
+
+    expect(results.length).to.equal(1)
+    expect(results[0]).to.equal(1)
+  })
+
+  test.it('Terminate on error with failFast option', async () => {
+    const parallelProcessesOptions = [{ command: 'cmd1' }, { command: 'cmd2' }]
+
+    const stubProcess1 = getStubProcess()
+    const stubProcess2 = getStubProcess()
+
+    sinon
+      .stub(cp, 'spawn')
+      .onFirstCall()
+      .returns(stubProcess1)
+      .onSecondCall()
+      .returns(stubProcess2)
+
+    const parallelExecutor = new ParallelProcessExecutorService(
+      parallelProcessesOptions,
+      1,
+      true
+    )
+    const promise = parallelExecutor.execute()
+
+    const error = new Error('spawn error')
+    stubProcess1.emit('error', error)
+
+    const results = await promise
+
+    expect(results.length).to.equal(1)
+    expect(results[0]).to.equal(error)
+  })
 })
