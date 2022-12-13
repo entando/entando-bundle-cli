@@ -31,6 +31,7 @@ import {
   INVALID_VERSION_MESSAGE,
   MAX_VERSION_LENGTH
 } from '../models/bundle-descriptor-constraints'
+import { ColorizedWritable } from '../utils'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -51,6 +52,9 @@ export default class Pack extends BaseBuildCommand {
       description:
         'Bundle Dockerfile (by default it is automatically generated)',
       required: false
+    }),
+    stdout: Flags.boolean({
+      description: 'Log build output to standard output'
     })
   }
 
@@ -66,11 +70,15 @@ export default class Pack extends BaseBuildCommand {
 
     const microservices = this.getVersionedMicroservices()
 
-    await this.buildAllComponents(Phase.Pack)
+    await this.buildAllComponents(Phase.Pack, flags.stdout)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    await this.buildMicroservicesDockerImages(microservices, dockerOrganization)
+    await this.buildMicroservicesDockerImages(
+      microservices,
+      dockerOrganization,
+      flags.stdout
+    )
 
     await this.buildBundleDockerImage(
       bundleDescriptor,
@@ -131,11 +139,14 @@ export default class Pack extends BaseBuildCommand {
 
   private async buildMicroservicesDockerImages(
     microservices: VersionedComponent[],
-    dockerOrganization: string
+    dockerOrganization: string,
+    stdout: boolean
   ) {
     this.log(color.bold.blue('Building microservices Docker images...'))
 
     const buildOptions: DockerBuildOptions[] = []
+
+    const maxPrefixLength = this.getMaxPrefixLength(microservices)
 
     for (const microservice of microservices) {
       const msPath = path.resolve(MICROSERVICES_FOLDER, microservice.name)
@@ -148,21 +159,23 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      const logFile = this.getBuildOutputLogFile(microservice)
+      const outputStream = stdout
+        ? new ColorizedWritable(microservice.name, maxPrefixLength)
+        : this.getBuildOutputLogFile(microservice, true)
 
       buildOptions.push({
         name: microservice.name,
         organization: dockerOrganization,
         path: msPath,
         tag: microservice.version,
-        outputStream: logFile
+        outputStream
       })
     }
 
     const executorService =
       DockerService.getDockerImagesExecutorService(buildOptions)
 
-    await this.parallelBuild(executorService, microservices)
+    await this.parallelBuild(executorService, microservices, stdout)
   }
 
   private async buildBundleDockerImage(

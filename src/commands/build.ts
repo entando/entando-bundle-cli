@@ -33,6 +33,9 @@ export default class Build extends BaseBuildCommand {
     all: Flags.boolean({
       description: 'Build all the bundle components',
       exclusive: ['all-ms', 'all-mfe']
+    }),
+    stdout: Flags.boolean({
+      description: 'Print build output to stdout instead of files'
     })
   }
 
@@ -40,16 +43,24 @@ export default class Build extends BaseBuildCommand {
     BundleService.isValidBundleProject()
     const { argv, flags } = await this.parse(Build)
 
-    this.validateInputs(Object.keys(flags).length, argv.length)
+    this.validateInputs(argv, flags)
 
     if (argv.length > 1) {
-      await this.buildMultipleComponents(argv)
+      await this.buildMultipleComponents(argv, flags.stdout)
     } else if (flags['all-mfe']) {
-      await this.buildAllComponents(Phase.Build, ComponentType.MICROFRONTEND)
+      await this.buildAllComponents(
+        Phase.Build,
+        flags.stdout,
+        ComponentType.MICROFRONTEND
+      )
     } else if (flags['all-ms']) {
-      await this.buildAllComponents(Phase.Build, ComponentType.MICROSERVICE)
+      await this.buildAllComponents(
+        Phase.Build,
+        flags.stdout,
+        ComponentType.MICROSERVICE
+      )
     } else if (flags.all) {
-      await this.buildAllComponents(Phase.Build)
+      await this.buildAllComponents(Phase.Build, flags.stdout)
     } else {
       CliUx.ux.action.start(`Building component ${argv[0]}...`)
 
@@ -75,13 +86,16 @@ export default class Build extends BaseBuildCommand {
     }
   }
 
-  public async buildMultipleComponents(componentList: string[]): Promise<void> {
+  public async buildMultipleComponents(
+    componentList: string[],
+    stdout: boolean
+  ): Promise<void> {
     const componentService = new ComponentService()
     const components: Array<Component<ComponentType>> = []
     for (const component of componentList) {
       components.push(componentService.getComponent(component))
     }
 
-    await this.buildComponents(components, Phase.Build)
+    await this.buildComponents(components, Phase.Build, stdout)
   }
 }

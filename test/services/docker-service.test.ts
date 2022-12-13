@@ -15,7 +15,7 @@ import {
   COMMAND_NOT_FOUND_EXIT_CODE,
   ProcessExecutionOptions
 } from '../../src/services/process-executor-service'
-import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-process'
 import { BUNDLE_DESCRIPTOR_NAME, OUTPUT_FOLDER } from '../../src/paths'
 import * as YAML from 'yaml'
 import * as fs from 'node:fs'
