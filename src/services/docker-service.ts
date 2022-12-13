@@ -52,7 +52,8 @@ export class DockerService {
   }
 
   public static getDockerImagesExecutorService(
-    dockerOptions: DockerBuildOptions[]
+    dockerOptions: DockerBuildOptions[],
+    parallelism: number | undefined
   ): ParallelProcessExecutorService {
     const executionOptions: ProcessExecutionOptions[] = []
 
@@ -65,7 +66,7 @@ export class DockerService {
       })
     }
 
-    return new ParallelProcessExecutorService(executionOptions)
+    return new ParallelProcessExecutorService(executionOptions, parallelism)
   }
 
   private static getDockerBuildCommand(options: DockerBuildOptions): string {

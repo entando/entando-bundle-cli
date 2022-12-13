@@ -22,6 +22,7 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
   public async buildAllComponents(
     commandPhase: Phase,
     stdout: boolean,
+    parallelism: number | undefined,
     componentType?: ComponentType
   ): Promise<void> {
     const componentService = new ComponentService()
@@ -45,13 +46,14 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
         break
     }
 
-    await this.buildComponents(components, commandPhase, stdout)
+    await this.buildComponents(components, commandPhase, stdout, parallelism)
   }
 
   protected async buildComponents(
     components: Array<Component<ComponentType>>,
     commandPhase: Phase,
-    stdout: boolean
+    stdout: boolean,
+    parallelism: number | undefined
   ): Promise<void> {
     // Output and logs directories cleanup
     const outputFolder = path.resolve(...OUTPUT_FOLDER)
@@ -77,7 +79,10 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
           : this.getBuildOutputLogFile(component, false)
     )
 
-    const executorService = new ParallelProcessExecutorService(executionOptions)
+    const executorService = new ParallelProcessExecutorService(
+      executionOptions,
+      parallelism
+    )
 
     await this.parallelBuild(executorService, components, stdout)
   }

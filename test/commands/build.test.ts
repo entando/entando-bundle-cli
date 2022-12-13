@@ -209,10 +209,6 @@ describe('build command', () => {
 
       TempDirHelper.createComponentsFolders(msListSpringBoot)
 
-      executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .resolves(0)
-
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(msListSpringBoot)
@@ -238,10 +234,6 @@ describe('build command', () => {
 
       TempDirHelper.createComponentsFolders(msListSpringBoot)
 
-      executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .resolves(0)
-
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(msListSpringBoot)
@@ -264,10 +256,6 @@ describe('build command', () => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms-stdout')
 
       TempDirHelper.createComponentsFolders(msListSpringBoot)
-
-      executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .resolves(0)
 
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
@@ -314,9 +302,6 @@ describe('build command', () => {
       fs.rmdirSync(path.resolve(bundleDir, ...OUTPUT_FOLDER), {
         recursive: true
       })
-      executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .resolves(0)
 
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
@@ -352,10 +337,6 @@ describe('build command', () => {
         'test-build-command-all'
       )
       TempDirHelper.createComponentsFolders(componentList)
-
-      executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .resolves(0)
 
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
@@ -400,10 +381,6 @@ describe('build command', () => {
       )
       TempDirHelper.createComponentsFolders(componentList)
 
-      executeProcessStub = sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .resolves(0)
-
       getComponentsStub = sinon
         .stub(ComponentService.prototype, 'getComponents')
         .returns(componentList)
@@ -434,4 +411,52 @@ describe('build command', () => {
         false
       )
     })
+
+  let parallelProcessExecutorServiceStub: sinon.SinonStub
+
+  test
+    .do(() => {
+      bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-build-max-parallel'
+      )
+      TempDirHelper.createComponentsFolders(msListSpringBoot)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(msListSpringBoot)
+
+      const stubResults: ProcessExecutionResult[] = [0, 0]
+
+      stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService(stubResults)
+      parallelProcessExecutorServiceStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+    })
+    .stderr()
+    .stdout()
+    .command(['build', '--all', '--max-parallel', '1'])
+    .it('build all componenents using --max-parallel flag', async ctx => {
+      sinon.assert.calledWith(
+        parallelProcessExecutorServiceStub,
+        sinon.match.any,
+        sinon.match(1)
+      )
+      expect(ctx.stderr).contain('2/2')
+    })
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir(
+        'test-build-max-parallel-invalid'
+      )
+    })
+    .command(['build', '--all', '--max-parallel', '0'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Value of flag --max-parallel should be greater than 0'
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('build with invalid --max-parallel flag')
 })
