@@ -111,7 +111,8 @@ export class BundleDescriptorService {
   }
 
   private displayError(indexCharPosition: number, text: string): string {
-    if (text.includes('\n') === false) {
+    // check file has one line
+    if (text.split('\n').filter(line => line.length > 0).length === 1) {
       return (
         BUNDLE_DESCRIPTOR_FILE_NAME +
         ' is not valid.\n' +

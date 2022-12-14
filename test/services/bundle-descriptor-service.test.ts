@@ -111,10 +111,6 @@ describe('BundleDescriptorService', () => {
       }`
     },
     {
-      expectedLineError: 1,
-      body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
-    },
-    {
       expectedLineError: 5,
       body: `{
         "microservices": [
@@ -310,4 +306,39 @@ describe('BundleDescriptorService', () => {
       expect(error.message).contain('Malformed JSON at line 1')
     })
     .it('overflow position from JSON parse')
+
+  const mocksOneLine = [
+    {
+      expectedLineError: 1,
+      body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
+    },
+    {
+      expectedLineError: 1,
+      body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}\n`
+    }
+  ]
+
+  for (const [index, mock] of mocksOneLine.entries()) {
+    test
+      .do(() => {
+        const bundleDescriptorService = new BundleDescriptorService()
+        bundleDescriptorService.writeDescriptor(mock.body)
+        new BundleDescriptorService(bundleDir).validateBundleDescriptor()
+      })
+      .catch(error => {
+        // debug
+        // console.log(`error: ` + error.message)
+        expect(error.message).contain(
+          BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
+        )
+        expect(error.message).contain(
+          'Malformed JSON at line ' + mock.expectedLineError
+        )
+
+        expect(error.message).contain('and column')
+      })
+      .it(
+        `Test with mocksOneLine with index ${index}. Error in JSON parse on line ${mock.expectedLineError}`
+      )
+  }
 })
