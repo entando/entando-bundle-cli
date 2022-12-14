@@ -61,6 +61,10 @@ export default class Pack extends BaseBuildCommand {
       description:
         'Maximum number of processes running at the same time. Default value is ' +
         DEFAULT_PARALLEL_PROCESSES_SIZE
+    }),
+    'skip-docker-build': Flags.boolean({
+      char: 's',
+      description: 'Skip the building of Docker images'
     })
   }
 
@@ -76,25 +80,34 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
     const parallelism = flags['max-parallel']
+    const skipDockerBuild = flags['skip-docker-build']
 
     const microservices = this.getVersionedMicroservices()
 
     await this.buildAllComponents(Phase.Pack, flags.stdout, parallelism)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
+    this.buildBundleDockerResources(dockerOrganization)
 
-    await this.buildMicroservicesDockerImages(
-      microservices,
-      dockerOrganization,
-      flags.stdout,
-      parallelism
-    )
-
-    await this.buildBundleDockerImage(
+    const dockerfile = DockerService.getBundleDockerfile(
       bundleDescriptor,
-      dockerOrganization,
       flags.file
     )
+
+    if (!skipDockerBuild) {
+      await this.buildMicroservicesDockerImages(
+        microservices,
+        dockerOrganization,
+        flags.stdout,
+        parallelism
+      )
+
+      await this.buildBundleDockerImage(
+        bundleDescriptor,
+        dockerOrganization,
+        dockerfile
+      )
+    }
   }
 
   private getVersionedMicroservices(): VersionedComponent[] {
@@ -191,14 +204,7 @@ export default class Pack extends BaseBuildCommand {
     await this.parallelBuild(executorService, microservices, stdout)
   }
 
-  private async buildBundleDockerImage(
-    bundleDescriptor: BundleDescriptor,
-    dockerOrganization: string,
-    dockerfile?: string
-  ) {
-    this.log(color.bold.blue('Creating bundle package...'))
-    CliUx.ux.action.start('Building Bundle Docker image')
-
+  private buildBundleDockerResources(dockerOrganization: string) {
     const bundleDescriptorConverterService =
       new BundleDescriptorConverterService(dockerOrganization)
 
@@ -225,6 +231,15 @@ export default class Pack extends BaseBuildCommand {
       pscDescriptors,
       thumbnailInfo
     )
+  }
+
+  private async buildBundleDockerImage(
+    bundleDescriptor: BundleDescriptor,
+    dockerOrganization: string,
+    dockerfile: string
+  ) {
+    this.log(color.bold.blue('Creating bundle package...'))
+    CliUx.ux.action.start('Building Bundle Docker image')
 
     const result = await DockerService.buildBundleDockerImage(
       bundleDescriptor,

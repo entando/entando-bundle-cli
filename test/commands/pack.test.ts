@@ -57,6 +57,9 @@ describe('pack', () => {
     stubBuildBundleDockerImage = sinon
       .stub(DockerService, 'buildBundleDockerImage')
       .resolves(0)
+    stubGetBundleDockerfile = sinon
+      .stub(DockerService, 'getBundleDockerfile')
+      .returns('path/to/Dockerfile')
 
     stubProcessThumbnail = sinon.stub(
       BundleThumbnailService.prototype,
@@ -73,6 +76,7 @@ describe('pack', () => {
       })
   })
 
+  let stubGetBundleDockerfile: sinon.SinonStub
   let stubBuildBundleDockerImage: sinon.SinonStub
   let stubGenerateYamlDescriptors: sinon.SinonStub
   let stubProcessThumbnail: sinon.SinonStub
@@ -314,6 +318,10 @@ describe('pack', () => {
         'test-bundle-org-flag-custom-dockerfile'
       )
       setupBuildSuccess(bundleDir)
+      stubGetBundleDockerfile.restore()
+      stubGetBundleDockerfile = sinon
+        .stub(DockerService, 'getBundleDockerfile')
+        .returns('custom-Dockerfile')
     })
     .command([
       'pack',
@@ -617,6 +625,49 @@ describe('pack', () => {
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if microservices versions are too long')
+
+  let stubGetDockerImagesExecutorService: sinon.SinonStub
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-skip-docker-build')
+
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot
+        }
+      ]
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          ...stubComponents[0],
+          version: '0.0.1'
+        }
+      ])
+
+      parallelProcessExecutorServiceStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(new StubParallelProcessExecutorService([0]))
+
+      stubGetDockerImagesExecutorService = sinon.stub(
+        DockerService,
+        'getDockerImagesExecutorService'
+      )
+    })
+    .command(['pack', '--org', 'flag-organization', '--skip-docker-build'])
+    .it('pack --skip-docker-build', ctx => {
+      expect(ctx.stderr).contain('1/1')
+      sinon.assert.notCalled(stubGetDockerImagesExecutorService)
+      sinon.assert.notCalled(stubBuildBundleDockerImage)
+    })
 
   function stubComponentsForBuildError(
     stubComponents: Array<Component<ComponentType>>
