@@ -113,19 +113,7 @@ export class BundleDescriptorHelper {
   }
 }
 
-export const mocks = [
-  {
-    expectedLineError: 6,
-    body: `{
-      "microservices": [
-        {
-          "name": "my-service",
-          "stack": "spring-boot"
-          "healthCheckPath": "/health"
-        }
-      ]
-    }`
-  },
+export const mocksExpectedErrorWithInput = [
   {
     expectedLineError: 9,
     body: `{
@@ -278,7 +266,7 @@ export const mocks = [
   }
 ]
 
-export const mocksOneLine = [
+export const mocksExpectedErrorWithInputOneLine = [
   {
     expectedLineError: 1,
     body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
