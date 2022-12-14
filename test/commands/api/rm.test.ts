@@ -1,3 +1,4 @@
+import { CLIError } from '@oclif/errors'
 import { expect, test } from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
@@ -120,6 +121,7 @@ describe('api rm', () => {
     .command(['api rm', 'nonexistent-mfe', 'ms1-api'])
     .catch(error => {
       expect(error.message).to.contain('nonexistent-mfe does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       'exits with an error if micro frontend does not exist in the descriptor'
@@ -130,6 +132,7 @@ describe('api rm', () => {
     .command(['api rm', 'mfe1', 'nonexistent-api-claim'])
     .catch(error => {
       expect(error.message).to.contain('nonexistent-api-claim does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if api claim does not exist in the micro frontend')
 
@@ -141,6 +144,7 @@ describe('api rm', () => {
     .command(['api rm', 'mfe1', 'ms1-api'])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with error if current folder is not a Bundle project')
 
@@ -150,6 +154,7 @@ describe('api rm', () => {
       expect(error.message).to.contain('Missing 2 required args')
       expect(error.message).to.contain('mfeName')
       expect(error.message).to.contain('claimName')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required arguments are missing')
 })

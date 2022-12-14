@@ -21,6 +21,7 @@ import {
   DEFAULT_VERSION,
   MicroserviceStack
 } from '../../../src/models/component'
+import { CLIError } from '@oclif/errors'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -139,6 +140,7 @@ describe('ms add', () => {
     .command(['ms add', 'invalid name'])
     .catch(error => {
       expect(error.message).to.contain('not a valid microservice name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if microservice name is invalid')
 
@@ -147,6 +149,7 @@ describe('ms add', () => {
     .command(['ms add', 'too-long'.repeat(20)])
     .catch(error => {
       expect(error.message).to.contain('Microservice name is too long')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if microservice name is too long')
 
@@ -155,6 +158,7 @@ describe('ms add', () => {
     .command(['ms add', 'existing-ms-dir'])
     .catch(error => {
       expect(error.message).to.contain('existing-ms-dir already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if ms folder already exists')
 
@@ -172,6 +176,7 @@ describe('ms add', () => {
     .command(['ms add', 'existing-ms-desc'])
     .catch(error => {
       expect(error.message).to.contain('existing-ms-desc already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if ms descriptor already exists')
 
@@ -185,6 +190,7 @@ describe('ms add', () => {
     .command(['ms add', 'ms-in-notbundleproject'])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if current folder is not a Bundle project')
 
@@ -203,6 +209,7 @@ describe('ms add', () => {
       expect(error.message).to.contain(
         'A component (microservice or micro frontend) with name component1 already exists'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       'exits with an error if another component with the same name already exists'
@@ -213,6 +220,7 @@ describe('ms add', () => {
     .catch(error => {
       expect(error.message).to.contain('Missing 1 required arg')
       expect(error.message).to.contain('name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required argument is missing')
 

@@ -18,6 +18,7 @@ import { MfeConfig } from '../../../src/models/mfe-config'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { ComponentHelper } from '../../helpers/mocks/component-helper'
 import { setCmEnv } from '../../helpers/mocks/cm'
+import { CLIError } from '@oclif/errors'
 
 describe('api add', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -200,6 +201,7 @@ describe('api add', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain('nonexistent-mfe does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if microfrontend does not exist in the descriptor')
 
@@ -222,6 +224,7 @@ describe('api add', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain('ms1 does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if microservice does not exist in the descriptor')
 
@@ -248,6 +251,7 @@ describe('api add', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain('API claim ms1-api already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if API claim already exists')
 
@@ -264,6 +268,7 @@ describe('api add', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain('invalidurl is not a valid URL')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if serviceUrl is not a valid URL')
 
@@ -283,6 +288,7 @@ describe('api add', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if current folder is not a Bundle project')
 

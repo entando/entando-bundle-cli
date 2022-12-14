@@ -24,6 +24,7 @@ import {
   setCmEnv
 } from '../../helpers/mocks/cm'
 import { DOCKER_PREFIX } from '../../../src/models/bundle-descriptor-constraints'
+import { CLIError } from '@oclif/errors'
 
 describe('api add-ext', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -73,6 +74,7 @@ describe('api add-ext', () => {
     ])
     .catch(error => {
       expect(error.message).contain('Invalid bundle format')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Invalid bundle format')
 
@@ -91,6 +93,7 @@ describe('api add-ext', () => {
       expect(error.message).to.contain(
         'Environment variable "ENTANDO_CLI_BASE_URL" should have a value'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required env variable is not set')
 
@@ -302,6 +305,7 @@ describe('api add-ext', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain('nonexistent-mfe does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       'exits with an error if micro frontend does not exist in the descriptor'
@@ -343,6 +347,7 @@ describe('api add-ext', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain('API claim ms1-api already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with error if API claim already exists')
 
@@ -476,6 +481,7 @@ describe('api add-ext', () => {
     ])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with error if current folder is not a Bundle project')
 })
