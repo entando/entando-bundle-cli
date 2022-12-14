@@ -8,7 +8,10 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { ComponentService } from '../../src/services/component-service'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
-import { mocks, mocksOneLine } from '../helpers/mocks/bundle-descriptor-helper'
+import {
+  mocksExpectedErrorWithInput,
+  mocksExpectedErrorWithInputOneLine
+} from '../helpers/mocks/bundle-descriptor-helper'
 
 describe('BundleDescriptorService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -78,7 +81,7 @@ describe('BundleDescriptorService', () => {
     })
     .it('Error in JSON parse without position')
 
-  for (const [index, mock] of mocks.entries()) {
+  for (const [index, mock] of mocksExpectedErrorWithInput.entries()) {
     test
       .do(() => {
         const bundleDescriptorService = new BundleDescriptorService()
@@ -143,7 +146,7 @@ describe('BundleDescriptorService', () => {
     })
     .it('overflow position from JSON parse')
 
-  for (const [index, mock] of mocksOneLine.entries()) {
+  for (const [index, mock] of mocksExpectedErrorWithInputOneLine.entries()) {
     test
       .do(() => {
         const bundleDescriptorService = new BundleDescriptorService()
