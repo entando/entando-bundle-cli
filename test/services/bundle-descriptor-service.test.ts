@@ -8,6 +8,7 @@ import { TempDirHelper } from '../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { ComponentService } from '../../src/services/component-service'
 import { BUNDLE_DESCRIPTOR_FILE_NAME } from '../../src/paths'
+import { mocks, mocksOneLine } from '../helpers/mocks/bundle-descriptor-helper'
 
 describe('BundleDescriptorService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -24,171 +25,6 @@ describe('BundleDescriptorService', () => {
   afterEach(() => {
     sinon.restore()
   })
-
-  const mocks = [
-    {
-      expectedLineError: 6,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot"
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 9,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      },`
-    },
-    {
-      expectedLineError: 3,
-      body: `{
-        "microservices": [
-          {,
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 3,
-      body: `{
-        "microservices": [
-          {,
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 3,
-      body: `{
-        "microservices": [
-          ,{
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 1,
-      body: `{,
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 1,
-      body: `,{
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 5,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service"
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 1,
-      body: `{"microservices",
-       [],
-       "version":"0.0.1"}`
-    },
-    {
-      expectedLineError: 5,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot",[
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 5,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot",]
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 5,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            ["stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 5,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            ]"stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }
-        ]
-      }`
-    },
-    {
-      expectedLineError: 7,
-      body: `{
-        "microservices": [
-          {
-            "name": "my-service",
-            "stack": "spring-boot",
-            "healthCheckPath": "/health"
-          }}
-        ]
-      }`
-    }
-  ]
 
   test
     .do(() => {
@@ -306,17 +142,6 @@ describe('BundleDescriptorService', () => {
       expect(error.message).contain('Malformed JSON at line 1')
     })
     .it('overflow position from JSON parse')
-
-  const mocksOneLine = [
-    {
-      expectedLineError: 1,
-      body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
-    },
-    {
-      expectedLineError: 1,
-      body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}\n`
-    }
-  ]
 
   for (const [index, mock] of mocksOneLine.entries()) {
     test

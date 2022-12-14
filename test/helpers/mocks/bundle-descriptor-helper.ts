@@ -112,3 +112,179 @@ export class BundleDescriptorHelper {
     }
   }
 }
+
+export const mocks = [
+  {
+    expectedLineError: 6,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot"
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 9,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    },`
+  },
+  {
+    expectedLineError: 3,
+    body: `{
+      "microservices": [
+        {,
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 3,
+    body: `{
+      "microservices": [
+        {,
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 3,
+    body: `{
+      "microservices": [
+        ,{
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 1,
+    body: `{,
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 1,
+    body: `,{
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 5,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service"
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 1,
+    body: `{"microservices",
+     [],
+     "version":"0.0.1"}`
+  },
+  {
+    expectedLineError: 5,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot",[
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 5,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot",]
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 5,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          ["stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 5,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          ]"stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }
+      ]
+    }`
+  },
+  {
+    expectedLineError: 7,
+    body: `{
+      "microservices": [
+        {
+          "name": "my-service",
+          "stack": "spring-boot",
+          "healthCheckPath": "/health"
+        }}
+      ]
+    }`
+  }
+]
+
+export const mocksOneLine = [
+  {
+    expectedLineError: 1,
+    body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}`
+  },
+  {
+    expectedLineError: 1,
+    body: `{"microservices": [{"name": "my-service""stack": "spring-boot","healthCheckPath": "/health"}]}\n`
+  }
+]
