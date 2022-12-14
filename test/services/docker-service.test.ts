@@ -85,9 +85,11 @@ describe('DockerService', () => {
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(0)
 
+    const dockerfile = DockerService.getBundleDockerfile(bundleDescriptor)
     const result = await DockerService.buildBundleDockerImage(
       bundleDescriptor,
-      'my-org'
+      'my-org',
+      dockerfile
     )
 
     let expectedContent = 'FROM scratch\n'
@@ -125,10 +127,14 @@ describe('DockerService', () => {
       .stub(ProcessExecutorService, 'executeProcess')
       .resolves(0)
 
+    const dockerfile = DockerService.getBundleDockerfile(
+      bundleDescriptor,
+      'custom-Dockerfile'
+    )
     const result = await DockerService.buildBundleDockerImage(
       bundleDescriptor,
       'my-org',
-      'custom-Dockerfile'
+      dockerfile
     )
 
     sinon.assert.calledWith(

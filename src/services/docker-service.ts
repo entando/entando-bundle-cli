@@ -79,11 +79,10 @@ export class DockerService {
     return `${DOCKER_COMMAND} build --platform "linux/amd64" -f ${dockerfile} -t ${dockerImageName} .`
   }
 
-  public static async buildBundleDockerImage(
+  public static getBundleDockerfile(
     bundleDescriptor: BundleDescriptor,
-    dockerOrganization: string,
     customDockerfile?: string
-  ): Promise<ProcessExecutionResult> {
+  ): string {
     const dockerfile =
       customDockerfile ||
       path.resolve(...OUTPUT_FOLDER, DEFAULT_DOCKERFILE_NAME)
@@ -104,7 +103,15 @@ export class DockerService {
       fs.writeFileSync(dockerfile, generatedDockerfileContent)
     }
 
-    const result = await DockerService.buildDockerImage({
+    return dockerfile
+  }
+
+  public static async buildBundleDockerImage(
+    bundleDescriptor: BundleDescriptor,
+    dockerOrganization: string,
+    dockerfile: string
+  ): Promise<ProcessExecutionResult> {
+    return DockerService.buildDockerImage({
       name: bundleDescriptor.name,
       organization: dockerOrganization,
       path: '.',
@@ -113,8 +120,6 @@ export class DockerService {
       // Docker build output will be visible only in debug mode
       outputStream: DockerService.debug.outputStream
     })
-
-    return result
   }
 
   public static getDockerImageName(
