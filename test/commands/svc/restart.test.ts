@@ -4,6 +4,7 @@ import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 import { SvcService } from '../../../src/services/svc-service'
+import { CLIError } from '@oclif/errors'
 
 describe('svc restart', () => {
   let bundleDirectory: string
@@ -57,6 +58,7 @@ describe('svc restart', () => {
     .command(['svc restart'])
     .catch(error => {
       expect(error.message).to.contain('At least one service name is required.')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('restart without any arguments and flags')
 
@@ -65,6 +67,7 @@ describe('svc restart', () => {
     .command(['svc restart', 'win2000'])
     .catch(error => {
       expect(error.message).to.contain('Service win2000 is not enabled.')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('restart an unlisted service')
 
@@ -76,6 +79,7 @@ describe('svc restart', () => {
       expect(error.message).to.contain(
         'Restarting service(s) rabbitmq failed, exited with code 403'
       )
+      expect((error as CLIError).oclif.exit).eq(403)
     })
     .it('restart command unsuccessful - exits with error code', () => {
       const runStub = SvcService.prototype.restartServices as sinon.SinonStub
@@ -96,6 +100,7 @@ describe('svc restart', () => {
       expect(error.message).to.contain(
         'Command failed due to error: an error who needs no intro'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('restart command unsuccessful - exits with Error instance', () => {
       const runStub = SvcService.prototype.restartServices as sinon.SinonStub
@@ -114,6 +119,7 @@ describe('svc restart', () => {
     .command(['svc restart', 'mysql'])
     .catch(error => {
       expect(error.message).to.contain('Process killed by signal mysqueal')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('restart command unsuccessful - exits with signal', () => {
       const runStub = SvcService.prototype.restartServices as sinon.SinonStub

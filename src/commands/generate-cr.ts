@@ -1,5 +1,4 @@
 import { CliUx, Command, Flags } from '@oclif/core'
-import { CLIError } from '@oclif/errors'
 import color from '@oclif/color'
 import {
   ALLOWED_BUNDLE_WITHOUT_REGISTRY_REGEXP,
@@ -96,7 +95,7 @@ export default class GenerateCr extends Command {
       try {
         BundleService.isValidBundleProject()
       } catch {
-        throw new CLIError(
+        this.error(
           'Current directory is not an initialized bundle project. Use the --image flag to specify the bundle image name or execute the command inside a valid bundle project.'
         )
       }

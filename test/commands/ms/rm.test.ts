@@ -16,6 +16,7 @@ import {
 } from '../../../src/paths'
 import { BundleDescriptorConverterService } from '../../../src/services/bundle-descriptor-converter-service'
 import { ComponentDescriptorService } from '../../../src/services/component-descriptor-service'
+import { CLIError } from '@oclif/errors'
 
 describe('Remove Microservice', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -72,6 +73,7 @@ describe('Remove Microservice', () => {
     .command(['ms rm', 'not-existing-bundle'])
     .catch(error => {
       expect(error.message).to.contain('not found')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it("Returns error if Microservice to remove doesn't exist")
 
@@ -80,6 +82,7 @@ describe('Remove Microservice', () => {
     .command(['ms rm', 'test-bundle'])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Returns error if Bundle directory not initialized')
 
@@ -115,6 +118,7 @@ describe('Remove Microservice', () => {
     .catch(error => {
       expect(error.message).to.contain('Missing 1 required arg')
       expect(error.message).to.contain('name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required argument is missing')
 })

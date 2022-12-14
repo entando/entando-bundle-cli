@@ -12,7 +12,7 @@ import { mkdirSync } from 'node:fs'
 import { color } from '@oclif/color'
 import { BaseExecutionCommand } from './base-execution-command'
 import { FSService } from '../services/fs-service'
-import { animatedProgress } from '../utils'
+import { animatedProgress, ColorizedWritable } from '../utils'
 
 export abstract class BaseBuildCommand extends BaseExecutionCommand {
   static get hidden(): boolean {
@@ -21,6 +21,8 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
 
   public async buildAllComponents(
     commandPhase: Phase,
+    stdout: boolean,
+    parallelism: number | undefined,
     componentType?: ComponentType
   ): Promise<void> {
     const componentService = new ComponentService()
@@ -44,12 +46,14 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
         break
     }
 
-    await this.buildComponents(components, commandPhase)
+    await this.buildComponents(components, commandPhase, stdout, parallelism)
   }
 
   protected async buildComponents(
     components: Array<Component<ComponentType>>,
-    commandPhase: Phase
+    commandPhase: Phase,
+    stdout: boolean,
+    parallelism: number | undefined
   ): Promise<void> {
     // Output and logs directories cleanup
     const outputFolder = path.resolve(...OUTPUT_FOLDER)
@@ -66,21 +70,33 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
     const executionOptions = this.getExecutionOptions(
       components,
       commandPhase,
-      component => this.getBuildOutputLogFile(component)
+      component =>
+        stdout
+          ? new ColorizedWritable(
+              component.name,
+              this.getMaxPrefixLength(components)
+            )
+          : this.getBuildOutputLogFile(component, false)
     )
 
-    const executorService = new ParallelProcessExecutorService(executionOptions)
+    const executorService = new ParallelProcessExecutorService(
+      executionOptions,
+      parallelism
+    )
 
-    await this.parallelBuild(executorService, components)
+    await this.parallelBuild(executorService, components, stdout)
   }
 
   public getBuildOutputLogFile(
-    component: Component<ComponentType>
+    component: Component<ComponentType>,
+    append: boolean
   ): fs.WriteStream {
     const logDir = path.resolve(...LOGS_FOLDER)
     mkdirSync(logDir, { recursive: true })
     const logFilePath = path.resolve(logDir, component.name + '.log')
-    const logFile = fs.createWriteStream(logFilePath)
+    const logFile = fs.createWriteStream(logFilePath, {
+      flags: append ? 'a' : 'w'
+    })
 
     this.log(
       `- Build output for ${
@@ -93,17 +109,24 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
 
   public async parallelBuild(
     executorService: ParallelProcessExecutorService,
-    components: Array<Component<ComponentType>>
+    components: Array<Component<ComponentType>>,
+    stdout: boolean
   ): Promise<void> {
     const progress = animatedProgress()
-    progress.start(components.length, 0)
+    if (!stdout) {
+      progress.start(components.length, 0)
+    }
 
     executorService.on('done', () => {
-      progress.update(progress.value + 1)
+      if (!stdout) {
+        progress.update(progress.value + 1)
+      }
     })
 
     const results = await executorService.execute()
-    progress.stop()
+    if (!stdout) {
+      progress.stop()
+    }
 
     this.checkBuildResults(results, components)
   }

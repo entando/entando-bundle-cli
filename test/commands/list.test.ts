@@ -14,6 +14,7 @@ import {
 import { TempDirHelper } from '../helpers/temp-dir-helper'
 import * as sinon from 'sinon'
 import { ConstraintsValidatorService } from '../../src/services/constraints-validator-service'
+import { CLIError } from '@oclif/errors'
 
 describe('list', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -139,6 +140,7 @@ describe('list', () => {
     .command(['list'])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if current folder is not a Bundle project')
 })

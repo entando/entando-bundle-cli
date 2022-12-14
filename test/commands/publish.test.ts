@@ -12,6 +12,7 @@ import Pack from '../../src/commands/pack'
 import { BundleService } from '../../src/services/bundle-service'
 import { CliUx } from '@oclif/core'
 import * as Screen from '@oclif/screen'
+import { CLIError } from '@oclif/errors'
 
 describe('publish', () => {
   afterEach(() => {
@@ -38,11 +39,12 @@ describe('publish', () => {
       sinon.restore()
       sinon
         .stub(BundleService, 'isValidBundleProject')
-        .throws(new Error('not initialized'))
+        .throws(new CLIError('not initialized'))
     })
     .command('publish')
     .catch(error => {
       expect(error.message).contain('not initialized')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Exits if is not a valid bundle project')
 
@@ -52,6 +54,7 @@ describe('publish', () => {
       expect(error.message).contain(
         'No configured Docker organization found. Please run the command with --org flag.'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Exits if Docker organization is not found')
 

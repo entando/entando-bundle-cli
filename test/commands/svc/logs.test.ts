@@ -4,6 +4,7 @@ import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../../src/services/process-executor-service'
 import { SvcService } from '../../../src/services/svc-service'
+import { CLIError } from '@oclif/errors'
 
 describe('svc logs', () => {
   let bundleDirectory: string
@@ -57,6 +58,7 @@ describe('svc logs', () => {
     .command(['svc logs'])
     .catch(error => {
       expect(error.message).to.contain('At least one service name is required.')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('display log command without any arguments and flags')
 
@@ -65,6 +67,7 @@ describe('svc logs', () => {
     .command(['svc logs', 'win2000'])
     .catch(error => {
       expect(error.message).to.contain('Service win2000 is not enabled.')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('display logs using an unlisted service')
 
@@ -76,6 +79,7 @@ describe('svc logs', () => {
       expect(error.message).to.contain(
         'Logs display service(s) rabbitmq failed, exited with code 403'
       )
+      expect((error as CLIError).oclif.exit).eq(403)
     })
     .it('display logs command unsuccessful - exits with error code', () => {
       const runStub = SvcService.prototype.logServices as sinon.SinonStub
@@ -96,6 +100,7 @@ describe('svc logs', () => {
       expect(error.message).to.contain(
         'Command failed due to error: an error who needs no intro'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('display logs command unsuccessful - exits with Error instance', () => {
       const runStub = SvcService.prototype.logServices as sinon.SinonStub
@@ -114,6 +119,7 @@ describe('svc logs', () => {
     .command(['svc logs', 'mysql'])
     .catch(error => {
       expect(error.message).to.contain('Process killed by signal mysqueal')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('display logs command unsuccessful - exits with signal', () => {
       const runStub = SvcService.prototype.logServices as sinon.SinonStub
