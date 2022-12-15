@@ -28,7 +28,7 @@ type Image = Pick<VersionedComponent, 'name' | 'version'> &
 
 export default class Images extends Command {
   static description =
-    'List the Docker images and their corresponding tags that are included in the bundle, taking into account the organization previously set using the "pack" command.'
+    'List the Docker images and their corresponding tags that are included in the bundle, taking into account organization and registry previously set using the "pack" command.'
 
   private configuredOrganization: string | undefined
   private configuredRegistry: string | undefined

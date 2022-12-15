@@ -6,7 +6,8 @@ import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
 import {
   ConfigService,
-  DOCKER_ORGANIZATION_PROPERTY
+  DOCKER_ORGANIZATION_PROPERTY,
+  DOCKER_REGISTRY_PROPERTY
 } from '../services/config-service'
 import {
   DEFAULT_DOCKERFILE_NAME,
@@ -48,6 +49,11 @@ export default class Pack extends BaseBuildCommand {
       char: 'o',
       description: 'Docker organization name'
     }),
+    registry: Flags.string({
+      char: 'r',
+      description: `Docker registry (default is ${DockerService.getDefaultDockerRegistry()})`,
+      required: false
+    }),
     file: Flags.string({
       char: 'f',
       description:
@@ -82,6 +88,13 @@ export default class Pack extends BaseBuildCommand {
     const parallelism = flags['max-parallel']
     const skipDockerBuild = flags['skip-docker-build']
 
+    if (flags.registry) {
+      this.configService.addOrUpdateProperty(
+        DOCKER_REGISTRY_PROPERTY,
+        flags.registry
+      )
+    }
+
     const microservices = this.getVersionedMicroservices()
 
     await this.buildAllComponents(Phase.Pack, flags.stdout, parallelism)
@@ -107,6 +120,14 @@ export default class Pack extends BaseBuildCommand {
         dockerOrganization,
         dockerfile
       )
+
+      if (flags.registry) {
+        await DockerService.setImagesRegistry(
+          bundleDescriptor,
+          dockerOrganization,
+          flags.registry
+        )
+      }
     }
   }
 
