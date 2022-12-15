@@ -31,6 +31,8 @@ import {
   INVALID_VERSION_MESSAGE,
   MAX_VERSION_LENGTH
 } from '../models/bundle-descriptor-constraints'
+import { ColorizedWritable } from '../utils'
+import { DEFAULT_PARALLEL_PROCESSES_SIZE } from '../services/process-executor-service'
 
 export default class Pack extends BaseBuildCommand {
   static description = 'Generate the bundle Docker images'
@@ -51,6 +53,14 @@ export default class Pack extends BaseBuildCommand {
       description:
         'Bundle Dockerfile (by default it is automatically generated)',
       required: false
+    }),
+    stdout: Flags.boolean({
+      description: 'Log build output to standard output'
+    }),
+    'max-parallel': Flags.integer({
+      description:
+        'Maximum number of processes running at the same time. Default value is ' +
+        DEFAULT_PARALLEL_PROCESSES_SIZE
     })
   }
 
@@ -61,16 +71,24 @@ export default class Pack extends BaseBuildCommand {
 
     const { flags } = await this.parse(Pack)
 
+    this.validateMaxParallel(flags)
+
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+    const parallelism = flags['max-parallel']
 
     const microservices = this.getVersionedMicroservices()
 
-    await this.buildAllComponents(Phase.Pack)
+    await this.buildAllComponents(Phase.Pack, flags.stdout, parallelism)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
 
-    await this.buildMicroservicesDockerImages(microservices, dockerOrganization)
+    await this.buildMicroservicesDockerImages(
+      microservices,
+      dockerOrganization,
+      flags.stdout,
+      parallelism
+    )
 
     await this.buildBundleDockerImage(
       bundleDescriptor,
@@ -131,11 +149,15 @@ export default class Pack extends BaseBuildCommand {
 
   private async buildMicroservicesDockerImages(
     microservices: VersionedComponent[],
-    dockerOrganization: string
+    dockerOrganization: string,
+    stdout: boolean,
+    parallelism: number | undefined
   ) {
     this.log(color.bold.blue('Building microservices Docker images...'))
 
     const buildOptions: DockerBuildOptions[] = []
+
+    const maxPrefixLength = this.getMaxPrefixLength(microservices)
 
     for (const microservice of microservices) {
       const msPath = path.resolve(MICROSERVICES_FOLDER, microservice.name)
@@ -148,21 +170,25 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      const logFile = this.getBuildOutputLogFile(microservice)
+      const outputStream = stdout
+        ? new ColorizedWritable(microservice.name, maxPrefixLength)
+        : this.getBuildOutputLogFile(microservice, true)
 
       buildOptions.push({
         name: microservice.name,
         organization: dockerOrganization,
         path: msPath,
         tag: microservice.version,
-        outputStream: logFile
+        outputStream
       })
     }
 
-    const executorService =
-      DockerService.getDockerImagesExecutorService(buildOptions)
+    const executorService = DockerService.getDockerImagesExecutorService(
+      buildOptions,
+      parallelism
+    )
 
-    await this.parallelBuild(executorService, microservices)
+    await this.parallelBuild(executorService, microservices, stdout)
   }
 
   private async buildBundleDockerImage(
@@ -217,9 +243,8 @@ export default class Pack extends BaseBuildCommand {
     } else if (typeof result === 'number') {
       this.error(
         `Docker build failed with exit code ${result}. Enable debug mode to see docker build output`,
-        { exit: false }
+        { exit: result as number }
       )
-      this.exit(result as number)
     } else {
       this.error(
         `Docker build failed with cause: ${this.getErrorMessage(result)}`

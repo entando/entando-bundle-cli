@@ -28,7 +28,10 @@ import {
   PSC_FOLDER
 } from '../../src/paths'
 import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
-import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-parallel-process-executor-service'
+import {
+  getStubProcess,
+  StubParallelProcessExecutorService
+} from '../helpers/mocks/stub-process'
 import {
   BundleThumbnailService,
   ThumbnailStatusMessage
@@ -36,6 +39,8 @@ import {
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { MicroFrontendType } from '../../src/models/bundle-descriptor'
+import * as cp from 'node:child_process'
+import { CLIError } from '@oclif/errors'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -175,6 +180,109 @@ describe('pack', () => {
     .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-pack-max-parallel'
+      )
+      const configService = new ConfigService()
+      configService.addProperty(
+        DOCKER_ORGANIZATION_PROPERTY,
+        'configured-organization'
+      )
+      setupBuildSuccess(bundleDir)
+    })
+    .command(['pack', '--max-parallel', '1'])
+    .it('runs pack with --max-parallel flag', ctx => {
+      sinon.assert.calledWith(
+        parallelProcessExecutorServiceStub,
+        sinon.match.any,
+        sinon.match(1)
+      )
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
+    })
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-pack-max-parallel-invalid')
+    })
+    .command(['pack', '--max-parallel', '0'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Value of flag --max-parallel should be greater than 0'
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('pack with invalid --max-parallel flag')
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-pack-stdout'
+      )
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot
+        }
+      ]
+
+      const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, 'ms1')
+      const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
+      fs.mkdirSync(ms1Dir, { recursive: true })
+      fs.writeFileSync(ms1Dockerfile, '')
+
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot,
+          version: '0.0.3'
+        }
+      ])
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      const stubProcess1 = getStubProcess()
+      setTimeout(() => {
+        stubProcess1.stdout!.emit('data', 'build message\n')
+        stubProcess1.emit('exit', 0, null)
+      }, 500)
+
+      const stubProcess2 = getStubProcess()
+      setTimeout(() => {
+        stubProcess2.stdout!.emit('data', 'pack message\n')
+        stubProcess2.emit('exit', 0, null)
+      }, 700)
+
+      sinon
+        .stub(cp, 'spawn')
+        .onFirstCall()
+        .returns(stubProcess1)
+        .onSecondCall()
+        .returns(stubProcess2)
+    })
+    .command(['pack', '--org', 'flag-organization', '--stdout'])
+    .it('runs pack --org flag-organization --stdout', ctx => {
+      sinon.assert.called(stubGetThumbInfo)
+      expect(ctx.stdout).contain('Building ms1 components')
+      expect(ctx.stdout).match(/ms1 |.*build message/)
+      expect(ctx.stdout).contain('Building microservices Docker images')
+      expect(ctx.stdout).match(/ms1 |.*pack message/)
+      expect(ctx.stdout).contain('Creating bundle package')
+      // progressbar is disabled when logging directly to stdout
+      expect(ctx.stderr).not.contain('2/2')
+      expect(ctx.stderr).not.contain('1/1')
+    })
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-org-flag-with-existing-conf'
       )
       const configService = new ConfigService()
@@ -270,6 +378,7 @@ describe('pack', () => {
     .catch(error => {
       expect(error.message).to.contain('components failed to build')
       sinon.assert.calledThrice(getComponentsStub)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Build failure stops package command', ctx => {
       expect(ctx.stderr).contain('4/4') // components build
@@ -286,11 +395,12 @@ describe('pack', () => {
         .resolves(42)
     })
     .command(['pack', '--org', 'flag-organization'])
-    .exit(42)
-    .it('Docker build failure forwards exit code', ctx => {
+    .catch(error => {
       sinon.assert.calledOnce(stubBuildBundleDockerImage)
-      expect(ctx.stderr).to.contain('Docker build failed with exit code')
+      expect(error.message).to.contain('Docker build failed with exit code')
+      expect((error as CLIError).oclif.exit).eq(42)
     })
+    .it('Docker build failure forwards exit code')
 
   test
     .stderr()
@@ -306,6 +416,7 @@ describe('pack', () => {
     .catch(error => {
       sinon.assert.calledOnce(stubBuildBundleDockerImage)
       expect(error.message).to.contain('Docker build failed with cause')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Docker build fails when command not found')
 
@@ -337,6 +448,7 @@ describe('pack', () => {
       expect(error.message).to.contain(
         'Unable to determine version for component ms1'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Packaging stops if it is unable to retrieve component version')
 
@@ -369,6 +481,7 @@ describe('pack', () => {
       expect(error.message).to.contain(
         'Dockerfile not found for microservice ms1'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       "Packaging stops if a microservice folder doesn't contain a Dockerfile",
@@ -459,6 +572,7 @@ describe('pack', () => {
       expect(error.message).contain(
         'Widget descriptor hello-widget.yaml already exists'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if widget in platform folder has the same name of a MFE')
 
@@ -479,6 +593,7 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       expect(error.message).contain('Version of invalid-ms is not valid')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if microservices versions have an invalid format')
 
@@ -499,6 +614,7 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization'])
     .catch(error => {
       expect(error.message).contain('Version of invalid-ms is too long')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if microservices versions are too long')
 
@@ -522,6 +638,8 @@ describe('pack', () => {
       .stub(ComponentService.prototype, 'getVersionedComponents')
       .returns(versionedMicroservices)
   }
+
+  let parallelProcessExecutorServiceStub: sinon.SinonStub
 
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [
@@ -563,7 +681,7 @@ describe('pack', () => {
         stubComponents.filter(c => c.type === ComponentType.MICROSERVICE)
       )
 
-    sinon
+    parallelProcessExecutorServiceStub = sinon
       .stub(executors, 'ParallelProcessExecutorService')
       .onFirstCall()
       .returns(new StubParallelProcessExecutorService([0, 0]))

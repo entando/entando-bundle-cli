@@ -44,7 +44,7 @@ export default class Run extends BaseExecutionCommand {
     BundleService.isValidBundleProject()
     const { argv, flags } = await this.parse(Run)
 
-    this.validateInputs(Object.keys(flags).length, argv.length)
+    this.validateInputs(argv, flags)
 
     if (argv.length > 1) {
       CliUx.ux.action.start(
@@ -81,8 +81,7 @@ export default class Run extends BaseExecutionCommand {
           this.error(
             `Run failed, exit with code 1 and message ${this.getErrorMessage(
               result
-            )}`,
-            { exit: 1 }
+            )}`
           )
         }
       }
@@ -127,16 +126,14 @@ export default class Run extends BaseExecutionCommand {
   ): Promise<void> {
     const componentsSize = components.length
 
-    let maxPrefixLength = 0
-    for (const component of components) {
-      const nameLength = component.name.length
-      if (component.name.length > maxPrefixLength) maxPrefixLength = nameLength
-    }
-
     const executionOptions = this.getExecutionOptions(
       components,
       Phase.Run,
-      component => new ColorizedWritable(component.name, maxPrefixLength)
+      component =>
+        new ColorizedWritable(
+          component.name,
+          this.getMaxPrefixLength(components)
+        )
     )
 
     const executorService = new ParallelProcessExecutorService(

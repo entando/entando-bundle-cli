@@ -11,21 +11,48 @@ import {
 import { Component, ComponentType } from '../models/component'
 import { Writable } from 'node:stream'
 
+const componentsSelectorFlags = new Set(['all-ms', 'all-mfe', 'all'])
+
 export abstract class BaseExecutionCommand extends Command {
   static get hidden(): boolean {
     return this.name === BaseExecutionCommand.name
   }
 
-  public validateInputs(flagsLength: number, argvLength: number): void {
+  public validateInputs(argv: string[], flags: Record<string, unknown>): void {
+    const hasComponentsSelector = Object.keys(flags).some(f =>
+      componentsSelectorFlags.has(f)
+    )
     if (
-      (flagsLength > 0 && argvLength > 0) ||
-      (flagsLength === 0 && argvLength === 0)
+      (hasComponentsSelector && argv.length > 0) ||
+      (!hasComponentsSelector && argv.length === 0)
     ) {
       this.error(
-        'Bad arguments. Please use the component name as argument or one of the available flags',
-        { exit: 1 }
+        'Bad arguments. Please use the component name as argument or one of the available flags'
       )
     }
+
+    this.validateMaxParallel(flags)
+  }
+
+  public validateMaxParallel(flags: Record<string, unknown>): void {
+    if (
+      flags['max-parallel'] !== undefined &&
+      (flags['max-parallel'] as number) <= 0
+    ) {
+      this.error('Value of flag --max-parallel should be greater than 0')
+    }
+  }
+
+  public getMaxPrefixLength(
+    components: Array<Component<ComponentType>>
+  ): number {
+    let maxPrefixLength = 0
+    for (const component of components) {
+      const nameLength = component.name.length
+      if (component.name.length > maxPrefixLength) maxPrefixLength = nameLength
+    }
+
+    return maxPrefixLength
   }
 
   public getExecutionOptions(

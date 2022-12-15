@@ -1,8 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as cp from 'node:child_process'
-import { ChildProcess } from 'node:child_process'
-import { EventEmitter } from 'node:events'
-import { PassThrough, Writable } from 'node:stream'
+import { Writable } from 'node:stream'
 import * as sinon from 'sinon'
 import { InMemoryWritable } from '../../src/utils'
 
@@ -10,21 +8,7 @@ import {
   ProcessExecutorService,
   ParallelProcessExecutorService
 } from '../../src/services/process-executor-service'
-
-function getStubProcess() {
-  const stubProcess = sinon.createStubInstance(ChildProcess)
-
-  stubProcess.stdout = new PassThrough()
-  stubProcess.stderr = new PassThrough()
-
-  // setting real EventEmitter to stub on and emit methods
-  const stubProcessAsEventEmitter = stubProcess as EventEmitter
-  const eventEmitter = new EventEmitter()
-  stubProcessAsEventEmitter.on = eventEmitter.on
-  stubProcessAsEventEmitter.emit = eventEmitter.emit
-
-  return stubProcess
-}
+import { getStubProcess } from '../helpers/mocks/stub-process'
 
 const CMD_NOT_FOUND_ERROR = new Error('Command not found')
 const SIGKILL: NodeJS.Signals = 'SIGKILL'

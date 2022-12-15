@@ -22,6 +22,7 @@ import {
   DEFAULT_VERSION,
   MicroFrontendStack
 } from '../../../src/models/component'
+import { CLIError } from '@oclif/errors'
 
 describe('mfe add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -156,6 +157,7 @@ describe('mfe add', () => {
       expect(error.message).to.contain(
         '--slot requires --type to be app-builder'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if --slot is used but type is not app-builder')
 
@@ -164,6 +166,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'invalid name'])
     .catch(error => {
       expect(error.message).to.contain('not a valid Micro Frontend name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if micro frontend name is invalid')
 
@@ -172,6 +175,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'too-long'.repeat(20)])
     .catch(error => {
       expect(error.message).to.contain('Micro Frontend name is too long')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if micro frontend name is too long')
 
@@ -180,6 +184,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'existing-mfe-dir'])
     .catch(error => {
       expect(error.message).to.contain('existing-mfe-dir already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if mfe folder already exists')
 
@@ -197,6 +202,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'existing-mfe-desc'])
     .catch(error => {
       expect(error.message).to.contain('existing-mfe-desc already exists')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if mfe descriptor already exists')
 
@@ -210,6 +216,7 @@ describe('mfe add', () => {
     .command(['mfe add', 'mfe-in-notbundleproject'])
     .catch(error => {
       expect(error.message).to.contain(MISSING_DESCRIPTOR_ERROR)
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if current folder is not a Bundle project')
 
@@ -229,6 +236,7 @@ describe('mfe add', () => {
       expect(error.message).to.contain(
         'A component (microservice or micro frontend) with name component1 already exists'
       )
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it(
       'exits with an error if another component with the same name already exists'
@@ -325,6 +333,7 @@ describe('mfe add', () => {
     .catch(error => {
       expect(error.message).to.contain('Missing 1 required arg')
       expect(error.message).to.contain('name')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required argument is missing')
 

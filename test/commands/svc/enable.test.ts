@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import { TempDirHelper } from '../../helpers/temp-dir-helper'
 import { BundleDescriptorService } from '../../../src/services/bundle-descriptor-service'
+import { CLIError } from '@oclif/errors'
 
 describe('svc enable', () => {
   let bundleDirectory: string
@@ -35,6 +36,7 @@ describe('svc enable', () => {
     .command(['svc enable', 'win95x'])
     .catch(error => {
       expect(error.message).to.contain('Service win95x does not exist')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('enable a service that is unavailable')
 
@@ -50,6 +52,7 @@ describe('svc enable', () => {
     .command(['svc enable', 'keycloak'])
     .catch(error => {
       expect(error.message).to.contain('Service keycloak is already enabled')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('enable a service that is currently enabled')
 
@@ -58,6 +61,7 @@ describe('svc enable', () => {
     .catch(error => {
       expect(error.message).to.contain('Missing 1 required arg')
       expect(error.message).to.contain('serviceName')
+      expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits with an error if required argument is missing')
 })
