@@ -7,10 +7,12 @@ import { BundleDescriptorService } from './bundle-descriptor-service'
 import { DefaultSvcInitializerService } from './default-svc-initializer-service'
 import {
   ProcessExecutorService,
-  ProcessExecutionResult
+  ProcessExecutionResult,
+  ProcessExecutionOptions
 } from './process-executor-service'
 
 import { debugFactory } from './debug-factory-service'
+import { EXIT_CODES } from '../utils'
 
 enum DockerComposeCommand {
   UP = 'up --build -d',
@@ -167,18 +169,19 @@ export class SvcService {
     return this.executeDockerComposeCommand(DockerComposeCommand.LOGS, services)
   }
 
-  private executeDockerComposeCommand(
+  private async executeDockerComposeCommand(
     serviceType: DockerComposeCommand,
     services: string[]
   ): Promise<ProcessExecutionResult> {
-    const cmd = `docker-compose -p ${this.bundleDescriptor.name} ${services
+    let COMPOSE_COMMAND = `docker compose > /dev/null 2>&1`
+    const COMPOSE_OPTIONS = ` -p ${this.bundleDescriptor.name} ${services
       .map(service => `-f ${SVC_FOLDER}/${service}.yml`)
       .join(' ')} ${serviceType} ${services
       .map(service => `${service}`)
       .join(' ')}`
 
-    return ProcessExecutorService.executeProcess({
-      command: cmd,
+    const options: ProcessExecutionOptions = {
+      command: COMPOSE_COMMAND,
       outputStream:
         serviceType === DockerComposeCommand.LOGS
           ? process.stdout
@@ -188,7 +191,22 @@ export class SvcService {
           ? process.stdout
           : SvcService.debug.outputStream,
       workDir: this.parentDirectory
-    })
+    }
+
+    // detects the presence docker-compose-plugin
+    SvcService.debug(`detecting the presence of docker-compose-plugin`)
+    const code = await ProcessExecutorService.executeProcess(options)
+    let composePluginFound
+
+    code === EXIT_CODES.GENERIC_ERROR
+      ? ((COMPOSE_COMMAND = `docker-compose`), (composePluginFound = false))
+      : ((COMPOSE_COMMAND = `docker compose`), (composePluginFound = true))
+
+    SvcService.debug(`docker-compose-plugin found: ${composePluginFound}`)
+
+    const cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
+
+    return ProcessExecutorService.executeProcess({ ...options, command: cmd })
   }
 
   private precheckEnabledServices(services: string[]): void {
