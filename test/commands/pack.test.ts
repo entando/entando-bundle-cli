@@ -2,7 +2,8 @@ import { expect, test } from '@oclif/test'
 import { CliUx } from '@oclif/core'
 import {
   ConfigService,
-  DOCKER_ORGANIZATION_PROPERTY
+  DOCKER_ORGANIZATION_PROPERTY,
+  DOCKER_REGISTRY_PROPERTY
 } from '../../src/services/config-service'
 import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
 import { ComponentService } from '../../src/services/component-service'
@@ -202,6 +203,41 @@ describe('pack', () => {
       )
       expect(ctx.stderr).contain('2/2') // components build
       expect(ctx.stderr).contain('1/1') // docker images build
+    })
+
+  let addOrUpdatePropertyStub: sinon.SinonStub
+  let setImagesRegistryStub: sinon.SinonStub
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-org-and-registry'
+      )
+      sinon.stub(ConfigService.prototype, 'getProperty')
+      addOrUpdatePropertyStub = sinon.stub(
+        ConfigService.prototype,
+        'addOrUpdateProperty'
+      )
+      setImagesRegistryStub = sinon.stub(DockerService, 'setImagesRegistry')
+      setupBuildSuccess(bundleDir)
+    })
+    .command(['pack', '--org', 'my-org', '--registry', 'my-registry'])
+    .it('runs pack with --registry flag', ctx => {
+      sinon.assert.calledWith(
+        addOrUpdatePropertyStub,
+        sinon.match(DOCKER_ORGANIZATION_PROPERTY),
+        sinon.match('my-org')
+      )
+      sinon.assert.calledWith(
+        addOrUpdatePropertyStub,
+        sinon.match(DOCKER_REGISTRY_PROPERTY),
+        sinon.match('my-registry')
+      )
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
+      sinon.assert.called(setImagesRegistryStub)
     })
 
   test
