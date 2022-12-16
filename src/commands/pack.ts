@@ -107,7 +107,13 @@ export default class Pack extends BaseBuildCommand {
       flags.file
     )
 
-    if (!skipDockerBuild) {
+    if (skipDockerBuild) {
+      this.warn(
+        `Docker image build has been skipped. You can find the bundle Dockerfile and descriptors in .output folder.\nYou can run ${color.bold.blue(
+          'ent bundle images'
+        )} to show the image names and tags`
+      )
+    } else {
       await this.buildMicroservicesDockerImages(
         microservices,
         dockerOrganization,

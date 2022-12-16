@@ -213,15 +213,14 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `entando-bundle-cli images`
 
-List the Docker images and their corresponding tags that are included in the bundle, taking into account organization and registry previously set using the "pack" command.
+List the Docker images and their corresponding tags that are included in the bundle
 
 ```
 USAGE
   $ entando-bundle-cli images
 
 DESCRIPTION
-  List the Docker images and their corresponding tags that are included in the bundle, taking into account organization
-  and registry previously set using the "pack" command.
+  List the Docker images and their corresponding tags that are included in the bundle
 ```
 
 _See code: [dist/commands/images.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.1/dist/commands/images.ts)_
