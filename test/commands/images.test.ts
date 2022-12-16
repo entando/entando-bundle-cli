@@ -50,11 +50,13 @@ describe('images', () => {
 
   test
     .stdout()
+    .stderr()
     .do(() => {
       sinon.stub(ConfigService.prototype, 'getProperty')
     })
     .command('images')
     .it('List images without organization', ctx => {
+      expect(ctx.stderr).contain('No configured organization found')
       expect(ctx.stdout).contain('NAME        VERSION TYPE         STACK')
       expect(ctx.stdout).contain('bundle-name 0.0.2   bundle       -')
       expect(ctx.stdout).contain('ms1         0.0.3   microservice spring-boot')

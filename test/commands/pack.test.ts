@@ -701,6 +701,7 @@ describe('pack', () => {
     .command(['pack', '--org', 'flag-organization', '--skip-docker-build'])
     .it('pack --skip-docker-build', ctx => {
       expect(ctx.stderr).contain('1/1')
+      expect(ctx.stderr).contain('Docker image build has been skipped')
       sinon.assert.notCalled(stubGetDockerImagesExecutorService)
       sinon.assert.notCalled(stubBuildBundleDockerImage)
     })
