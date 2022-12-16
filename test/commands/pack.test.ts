@@ -180,6 +180,44 @@ describe('pack', () => {
     .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-pack-max-parallel'
+      )
+      const configService = new ConfigService()
+      configService.addProperty(
+        DOCKER_ORGANIZATION_PROPERTY,
+        'configured-organization'
+      )
+      setupBuildSuccess(bundleDir)
+    })
+    .command(['pack', '--max-parallel', '1'])
+    .it('runs pack with --max-parallel flag', ctx => {
+      sinon.assert.calledWith(
+        parallelProcessExecutorServiceStub,
+        sinon.match.any,
+        sinon.match(1)
+      )
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
+    })
+
+  test
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-pack-max-parallel-invalid')
+    })
+    .command(['pack', '--max-parallel', '0'])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'Value of flag --max-parallel should be greater than 0'
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('pack with invalid --max-parallel flag')
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-pack-stdout'
       )
       const stubComponents = [
@@ -601,6 +639,8 @@ describe('pack', () => {
       .returns(versionedMicroservices)
   }
 
+  let parallelProcessExecutorServiceStub: sinon.SinonStub
+
   function setupBuildSuccess(bundleDir: string) {
     const stubComponents = [
       {
@@ -641,7 +681,7 @@ describe('pack', () => {
         stubComponents.filter(c => c.type === ComponentType.MICROSERVICE)
       )
 
-    sinon
+    parallelProcessExecutorServiceStub = sinon
       .stub(executors, 'ParallelProcessExecutorService')
       .onFirstCall()
       .returns(new StubParallelProcessExecutorService([0, 0]))

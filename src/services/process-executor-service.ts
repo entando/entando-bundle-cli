@@ -2,7 +2,7 @@ import { spawn, StdioOptions } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 
-const DEFAULT_PARALLEL_PROCESSES_SIZE = 2
+export const DEFAULT_PARALLEL_PROCESSES_SIZE = 3
 export const COMMAND_NOT_FOUND_EXIT_CODE = 127
 
 export type ProcessExecutionOptions = {
