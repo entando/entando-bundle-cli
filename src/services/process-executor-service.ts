@@ -1,4 +1,4 @@
-import { spawn, StdioOptions } from 'node:child_process'
+import { ChildProcess, spawn, StdioOptions } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 
@@ -74,19 +74,24 @@ export class ParallelProcessExecutorService extends EventEmitter {
 
   private readonly parallelism: number
   private readonly queue: QueuedProcessExecution[]
+  private readonly runningProcesses: ChildProcess[] = []
   private readonly results: ProcessExecutionResult[] = []
   private processesToWait: number
+  private failFast: boolean
 
   /**
    * @param processesOptions parameters for underlying spawn functions and output configurations
    * @param parallelism maximum number of processes that are executed in parallel
+   * @param failFast resolves the promise as soon as one of the child processes fails
    */
   constructor(
     processesOptions: ProcessExecutionOptions[],
-    parallelism: number = DEFAULT_PARALLEL_PROCESSES_SIZE
+    parallelism: number = DEFAULT_PARALLEL_PROCESSES_SIZE,
+    failFast = false
   ) {
     super()
     this.parallelism = parallelism
+    this.failFast = failFast
     this.processesToWait = processesOptions.length
     this.queue = processesOptions.map((options, index) => ({ options, index }))
   }
@@ -103,17 +108,17 @@ export class ParallelProcessExecutorService extends EventEmitter {
         if (this.processesToWait === 0) {
           resolve(this.results)
         } else {
-          this.startNextProcess()
+          this.startNextProcess(resolve)
         }
       })
 
       for (let i = 0; i < this.parallelism; i++) {
-        this.startNextProcess()
+        this.startNextProcess(resolve)
       }
     })
   }
 
-  private startNextProcess() {
+  private startNextProcess(resolve: (value: ProcessExecutionResult[]) => void) {
     const queuedExecution = this.queue.shift()
 
     if (queuedExecution) {
@@ -123,11 +128,16 @@ export class ParallelProcessExecutorService extends EventEmitter {
       this.emit('start', queuedExecution.index)
 
       const process = setUpProcess(queuedExecution.options)
+      this.runningProcesses.push(process)
 
       process.on('exit', (code, signal) => {
         ParallelProcessExecutorService.debug(
           `Process ${queuedExecution.index} exited with code ${code} and signal ${signal}`
         )
+        if (this.failFast && code !== 0) {
+          this.stopAllProcesses(resolve)
+        }
+
         this.emit('done', queuedExecution.index, code ?? signal!)
       })
 
@@ -136,9 +146,21 @@ export class ParallelProcessExecutorService extends EventEmitter {
           `Process ${queuedExecution.index} exited due to error`,
           error.message
         )
+        if (this.failFast) {
+          this.stopAllProcesses(resolve)
+        }
+
         this.emit('done', queuedExecution.index, error)
       })
     }
+  }
+
+  private stopAllProcesses(resolve: (value: ProcessExecutionResult[]) => void) {
+    for (const process of this.runningProcesses) {
+      process.kill()
+    }
+
+    resolve(this.results)
   }
 }
 

@@ -10,6 +10,7 @@ import {
 import { ComponentService } from '../../src/services/component-service'
 import { Component, ComponentType } from '../../src/models/component'
 import {
+  createFakeSpawn,
   getStubProcess,
   StubParallelProcessExecutorService
 } from '../helpers/mocks/stub-process'
@@ -36,6 +37,8 @@ describe('build command', () => {
   })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
       sinon
@@ -50,6 +53,8 @@ describe('build command', () => {
     .it('build spring-boot microservice folder not exists')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command')
     })
@@ -63,6 +68,8 @@ describe('build command', () => {
     .it('build command with multiple flags should return an error')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command')
     })
@@ -76,6 +83,8 @@ describe('build command', () => {
     .it('build command with flag and name arg should return an error')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
     })
@@ -89,6 +98,8 @@ describe('build command', () => {
     .it('build with missing required arg name')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir(
         'test-build-command-stdout-no-args'
@@ -106,6 +117,8 @@ describe('build command', () => {
     )
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
       TempDirHelper.createComponentFolder(msSpringBoot)
@@ -128,6 +141,8 @@ describe('build command', () => {
     })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
       sinon.stub(ComponentService.prototype, 'build').resolves(5)
@@ -137,6 +152,8 @@ describe('build command', () => {
     .it('build spring-boot microservice exits with code 5')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
       sinon
@@ -148,6 +165,8 @@ describe('build command', () => {
     .it('build spring-boot microservice exits with code 2')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
       sinon.stub(ComponentService.prototype, 'getComponent').returns(mfeReact)
@@ -160,6 +179,8 @@ describe('build command', () => {
     .it('build react micro frontend folder not exists')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
 
@@ -181,6 +202,8 @@ describe('build command', () => {
     })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
       sinon.stub(ComponentService.prototype, 'build').resolves(5)
@@ -190,6 +213,8 @@ describe('build command', () => {
     .it('build react micro frontend exits with code 5')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-mfe')
       sinon
@@ -204,6 +229,8 @@ describe('build command', () => {
   let stubParallelProcessExecutorService: StubParallelProcessExecutorService
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms')
 
@@ -221,7 +248,6 @@ describe('build command', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stderr()
     .command(['build', '--all-ms'])
     .it('build all spring-boot microservices', async ctx => {
       sinon.assert.called(getComponentsStub)
@@ -229,6 +255,8 @@ describe('build command', () => {
     })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-exit-code')
 
@@ -246,12 +274,13 @@ describe('build command', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stderr()
     .command(['build', '--all-ms'])
     .exit(2)
     .it('build all with errors should exit with code 2')
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-build-command-ms-stdout')
 
@@ -261,27 +290,31 @@ describe('build command', () => {
         .stub(ComponentService.prototype, 'getComponents')
         .returns(msListSpringBoot)
 
-      const stubProcess1 = getStubProcess()
-      setTimeout(() => {
-        stubProcess1.stdout!.emit('data', 'info message 1\n')
-        stubProcess1.emit('exit', 0, null)
-      }, 500)
-
-      const stubProcess2 = getStubProcess()
-      setTimeout(() => {
-        stubProcess2.stdout!.emit('data', 'info message 2\n')
-        stubProcess2.emit('exit', 0, null)
-      }, 500)
-
       sinon
         .stub(cp, 'spawn')
         .onFirstCall()
-        .returns(stubProcess1)
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess1 = getStubProcess()
+            setTimeout(() => {
+              stubProcess1.stdout!.emit('data', 'info message 1\n')
+              stubProcess1.emit('exit', 0, null)
+            })
+            return stubProcess1
+          })
+        )
         .onSecondCall()
-        .returns(stubProcess2)
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess2 = getStubProcess()
+            setTimeout(() => {
+              stubProcess2.stdout!.emit('data', 'info message 2\n')
+              stubProcess2.emit('exit', 0, null)
+            })
+            return stubProcess2
+          })
+        )
     })
-    .stdout()
-    .stderr()
     .command(['build', '--all-ms', '--stdout'])
     .it('build all spring-boot microservices logging to stdout', async ctx => {
       sinon.assert.called(getComponentsStub)
@@ -294,6 +327,8 @@ describe('build command', () => {
   let bundleDir: string
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-build-command-mfe'
@@ -315,7 +350,6 @@ describe('build command', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stderr()
     .command(['build', '--all-mfe'])
     .it('build all react microfrontends', async ctx => {
       sinon.assert.called(getComponentsStub)
@@ -327,6 +361,8 @@ describe('build command', () => {
     })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       const componentList: Array<Component<ComponentType>> = [
         ...msListSpringBoot,
@@ -358,7 +394,6 @@ describe('build command', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stderr()
     .command(['build', '--all'])
     .it('build all componenents', async ctx => {
       sinon.assert.called(getComponentsStub)
@@ -370,6 +405,8 @@ describe('build command', () => {
     })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       const componentList: Array<Component<ComponentType>> = [
         ...msListSpringBoot,
@@ -401,7 +438,6 @@ describe('build command', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stderr()
     .command(['build', 'test-ms-spring-boot-1', 'test-mfe-react-1'])
     .it('build multiple componenents', async ctx => {
       sinon.assert.called(getComponentsStub)
@@ -415,6 +451,8 @@ describe('build command', () => {
   let parallelProcessExecutorServiceStub: sinon.SinonStub
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-build-max-parallel'
@@ -433,8 +471,6 @@ describe('build command', () => {
         .stub(executors, 'ParallelProcessExecutorService')
         .returns(stubParallelProcessExecutorService)
     })
-    .stderr()
-    .stdout()
     .command(['build', '--all', '--max-parallel', '1'])
     .it('build all componenents using --max-parallel flag', async ctx => {
       sinon.assert.calledWith(
@@ -446,6 +482,8 @@ describe('build command', () => {
     })
 
   test
+    .stdout()
+    .stderr()
     .do(() => {
       tempDirHelper.createInitializedBundleDir(
         'test-build-max-parallel-invalid'
@@ -459,4 +497,40 @@ describe('build command', () => {
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('build with invalid --max-parallel flag')
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-build-command-fail-fast')
+
+      TempDirHelper.createComponentsFolders(msListSpringBoot)
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(msListSpringBoot)
+
+      sinon
+        .stub(cp, 'spawn')
+        .onFirstCall()
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess1 = getStubProcess()
+            setTimeout(() => stubProcess1.emit('exit', 1, null))
+            return stubProcess1
+          })
+        )
+        .onSecondCall()
+        .returns(getStubProcess())
+    })
+    .command(['build', '--all', '--fail-fast'])
+    .catch(error => {
+      expect(error.message).contain('The following components failed to build')
+      expect(error.message).contain(
+        'test-ms-spring-boot-1: Process exited with code 1'
+      )
+    })
+    .it('build --all --fail-fast', async ctx => {
+      expect(ctx.stderr).contain('1/2')
+    })
 })
