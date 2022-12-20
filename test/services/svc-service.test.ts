@@ -28,6 +28,7 @@ describe('svc-service', () => {
   })
 
   afterEach(() => {
+    sinon.restore()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
     bundleDescriptorService.writeBundleDescriptor({
       ...bundleDescriptor,
@@ -114,28 +115,30 @@ describe('svc-service', () => {
       }
     )
 
-  test
-    .do(() => {
-      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-      bundleDescriptorService.writeBundleDescriptor({
-        ...bundleDescriptor,
-        svc: ['postgresql']
-      })
+  test.it('disable a service successfully', async () => {
+    const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+    bundleDescriptorService.writeBundleDescriptor({
+      ...bundleDescriptor,
+      svc: ['postgresql']
     })
-    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .it('disable a service successfully', () => {
-      const svcService: SvcService = new SvcService('entando-bundle-cli')
-      expect(() => svcService.disableService('postgresql', true)).to.not.throw(
-        CLIError
-      )
-      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
-      expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
-        'command',
-        'docker-compose -p sample-bundle -f svc/postgresql.yml rm -f -s postgresql'
-      )
-    })
+
+    const svcService: SvcService = new SvcService('entando-bundle-cli')
+    const runStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+    runStub.onCall(0).resolves(0)
+    runStub.onCall(1).resolves(0)
+
+    await svcService.disableService('postgresql', true)
+
+    expect(runStub.called).to.equal(true)
+    expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
+      'command',
+      'docker compose > /dev/null 2>&1'
+    )
+    expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
+      'command',
+      'docker compose -p sample-bundle -f svc/postgresql.yml rm -f -s postgresql'
+    )
+  })
 
   test
     .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
@@ -175,16 +178,21 @@ describe('svc-service', () => {
         svc: ['mysql']
       })
     })
-    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .it('start an enabled service listed in descriptor', () => {
+    .it('start an enabled service listed in descriptor', async () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
-      svcService.startServices(['mysql'])
-      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      const runStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      runStub.onCall(0).resolves(0)
+      runStub.onCall(1).resolves(0)
+      await svcService.startServices(['mysql'])
+
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
+        'docker compose > /dev/null 2>&1'
+      )
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
       )
     })
 
@@ -252,16 +260,21 @@ describe('svc-service', () => {
         svc: ['mysql']
       })
     })
-    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .it('stop an enabled service listed in descriptor', () => {
+    .it('stop an enabled service listed in descriptor', async () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
-      svcService.stopServices(['mysql'])
-      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      const runStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      runStub.onCall(0).resolves(0)
+      runStub.onCall(1).resolves(0)
+      await svcService.stopServices(['mysql'])
+
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml stop mysql'
+        'docker compose > /dev/null 2>&1'
+      )
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/mysql.yml stop mysql'
       )
     })
 
@@ -327,16 +340,21 @@ describe('svc-service', () => {
         svc: ['postgresql']
       })
     })
-    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .it('restart an enabled service listed in descriptor', () => {
+    .it('restart an enabled service listed in descriptor', async () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
-      svcService.restartServices(['postgresql'])
-      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      const runStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      runStub.onCall(0).resolves(0)
+      runStub.onCall(1).resolves(0)
+      await svcService.restartServices(['postgresql'])
+
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/postgresql.yml restart postgresql'
+        'docker compose > /dev/null 2>&1'
+      )
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/postgresql.yml restart postgresql'
       )
     })
 
@@ -402,16 +420,21 @@ describe('svc-service', () => {
         svc: ['mysql']
       })
     })
-    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
-    .it('display logs of an enabled service listed in descriptor', () => {
+    .it('display logs of an enabled service listed in descriptor', async () => {
       const svcService: SvcService = new SvcService('entando-bundle-cli')
-      svcService.logServices(['mysql'])
-      const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
+      const runStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      runStub.onCall(0).resolves(0)
+      runStub.onCall(1).resolves(0)
+      await svcService.logServices(['mysql'])
+
       expect(runStub.called).to.equal(true)
-      expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(0).args[0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p sample-bundle -f svc/mysql.yml logs -f mysql'
+        'docker compose > /dev/null 2>&1'
+      )
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose -p sample-bundle -f svc/mysql.yml logs -f mysql'
       )
     })
 
@@ -504,4 +527,85 @@ describe('svc-service', () => {
     svcService.disableService('postgresql', true)
     expect(svcService.getEnabledServices().includes('postgresql')).false
   })
+
+  test.it(
+    'start an enabled service listed in descriptor with docker-compose standalone when docker-compose-plugin is not available',
+    async () => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+
+      const svcService: SvcService = new SvcService('entando-bundle-cli')
+      const stub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      stub.onCall(0).resolves(1)
+      stub.onCall(1).resolves(0)
+      await svcService.startServices(['mysql'])
+
+      expect(stub.getCall(0).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose > /dev/null 2>&1'
+      )
+
+      expect(stub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml up --build -d mysql'
+      )
+    }
+  )
+
+  test.it(
+    'stop an enabled service listed in descriptor with docker-compose standalone when docker-compose-plugin is not available',
+    async () => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+
+      const svcService: SvcService = new SvcService('entando-bundle-cli')
+      const stub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      stub.onCall(0).resolves(1)
+      stub.onCall(1).resolves(0)
+      await svcService.stopServices(['mysql'])
+
+      expect(stub.getCall(0).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose > /dev/null 2>&1'
+      )
+
+      expect(stub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml stop mysql'
+      )
+    }
+  )
+
+  test.it(
+    'restart an enabled service listed in descriptor with docker-compose standalone when docker-compose-plugin is not available',
+    async () => {
+      const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+      bundleDescriptorService.writeBundleDescriptor({
+        ...bundleDescriptor,
+        svc: ['mysql']
+      })
+
+      const svcService: SvcService = new SvcService('entando-bundle-cli')
+      const stub = sinon.stub(ProcessExecutorService, 'executeProcess')
+      stub.onCall(0).resolves(1)
+      stub.onCall(1).resolves(0)
+      await svcService.restartServices(['mysql'])
+
+      expect(stub.getCall(0).args[0]).to.haveOwnProperty(
+        'command',
+        'docker compose > /dev/null 2>&1'
+      )
+
+      expect(stub.getCall(1).args[0]).to.haveOwnProperty(
+        'command',
+        'docker-compose -p sample-bundle -f svc/mysql.yml restart mysql'
+      )
+    }
+  )
 })

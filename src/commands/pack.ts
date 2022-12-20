@@ -14,7 +14,7 @@ import {
   DockerBuildOptions,
   DockerService
 } from '../services/docker-service'
-import { BaseBuildCommand } from './base-build'
+import { BaseBuildCommand, BuildOptions } from './base-build'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER, PSC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
@@ -71,6 +71,10 @@ export default class Pack extends BaseBuildCommand {
     'skip-docker-build': Flags.boolean({
       char: 's',
       description: 'Skip the building of Docker images'
+    }),
+    'fail-fast': Flags.boolean({
+      description:
+        'Allow to fail the pack command as soon as one of the sub-tasks fails'
     })
   }
 
@@ -85,8 +89,6 @@ export default class Pack extends BaseBuildCommand {
 
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
-    const parallelism = flags['max-parallel']
-    const skipDockerBuild = flags['skip-docker-build']
 
     if (flags.registry) {
       this.configService.addOrUpdateProperty(
@@ -95,9 +97,15 @@ export default class Pack extends BaseBuildCommand {
       )
     }
 
+    const buildOptions = {
+      stdout: flags.stdout,
+      parallelism: flags['max-parallel'],
+      failFast: flags['fail-fast']
+    }
+
     const microservices = this.getVersionedMicroservices()
 
-    await this.buildAllComponents(Phase.Pack, flags.stdout, parallelism)
+    await this.buildAllComponents(Phase.Pack, buildOptions)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
     this.buildBundleDockerResources(dockerOrganization)
@@ -107,7 +115,7 @@ export default class Pack extends BaseBuildCommand {
       flags.file
     )
 
-    if (skipDockerBuild) {
+    if (flags['skip-docker-build']) {
       this.warn(
         `Docker image build has been skipped. You can find the bundle Dockerfile and descriptors in .output folder.\nYou can run ${color.bold.blue(
           'ent bundle images'
@@ -117,8 +125,7 @@ export default class Pack extends BaseBuildCommand {
       await this.buildMicroservicesDockerImages(
         microservices,
         dockerOrganization,
-        flags.stdout,
-        parallelism
+        buildOptions
       )
 
       await this.buildBundleDockerImage(
@@ -190,12 +197,11 @@ export default class Pack extends BaseBuildCommand {
   private async buildMicroservicesDockerImages(
     microservices: VersionedComponent[],
     dockerOrganization: string,
-    stdout: boolean,
-    parallelism: number | undefined
+    buildOptions: BuildOptions
   ) {
     this.log(color.bold.blue('Building microservices Docker images...'))
 
-    const buildOptions: DockerBuildOptions[] = []
+    const dockerBuildOptions: DockerBuildOptions[] = []
 
     const maxPrefixLength = this.getMaxPrefixLength(microservices)
 
@@ -210,11 +216,11 @@ export default class Pack extends BaseBuildCommand {
         )
       }
 
-      const outputStream = stdout
+      const outputStream = buildOptions.stdout
         ? new ColorizedWritable(microservice.name, maxPrefixLength)
         : this.getBuildOutputLogFile(microservice, true)
 
-      buildOptions.push({
+      dockerBuildOptions.push({
         name: microservice.name,
         organization: dockerOrganization,
         path: msPath,
@@ -224,11 +230,16 @@ export default class Pack extends BaseBuildCommand {
     }
 
     const executorService = DockerService.getDockerImagesExecutorService(
-      buildOptions,
-      parallelism
+      dockerBuildOptions,
+      buildOptions.parallelism,
+      buildOptions.failFast
     )
 
-    await this.parallelBuild(executorService, microservices, stdout)
+    await this.parallelBuild(
+      executorService,
+      microservices,
+      buildOptions.stdout
+    )
   }
 
   private buildBundleDockerResources(dockerOrganization: string) {

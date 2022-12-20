@@ -139,6 +139,7 @@ FLAGS
   --all                   Build all the bundle components
   --all-mfe               Build all the bundle micro frontends
   --all-ms                Build all the bundle microservices
+  --fail-fast             Allow to fail the build command as soon as one of the sub-tasks fails
   --max-parallel=<value>  Maximum number of processes running at the same time. Default value is 3
   --stdout                Print build output to stdout instead of files
 
@@ -391,13 +392,15 @@ Generate the bundle Docker images
 
 ```
 USAGE
-  $ entando-bundle-cli pack [-o <value>] [-r <value>] [-f <value>] [--stdout] [--max-parallel <value>] [-s]
+  $ entando-bundle-cli pack [-o <value>] [-r <value>] [-f <value>] [--stdout] [--max-parallel <value>]
+    [-s] [--fail-fast]
 
 FLAGS
   -f, --file=<value>       Bundle Dockerfile (by default it is automatically generated)
   -o, --org=<value>        Docker organization name
   -r, --registry=<value>   Docker registry (default is registry.hub.docker.com)
   -s, --skip-docker-build  Skip the building of Docker images
+  --fail-fast              Allow to fail the pack command as soon as one of the sub-tasks fails
   --max-parallel=<value>   Maximum number of processes running at the same time. Default value is 3
   --stdout                 Log build output to standard output
 

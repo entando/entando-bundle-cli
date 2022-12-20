@@ -33,9 +33,9 @@ describe('svc stop', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p my-bundle -f svc/keycloak.yml -f svc/mysql.yml stop keycloak mysql'
+        'docker compose -p my-bundle -f svc/keycloak.yml -f svc/mysql.yml stop keycloak mysql'
       )
     })
 
@@ -47,9 +47,9 @@ describe('svc stop', () => {
       const runStub = ProcessExecutorService.executeProcess as sinon.SinonStub
       expect(runStub.called).to.equal(true)
       expect(runStub.args[0]).to.have.length(1)
-      expect(runStub.args[0][0]).to.haveOwnProperty(
+      expect(runStub.getCall(1).args[0]).to.haveOwnProperty(
         'command',
-        'docker-compose -p my-bundle -f svc/keycloak.yml stop keycloak'
+        'docker compose -p my-bundle -f svc/keycloak.yml stop keycloak'
       )
     })
 
