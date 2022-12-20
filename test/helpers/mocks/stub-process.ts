@@ -1,4 +1,4 @@
-import { ChildProcess } from 'node:child_process'
+import { ChildProcess, SpawnOptions } from 'node:child_process'
 import { EventEmitter, PassThrough } from 'node:stream'
 import * as sinon from 'sinon'
 import {
@@ -46,4 +46,25 @@ export function getStubProcess(): ChildProcess {
   stubProcessAsEventEmitter.emit = eventEmitter.emit
 
   return stubProcess
+}
+
+/**
+ * Helper function to use together with sinon.callsFake() when stubbing the spawn function.
+ * @param getFakeProcess a function that returns a fake process
+ * @returns the function that will be executed by sinon
+ */
+export function createFakeSpawn(
+  getFakeProcess: () => ChildProcess
+): (
+  command: string,
+  args: readonly string[],
+  options: SpawnOptions
+) => ChildProcess {
+  return (
+    _command: string,
+    _args: readonly string[],
+    _options: SpawnOptions
+  ) => {
+    return getFakeProcess()
+  }
 }

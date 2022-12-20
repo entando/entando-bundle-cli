@@ -1,7 +1,7 @@
 import { CliUx, Flags } from '@oclif/core'
 import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
-import { BaseBuildCommand } from './base-build'
+import { BaseBuildCommand, BuildOptions } from './base-build'
 import { Phase } from '../services/command-factory-service'
 import { Component, ComponentType } from '../models/component'
 import { DEFAULT_PARALLEL_PROCESSES_SIZE } from '../services/process-executor-service'
@@ -42,6 +42,10 @@ export default class Build extends BaseBuildCommand {
       description:
         'Maximum number of processes running at the same time. Default value is ' +
         DEFAULT_PARALLEL_PROCESSES_SIZE
+    }),
+    'fail-fast': Flags.boolean({
+      description:
+        'Allow to fail the build command as soon as one of the sub-tasks fails'
     })
   }
 
@@ -51,26 +55,28 @@ export default class Build extends BaseBuildCommand {
 
     this.validateInputs(argv, flags)
 
-    const parallelism = flags['max-parallel']
+    const buildOptions = {
+      stdout: flags.stdout,
+      parallelism: flags['max-parallel'],
+      failFast: flags['fail-fast']
+    }
 
     if (argv.length > 1) {
-      await this.buildMultipleComponents(argv, flags.stdout, parallelism)
+      await this.buildMultipleComponents(argv, buildOptions)
     } else if (flags['all-mfe']) {
       await this.buildAllComponents(
         Phase.Build,
-        flags.stdout,
-        parallelism,
+        buildOptions,
         ComponentType.MICROFRONTEND
       )
     } else if (flags['all-ms']) {
       await this.buildAllComponents(
         Phase.Build,
-        flags.stdout,
-        parallelism,
+        buildOptions,
         ComponentType.MICROSERVICE
       )
     } else if (flags.all) {
-      await this.buildAllComponents(Phase.Build, flags.stdout, parallelism)
+      await this.buildAllComponents(Phase.Build, buildOptions)
     } else {
       CliUx.ux.action.start(`Building component ${argv[0]}...`)
 
@@ -97,8 +103,7 @@ export default class Build extends BaseBuildCommand {
 
   public async buildMultipleComponents(
     componentList: string[],
-    stdout: boolean,
-    parallelism: number | undefined
+    buildOptions: BuildOptions
   ): Promise<void> {
     const componentService = new ComponentService()
     const components: Array<Component<ComponentType>> = []
@@ -106,6 +111,6 @@ export default class Build extends BaseBuildCommand {
       components.push(componentService.getComponent(component))
     }
 
-    await this.buildComponents(components, Phase.Build, stdout, parallelism)
+    await this.buildComponents(components, Phase.Build, buildOptions)
   }
 }
