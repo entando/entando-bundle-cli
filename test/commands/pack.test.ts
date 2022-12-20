@@ -2,7 +2,8 @@ import { expect, test } from '@oclif/test'
 import { CliUx } from '@oclif/core'
 import {
   ConfigService,
-  DOCKER_ORGANIZATION_PROPERTY
+  DOCKER_ORGANIZATION_PROPERTY,
+  DOCKER_REGISTRY_PROPERTY
 } from '../../src/services/config-service'
 import { BundleDescriptorConverterService } from '../../src/services/bundle-descriptor-converter-service'
 import { ComponentService } from '../../src/services/component-service'
@@ -58,6 +59,9 @@ describe('pack', () => {
     stubBuildBundleDockerImage = sinon
       .stub(DockerService, 'buildBundleDockerImage')
       .resolves(0)
+    stubGetBundleDockerfile = sinon
+      .stub(DockerService, 'getBundleDockerfile')
+      .returns('path/to/Dockerfile')
 
     stubProcessThumbnail = sinon.stub(
       BundleThumbnailService.prototype,
@@ -74,6 +78,7 @@ describe('pack', () => {
       })
   })
 
+  let stubGetBundleDockerfile: sinon.SinonStub
   let stubBuildBundleDockerImage: sinon.SinonStub
   let stubGenerateYamlDescriptors: sinon.SinonStub
   let stubProcessThumbnail: sinon.SinonStub
@@ -201,6 +206,41 @@ describe('pack', () => {
       expect(ctx.stderr).contain('1/1') // docker images build
     })
 
+  let addOrUpdatePropertyStub: sinon.SinonStub
+  let setImagesRegistryStub: sinon.SinonStub
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-org-and-registry'
+      )
+      sinon.stub(ConfigService.prototype, 'getProperty')
+      addOrUpdatePropertyStub = sinon.stub(
+        ConfigService.prototype,
+        'addOrUpdateProperty'
+      )
+      setImagesRegistryStub = sinon.stub(DockerService, 'setImagesRegistry')
+      setupBuildSuccess(bundleDir)
+    })
+    .command(['pack', '--org', 'my-org', '--registry', 'my-registry'])
+    .it('runs pack with --registry flag', ctx => {
+      sinon.assert.calledWith(
+        addOrUpdatePropertyStub,
+        sinon.match(DOCKER_ORGANIZATION_PROPERTY),
+        sinon.match('my-org')
+      )
+      sinon.assert.calledWith(
+        addOrUpdatePropertyStub,
+        sinon.match(DOCKER_REGISTRY_PROPERTY),
+        sinon.match('my-registry')
+      )
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
+      sinon.assert.called(setImagesRegistryStub)
+    })
+
   test
     .do(() => {
       tempDirHelper.createInitializedBundleDir('test-pack-max-parallel-invalid')
@@ -318,6 +358,10 @@ describe('pack', () => {
         'test-bundle-org-flag-custom-dockerfile'
       )
       setupBuildSuccess(bundleDir)
+      stubGetBundleDockerfile.restore()
+      stubGetBundleDockerfile = sinon
+        .stub(DockerService, 'getBundleDockerfile')
+        .returns('custom-Dockerfile')
     })
     .command([
       'pack',
@@ -618,6 +662,50 @@ describe('pack', () => {
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('Pack fails if microservices versions are too long')
+
+  let stubGetDockerImagesExecutorService: sinon.SinonStub
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-skip-docker-build')
+
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot
+        }
+      ]
+
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          ...stubComponents[0],
+          version: '0.0.1'
+        }
+      ])
+
+      parallelProcessExecutorServiceStub = sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(new StubParallelProcessExecutorService([0]))
+
+      stubGetDockerImagesExecutorService = sinon.stub(
+        DockerService,
+        'getDockerImagesExecutorService'
+      )
+    })
+    .command(['pack', '--org', 'flag-organization', '--skip-docker-build'])
+    .it('pack --skip-docker-build', ctx => {
+      expect(ctx.stderr).contain('1/1')
+      expect(ctx.stderr).contain('Docker image build has been skipped')
+      sinon.assert.notCalled(stubGetDockerImagesExecutorService)
+      sinon.assert.notCalled(stubBuildBundleDockerImage)
+    })
 
   function stubComponentsForBuildError(
     stubComponents: Array<Component<ComponentType>>

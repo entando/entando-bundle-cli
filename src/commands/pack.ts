@@ -6,7 +6,8 @@ import { BundleService } from '../services/bundle-service'
 import { ComponentService } from '../services/component-service'
 import {
   ConfigService,
-  DOCKER_ORGANIZATION_PROPERTY
+  DOCKER_ORGANIZATION_PROPERTY,
+  DOCKER_REGISTRY_PROPERTY
 } from '../services/config-service'
 import {
   DEFAULT_DOCKERFILE_NAME,
@@ -48,6 +49,11 @@ export default class Pack extends BaseBuildCommand {
       char: 'o',
       description: 'Docker organization name'
     }),
+    registry: Flags.string({
+      char: 'r',
+      description: `Docker registry (default is ${DockerService.getDefaultDockerRegistry()})`,
+      required: false
+    }),
     file: Flags.string({
       char: 'f',
       description:
@@ -61,6 +67,10 @@ export default class Pack extends BaseBuildCommand {
       description:
         'Maximum number of processes running at the same time. Default value is ' +
         DEFAULT_PARALLEL_PROCESSES_SIZE
+    }),
+    'skip-docker-build': Flags.boolean({
+      char: 's',
+      description: 'Skip the building of Docker images'
     }),
     'fail-fast': Flags.boolean({
       description:
@@ -80,6 +90,13 @@ export default class Pack extends BaseBuildCommand {
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
 
+    if (flags.registry) {
+      this.configService.addOrUpdateProperty(
+        DOCKER_REGISTRY_PROPERTY,
+        flags.registry
+      )
+    }
+
     const buildOptions = {
       stdout: flags.stdout,
       parallelism: flags['max-parallel'],
@@ -91,18 +108,40 @@ export default class Pack extends BaseBuildCommand {
     await this.buildAllComponents(Phase.Pack, buildOptions)
 
     const dockerOrganization = await this.getDockerOrganization(flags.org)
+    this.buildBundleDockerResources(dockerOrganization)
 
-    await this.buildMicroservicesDockerImages(
-      microservices,
-      dockerOrganization,
-      buildOptions
-    )
-
-    await this.buildBundleDockerImage(
+    const dockerfile = DockerService.getBundleDockerfile(
       bundleDescriptor,
-      dockerOrganization,
       flags.file
     )
+
+    if (flags['skip-docker-build']) {
+      this.warn(
+        `Docker image build has been skipped. You can find the bundle Dockerfile and descriptors in .output folder.\nYou can run ${color.bold.blue(
+          'ent bundle images'
+        )} to show the image names and tags`
+      )
+    } else {
+      await this.buildMicroservicesDockerImages(
+        microservices,
+        dockerOrganization,
+        buildOptions
+      )
+
+      await this.buildBundleDockerImage(
+        bundleDescriptor,
+        dockerOrganization,
+        dockerfile
+      )
+
+      if (flags.registry) {
+        await DockerService.setImagesRegistry(
+          bundleDescriptor,
+          dockerOrganization,
+          flags.registry
+        )
+      }
+    }
   }
 
   private getVersionedMicroservices(): VersionedComponent[] {
@@ -203,14 +242,7 @@ export default class Pack extends BaseBuildCommand {
     )
   }
 
-  private async buildBundleDockerImage(
-    bundleDescriptor: BundleDescriptor,
-    dockerOrganization: string,
-    dockerfile?: string
-  ) {
-    this.log(color.bold.blue('Creating bundle package...'))
-    CliUx.ux.action.start('Building Bundle Docker image')
-
+  private buildBundleDockerResources(dockerOrganization: string) {
     const bundleDescriptorConverterService =
       new BundleDescriptorConverterService(dockerOrganization)
 
@@ -237,6 +269,15 @@ export default class Pack extends BaseBuildCommand {
       pscDescriptors,
       thumbnailInfo
     )
+  }
+
+  private async buildBundleDockerImage(
+    bundleDescriptor: BundleDescriptor,
+    dockerOrganization: string,
+    dockerfile: string
+  ) {
+    this.log(color.bold.blue('Creating bundle package...'))
+    CliUx.ux.action.start('Building Bundle Docker image')
 
     const result = await DockerService.buildBundleDockerImage(
       bundleDescriptor,

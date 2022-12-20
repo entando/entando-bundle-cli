@@ -23,7 +23,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/1.1.0-SNAPSHOT linux-x64 node-v14.20.0
+@entando/entando-bundle-cli/1.1.0-SNAPSHOT linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -42,6 +42,7 @@ USAGE
 - [`entando-bundle-cli build [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-build-component---all-ms----all-mfe----all)
 - [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
 - [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli images`](#entando-bundle-cli-images)
 - [`entando-bundle-cli info`](#entando-bundle-cli-info)
 - [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
 - [`entando-bundle-cli list`](#entando-bundle-cli-list)
@@ -138,7 +139,7 @@ FLAGS
   --all                   Build all the bundle components
   --all-mfe               Build all the bundle micro frontends
   --all-ms                Build all the bundle microservices
-  --fail-fast             Allow to fail the pack command as soon as one of the sub-tasks fails
+  --fail-fast             Allow to fail the build command as soon as one of the sub-tasks fails
   --max-parallel=<value>  Maximum number of processes running at the same time. Default value is 3
   --stdout                Print build output to stdout instead of files
 
@@ -210,6 +211,20 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+
+## `entando-bundle-cli images`
+
+List the Docker images and their corresponding tags that are included in the bundle
+
+```
+USAGE
+  $ entando-bundle-cli images
+
+DESCRIPTION
+  List the Docker images and their corresponding tags that are included in the bundle
+```
+
+_See code: [dist/commands/images.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/images.ts)_
 
 ## `entando-bundle-cli info`
 
@@ -377,14 +392,17 @@ Generate the bundle Docker images
 
 ```
 USAGE
-  $ entando-bundle-cli pack [-o <value>] [-f <value>] [--stdout] [--max-parallel <value>] [--fail-fast]
+  $ entando-bundle-cli pack [-o <value>] [-r <value>] [-f <value>] [--stdout] [--max-parallel <value>]
+    [-s] [--fail-fast]
 
 FLAGS
-  -f, --file=<value>      Bundle Dockerfile (by default it is automatically generated)
-  -o, --org=<value>       Docker organization name
-  --fail-fast             Allow to fail the pack command as soon as one of the sub-tasks fails
-  --max-parallel=<value>  Maximum number of processes running at the same time. Default value is 3
-  --stdout                Log build output to standard output
+  -f, --file=<value>       Bundle Dockerfile (by default it is automatically generated)
+  -o, --org=<value>        Docker organization name
+  -r, --registry=<value>   Docker registry (default is registry.hub.docker.com)
+  -s, --skip-docker-build  Skip the building of Docker images
+  --fail-fast              Allow to fail the pack command as soon as one of the sub-tasks fails
+  --max-parallel=<value>   Maximum number of processes running at the same time. Default value is 3
+  --stdout                 Log build output to standard output
 
 DESCRIPTION
   Generate the bundle Docker images
