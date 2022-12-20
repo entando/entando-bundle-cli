@@ -30,6 +30,7 @@ import {
 } from '../../src/paths'
 import { ComponentDescriptorService } from '../../src/services/component-descriptor-service'
 import {
+  createFakeSpawn,
   getStubProcess,
   StubParallelProcessExecutorService
 } from '../helpers/mocks/stub-process'
@@ -268,10 +269,7 @@ describe('pack', () => {
         }
       ]
 
-      const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, 'ms1')
-      const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
-      fs.mkdirSync(ms1Dir, { recursive: true })
-      fs.writeFileSync(ms1Dockerfile, '')
+      createMicroserviceDockerfile(bundleDir, 'ms1')
 
       sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
         {
@@ -286,24 +284,30 @@ describe('pack', () => {
         .stub(ComponentService.prototype, 'getComponents')
         .returns(stubComponents)
 
-      const stubProcess1 = getStubProcess()
-      setTimeout(() => {
-        stubProcess1.stdout!.emit('data', 'build message\n')
-        stubProcess1.emit('exit', 0, null)
-      }, 500)
-
-      const stubProcess2 = getStubProcess()
-      setTimeout(() => {
-        stubProcess2.stdout!.emit('data', 'pack message\n')
-        stubProcess2.emit('exit', 0, null)
-      }, 700)
-
       sinon
         .stub(cp, 'spawn')
         .onFirstCall()
-        .returns(stubProcess1)
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess1 = getStubProcess()
+            setTimeout(() => {
+              stubProcess1.stdout!.emit('data', 'build message\n')
+              stubProcess1.emit('exit', 0, null)
+            })
+            return stubProcess1
+          })
+        )
         .onSecondCall()
-        .returns(stubProcess2)
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess2 = getStubProcess()
+            setTimeout(() => {
+              stubProcess2.stdout!.emit('data', 'pack message\n')
+              stubProcess2.emit('exit', 0, null)
+            })
+            return stubProcess2
+          })
+        )
     })
     .command(['pack', '--org', 'flag-organization', '--stdout'])
     .it('runs pack --org flag-organization --stdout', ctx => {
@@ -471,10 +475,7 @@ describe('pack', () => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-build-no-version'
       )
-      const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, 'ms1')
-      const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
-      fs.mkdirSync(ms1Dir, { recursive: true })
-      fs.writeFileSync(ms1Dockerfile, '')
+      createMicroserviceDockerfile(bundleDir, 'ms1')
 
       const stubComponents = [
         {
@@ -727,6 +728,165 @@ describe('pack', () => {
       .returns(versionedMicroservices)
   }
 
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-bundle-pack-fail-fast')
+      const stubComponents = [
+        {
+          name: 'mfe1',
+          type: ComponentType.MICROFRONTEND,
+          stack: MicroFrontendStack.React
+        },
+        {
+          name: 'mfe2',
+          type: ComponentType.MICROFRONTEND,
+          stack: MicroFrontendStack.React
+        }
+      ]
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          ...stubComponents[0],
+          version: '0.0.1'
+        },
+        {
+          ...stubComponents[1],
+          version: '0.0.1'
+        }
+      ])
+
+      sinon
+        .stub(cp, 'spawn')
+        .onFirstCall()
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess1 = getStubProcess()
+            setTimeout(() => {
+              stubProcess1.emit('exit', 1, null)
+            })
+            return stubProcess1
+          })
+        )
+        .onSecondCall()
+        .returns(getStubProcess())
+    })
+    .command([
+      'pack',
+      '--org',
+      'flag-organization',
+      '--max-parallel',
+      '1',
+      '--fail-fast'
+    ])
+    .catch(error => {
+      console.log(error.message)
+      expect(error.message).to.contain(
+        'The following components failed to build'
+      )
+      expect(error.message).to.contain('mfe1: Process exited with code 1')
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('pack --fail-fast fails during MFE build', ctx => {
+      expect(ctx.stderr).to.contain('1/2')
+    })
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-pack-fail-fast-docker'
+      )
+      const stubComponents = [
+        {
+          name: 'ms1',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot
+        },
+        {
+          name: 'ms2',
+          type: ComponentType.MICROSERVICE,
+          stack: MicroserviceStack.SpringBoot
+        }
+      ]
+      getComponentsStub = sinon
+        .stub(ComponentService.prototype, 'getComponents')
+        .returns(stubComponents)
+
+      sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
+        {
+          ...stubComponents[0],
+          version: '0.0.1'
+        },
+        {
+          ...stubComponents[1],
+          version: '0.0.1'
+        }
+      ])
+
+      createMicroserviceDockerfile(bundleDir, stubComponents[0].name)
+      createMicroserviceDockerfile(bundleDir, stubComponents[1].name)
+
+      sinon
+        .stub(cp, 'spawn')
+        .onFirstCall()
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess1 = getStubProcess()
+            setTimeout(() => {
+              stubProcess1.emit('exit', 0, null)
+            })
+            return stubProcess1
+          })
+        )
+        .onSecondCall()
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess2 = getStubProcess()
+            setTimeout(() => {
+              stubProcess2.emit('exit', 0, null)
+            })
+            return stubProcess2
+          })
+        )
+        .onThirdCall()
+        .callsFake(
+          createFakeSpawn(() => {
+            const stubProcess3 = getStubProcess()
+            setTimeout(() => {
+              stubProcess3.emit('exit', null, 'SIGKILL' as NodeJS.Signals)
+            })
+            return stubProcess3
+          })
+        )
+        .onCall(3)
+        .returns(getStubProcess())
+    })
+    .command([
+      'pack',
+      '--org',
+      'flag-organization',
+      '--max-parallel',
+      '1',
+      '--fail-fast'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'The following components failed to build'
+      )
+      expect(error.message).to.contain('ms1: Process killed by signal SIGKILL')
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('pack --fail-fast fails during Docker image build', ctx => {
+      expect(ctx.stderr).to.contain('2/2') // build
+      expect(ctx.stderr).to.contain('1/2') // pack
+    })
+
   let parallelProcessExecutorServiceStub: sinon.SinonStub
 
   function setupBuildSuccess(bundleDir: string) {
@@ -743,14 +903,7 @@ describe('pack', () => {
       }
     ]
 
-    const ms1Dir = path.resolve(
-      bundleDir,
-      MICROSERVICES_FOLDER,
-      stubComponents[0].name
-    )
-    const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
-    fs.mkdirSync(ms1Dir, { recursive: true })
-    fs.writeFileSync(ms1Dockerfile, '')
+    createMicroserviceDockerfile(bundleDir, stubComponents[0].name)
 
     sinon.stub(ComponentService.prototype, 'getVersionedComponents').returns([
       {
@@ -785,3 +938,13 @@ describe('pack', () => {
       .returns(new StubParallelProcessExecutorService(stubResults))
   }
 })
+
+function createMicroserviceDockerfile(
+  bundleDir: string,
+  microserviceName: string
+) {
+  const ms1Dir = path.resolve(bundleDir, MICROSERVICES_FOLDER, microserviceName)
+  const ms1Dockerfile = path.resolve(ms1Dir, DEFAULT_DOCKERFILE_NAME)
+  fs.mkdirSync(ms1Dir, { recursive: true })
+  fs.writeFileSync(ms1Dockerfile, '')
+}

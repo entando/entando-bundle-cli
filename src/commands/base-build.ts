@@ -14,6 +14,12 @@ import { BaseExecutionCommand } from './base-execution-command'
 import { FSService } from '../services/fs-service'
 import { animatedProgress, ColorizedWritable } from '../utils'
 
+export type BuildOptions = {
+  stdout: boolean
+  parallelism: number | undefined
+  failFast: boolean
+}
+
 export abstract class BaseBuildCommand extends BaseExecutionCommand {
   static get hidden(): boolean {
     return this.name === BaseBuildCommand.name
@@ -21,8 +27,7 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
 
   public async buildAllComponents(
     commandPhase: Phase,
-    stdout: boolean,
-    parallelism: number | undefined,
+    buildOptions: BuildOptions,
     componentType?: ComponentType
   ): Promise<void> {
     const componentService = new ComponentService()
@@ -46,14 +51,13 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
         break
     }
 
-    await this.buildComponents(components, commandPhase, stdout, parallelism)
+    await this.buildComponents(components, commandPhase, buildOptions)
   }
 
   protected async buildComponents(
     components: Array<Component<ComponentType>>,
     commandPhase: Phase,
-    stdout: boolean,
-    parallelism: number | undefined
+    buildOptions: BuildOptions
   ): Promise<void> {
     // Output and logs directories cleanup
     const outputFolder = path.resolve(...OUTPUT_FOLDER)
@@ -71,7 +75,7 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
       components,
       commandPhase,
       component =>
-        stdout
+        buildOptions.stdout
           ? new ColorizedWritable(
               component.name,
               this.getMaxPrefixLength(components)
@@ -81,10 +85,11 @@ export abstract class BaseBuildCommand extends BaseExecutionCommand {
 
     const executorService = new ParallelProcessExecutorService(
       executionOptions,
-      parallelism
+      buildOptions.parallelism,
+      buildOptions.failFast
     )
 
-    await this.parallelBuild(executorService, components, stdout)
+    await this.parallelBuild(executorService, components, buildOptions.stdout)
   }
 
   public getBuildOutputLogFile(
