@@ -16,7 +16,7 @@ import {
 } from '../services/docker-service'
 import { BaseBuildCommand, BuildOptions } from './base-build'
 import * as path from 'node:path'
-import { MICROSERVICES_FOLDER, PSC_FOLDER } from '../paths'
+import { MICROSERVICES_FOLDER, OUTPUT_FOLDER, PSC_FOLDER } from '../paths'
 import { BundleDescriptor } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
@@ -116,8 +116,9 @@ export default class Pack extends BaseBuildCommand {
     )
 
     if (flags['skip-docker-build']) {
+      const outputFolder = OUTPUT_FOLDER.join(path.sep)
       this.warn(
-        `Docker image build has been skipped. You can find the bundle Dockerfile and descriptors in .output folder.\nYou can run ${color.bold.blue(
+        `Docker image build has been skipped. You can find the bundle Dockerfile and descriptors in ${outputFolder} folder.\nYou can run ${color.bold.blue(
           'ent bundle images'
         )} to show the image names and tags`
       )
