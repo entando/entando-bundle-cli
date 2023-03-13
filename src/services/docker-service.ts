@@ -81,7 +81,7 @@ export class DockerService {
       options.name,
       options.tag
     )
-    return `${DOCKER_COMMAND} build --platform "linux/amd64" -f ${dockerfile} -t ${dockerImageName} .`
+    return `${DOCKER_COMMAND} build --platform "linux/arm64" -f ${dockerfile} -t ${dockerImageName} .`
   }
 
   public static getBundleDockerfile(
