@@ -48,7 +48,7 @@ describe('DockerService', () => {
       sinon.match({
         command:
           DOCKER_COMMAND +
-          ' build --platform "linux/arm64" -f Dockerfile -t my-org/bundle-name:0.0.1 .'
+          ' buildx build --push --platform "linux/arm64,linux/amd64" -f Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -72,7 +72,7 @@ describe('DockerService', () => {
       sinon.match({
         command:
           DOCKER_COMMAND +
-          ' build --platform "linux/arm64" -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
+          ' buildx build --push --platform "linux/arm64,linux/amd64" -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
