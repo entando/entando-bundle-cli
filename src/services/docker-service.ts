@@ -81,7 +81,7 @@ export class DockerService {
       options.name,
       options.tag
     )
-    return `${DOCKER_COMMAND} buildx build --push --platform "linux/arm64,linux/amd64" -f ${dockerfile} -t ${dockerImageName} .`
+    return `${DOCKER_COMMAND} buildx build --push --platform "linux/arm64,linux/amd64" -f ${dockerfile} -t registry.entando-poc.ipponusa.com/${dockerImageName} .`
   }
 
   public static getBundleDockerfile(
