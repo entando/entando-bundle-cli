@@ -24,6 +24,10 @@ describe('generate-cr', () => {
   })
 
   const tags = ['0.0.2', '0.0.1']
+  const devTags = ['3.0.0-SNAPSHOT', '3.0.0-EHUB-234-PR-34', 'v3.0.0-SNAPSHOT', 'v3.0.0-EHUB-234-PR-34', 'v4.0.0-MY-CUSTOM-TAG']
+  const prodTags = ['2.0.0', 'v2.0.0', 'v3.0.0', 'v3.1.1', '3.0.0-fix.1', '3.0.0-patch.1', 'v3.0.0-fix.1', 'v3.0.0-patch.1']
+  const invalidTags = ['main', 'INVALID', 'v2.0.0-', '3.0.0-', '-3.1.1', 'a3.0.0-fix.1']
+  const allTags = [...devTags, ...prodTags, ...invalidTags];
   const yamlDescriptor = BundleDescriptorHelper.newYamlBundleDescriptor()
 
   test
@@ -134,16 +138,7 @@ describe('generate-cr', () => {
         .returns(BundleDescriptorHelper.newBundleDescriptor())
       sinon.stub(DockerService, 'listTags').resolves(tags)
 
-      const stubDigestsExecutor =
-        new (class extends StubParallelProcessExecutorService {
-          async getDigests(): Promise<Map<string, string>> {
-            await super.execute()
-            const tagsWithDigests = new Map()
-            tagsWithDigests.set('0.0.2', 'sha256:abcd')
-            tagsWithDigests.set('0.0.1', 'sha256:1234')
-            return tagsWithDigests
-          }
-        })([0, 0])
+      const stubDigestsExecutor = createStubDigestsExecutor()
       sinon
         .stub(DockerService, 'getDigestsExecutor')
         .returns(stubDigestsExecutor)
@@ -335,4 +330,56 @@ describe('generate-cr', () => {
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it("generate-cr -f can't be used without -o")
+
+
+  // TAG FILTERING TESTS
+  executeTagFilteringTest(['dev'], devTags);
+  executeTagFilteringTest(['prod'], prodTags);
+  executeTagFilteringTest(['dev', 'prod'], [...devTags, ...prodTags]);
+
+  function executeTagFilteringTest(tagTypes: string[], expectedTags: string[]) {
+
+    test
+      .stdout()
+      .stderr()
+      .do(() => {
+        sinon.stub(DockerService, 'listTags').resolves(allTags)
+        const stubDigestsExecutor = createStubDigestsExecutor();
+        sinon
+          .stub(DockerService, 'getDigestsExecutor')
+          .returns(stubDigestsExecutor)
+        sinon.stub(DockerService, 'getYamlDescriptorFromImage').resolves(yamlDescriptor)
+      })
+      .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(true))
+      .command([
+        'generate-cr',
+        '-i',
+        'my-org/my-image',
+        '-d',
+        '-t',
+       ...tagTypes
+      ])
+      .it(
+        `Filter tags by ${tagTypes} tag type`,
+        () => {
+          const listTagsStub = DockerService.getDigestsExecutor as sinon.SinonStub
+          sinon.assert.calledWith(
+            listTagsStub,
+            'registry.hub.docker.com/my-org/my-image',
+            expectedTags)
+        }
+      )
+  }
 })
+
+function createStubDigestsExecutor() {
+  return new (class extends StubParallelProcessExecutorService {
+    async getDigests(): Promise<Map<string, string>> {
+      await super.execute()
+      const tagsWithDigests = new Map()
+      tagsWithDigests.set('0.0.2', 'sha256:abcd')
+      tagsWithDigests.set('0.0.1', 'sha256:1234')
+      return tagsWithDigests
+    }
+  })([0, 0])
+}

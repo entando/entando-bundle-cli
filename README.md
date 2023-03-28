@@ -169,11 +169,12 @@ USAGE
   $ entando-bundle-cli generate-cr [-i <value>] [-d] [-f -o <value>]
 
 FLAGS
-  -d, --digest          Include Docker images digests
-  -f, --force           Suppress the confirmation prompt in case of file overwrite
-  -i, --image=<value>   Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
-                        [docker://]<registry>/<organization>/<repository>
-  -o, --output=<value>  Write the result to the specified output file
+  -d, --digest            Include Docker images digests
+  -f, --force             Suppress the confirmation prompt in case of file overwrite
+  -i, --image=<value>     Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
+                          [docker://]<registry>/<organization>/<repository>
+  -o, --output=<value>    Write the result to the specified output file
+  -t, --tagtypes=<value>  Filter bundle tags by type. Multiple types supported. Allowed values are prod and dev
 
 DESCRIPTION
   Generate the Entando Custom Resource (CR) for a bundle project
@@ -188,6 +189,8 @@ EXAMPLES
   $ entando-bundle-cli generate-cr --image=my-org/my-bundle --digest
 
   $ entando-bundle-cli generate-cr -o my-cr.yml
+  
+  $ entando-bundle-cli generate-cr -t dev prod
 ```
 
 _See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/generate-cr.ts)_
