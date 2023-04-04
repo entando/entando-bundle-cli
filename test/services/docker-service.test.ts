@@ -48,7 +48,7 @@ describe('DockerService', () => {
       sinon.match({
         command:
           DOCKER_COMMAND +
-          ' build --platform "linux/amd64" -f Dockerfile -t my-org/bundle-name:0.0.1 .'
+          ' build --platform "linux/amd64" -f "Dockerfile" -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -72,7 +72,7 @@ describe('DockerService', () => {
       sinon.match({
         command:
           DOCKER_COMMAND +
-          ' build --platform "linux/amd64" -f my-Dockerfile -t my-org/bundle-name:0.0.1 .'
+          ' build --platform "linux/amd64" -f "my-Dockerfile" -t my-org/bundle-name:0.0.1 .'
       })
     )
   })
@@ -113,7 +113,7 @@ describe('DockerService', () => {
       executeProcessStub,
       sinon.match({
         command: sinon.match(
-          '.entando/output/Dockerfile -t my-org/test-bundle:0.0.1'
+          '.entando/output/Dockerfile" -t my-org/test-bundle:0.0.1'
         )
       })
     )
@@ -140,7 +140,7 @@ describe('DockerService', () => {
     sinon.assert.calledWith(
       executeProcessStub,
       sinon.match({
-        command: sinon.match('custom-Dockerfile -t my-org/test-bundle:0.0.1')
+        command: sinon.match('custom-Dockerfile" -t my-org/test-bundle:0.0.1')
       })
     )
     const generatedDockerfile = path.resolve(
