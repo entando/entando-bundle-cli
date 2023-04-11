@@ -1,23 +1,20 @@
-import {expect, test} from '@oclif/test'
-import {BundleDescriptorService} from '../../src/services/bundle-descriptor-service'
-import {BundleService} from '../../src/services/bundle-service'
+import { expect, test } from '@oclif/test'
+import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import { BundleService } from '../../src/services/bundle-service'
 import {
   ConfigService,
   DOCKER_ORGANIZATION_PROPERTY,
   DOCKER_REGISTRY_PROPERTY
 } from '../../src/services/config-service'
-import {BundleDescriptorHelper} from '../helpers/mocks/bundle-descriptor-helper'
-import {DockerService} from '../../src/services/docker-service'
+import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
+import { DockerService } from '../../src/services/docker-service'
 import * as sinon from 'sinon'
-import {StubParallelProcessExecutorService} from '../helpers/mocks/stub-process'
-import {CLIError} from '@oclif/errors'
-import {TempDirHelper} from '../helpers/temp-dir-helper'
-import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-process'
 import { CLIError } from '@oclif/errors'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
+import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import {CliUx} from '@oclif/core'
+import { CliUx } from '@oclif/core'
 
 describe('generate-cr', () => {
   const tempDirHelper = new TempDirHelper(__filename)
