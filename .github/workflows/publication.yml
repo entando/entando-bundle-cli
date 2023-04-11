@@ -6,17 +6,16 @@ on:
       - 'v*'
 
 env:
-  ENTANDO_OPT_USE_PPL_TAG: "v1.4.2"
-  ENTANDO_OPT_DATA_REPO: "${{ secrets.ENTANDO_OPT_DATA_REPO }}"
-  ENTANDO_OPT_DATA_REPO_TOKEN: "${{ secrets.ENTANDO_OPT_DATA_REPO_TOKEN }}"
-  ENTANDO_OPT_ENVIRONMENT_NAMES: "${{ secrets.ENTANDO_OPT_ENVIRONMENT_NAMES }}"
-  ENTANDO_OPT_FEATURES: "${{ secrets.ENTANDO_OPT_FEATURES }}"
-  ENTANDO_OPT_GLOBAL_FEATURES: "${{ secrets.ENTANDO_OPT_GLOBAL_FEATURES }}"
-  ENTANDO_OPT_LOG_LEVEL: "${{ secrets.ENTANDO_OPT_LOG_LEVEL }}"
-  ENTANDO_OPT_CUSTOM_ENV: "${{ secrets.ENTANDO_OPT_CUSTOM_ENV }}"
+  ENTANDO_OPT_USE_PPL_TAG: 'v1.4.2'
+  ENTANDO_OPT_DATA_REPO: '${{ secrets.ENTANDO_OPT_DATA_REPO }}'
+  ENTANDO_OPT_DATA_REPO_TOKEN: '${{ secrets.ENTANDO_OPT_DATA_REPO_TOKEN }}'
+  ENTANDO_OPT_ENVIRONMENT_NAMES: '${{ secrets.ENTANDO_OPT_ENVIRONMENT_NAMES }}'
+  ENTANDO_OPT_FEATURES: '${{ secrets.ENTANDO_OPT_FEATURES }}'
+  ENTANDO_OPT_GLOBAL_FEATURES: '${{ secrets.ENTANDO_OPT_GLOBAL_FEATURES }}'
+  ENTANDO_OPT_LOG_LEVEL: '${{ secrets.ENTANDO_OPT_LOG_LEVEL }}'
+  ENTANDO_OPT_CUSTOM_ENV: '${{ secrets.ENTANDO_OPT_CUSTOM_ENV }}'
   PPL_CONTEXT: ${{ toJson(github) }}
-  LOCAL_CLONE_DIR: "local-checkout"
-
+  LOCAL_CLONE_DIR: 'local-checkout'
 
 jobs:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,7 +30,7 @@ jobs:
       ENTANDO_BOT_TOKEN: ${{ secrets.ENTANDO_BOT_TOKEN }}
     runs-on: ubuntu-latest
     steps:
-      - name: "PR PIPELINE START"
+      - name: 'PR PIPELINE START'
         id: START
         run: |
           ${{ secrets.ENTANDO_OPT_PPL_INSTALL_CMD }}
@@ -44,19 +43,19 @@ jobs:
             .. @setup-feature-flags "PR_FORMAT_CHECK" "BOM_CHECK" "BOM" "POST_PUB_DOCKER_SCAN" "POST_DEP_TESTS" \
           ;
       #~ NODE
-      - name: "Set up Node 14"
+      - name: 'Set up Node 14'
         uses: actions/setup-node@v2
         with:
           node-version: 14.x
       #~ NPM CACHE
-      - name: "Cache NPM Packages"
+      - name: 'Cache NPM Packages'
         id: package-cache
         uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm
       #~ PUBLISH  THE ARTIFACT
-      - name: "Publish package"
+      - name: 'Publish package'
         run: |
           export ENTANDO_OPT_AWS_ACCESS_KEY_ID="${{ secrets.ENTANDO_OPT_AWS_ACCESS_KEY_ID }}"
           export ENTANDO_OPT_AWS_SECRET_ACCESS_KEY="${{ secrets.ENTANDO_OPT_AWS_SECRET_ACCESS_KEY }}"
@@ -69,7 +68,7 @@ jobs:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
       #~ UPDATE THE BOM (if required)
-      - name: "BOM Update"
+      - name: 'BOM Update'
         if: steps.CHECKOUT.outputs.BOM_UPDATE_FLAG == 'true' && steps.START.outputs.BOM == 'true'
         run: |
           ~/ppl-run bom update-bom \
@@ -78,7 +77,7 @@ jobs:
             --token "$ENTANDO_BOT_TOKEN" \
           ;
       #~ PUBLISH TO DOCKER
-      - name: "Publish docker"
+      - name: 'Publish docker'
         run: |
           export ENTANDO_OPT_DOCKER_PASSWORD="${{ secrets.ENTANDO_OPT_DOCKER_PASSWORD }}"
           export ENTANDO_OPT_DOCKER_ALT_LOGIN_URL="${{ secrets.ENTANDO_OPT_DOCKER_ALT_LOGIN }}"
@@ -92,12 +91,12 @@ jobs:
   # POST PUB JOBS
 
   post-pub-docker-scan:
-    needs: [ 'publication' ]
+    needs: ['publication']
     if: needs.publication.outputs.POST_PUB_DOCKER_SCAN == 'true'
     runs-on: ubuntu-latest
     steps:
       #~ CHECKOUT
-      - name: "CHECKOUT"
+      - name: 'CHECKOUT'
         id: CHECKOUT
         run: |
           ${{ secrets.ENTANDO_OPT_PPL_INSTALL_CMD }}
@@ -108,34 +107,34 @@ jobs:
             .. pr-preflight-checks --only flags --lcd "$LOCAL_CLONE_DIR" \
           ;
       #~ NODE
-      - name: "Set up Node 14"
+      - name: 'Set up Node 14'
         uses: actions/setup-node@v2
         with:
           node-version: 14.x
       #~ NPM CACHE
-      - name: "Cache NPM Packages"
+      - name: 'Cache NPM Packages'
         id: package-cache
         uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm
       #~ SCAN
-      - name: "Scan docker"
+      - name: 'Scan docker'
         env:
-          ENTANDO_OPT_SNYK_ORG: "${{ secrets.ENTANDO_OPT_SNYK_ORG }}"
-          SNYK_TOKEN: "${{ secrets.SNYK_TOKEN }}"
-          ENTANDO_OPT_DOCKER_BUILDS: "${{ secrets.ENTANDO_OPT_DOCKER_BUILDS }}"
-          ENTANDO_OPT_DOCKER_ORG: "${{ secrets.ENTANDO_OPT_DOCKER_ORG }}"
+          ENTANDO_OPT_SNYK_ORG: '${{ secrets.ENTANDO_OPT_SNYK_ORG }}'
+          SNYK_TOKEN: '${{ secrets.SNYK_TOKEN }}'
+          ENTANDO_OPT_DOCKER_BUILDS: '${{ secrets.ENTANDO_OPT_DOCKER_BUILDS }}'
+          ENTANDO_OPT_DOCKER_ORG: '${{ secrets.ENTANDO_OPT_DOCKER_ORG }}'
         run: |
           ~/ppl-run docker scan --id "SCAN-DOCKER" --lcd "$LOCAL_CLONE_DIR"
 
   post-dep-tests:
-    needs: [ 'publication' ]
+    needs: ['publication']
     if: needs.publication.outputs.POST_DEP_TESTS == 'true'
     runs-on: ubuntu-latest
     steps:
       #~ CHECKOUT
-      - name: "CHECKOUT"
+      - name: 'CHECKOUT'
         id: CHECKOUT
         run: |
           ${{ secrets.ENTANDO_OPT_PPL_INSTALL_CMD }}
@@ -146,19 +145,19 @@ jobs:
             .. pr-preflight-checks --only flags --lcd "$LOCAL_CLONE_DIR" \
           ;
       #~ NODE
-      - name: "Set up Node 14"
+      - name: 'Set up Node 14'
         uses: actions/setup-node@v2
         with:
           node-version: 14.x
       #~ NPM CACHE
-      - name: "Cache NPM Packages"
+      - name: 'Cache NPM Packages'
         id: package-cache
         uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm
       #~ PUBLISH  THE ARTIFACT
-      - name: "Post deployment tests"
+      - name: 'Post deployment tests'
         run: |
           ${{ secrets.ENTANDO_OPT_PPL_INSTALL_CMD }}
 

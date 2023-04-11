@@ -21,6 +21,14 @@ import * as fs from 'node:fs'
 import { animatedProgress } from '../utils'
 
 export default class GenerateCr extends Command {
+
+  static prodTagEnvRegex = /^v?(\d*)\.(\d*)\.(\d*)(-(fix\.\d*|patch\.\d*))?$/;
+  static devTagEnvRegex = /^v?(\d*)\.(\d*)\.(\d*)(?!(-(fix\.\d*|patch\.\d*)))(-.+)$/;
+  static tagTypeStrategies: Map<string, { (tag: string): boolean }> = new Map([
+    ['dev', (tag): boolean => GenerateCr.devTagEnvRegex.test(tag)],
+    ['prod', (tag): boolean => GenerateCr.prodTagEnvRegex.test(tag)]
+  ]);
+
   static description =
     'Generate the Entando Custom Resource (CR) for a bundle project'
 
@@ -29,7 +37,8 @@ export default class GenerateCr extends Command {
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> -i my-registry/my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
-    '<%= config.bin %> <%= command.id %> -o my-cr.yml'
+    '<%= config.bin %> <%= command.id %> -o my-cr.yml',
+    '<%= config.bin %> <%= command.id %> -t prod,dev'
   ]
 
   static flags = {
@@ -50,11 +59,23 @@ export default class GenerateCr extends Command {
       char: 'f',
       description: 'Suppress the confirmation prompt in case of file overwrite',
       dependsOn: ['output']
-    })
+    }),
+    tagtypes: Flags.string({
+      char: 't',
+      multiple: true,
+      description: 'Accepted tag types, comma separated values. Accepted values are ' + [...GenerateCr.tagTypeStrategies.keys()].join(", ")
+    }),
   }
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GenerateCr)
+
+    if (flags.tagtypes
+      && flags.tagtypes.length > 0
+      && flags.tagtypes.filter(t => GenerateCr.tagTypeStrategies.get(t)).length === 0) {
+
+      this.error(`Unsupported tag types in: '${flags.tagtypes}'. Allowed values are 'dev' and 'prod'`)
+    }
 
     if (flags.output) {
       if (!fs.existsSync(path.dirname(flags.output))) {
@@ -130,13 +151,15 @@ export default class GenerateCr extends Command {
       this.error(`No tags found for the Docker image ${image}`)
     }
 
+    const filteredTags = this.filterTagsByAllowedTypes(flags.tagtypes ?? ['dev', 'prod'], tags);
+
     if (flags.digest) {
       console.warn(color.bold.blue('Fetching bundle Docker repository tags'))
 
       const progress = animatedProgress()
-      progress.start(tags.length, 0)
+      progress.start(filteredTags.length, 0)
 
-      const digestsExecutor = DockerService.getDigestsExecutor(image, tags)
+      const digestsExecutor = DockerService.getDigestsExecutor(image, filteredTags)
 
       digestsExecutor.on('done', () => {
         progress.update(progress.value + 1)
@@ -150,13 +173,13 @@ export default class GenerateCr extends Command {
     }
 
     CliUx.ux.action.start('Generating Entando custom resource descriptor')
-    const latestTag = `${image}:${tags[0]}`
+    const latestTag = `${image}:${filteredTags[0]}`
     const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
       latestTag
     )
     const customResourceService = new CustomResourceService(
       image,
-      tags,
+      filteredTags,
       digests,
       yamlDescriptor
     )
@@ -169,5 +192,13 @@ export default class GenerateCr extends Command {
       this.log('---')
       this.log(yamlContent)
     }
+  }
+
+  public filterTagsByAllowedTypes(tagTypes: string[], tags: string[]): string[] {
+
+    return tagTypes.flatMap(tagType => {
+      const strategy = GenerateCr.tagTypeStrategies.get(tagType);
+      return tags.filter((tag) => strategy && strategy(tag))
+    })
   }
 }
