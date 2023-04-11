@@ -1,6 +1,6 @@
 {
   "name": "@entando/entando-bundle-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Entando Bundle CLI",
   "author": "Entando",
   "bin": {
