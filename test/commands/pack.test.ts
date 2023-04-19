@@ -40,7 +40,7 @@ import {
 } from '../../src/services/bundle-thumbnail-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
-import { MicroFrontendType } from '../../src/models/bundle-descriptor'
+import { ApiType, MicroFrontendType } from '../../src/models/bundle-descriptor'
 import * as cp from 'node:child_process'
 import { CLIError } from '@oclif/errors'
 
@@ -886,6 +886,61 @@ describe('pack', () => {
       expect(ctx.stderr).to.contain('2/2') // build
       expect(ctx.stderr).to.contain('1/2') // pack
     })
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-with-invalid-claim'
+      )
+
+      const widgetsFolder = path.join(bundleDir, PSC_FOLDER, 'widgets')
+      fs.mkdirSync(widgetsFolder)
+      fs.writeFileSync(path.join(widgetsFolder, 'hello-widget.yaml'), '')
+
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.microservices = []
+      bundleDescriptor.microfrontends = [
+        {
+          name: 'hello-widget',
+          customElement: 'hello-widget',
+          stack: MicroFrontendStack.Angular,
+          type: MicroFrontendType.Widget,
+          apiClaims: [
+            {
+              name: 'claim',
+              type: ApiType.External,
+              serviceName: 'simple-ms',
+              bundle: 'registry/org/bundle-name'
+            }
+          ],
+          titles: {},
+          group: 'free'
+        }
+      ]
+
+      stubGenerateYamlDescriptors.restore()
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+
+      sinon.stub(DockerService, 'listTags').resolves(['1.0.0', '2.0.0'])
+      sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .throws(
+          new CLIError("Given Docker image doesn't contain required label")
+        )
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('Pack fails if api claim is not valid')
 
   let parallelProcessExecutorServiceStub: sinon.SinonStub
 
