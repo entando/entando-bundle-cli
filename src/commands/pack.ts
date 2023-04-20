@@ -96,7 +96,7 @@ export default class Pack extends BaseBuildCommand {
     if (flags['skip-claims-validation']) {
       this.warn('Api Claims validation has been skipped')
     } else {
-      await this.validateBundleApiClaims(bundleDescriptor)
+      await Pack.validateBundleApiClaims(bundleDescriptor)
     }
 
     if (flags.registry) {
@@ -315,7 +315,9 @@ export default class Pack extends BaseBuildCommand {
     }
   }
 
-  private async validateBundleApiClaims(bundleDescriptor: BundleDescriptor) {
+  private static async validateBundleApiClaims(
+    bundleDescriptor: BundleDescriptor
+  ) {
     return Promise.all(
       bundleDescriptor.microfrontends.map(async mfe => {
         const externalApiClaims = (
@@ -328,7 +330,7 @@ export default class Pack extends BaseBuildCommand {
     )
   }
 
-  private async validateBundle(externalApiClaims: ExternalApiClaim[]) {
+  private static async validateBundle(externalApiClaims: ExternalApiClaim[]) {
     return Promise.all(
       externalApiClaims.map(async apiClaim => {
         const imageName = apiClaim.bundle
