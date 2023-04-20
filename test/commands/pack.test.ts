@@ -942,6 +942,27 @@ describe('pack', () => {
     })
     .it('Pack fails if api claim is not valid')
 
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      const bundleDir = tempDirHelper.createInitializedBundleDir(
+        'test-bundle-with-skip-api-claim-validation'
+      )
+      setupBuildSuccess(bundleDir)
+    })
+    .command(['pack', '--org', 'flag-organization', '--skip-claims-validation'])
+    .it('runs pack --org flag-organization --skip-claims-validation', ctx => {
+      const configService = new ConfigService()
+      sinon.assert.called(getComponentsStub)
+      expect(configService.getProperty(DOCKER_ORGANIZATION_PROPERTY)).to.eq(
+        'flag-organization'
+      )
+      sinon.assert.called(stubGetThumbInfo)
+      expect(ctx.stderr).contain('Api Claims validation has been skipped')
+      expect(ctx.stderr).contain('2/2') // components build
+      expect(ctx.stderr).contain('1/1') // docker images build
+    })
   let parallelProcessExecutorServiceStub: sinon.SinonStub
 
   function setupBuildSuccess(bundleDir: string) {
