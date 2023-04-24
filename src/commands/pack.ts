@@ -17,7 +17,7 @@ import {
 import { BaseBuildCommand, BuildOptions } from './base-build'
 import * as path from 'node:path'
 import { MICROSERVICES_FOLDER, OUTPUT_FOLDER, PSC_FOLDER } from '../paths'
-import { BundleDescriptor } from '../models/bundle-descriptor'
+import { BundleDescriptor, ExternalApiClaim } from '../models/bundle-descriptor'
 import { Phase } from '../services/command-factory-service'
 import { color } from '@oclif/color'
 import * as fs from 'node:fs'
@@ -75,6 +75,9 @@ export default class Pack extends BaseBuildCommand {
     'fail-fast': Flags.boolean({
       description:
         'Allow to fail the pack command as soon as one of the sub-tasks fails'
+    }),
+    'skip-claims-validation': Flags.boolean({
+      description: 'Skip the validation of Api Claims'
     })
   }
 
@@ -89,6 +92,12 @@ export default class Pack extends BaseBuildCommand {
 
     const bundleDescriptorService = new BundleDescriptorService()
     const bundleDescriptor = bundleDescriptorService.getBundleDescriptor()
+
+    if (flags['skip-claims-validation']) {
+      this.warn('Api Claims validation has been skipped')
+    } else {
+      await Pack.validateBundleApiClaims(bundleDescriptor)
+    }
 
     if (flags.registry) {
       this.configService.addOrUpdateProperty(
@@ -304,5 +313,32 @@ export default class Pack extends BaseBuildCommand {
         `Docker build failed with cause: ${this.getErrorMessage(result)}`
       )
     }
+  }
+
+  private static async validateBundleApiClaims(
+    bundleDescriptor: BundleDescriptor
+  ) {
+    return Promise.all(
+      bundleDescriptor.microfrontends.map(async mfe => {
+        const externalApiClaims = (
+          mfe.apiClaims
+            ? mfe.apiClaims.filter(apiClaim => apiClaim.type === 'external')
+            : []
+        ) as ExternalApiClaim[]
+        return this.validateBundle(externalApiClaims)
+      })
+    )
+  }
+
+  private static async validateBundle(externalApiClaims: ExternalApiClaim[]) {
+    return Promise.all(
+      externalApiClaims.map(async apiClaim => {
+        const imageName = apiClaim.bundle
+        const tags = await DockerService.listTags(imageName)
+        return DockerService.getYamlDescriptorFromImage(
+          `${imageName}:${tags[0]}`
+        )
+      })
+    )
   }
 }
