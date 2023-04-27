@@ -23,7 +23,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/1.1.0-SNAPSHOT linux-x64 node-v14.19.1
+@entando/entando-bundle-cli/1.0.4 linux-x64 node-v14.19.1
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -158,7 +158,7 @@ EXAMPLES
   $ entando-bundle-cli build --all
 ```
 
-_See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/build.ts)_
+_See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/build.ts)_
 
 ## `entando-bundle-cli generate-cr`
 
@@ -193,7 +193,7 @@ EXAMPLES
   $ entando-bundle-cli generate-cr -t dev prod
 ```
 
-_See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/generate-cr.ts)_
+_See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/generate-cr.ts)_
 
 ## `entando-bundle-cli help [COMMAND]`
 
@@ -227,7 +227,7 @@ DESCRIPTION
   List the Docker images and their corresponding tags that are included in the bundle
 ```
 
-_See code: [dist/commands/images.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/images.ts)_
+_See code: [dist/commands/images.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/images.ts)_
 
 ## `entando-bundle-cli info`
 
@@ -244,7 +244,7 @@ EXAMPLES
   $ entando-bundle-cli info
 ```
 
-_See code: [dist/commands/info.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/info.ts)_
+_See code: [dist/commands/info.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/info.ts)_
 
 ## `entando-bundle-cli init NAME`
 
@@ -273,7 +273,7 @@ EXAMPLES
   $ entando-bundle-cli init my-bundle --from-hub
 ```
 
-_See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/init.ts)_
+_See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/init.ts)_
 
 ## `entando-bundle-cli list`
 
@@ -298,7 +298,7 @@ EXAMPLES
   $ entando-bundle-cli list --ms --mfe
 ```
 
-_See code: [dist/commands/list.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/list.ts)_
+_See code: [dist/commands/list.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/list.ts)_
 
 ## `entando-bundle-cli mfe add NAME`
 
@@ -418,7 +418,7 @@ EXAMPLES
   $ entando-bundle-cli pack -f my-Dockerfile
 ```
 
-_See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/pack.ts)_
+_See code: [dist/commands/pack.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/pack.ts)_
 
 ## `entando-bundle-cli publish`
 
@@ -439,7 +439,7 @@ EXAMPLES
   $ entando-bundle-cli publish --registry registry.hub.docker.com --org my-docker-organization
 ```
 
-_See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/publish.ts)_
+_See code: [dist/commands/publish.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/publish.ts)_
 
 ## `entando-bundle-cli run [component...] [--all-ms | --all-mfe | --all]`
 
@@ -469,7 +469,7 @@ EXAMPLES
   $ entando-bundle-cli run --all
 ```
 
-_See code: [dist/commands/run.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/run.ts)_
+_See code: [dist/commands/run.ts](https://github.com/entando/entando-bundle-cli/blob/v1.0.4/dist/commands/run.ts)_
 
 ## `entando-bundle-cli svc disable SERVICENAME`
 

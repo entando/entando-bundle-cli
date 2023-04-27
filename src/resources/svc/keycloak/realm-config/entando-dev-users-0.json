@@ -13,26 +13,21 @@
       "email": "admin@localhost",
       "credentials": [
         {
+          "id": "2159f7fb-a49e-406b-990d-9bbf59985496",
           "type": "password",
-          "hashedSaltedValue": "4pf9K2jWSCcHC+CwsZP/qidN5pSmDUe6AX6wBerSGdBVKkExay8MWKx+EKmaaObZW6FVsD8vdW/ZsyUFD9gJ1Q==",
-          "salt": "1/qNkZ5kr77jOMOBPBogGw==",
-          "hashIterations": 27500,
-          "counter": 0,
-          "algorithm": "pbkdf2-sha256",
-          "digits": 0,
-          "period": 0,
           "createdDate": 1505479429154,
-          "config": {}
+          "secretData": "{\"value\":\"4pf9K2jWSCcHC+CwsZP/qidN5pSmDUe6AX6wBerSGdBVKkExay8MWKx+EKmaaObZW6FVsD8vdW/ZsyUFD9gJ1Q==\",\"salt\":\"1/qNkZ5kr77jOMOBPBogGw==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
         }
       ],
-      "disableableCredentialTypes": ["password"],
+      "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": ["offline_access", "uma_authorization"],
       "clientRoles": {
         "account": ["view-profile", "manage-account"]
       },
       "notBefore": 0,
-      "groups": ["/Users", "/Admins"]
+      "groups": ["/Admins", "/Users"]
     },
     {
       "id": "c4af4e2f-b432-4c3b-8405-cca86cd5b97b",
@@ -46,19 +41,14 @@
       "email": "user@localhost",
       "credentials": [
         {
+          "id": "c34e657c-e061-4020-84f6-e58d5b024d5c",
           "type": "password",
-          "hashedSaltedValue": "MbKsMgWPnZyImih8s4SaoCSCq+XIY/c6S9F93sXEidHF1TjPWxCqMkec0+o3860CMLXHt3az61cIJOWI0FW9aw==",
-          "salt": "fmpBI1r8R1u75hDLMUlwBw==",
-          "hashIterations": 27500,
-          "counter": 0,
-          "algorithm": "pbkdf2-sha256",
-          "digits": 0,
-          "period": 0,
           "createdDate": 1505479392766,
-          "config": {}
+          "secretData": "{\"value\":\"MbKsMgWPnZyImih8s4SaoCSCq+XIY/c6S9F93sXEidHF1TjPWxCqMkec0+o3860CMLXHt3az61cIJOWI0FW9aw==\",\"salt\":\"fmpBI1r8R1u75hDLMUlwBw==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
         }
       ],
-      "disableableCredentialTypes": ["password"],
+      "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": ["offline_access", "uma_authorization"],
       "clientRoles": {
