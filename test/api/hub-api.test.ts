@@ -4,6 +4,7 @@ import { HubAPI } from '../../src/api/hub-api'
 import {
   demoBundle,
   demoBundleGroupList,
+  mockApiKey,
   mockDomain,
   mockUri
 } from '../helpers/mocks/hub-api'
@@ -65,6 +66,21 @@ describe('Hub API', () => {
       const bundleGroups = await hubApi.getBundleGroups()
       expect(bundleGroups).to.have.length(2)
       expect(bundleGroups[0]).to.deep.equal(demoBundleGroupList[0])
+    })
+
+    it('Includes the Entando-hub-api-key header when apiKey is provided', async () => {
+      nock(mockDomain, {
+        reqheaders: {
+          'Entando-hub-api-key': mockApiKey,
+        }
+      })
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+  
+      const hubApi = new HubAPI(mockDomain, mockApiKey)
+      const bundleGroups = await hubApi.getBundleGroups()
+  
+      expect(bundleGroups).to.deep.equal(demoBundleGroupList)
     })
   })
 })

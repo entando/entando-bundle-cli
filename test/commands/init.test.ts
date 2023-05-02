@@ -305,6 +305,15 @@ describe('init', () => {
     })
     .it('handles git command error')
 
+  test
+    .stderr()
+    .command(['init', 'testProject', '--from-hub', '--hub-api-key', 'sample_api_key'])
+    .catch(error => {
+      expect(error.message).to.contain('--hub-url= must also be provided')
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('exits when hub-api-key flag is set without hub-url flag');
+
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, CONFIG_FOLDER)
     checkBundleFile(bundleName, CONFIG_FOLDER, CONFIG_FILE)

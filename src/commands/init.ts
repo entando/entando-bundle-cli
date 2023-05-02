@@ -26,6 +26,10 @@ export default class Init extends Command {
     'hub-url': Flags.string({
       description: 'Custom Entando Hub url',
       dependsOn: ['from-hub']
+    }),
+    'hub-api-key': Flags.string({
+      description: 'Private Entando Hub API key',
+      dependsOn: ['hub-url']
     })
   }
 
@@ -45,7 +49,8 @@ export default class Init extends Command {
         `Initializing a new bundle project named ${args.name} from an Entando Hub bundle template`
       )
       const hubService = new HubService(
-        flags['hub-url'] || process.env.ENTANDO_CLI_DEFAULT_HUB
+        flags['hub-url'] || process.env.ENTANDO_CLI_DEFAULT_HUB,
+        flags['hub-api-key']
       )
       const bundleGroups = await hubService.loadBundleGroups()
       CliUx.ux.action.stop()

@@ -8,8 +8,8 @@ export class HubService {
   private readonly defaultHubUrl = 'https://www.entando.com/entando-hub-api'
   private hubApi: HubAPI
 
-  constructor(hubUrl?: string) {
-    this.hubApi = new HubAPI(hubUrl || this.defaultHubUrl)
+  constructor(hubUrl?: string, apiKey?: string) {
+    this.hubApi = new HubAPI(hubUrl || this.defaultHubUrl, apiKey)
   }
 
   public async loadBundleGroups(): Promise<BundleGroup[]> {

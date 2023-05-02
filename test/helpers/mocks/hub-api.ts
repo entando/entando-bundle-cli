@@ -1,5 +1,6 @@
 export const mockDomain = 'https://www.entando.com/entando-hub-api'
 export const mockUri = '/ent/api/templates/bundlegroups'
+export const mockApiKey = 'abcdefghij1234567890'
 
 export const demoBundle = {
   bundleGroupName: 'Test germano 1',
