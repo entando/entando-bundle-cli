@@ -318,8 +318,8 @@ describe('build command', () => {
     .command(['build', '--all-ms', '--stdout'])
     .it('build all spring-boot microservices logging to stdout', async ctx => {
       sinon.assert.called(getComponentsStub)
-      expect(ctx.stdout).matches(/test-ms-spring-boot-1 |.*info message1/)
-      expect(ctx.stdout).matches(/test-ms-spring-boot-2 |.*info message2/)
+      expect(ctx.stdout).matches(/test-ms-spring-boot-1|.*info message1/)
+      expect(ctx.stdout).matches(/test-ms-spring-boot-2|.*info message2/)
       // progressbar is disabled when logging directly to stdout
       expect(ctx.stderr).not.contain('2/2')
     })
