@@ -1,15 +1,26 @@
 import { CLIError } from '@oclif/errors'
 import { HubAPI } from '../api/hub-api'
 import { Bundle, BundleGroup } from '../api/hub-api'
-import { debugFactory } from './debug-factory-service'
 
 export class HubService {
-  private static debug = debugFactory(HubService)
   private readonly defaultHubUrl = 'https://www.entando.com/entando-hub-api'
   private hubApi: HubAPI
 
   constructor(hubUrl?: string, apiKey?: string) {
-    this.hubApi = new HubAPI(hubUrl || this.defaultHubUrl, apiKey)
+    const parsedUrl = new URL(hubUrl || this.defaultHubUrl)
+    const catalogId = parsedUrl.searchParams.get('catalogId')
+
+    if (apiKey && !catalogId) {
+      throw new CLIError('catalogId is required when apiKey is provided')
+    }
+
+    const privateCatalogCredentials =
+      apiKey && catalogId ? { apiKey, catalogId: Number(catalogId) } : undefined
+
+    this.hubApi = new HubAPI(
+      `${parsedUrl.origin}${parsedUrl.pathname}`,
+      privateCatalogCredentials
+    )
   }
 
   public async loadBundleGroups(): Promise<BundleGroup[]> {
