@@ -5,6 +5,7 @@ import {
   MicroFrontendType,
   Nav,
   Permission,
+  Resources,
   SimpleEnvironmentVariable,
   WidgetParam
 } from './bundle-descriptor'
@@ -86,6 +87,7 @@ export type YamlPluginDescriptor = {
   permissions?: Permission[]
   securityLevel?: string
   environmentVariables?: YamlEnvironmentVariable[]
+  resources?: Resources
 }
 
 export const SUPPORTED_PSC_TYPES = [

@@ -13,6 +13,7 @@ import {
   Microservice,
   Nav,
   SecurityLevel,
+  Resources,
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
   WidgetParam
@@ -196,6 +197,21 @@ const COMMANDS_CONSTRAINTS: ObjectConstraints<Commands> = {
   }
 }
 
+const RESOURCES_CONSTRAINTS: ObjectConstraints<Resources> = {
+  cpu: {
+    required: false,
+    type: 'string'
+  },
+  memory: {
+    required: false,
+    type: 'string'
+  },
+  storage: {
+    required: false,
+    type: 'string'
+  }
+}
+
 const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   name: {
     required: true,
@@ -261,6 +277,10 @@ const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   version: {
     required: false,
     type: 'string'
+  },
+  resources: {
+    required: false,
+    children: RESOURCES_CONSTRAINTS
   }
 }
 
