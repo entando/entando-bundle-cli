@@ -4,6 +4,8 @@ import { HubAPI } from '../../src/api/hub-api'
 import {
   demoBundle,
   demoBundleGroupList,
+  mockApiKey,
+  mockCatalogId,
   mockDomain,
   mockUri
 } from '../helpers/mocks/hub-api'
@@ -65,6 +67,52 @@ describe('Hub API', () => {
       const bundleGroups = await hubApi.getBundleGroups()
       expect(bundleGroups).to.have.length(2)
       expect(bundleGroups[0]).to.deep.equal(demoBundleGroupList[0])
+    })
+
+    it('Includes the Entando-hub-api-key header and catalogId query parameter when apiKey and catalogId are provided', async () => {
+      nock(mockDomain, {
+        reqheaders: {
+          'Entando-hub-api-key': mockApiKey
+        }
+      })
+        .get(mockUri)
+        .query({ catalogId: mockCatalogId })
+        .reply(200, demoBundleGroupList)
+
+      const privateCatalogCredentials = {
+        apiKey: mockApiKey,
+        catalogId: mockCatalogId
+      }
+      const hubApi = new HubAPI(mockDomain, privateCatalogCredentials)
+      const bundleGroups = await hubApi.getBundleGroups()
+
+      expect(bundleGroups).to.deep.equal(demoBundleGroupList)
+    })
+
+    it('Handles response errors', async () => {
+      const errorMessage = 'Failed to fetch data'
+
+      nock(mockDomain).get(mockUri).reply(500, { message: errorMessage })
+
+      try {
+        await hubApi.getBundleGroups()
+        expect.fail('Expected an error to be thrown')
+      } catch (error) {
+        expect((error as Error).message).to.equal(errorMessage)
+      }
+    })
+
+    it('Handles network errors', async () => {
+      nock(mockDomain).get(mockUri).replyWithError('Network error occurred')
+
+      try {
+        await hubApi.getBundleGroups()
+        expect.fail('Expected an error to be thrown')
+      } catch (error) {
+        expect((error as Error).message).to.equal(
+          'Error while contacting the Entando Hub'
+        )
+      }
     })
   })
 })

@@ -9,6 +9,8 @@ import { BundleDescriptorService } from '../../src/services/bundle-descriptor-se
 import {
   demoBundle,
   demoBundleGroupList,
+  mockApiKey,
+  mockCatalogId,
   mockDomain,
   mockUri
 } from '../helpers/mocks/hub-api'
@@ -304,6 +306,113 @@ describe('init', () => {
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('handles git command error')
+
+  test
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .query({ catalogId: mockCatalogId })
+        .matchHeader('Entando-hub-api-key', mockApiKey)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .query({ catalogId: mockCatalogId })
+        .matchHeader('Entando-hub-api-key', mockApiKey)
+        .reply(200, [demoBundle])
+    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .do(async () => {
+      const init = new InitializerService({
+        name: 'bundle-private-catalog',
+        version: '0.0.1',
+        parentDirectory: process.cwd()
+      })
+      await init.performBundleInit()
+      fs.rmSync(
+        path.resolve(process.cwd(), 'bundle-with-fromhub/microservices'),
+        { recursive: true, force: true }
+      )
+    })
+    .command([
+      'init',
+      'bundle-private-catalog',
+      '--from-hub',
+      '--hub-url',
+      'https://www.entando.com/entando-hub-api?catalogId=12',
+      '--hub-api-key',
+      'abcdefghij1234567890'
+    ])
+    .it(
+      'runs init with specified hub url and private catalog credentials',
+      () => {
+        const bundleName = 'bundle-private-catalog'
+
+        checkFoldersStructure(bundleName)
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+
+        const bundleDescriptor = parseBundleDescriptor(bundleName)
+        expect(bundleDescriptor.name).to.eq(bundleName)
+      }
+    )
+
+  test
+    .stderr()
+    .command([
+      'init',
+      'testProject',
+      '--from-hub',
+      '--hub-api-key',
+      'sample_api_key'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain('--hub-url= must also be provided')
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('exits when hub-api-key flag is set without hub-url flag')
+
+  test
+    .stderr()
+    .command([
+      'init',
+      'testProject',
+      '--from-hub',
+      '--hub-url',
+      'https://www.entando.com/entando-hub-api',
+      '--hub-api-key',
+      'sample_api_key'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'catalogId is required when apiKey is provided'
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('exits when hub-api-key flag is set without catalogId parameter')
+
+  test
+    .stderr()
+    .command([
+      'init',
+      'testProject',
+      '--from-hub',
+      '--hub-url',
+      'https://www.entando.com/entando-hub-api?catalogId=12'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'apiKey is required when catalogId is provided'
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('exits when catalogId parameter is set without hub-api-key flag')
 
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, CONFIG_FOLDER)
