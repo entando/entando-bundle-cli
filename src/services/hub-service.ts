@@ -14,6 +14,10 @@ export class HubService {
       throw new CLIError('catalogId is required when apiKey is provided')
     }
 
+    if (catalogId && !apiKey) {
+      throw new CLIError('apiKey is required when catalogId is provided')
+    }
+
     const privateCatalogCredentials =
       apiKey && catalogId ? { apiKey, catalogId: Number(catalogId) } : undefined
 

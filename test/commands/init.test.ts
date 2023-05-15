@@ -397,6 +397,23 @@ describe('init', () => {
     })
     .it('exits when hub-api-key flag is set without catalogId parameter')
 
+  test
+    .stderr()
+    .command([
+      'init',
+      'testProject',
+      '--from-hub',
+      '--hub-url',
+      'https://www.entando.com/entando-hub-api?catalogId=12'
+    ])
+    .catch(error => {
+      expect(error.message).to.contain(
+        'apiKey is required when catalogId is provided'
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('exits when catalogId parameter is set without hub-api-key flag')
+
   function checkFoldersStructure(bundleName: string) {
     checkBundleFile(bundleName, CONFIG_FOLDER)
     checkBundleFile(bundleName, CONFIG_FOLDER, CONFIG_FILE)
