@@ -44,7 +44,7 @@ import { BundleService } from './bundle-service'
 import { PSCDescriptors } from './psc-service'
 import { CLIError } from '@oclif/errors'
 
-const PLUGIN_DESCRIPTOR_VERSION = 'v5'
+const PLUGIN_DESCRIPTOR_VERSION = 'v6'
 const WIDGET_DESCRIPTOR_VERSION = 'v5'
 export const BUNDLE_DESCRIPTOR_VERSION = 'v5'
 export class BundleDescriptorConverterService {
