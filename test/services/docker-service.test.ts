@@ -484,7 +484,7 @@ describe('DockerService', () => {
     })
     .it('Tags retrieval is successfull', async () => {
       const utf16TagsSort =
-        '0.0.1\n0.0.2\n0.0.2-SNAPSHOT\n0.0.2-rc1\n0.0.2-rc2\n'
+        '0.0.1\n0.0.2\n0.0.2-\n0.0.2-SNAPSHOT\n0.0.2-rc1\n0.0.2-rc2\ninvalid\nv1.0.0\n'
       const executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .callsFake(options => {
@@ -494,6 +494,7 @@ describe('DockerService', () => {
 
       const tags = await DockerService.listTags('registry/org/my-bundle')
       expect(tags).deep.equal([
+        'v1.0.0',
         '0.0.2',
         '0.0.2-rc2',
         '0.0.2-rc1',
