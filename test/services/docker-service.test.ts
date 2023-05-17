@@ -483,15 +483,23 @@ describe('DockerService', () => {
       ENTANDO_CLI_CRANE_BIN: undefined
     })
     .it('Tags retrieval is successfull', async () => {
+      const utf16TagsSort =
+        '0.0.1\n0.0.2\n0.0.2-SNAPSHOT\n0.0.2-rc1\n0.0.2-rc2\n'
       const executeProcessStub = sinon
         .stub(ProcessExecutorService, 'executeProcess')
         .callsFake(options => {
-          options.outputStream!.write('0.0.1\n0.0.2\n')
+          options.outputStream!.write(utf16TagsSort)
           return Promise.resolve(0)
         })
 
       const tags = await DockerService.listTags('registry/org/my-bundle')
-      expect(tags).deep.equal(['0.0.2', '0.0.1'])
+      expect(tags).deep.equal([
+        '0.0.2',
+        '0.0.2-rc2',
+        '0.0.2-rc1',
+        '0.0.2-SNAPSHOT',
+        '0.0.1'
+      ])
       sinon.assert.calledWith(
         executeProcessStub,
         sinon.match({
