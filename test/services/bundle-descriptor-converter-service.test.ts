@@ -307,7 +307,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(msDescriptorPath, {
       name: 'test-ms',
-      descriptorVersion: 'v5',
+      descriptorVersion: 'v6',
       image: 'docker-org/test-ms:0.0.5',
       dbms: 'postgresql',
       ingressPath: '/path/to/service',
@@ -351,7 +351,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(msNoDbmsDescriptorPath, {
       name: 'test-ms-no-dbms',
-      descriptorVersion: 'v5',
+      descriptorVersion: 'v6',
       image: 'docker-org/test-ms-no-dbms:0.0.1',
       dbms: DBMS.None,
       healthCheckPath: '/api/health'
