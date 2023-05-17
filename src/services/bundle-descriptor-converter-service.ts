@@ -246,7 +246,8 @@ export class BundleDescriptorConverterService {
       roles: microservice.roles,
       permissions: microservice.permissions,
       securityLevel: microservice.securityLevel,
-      environmentVariables: this.generateYamlEnvVar(microservice.env)
+      environmentVariables: this.generateYamlEnvVar(microservice.env),
+      resources: microservice.resources
     }
     const filePath = path.join(
       ...DESCRIPTORS_OUTPUT_FOLDER,

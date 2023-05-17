@@ -67,7 +67,12 @@ describe('bundle-descriptor-converter-service', () => {
                 key: 'test-secret-key-ref-key-1'
               }
             }
-          ]
+          ],
+          resources: {
+            cpu: '100m',
+            memory: '20gb',
+            storage: '10gb'
+          }
         },
         {
           name: 'test-ms-no-dbms',
@@ -329,7 +334,12 @@ describe('bundle-descriptor-converter-service', () => {
             }
           }
         }
-      ]
+      ],
+      resources: {
+        cpu: '100m',
+        memory: '20gb',
+        storage: '10gb'
+      }
     })
 
     const msNoDbmsDescriptorPath = path.resolve(

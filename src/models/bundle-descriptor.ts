@@ -22,6 +22,12 @@ export type Permission = {
   role: string
 }
 
+export type Resources = {
+  cpu?: string
+  memory?: string
+  storage?: string
+}
+
 export enum DBMS {
   None = 'none',
   PostgreSQL = 'postgresql',
@@ -62,6 +68,7 @@ export type Microservice = {
   env?: EnvironmentVariable[]
   commands?: Commands
   version?: string
+  resources?: Resources
 }
 
 type BaseMicroFrontend = {

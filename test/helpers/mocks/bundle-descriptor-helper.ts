@@ -60,7 +60,12 @@ export class BundleDescriptorHelper {
               name: 'test-env-2',
               value: 'test-value-2'
             }
-          ]
+          ],
+          resources: {
+            cpu: '100m',
+            memory: '20gb',
+            storage: '100gb'
+          }
         }
       ],
       microfrontends: [
