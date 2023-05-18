@@ -46,7 +46,7 @@ import { CLIError } from '@oclif/errors'
 
 const PLUGIN_DESCRIPTOR_VERSION = 'v6'
 const WIDGET_DESCRIPTOR_VERSION = 'v5'
-export const BUNDLE_DESCRIPTOR_VERSION = 'v5'
+export const BUNDLE_DESCRIPTOR_VERSION = 'v6'
 export class BundleDescriptorConverterService {
   private readonly bundleDirectory: string
   private readonly bundleDescriptorService: BundleDescriptorService

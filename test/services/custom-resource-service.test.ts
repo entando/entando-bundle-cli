@@ -13,7 +13,7 @@ describe('CustomResourceService', () => {
       plugins: ['plugins/my-service.yaml', 'plugins/another-ms.yaml'],
       widgets: ['widgets/jeff-mfe.yaml', 'widgets/another-mfe.yaml']
     },
-    descriptorVersion: 'v5',
+    descriptorVersion: 'v6',
     thumbnail: 'data:image/png;base64,abcdef'
   }
 
@@ -108,7 +108,7 @@ describe('CustomResourceService', () => {
         categories: ['categories/categories.yaml'],
         labels: []
       },
-      descriptorVersion: 'v5',
+      descriptorVersion: 'v6',
       thumbnail: 'data:image/png;base64,abcdef'
     }
     customResourceService = new CustomResourceService(

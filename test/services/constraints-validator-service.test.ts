@@ -980,7 +980,7 @@ describe('Validates YAML descriptor', () => {
   it('Validates valid YAML descriptor', () => {
     const yamlBundleDescriptor: YamlBundleDescriptor = {
       name: 'test-bundle',
-      descriptorVersion: 'v5',
+      descriptorVersion: 'v6',
       components: {
         widgets: ['widgets/mfe1.yaml', 'widgets/mfe2.yaml'],
         plugins: ['plugins/my-service.yaml']
@@ -1008,7 +1008,7 @@ describe('Validates YAML descriptor', () => {
     .do(() => {
       const yamlBundleDescriptor: YamlBundleDescriptor = {
         name: 'test-bundle',
-        descriptorVersion: 'v5',
+        descriptorVersion: 'v6',
         components: {},
         ext: {
           nav: [
