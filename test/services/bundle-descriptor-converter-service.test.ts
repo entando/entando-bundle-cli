@@ -365,7 +365,7 @@ describe('bundle-descriptor-converter-service', () => {
     )
     checkYamlFile(bundleDescriptorPath, {
       name: 'test-bundle',
-      descriptorVersion: 'v5',
+      descriptorVersion: 'v6',
       description: 'test description',
       components: {
         assets: ['assets/my-image.yml'],
@@ -414,7 +414,7 @@ describe('bundle-descriptor-converter-service', () => {
 
     checkYamlFile(bundleDescriptorPath, {
       name: 'test-bundle-no-thumbnail',
-      descriptorVersion: 'v5',
+      descriptorVersion: 'v6',
       description: 'test-bundle-no-thumbnail description',
       components: {}
     })
