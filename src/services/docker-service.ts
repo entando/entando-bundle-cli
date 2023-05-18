@@ -21,6 +21,7 @@ import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/yaml-bundle-descri
 import * as YAML from 'yaml'
 import { FSService } from './fs-service'
 import { DEFAULT_MFE_BUILD_FOLDER } from './microfrontend-service'
+import { valid, rcompare } from 'semver'
 
 export const DEFAULT_DOCKERFILE_NAME = 'Dockerfile'
 export const DOCKER_COMMAND = 'docker'
@@ -403,7 +404,11 @@ export class DockerService {
     const error = errorStream.data
 
     if (result === 0) {
-      return output.trim().split('\n').reverse() // listing the most recent images first
+      return output
+        .trim()
+        .split('\n')
+        .filter(tag => valid(tag)) // removes invalid tags
+        .sort(rcompare) // listing the most recent images first
     }
 
     if (result === COMMAND_NOT_FOUND_EXIT_CODE) {
