@@ -153,13 +153,17 @@ export class BundleDescriptorConverterService {
       ...('titles' in microFrontend && { titles: microFrontend.titles }),
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
-      customElement: microFrontend.customElement,
+      ...(microFrontend.customElement
+        ? { customElement: microFrontend.customElement }
+        : {}),
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
         : undefined,
-      ...(customUiFileExists && {
-        customUiPath: `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
-      }),
+      ...(customUiFileExists
+        ? {
+            customUiPath: `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
+          }
+        : {}),
       parentName: microFrontend.parentName,
       parentCode: microFrontend.parentCode,
       params: microFrontend.params || [],

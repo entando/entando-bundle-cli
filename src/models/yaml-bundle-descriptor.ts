@@ -16,7 +16,7 @@ export type BaseYamlWidgetDescriptor<T extends MicroFrontendType> = {
   descriptorVersion: string
   type: T
   apiClaims?: Array<YamlInternalApiClaim | YamlExternalApiClaim>
-  customElement: string
+  customElement?: string
   customUiPath?: string
   parentName?: string
   parentCode?: string
