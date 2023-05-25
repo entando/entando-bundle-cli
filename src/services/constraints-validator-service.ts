@@ -1,4 +1,7 @@
 import { CLIError } from '@oclif/errors'
+import * as fs from 'node:fs'
+import path = require('node:path')
+import { MICROFRONTENDS_FOLDER } from '../paths'
 
 // Extracts the type wrapped by an array type
 type TypeOfArray<T> = T extends Array<infer A>
@@ -235,6 +238,29 @@ export function exclusive(
     if (object[fieldKey1] !== undefined && object[fieldKey2] !== undefined) {
       throw new PrioritizedValidationError(
         `Field "${fieldKey1}" cannot be present alongside field "${fieldKey2}"`,
+        jsonPath
+      )
+    }
+  }
+}
+
+export function validateCustomElement(): UnionTypeValidator {
+  return function (object: any, jsonPath: JsonPath) {
+    const mfeName = object.name
+    const ftlFilePath = `${MICROFRONTENDS_FOLDER}/${mfeName}/${mfeName}.ftl`
+
+    const hasFtlFile = fs.existsSync(path.resolve(ftlFilePath))
+
+    if (hasFtlFile && object.customElement !== undefined) {
+      throw new JsonValidationError(
+        `Field "customElement" is not allowed with custom template (ftl)`,
+        jsonPath
+      )
+    }
+
+    if (!hasFtlFile && object.customElement === undefined) {
+      throw new JsonValidationError(
+        `Field "customElement" is required without custom template (ftl)`,
         jsonPath
       )
     }
