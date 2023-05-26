@@ -9,6 +9,7 @@ import {
   ParallelProcessExecutorService
 } from '../../src/services/process-executor-service'
 import { getStubProcess } from '../helpers/mocks/stub-process'
+import { FakeStream } from '../helpers/mocks/fake-stream'
 
 const CMD_NOT_FOUND_ERROR = new Error('Command not found')
 const SIGKILL: NodeJS.Signals = 'SIGKILL'
@@ -87,17 +88,22 @@ describe('ProcessExecutorService', () => {
 
   test
     .do(async () => {
+      const fakeStream = new FakeStream()
+      const endStub = sinon.stub(fakeStream, 'end')
+
       const parallelProcessesOptions = [
         { command: 'cmd1' },
         { command: 'cmd2' },
         { command: 'cmd3' },
-        { command: 'cmd4' }
+        { command: 'cmd4' },
+        { command: 'cmd5', outputStream: fakeStream }
       ]
 
       const stubProcess1 = getStubProcess()
       const stubProcess2 = getStubProcess()
       const stubProcess3 = getStubProcess()
       const stubProcess4 = getStubProcess()
+      const stubProcess5 = getStubProcess()
 
       sinon
         .stub(cp, 'spawn')
@@ -109,6 +115,8 @@ describe('ProcessExecutorService', () => {
         .returns(stubProcess3)
         .onCall(3)
         .returns(stubProcess4)
+        .onCall(4)
+        .returns(stubProcess5)
 
       const parallelExecutor = new ParallelProcessExecutorService(
         parallelProcessesOptions
@@ -119,14 +127,18 @@ describe('ProcessExecutorService', () => {
       stubProcess2.emit('exit', 1, null)
       stubProcess3.emit('exit', null, SIGKILL)
       stubProcess4.emit('error', CMD_NOT_FOUND_ERROR)
+      stubProcess5.emit('exit', 0, null)
+      stubProcess5.emit('close', 0, null)
 
       const results = await promise
 
-      expect(results.length).to.equal(4)
+      expect(results.length).to.equal(5)
       expect(results[0]).to.equal(0)
       expect(results[1]).to.equal(1)
       expect(results[2]).to.equal(SIGKILL)
       expect(results[3]).to.eql(CMD_NOT_FOUND_ERROR)
+
+      sinon.assert.calledOnce(endStub)
     })
     .it('Executes multiple processes in parallel')
 

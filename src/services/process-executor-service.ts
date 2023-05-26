@@ -141,6 +141,14 @@ export class ParallelProcessExecutorService extends EventEmitter {
         this.emit('done', queuedExecution.index, code ?? signal!)
       })
 
+      process.on('close', (code, signal) => {
+        ParallelProcessExecutorService.debug(
+          `Process ${queuedExecution.index} closed with code ${code} and signal ${signal}`
+        )
+
+        queuedExecution.options.outputStream?.end()
+      })
+
       process.on('error', error => {
         ParallelProcessExecutorService.debug(
           `Process ${queuedExecution.index} exited due to error`,
