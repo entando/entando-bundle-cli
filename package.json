@@ -60,6 +60,9 @@
       },
       "svc": {
         "description": "Manage auxiliary services"
+      },
+      "hub": {
+        "description": "Manage HUB credentials"
       }
     },
     "hooks": {

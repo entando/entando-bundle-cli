@@ -21,7 +21,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/1.1.0-SNAPSHOT win32-x64 node-v14.21.3
+@entando/entando-bundle-cli/1.1.0-SNAPSHOT linux-x64 node-v14.20.0
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -38,6 +38,7 @@ USAGE
 * [`entando-bundle-cli build [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-build-component---all-ms----all-mfe----all)
 * [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
 * [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+* [`entando-bundle-cli hub add`](#entando-bundle-cli-hub-add)
 * [`entando-bundle-cli images`](#entando-bundle-cli-images)
 * [`entando-bundle-cli info`](#entando-bundle-cli-info)
 * [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
@@ -211,6 +212,28 @@ DESCRIPTION
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
+## `entando-bundle-cli hub add`
+
+Add a HUB credentials
+
+```
+USAGE
+  $ entando-bundle-cli hub add [--name <value>] [--hub-url <value>] [--hub-api-key <value>]
+
+FLAGS
+  --hub-api-key=<value>  api key for the hub
+  --hub-url=<value>      url of the hub
+  --name=<value>         name of the hub
+
+DESCRIPTION
+  Add a HUB credentials
+
+EXAMPLES
+  $ entando-bundle-cli hub add
+
+  $ entando-bundle-cli hub add --name=my-hub --hub-url=http://my-hub.com
+```
+
 ## `entando-bundle-cli images`
 
 List the Docker images and their corresponding tags that are included in the bundle
@@ -269,6 +292,8 @@ EXAMPLES
   $ entando-bundle-cli init my-bundle --version=0.0.1
 
   $ entando-bundle-cli init my-bundle --from-hub
+
+  $ entando-bundle-cli init my-bundle --from-hub --hub-url=https://www.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890
 ```
 
 _See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/init.ts)_
@@ -631,6 +656,7 @@ EXAMPLES
 - `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://entando.com/entando-hub-api`
 - `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
 - `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
+- `ENTANDO_BUNDLE_CLI_ETC`: path to ent bundle etc folder
 
 # Development environment setup
 
