@@ -17,8 +17,14 @@ import {
   MicroFrontendStack,
   MicroserviceStack
 } from '../../src/models/component'
+import * as sinon from 'sinon'
+import { existsSyncMock } from '../helpers/mocks/validator-helper'
 
 describe('BundleDescriptorValidatorService', () => {
+  afterEach(() => {
+    sinon.restore()
+  })
+
   test.it('No error thrown with valid object', () => {
     ConstraintsValidatorService.validateObjectConstraints(
       BundleDescriptorHelper.newBundleDescriptor(),
@@ -973,6 +979,111 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .it(
       'Validates microservice with custom stack and all the commands but without version'
+    )
+
+  test
+    .do(() => {
+      const validDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
+      ConstraintsValidatorService.validateObjectConstraints(
+        validDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('Validates microfrontend with "customElement" and no ftl file')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any = {
+        ...BundleDescriptorHelper.newBundleDescriptor()
+      }
+      const mfe = invalidDescriptor.microfrontends[1]
+
+      existsSyncMock(mfe.name, true)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "customElement" is not allowed with custom template (ftl)'
+      )
+    })
+    .it('Validates microfrontend with "customElement" and ftl file')
+
+  test
+    .do(() => {
+      const invalidDescriptor: any = {
+        ...BundleDescriptorHelper.newBundleDescriptor()
+      }
+      delete invalidDescriptor.microfrontends[1].customElement
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "customElement" is required without custom template (ftl)'
+      )
+    })
+    .it('Validates microfrontend with no "customElement" and no ftl file')
+
+  test
+    .do(() => {
+      const validDescriptor: any = {
+        ...BundleDescriptorHelper.newBundleDescriptor()
+      }
+      const mfe = validDescriptor.microfrontends[1]
+      delete mfe.customElement
+
+      existsSyncMock(mfe.name, true)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        validDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it('Validates microfrontend with no "customElement" and with ftl file')
+
+  test
+    .do(() => {
+      const validDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
+      const mfe = validDescriptor.microfrontends[1]
+      mfe.customUiPath = `${mfe.name}.ftl`
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        validDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Field "customElement" cannot be present alongside field "customUiPath"'
+      )
+    })
+    .it('Validates microfrontend with "customElement" alongside "customUiPath"')
+
+  test
+    .do(() => {
+      const validDescriptor: any = {
+        ...BundleDescriptorHelper.newBundleDescriptor()
+      }
+      const mfe = validDescriptor.microfrontends[1]
+      delete mfe.customElement
+      mfe.customUiPath = `${mfe.name}.ftl`
+
+      existsSyncMock(mfe.name, true)
+
+      ConstraintsValidatorService.validateObjectConstraints(
+        validDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .it(
+      'Validates microfrontend with no "customElement", with ftl file and "customUiPath"'
     )
 })
 
