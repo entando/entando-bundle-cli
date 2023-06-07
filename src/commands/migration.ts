@@ -1,16 +1,15 @@
-import { CliUx, Command, Flags } from "@oclif/core";
-import * as YAML from 'yaml';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { CLIError } from "@oclif/errors";
-import { DEFAULT_VERSION } from "../models/component";
-import { InitializerService } from "../services/initializer-service";
+import { CliUx, Command, Flags } from "@oclif/core"
+import * as YAML from 'yaml'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { CLIError } from "@oclif/errors"
+import { DEFAULT_VERSION } from "../models/component"
+import { InitializerService } from "../services/initializer-service"
 
 const DESCRIPTOR_ERROR = 'Bundle descriptor not found or invalid. Is this an Bundle project?'
 
 export default class Migration extends Command {
-  static description = 'Perform the migration from bundle v1 to v5'
-
+  static description = 'Perform bundle migration from v1 to v5'
 
   static flags = {
     'bundle-path': Flags.string({
