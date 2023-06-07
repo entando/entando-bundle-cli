@@ -36,6 +36,7 @@ USAGE
 * [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
 * [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
 * [`entando-bundle-cli build [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-build-component---all-ms----all-mfe----all)
+* [`entando-bundle-cli convert`](#entando-bundle-cli-convert)
 * [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
 * [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 * [`entando-bundle-cli images`](#entando-bundle-cli-images)
@@ -44,7 +45,6 @@ USAGE
 * [`entando-bundle-cli list`](#entando-bundle-cli-list)
 * [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
 * [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-* [`entando-bundle-cli migration`](#entando-bundle-cli-migration)
 * [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
 * [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
 * [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
@@ -156,6 +156,23 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/build.ts)_
+
+## `entando-bundle-cli convert`
+
+Perform bundle migration from v1 to v5
+
+```
+USAGE
+  $ entando-bundle-cli convert [--bundle-path <value>]
+
+FLAGS
+  --bundle-path=<value>  path of bundle v1 to migrate
+
+DESCRIPTION
+  Perform bundle migration from v1 to v5
+```
+
+_See code: [dist/commands/convert.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/convert.ts)_
 
 ## `entando-bundle-cli generate-cr`
 
@@ -347,23 +364,6 @@ DESCRIPTION
 EXAMPLES
   $ entando-bundle-cli mfe rm my-mfe
 ```
-
-## `entando-bundle-cli migration`
-
-Perform the migration from bundle v1 to v5
-
-```
-USAGE
-  $ entando-bundle-cli migration [--bundle-path <value>]
-
-FLAGS
-  --bundle-path=<value>  path of bundle v1 to migrate
-
-DESCRIPTION
-  Perform the migration from bundle v1 to v5
-```
-
-_See code: [dist/commands/migration.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/migration.ts)_
 
 ## `entando-bundle-cli ms add NAME`
 

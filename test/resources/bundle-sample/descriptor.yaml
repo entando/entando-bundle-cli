@@ -1,0 +1,31 @@
+code: bundle-sample
+description: This is v1 bundle
+
+bundle-type: system-level-bundle
+components:
+  pageModels:
+    - pageModels/agid_template-descriptor.yaml
+  pages:
+    - pages/homepage-descriptor.yaml
+  contentTypes:
+    - contentTypes/arg-descriptor.yaml
+  contentModels:
+    - contentModels/lista-(arg)-descriptor.yaml
+    - contentModels/argomenti-in-evidenza-homepage-(arg)-descriptor.yaml
+    - contentModels/argomenti-in-pillole-(arg)-descriptor.yaml
+  assets:
+    - assets/testo/testo-descriptor.yaml
+    - assets/agidatplan/agidatplan-descriptor.yaml
+    - assets/agidatwork/agidatwork-descriptor.yaml
+    - assets/agidhot/agidhot-descriptor.yaml
+    - assets/agidwalk/agidwalk-descriptor.yaml
+    - assets/59/59-descriptor.yaml
+    - assets/174/174-descriptor.yaml
+  contents:
+    - contents/arg153-descriptor.yaml
+    - contents/arg156-descriptor.yaml
+    - contents/arg159-descriptor.yaml
+    - contents/arg169-descriptor.yaml
+    - contents/arg177-descriptor.yaml
+  categories:
+    - categories/categories-descriptor.yaml
