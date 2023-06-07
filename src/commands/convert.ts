@@ -11,11 +11,11 @@ import { writeFileSyncRecursive } from "../utils"
 const DESCRIPTOR_ERROR = 'Bundle descriptor not found or invalid. Is this a v1 Bundle project?'
 
 export default class Convert extends Command {
-  static description = 'Perform bundle migration from v1 to v5'
+  static description = 'Perform bundle conversion from v1 to v5'
 
   static flags = {
     'bundle-path': Flags.string({
-      description: 'path of bundle v1 to migrate'
+      description: 'path of bundle v1 to convert'
     })
   }
 
@@ -33,9 +33,9 @@ export default class Convert extends Command {
     const options = { name: `${name}-v5`, parentDirectory: dir, version: DEFAULT_VERSION }
     const initializer = new InitializerService(options)
 
-    register.push(`Initializing an empty bundle project named ${name}-v5`)
+    register.push(`Starting conversion ${name} to v5`)
 
-    CliUx.ux.action.start(`Initializing an empty bundle project named ${name}-v5`)
+    CliUx.ux.action.start(`Starting conversion ${name} to v5`)
     await initializer.performBundleInit()
     CliUx.ux.action.stop()
 
