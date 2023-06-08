@@ -21,7 +21,7 @@ $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
 running command...
 $ entando-bundle-cli (--version)
-@entando/entando-bundle-cli/1.1.0-SNAPSHOT win32-x64 node-v14.21.3
+@entando/entando-bundle-cli/1.1.0-SNAPSHOT linux-x64 node-v14.20.0
 $ entando-bundle-cli --help [COMMAND]
 USAGE
   $ entando-bundle-cli COMMAND
@@ -36,6 +36,7 @@ USAGE
 * [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
 * [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
 * [`entando-bundle-cli build [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-build-component---all-ms----all-mfe----all)
+* [`entando-bundle-cli convert`](#entando-bundle-cli-convert)
 * [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
 * [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
 * [`entando-bundle-cli images`](#entando-bundle-cli-images)
@@ -156,6 +157,23 @@ EXAMPLES
 
 _See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/build.ts)_
 
+## `entando-bundle-cli convert`
+
+Perform bundle migration from v1 to v5
+
+```
+USAGE
+  $ entando-bundle-cli convert [--bundle-path <value>]
+
+FLAGS
+  --bundle-path=<value>  path of bundle v1 to migrate
+
+DESCRIPTION
+  Perform bundle migration from v1 to v5
+```
+
+_See code: [dist/commands/convert.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/convert.ts)_
+
 ## `entando-bundle-cli generate-cr`
 
 Generate the Entando Custom Resource (CR) for a bundle project
@@ -269,6 +287,8 @@ EXAMPLES
   $ entando-bundle-cli init my-bundle --version=0.0.1
 
   $ entando-bundle-cli init my-bundle --from-hub
+
+  $ entando-bundle-cli init my-bundle --from-hub --hub-url=https://www.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890
 ```
 
 _See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/init.ts)_
