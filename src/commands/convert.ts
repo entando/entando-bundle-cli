@@ -15,7 +15,7 @@ export default class Convert extends Command {
 
   static flags = {
     'bundle-path': Flags.string({
-      description: 'path of bundle v1 to convert'
+      description: 'the root folder is the one containing the descriptor.yaml file'
     })
   }
 
