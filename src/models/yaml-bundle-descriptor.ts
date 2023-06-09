@@ -123,3 +123,27 @@ export type YamlBundleDescriptor = {
     nav: Nav[]
   }
 }
+
+export enum DescriptorVersion {
+  V1 = 'v1',
+  V5 = 'v5'
+}
+
+export enum BundleType {
+  STANDARD_BUNDLE = "standard-bundle",
+  SYSTEM_LEVEL_BUNDLE = "system-level-bundle",
+}
+
+export type YamlBundleDescriptorV1 = {
+  code: string
+  components: {
+    [key in SupportedComponents]?: string[]
+  }
+  description?: string
+  "bundle-type"?: BundleType
+  descriptorVersion?: DescriptorVersion.V1
+  thumbnail?: string
+  ext?: {
+    nav: Nav[]
+  }
+}

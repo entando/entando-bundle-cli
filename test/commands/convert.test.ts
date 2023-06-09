@@ -17,19 +17,24 @@ import { expect, test } from '@oclif/test'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { BundleDescriptor } from '../../src/models/bundle-descriptor'
+import { YamlBundleDescriptorV1 } from "../../src/models/yaml-bundle-descriptor"
+import * as YAML from 'yaml'
 
 describe('convert', () => {
     const tempDirHelper = new TempDirHelper(__filename)
     const testFolder = path.dirname(__dirname)
+    const descriptorV1FilePath = path.resolve(testFolder, "resources/bundle-sample/descriptor.yaml")
+    let descV1Json: YamlBundleDescriptorV1;
 
     beforeEach(() => {
         // creating a subfolder for testing the bundle-sample conversion
         fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, 'bundle-sample'))
-        // copy descriptor v1
+        // copy descriptor v1 in tmpDir
         fs.copyFileSync(
-            path.resolve(testFolder, "resources/bundle-sample/descriptor.yaml"),
+            descriptorV1FilePath,
             path.resolve(tempDirHelper.tmpDir, 'bundle-sample', 'descriptor.yaml')
         )
+        descV1Json = YAML.parse(fs.readFileSync(descriptorV1FilePath, 'utf-8'))
     })
 
     afterEach(() => {
@@ -92,6 +97,34 @@ describe('convert', () => {
             )
             expect(bundleDescriptor.type).to.eq('bundle')
         })
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json as any
+            delete localDescV1Json.descriptorVersion
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .it('runs convert bundle without --bundle-path and without descriptorVersion in descriptor', () => {
+            const bundleName = 'bundle-sample-v5'
+            checkFoldersStructure(bundleName)
+            expect(
+                (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+            ).to.equal(true)
+
+            const bundleDescriptor = parseBundleDescriptor(bundleName)
+            expect(bundleDescriptor.name).to.eq(bundleName)
+            expect(bundleDescriptor.version).to.eq('0.0.1')
+            expect(bundleDescriptor.description).to.eq(
+                'bundle-sample-v5 description'
+            )
+            expect(bundleDescriptor.type).to.eq('bundle')
+        })
 
     test
         .stdout()
@@ -106,10 +139,132 @@ describe('convert', () => {
         .command(['convert'])
         .catch(error => {
             expect(error.message).to.contain(
-                'Bundle descriptor not found or invalid. Is this a v1 Bundle project?'
+                'Bundle descriptor invalid. Is this a v1 Bundle project?'
             )
         })
         .it('throws an error when descriptor of bundle v1 is invalid YAML')
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json as any
+            delete localDescV1Json.code
+            localDescV1Json.name = "bundle-sample"
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .catch(error => {
+            expect(error.message).to.contain(
+                'Bundle descriptor invalid. Is this a v1 Bundle project?'
+            )
+        })
+        .it('throws an error when descriptor of bundle v1 has no code')
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json as any
+            delete localDescV1Json.components
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .catch(error => {
+            expect(error.message).to.contain(
+                'Bundle descriptor invalid. Is this a v1 Bundle project?'
+            )
+        })
+        .it('throws an error when descriptor of bundle v1 has no components')
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json as any
+            localDescV1Json.descriptorVersion = "v5"
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .catch(error => {
+            expect(error.message).to.contain(
+                'Bundle descriptor invalid. Is this a v1 Bundle project?'
+            )
+        })
+        .it('throws an error when descriptor of bundle v1 has descriptorVersion v5')
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json as any
+            localDescV1Json["bundle-type"] = "invalid-type"
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .catch(error => {
+            expect(error.message).to.contain(
+                'Bundle descriptor invalid. Is this a v1 Bundle project?'
+            )
+        })
+        .it('throws an error when descriptor of bundle v1 has bundle-type invalid')
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            fs.rmSync(
+                path.resolve('descriptor.yaml')
+            )
+        })
+        .command(['convert'])
+        .catch(error => {
+            expect(error.message).to.contain(
+                'Bundle descriptor not found. Is this a v1 Bundle project?'
+            )
+        })
+        .it('throws an error when descriptor of bundle v1 is not found')
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            fs.writeFileSync(
+                path.resolve('entando.json'), '{"name": "bundle-sample"}'
+            )
+            fs.rmSync(
+                path.resolve('descriptor.yaml')
+            )
+        })
+        .command(['convert'])
+        .catch(error => {
+            expect(error.message).to.contain(
+                'The Bundle is already a v5'
+            )
+        })
+        .it('throws an error when descriptor is a v5')
+
+
 
     function checkFoldersStructure(bundleName: string) {
         checkBundleFile(bundleName, CONFIG_FOLDER)
