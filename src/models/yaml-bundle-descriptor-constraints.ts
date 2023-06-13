@@ -1,6 +1,7 @@
-import { ObjectConstraints, values } from '../services/constraints-validator-service'
-import { BundleType, DescriptorVersion, YamlBundleDescriptor, YamlBundleDescriptorV1 } from './yaml-bundle-descriptor'
-import { NAV_CONSTRAINTS } from './bundle-descriptor-constraints'
+import { ObjectConstraints, UnionTypeConstraints, maxLength, values } from '../services/constraints-validator-service'
+import { BundleType, DescriptorVersion, YamlBundleDescriptor, YamlBundleDescriptorV1, YamlEnvironmentVariable, YamlPluginDescriptorV1 } from './yaml-bundle-descriptor'
+import { MAX_NAME_LENGTH, NAV_CONSTRAINTS, RESOURCES_CONSTRAINTS, nameLengthValidator, nameRegExpValidator } from './bundle-descriptor-constraints'
+import { DBMS, SecurityLevel } from './bundle-descriptor'
 
 export const YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<YamlBundleDescriptor> =
   {
@@ -236,4 +237,113 @@ export const YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS_V1: ObjectConstraints<YamlBundle
       }
     }
   }
-}  
+}
+
+const ENVIRONMENT_VARIABLE_CONSTRAINTS: UnionTypeConstraints<YamlEnvironmentVariable> =
+{
+  constraints: [
+    {
+      name: {
+        required: true,
+        type: 'string'
+      },
+      value: {
+        required: true,
+        type: 'string'
+      }
+    },
+    {
+      name: {
+        required: true,
+        type: 'string'
+      },
+      valueFrom: {
+        required: true,
+        children: {
+          secretKeyRef: {
+            required: true,
+            children: {
+              name: {
+                required: true,
+                type: 'string'
+              },
+              key: {
+                required: true,
+                type: 'string'
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+
+
+export const YAML_PLUGIN_DESCRIPTOR_CONSTRAINTS_V1: ObjectConstraints<YamlPluginDescriptorV1> =
+{
+  name: {
+    required: false,
+    type: 'string',
+    validators: [nameRegExpValidator, nameLengthValidator]
+  },
+  descriptorVersion: {
+    required: false,
+    type: 'string',
+  },
+  image: {
+    required: true,
+    type: 'string',
+  },
+  deploymentBaseName: {
+    required: false,
+    type: 'string'
+  },
+  dbms: {
+    required: true,
+    type: 'string',
+    validators: [values(DBMS)]
+  },
+  ingressPath: {
+    required: false,
+    type: 'string',
+    validators: [maxLength(MAX_NAME_LENGTH)]
+  },
+  healthCheckPath: {
+    required: true,
+    type: 'string'
+  },
+  roles: {
+    isArray: true,
+    required: false,
+    type: 'string'
+  },
+  securityLevel: {
+    required: false,
+    type: 'string',
+    validators: [values(SecurityLevel)]
+  },
+  permissions: {
+    isArray: true,
+    required: false,
+    children: {
+      clientId: {
+        required: true,
+        type: 'string'
+      },
+      role: {
+        required: true,
+        type: 'string'
+      }
+    }
+  },
+  environmentVariables: {
+    isArray: true,
+    required: false,
+    children: ENVIRONMENT_VARIABLE_CONSTRAINTS
+  },
+  resources: {
+    required: false,
+    children: RESOURCES_CONSTRAINTS
+  }
+}

@@ -147,3 +147,18 @@ export type YamlBundleDescriptorV1 = {
     nav: Nav[]
   }
 }
+
+export type YamlPluginDescriptorV1 = {
+  name?: string 
+  descriptorVersion?: string
+  image: string 
+  healthCheckPath: string 
+  deploymentBaseName?: string 
+  dbms: DBMS 
+  ingressPath?: string 
+  roles?: string[] 
+  permissions?: Permission[]
+  securityLevel?: string 
+  environmentVariables?: YamlEnvironmentVariable[]
+  resources?: Resources 
+}

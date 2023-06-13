@@ -24,16 +24,15 @@ export class MicroserviceService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentService: ComponentService
 
-  constructor() {
-    this.microservicesPath = path.resolve(process.cwd(), MICROSERVICES_FOLDER)
-    this.bundleDescriptorService = new BundleDescriptorService()
-    this.componentService = new ComponentService()
+  constructor(bundleDirectory: string = process.cwd()) {
+    this.bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
+    this.componentService = new ComponentService(bundleDirectory)
+    this.microservicesPath = path.resolve(bundleDirectory, MICROSERVICES_FOLDER)
   }
 
   public addMicroservice(ms: Microservice): void {
-    const componentService = new ComponentService()
 
-    if (componentService.componentExists(ms.name)) {
+    if (this.componentService.componentExists(ms.name)) {
       throw new CLIError(
         `A component (microservice or micro frontend) with name ${ms.name} already exists`
       )

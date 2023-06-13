@@ -42,8 +42,8 @@ export class ComponentService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentDescriptorService: ComponentDescriptorService
 
-  constructor() {
-    this.bundleDescriptorService = new BundleDescriptorService()
+  constructor(bundleDirectory?: string) {
+    this.bundleDescriptorService = new BundleDescriptorService(bundleDirectory ?? undefined)
     this.componentDescriptorService = new ComponentDescriptorService()
   }
 

@@ -1,0 +1,22 @@
+image: "docker.io/entando/entando-sample-plugin:0.0.1"
+dbms: "none"
+deploymentBaseName: "entando-sample-plugin"
+healthCheckPath: "/actuator/health"
+securityLevel: lenient
+ingressPath: /entandoSamplePlugin
+roles:
+  - "task-list"
+  - "task-get"
+permissions:
+  - clientId: realm-management
+    role: manage-users
+  - clientId: realm-management
+    role: view-users
+environmentVariables:
+  - name: ENV_1_NAME
+    value: env1value
+  - name: ENV_2_NAME
+    valueFrom:
+      secretKeyRef:
+        name: env-2-secret
+        key: env-2-secret-key
