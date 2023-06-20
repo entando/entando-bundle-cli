@@ -159,17 +159,18 @@ _See code: [dist/commands/build.ts](https://github.com/entando/entando-bundle-cl
 
 ## `entando-bundle-cli convert`
 
-Perform bundle migration from v1 to v5
+Perform bundle conversion from v1 to v5
 
 ```
 USAGE
-  $ entando-bundle-cli convert [--bundle-path <value>]
+  $ entando-bundle-cli convert [--bundle-path <value>] [--svc-path <value>]
 
 FLAGS
-  --bundle-path=<value>  path of bundle v1 to migrate
+  --bundle-path=<value>  the root folder is the one containing the descriptor.yaml file
+  --svc-path=<value>     the services folder is the one containing the Docker Compose files
 
 DESCRIPTION
-  Perform bundle migration from v1 to v5
+  Perform bundle conversion from v1 to v5
 ```
 
 _See code: [dist/commands/convert.ts](https://github.com/entando/entando-bundle-cli/blob/v1.1.0-SNAPSHOT/dist/commands/convert.ts)_

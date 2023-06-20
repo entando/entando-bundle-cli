@@ -30,8 +30,8 @@ export class SvcService {
 
   private readonly serviceFileType = 'yml'
 
-  constructor(configBin: string) {
-    this.parentDirectory = process.cwd()
+  constructor(configBin: string, parentDirectory: string = process.cwd()) {
+    this.parentDirectory = parentDirectory
     this.configBin = configBin
     this.bundleDescriptorService = new BundleDescriptorService(
       this.parentDirectory
@@ -41,6 +41,17 @@ export class SvcService {
 
   public getAllServices(): string[] {
     SvcService.debug('getting all services in svc folder')
+    const existingServices = this.getUserServices()
+    return [
+      ...new Set([
+        ...DefaultSvcInitializerService.getDefaultServices(),
+        ...existingServices
+      ])
+    ]
+  }
+
+  private getUserServices(): string[] {
+    SvcService.debug('getting user services in svc folder')
     const existingServices = fs
       .readdirSync(path.resolve(this.parentDirectory, SVC_FOLDER))
       .filter(
@@ -49,12 +60,7 @@ export class SvcService {
           this.serviceFileType
       )
       .map(filename => filename.slice(0, -4))
-    return [
-      ...new Set([
-        ...DefaultSvcInitializerService.getDefaultServices(),
-        ...existingServices
-      ])
-    ]
+    return [...existingServices]
   }
 
   public getAvailableServices(): string[] {
@@ -65,6 +71,12 @@ export class SvcService {
 
   public getEnabledServices(): string[] {
     return this.bundleDescriptor.svc || []
+  }
+
+  public getUserAvailableServices(): string[] {
+    const activeServices = this.getEnabledServices()
+    const userServices = this.getUserServices()
+    return userServices.filter(service => !activeServices.includes(service))
   }
 
   public enableService(service: string): void {
@@ -78,7 +90,7 @@ export class SvcService {
     }
 
     if (DefaultSvcInitializerService.getDefaultServices().includes(service)) {
-      const defaultSvcService = new DefaultSvcInitializerService()
+      const defaultSvcService = new DefaultSvcInitializerService(this.parentDirectory)
       defaultSvcService.initializeService(service)
     }
 
