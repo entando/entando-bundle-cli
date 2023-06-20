@@ -17,8 +17,8 @@ import {
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
   WidgetParam
-} from '../models/bundle-descriptor'
-import { MicroFrontendStack, MicroserviceStack } from '../models/component'
+} from './bundle-descriptor'
+import { MicroFrontendStack, MicroserviceStack } from './component'
 import {
   fieldDependsOn,
   isMapOfStrings,
@@ -35,7 +35,7 @@ import {
   validateCustomElement
 } from '../services/constraints-validator-service'
 
-export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
+export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:([.-])[\da-z]+)*$/
 export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
 export const MAX_VERSION_LENGTH = 128
 export const MAX_NAME_LENGTH = 50
