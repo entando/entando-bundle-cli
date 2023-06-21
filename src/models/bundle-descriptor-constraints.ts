@@ -41,7 +41,7 @@ export const MAX_VERSION_LENGTH = 128
 export const MAX_NAME_LENGTH = 50
 export const MAX_WIDGET_CATEGORY_LENGTH = 80
 export const INVALID_NAME_MESSAGE =
-  'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
+  'The Name may contain lowercase letters, digits and separators. A separator is defined as a period, or a dash. The name may not start or end with a separator.'
 export const INVALID_VERSION_MESSAGE =
   'Version may contain lowercase and uppercase letters, digits, underscores, periods and dashes. Version may not start with a period or a dash.'
 export const DOCKER_PREFIX = 'docker://'
