@@ -28,6 +28,22 @@ import {
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { CLIError } from '@oclif/errors'
 
+const forbiddenBundleNames = [
+  "hello_world",
+  "hello world",
+  "hello..world",
+  "hello--world",
+  "hello-.world",
+  ".helloworld",
+  "-helloworld",
+  "helloworld.",
+  "helloworld-",
+  "Helloworld",
+  "helloWorld",
+  "helloworlD",
+  "hello$worlD"
+];
+
 describe('init', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
@@ -258,14 +274,16 @@ describe('init', () => {
     })
     .it('exits if bundle folder already exists')
 
-  test
+  for (const name of forbiddenBundleNames) {
+    test
     .stderr()
-    .command(['init', 'invalid name'])
+    .command(['init', name])
     .catch(error => {
       expect(error.message).to.contain('not a valid bundle name')
       expect((error as CLIError).oclif.exit).eq(2)
     })
-    .it('validates bundle name format')
+    .it('validates bundle name format to not be like ' + name)
+  }
 
   test
     .stderr()

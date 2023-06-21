@@ -801,7 +801,7 @@ describe('BundleDescriptorValidatorService', () => {
   test
     .do(() => {
       const validDescriptor = BundleDescriptorHelper.newBundleDescriptor()
-      validDescriptor.name = 'this---name__is.valid-123_abc'
+      validDescriptor.name = 'this-name-is.valid-123.abc'
       ConstraintsValidatorService.validateObjectConstraints(
         validDescriptor,
         BUNDLE_DESCRIPTOR_CONSTRAINTS
