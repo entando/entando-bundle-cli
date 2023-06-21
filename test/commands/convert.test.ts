@@ -17,7 +17,7 @@ import { expect, test } from '@oclif/test'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { BundleDescriptor, DBMS } from '../../src/models/bundle-descriptor'
-import { YamlBundleDescriptorV1, YamlPluginDescriptorV1 } from "../../src/models/yaml-bundle-descriptor"
+import { SUPPORTED_PSC_V1_TO_V5_TYPES, YamlBundleDescriptorV1, YamlPluginDescriptorV1 } from "../../src/models/yaml-bundle-descriptor"
 import * as YAML from 'yaml'
 import { MicroserviceStack } from '../../src/models/component'
 import { CliUx } from '@oclif/core'
@@ -28,6 +28,24 @@ describe('convert', () => {
     const testFolder = path.dirname(__dirname)
     const descriptorV1FilePath = path.resolve(testFolder, "resources/bundle-sample/descriptor.yaml")
     let descV1Json: YamlBundleDescriptorV1;
+    const inputPlatformGroups = [
+        'fragments',
+        'categories',
+        'pages',
+        'pageTemplates',
+        'invalid',
+        'something',
+        'contentTypes',
+        'contentTemplates',
+        'contents',
+        'assets',
+        'groups',
+        'labels',
+        'languages',
+        'pageModels',
+        'contentModels',
+        'resources'
+    ]
 
     beforeEach(() => {
         // creating a subfolder for testing the bundle-sample conversion
@@ -751,6 +769,53 @@ describe('convert', () => {
 
         })
 
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () =>
+            sinon.stub().resolves()
+        )
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json
+            for (const group of inputPlatformGroups) {
+                fs.mkdirSync(group)
+                fs.writeFileSync(path.resolve(group, `${group.toLowerCase()}-sample.yaml`), '')
+            }
+
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .it(`runs convert bundle importing the platform files`, () => {
+            const bundleName = 'bundle-sample-v5'
+            checkFoldersStructure(bundleName)
+            expect(
+                (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+            ).to.equal(true)
+
+            const bundleDescriptor = parseBundleDescriptor(bundleName)
+            expect(bundleDescriptor.name).to.eq(bundleName)
+            expect(bundleDescriptor.version).to.eq('0.0.1')
+            expect(bundleDescriptor.description).to.eq(
+                'bundle-sample-v5 description'
+            )
+            expect(bundleDescriptor.type).to.eq('bundle')
+            const validGroupFolder = inputPlatformGroups.filter(group => (SUPPORTED_PSC_V1_TO_V5_TYPES as unknown as string []).includes(group))
+            const invalidGroupFolder = inputPlatformGroups.filter(group => !(SUPPORTED_PSC_V1_TO_V5_TYPES as unknown as string []).includes(group))
+            for (const validGroup of validGroupFolder){
+                checkBundleFile(bundleName, PSC_FOLDER, validGroup)
+                checkBundleFile(bundleName, PSC_FOLDER, validGroup, `${validGroup.toLowerCase()}-sample.yaml`)
+            }
+            
+            for (const invalidGroup of invalidGroupFolder){
+                checkBundleFileDoesNotExist(bundleName, PSC_FOLDER, invalidGroup)
+                checkBundleFileDoesNotExist(bundleName, PSC_FOLDER, invalidGroup, `${invalidGroup.toLowerCase()}-sample.yaml`)
+            }
+        })
+
     function checkMicroservice(bundleDescriptor: BundleDescriptor, microserviceName: string) {
         checkMicroserviceFolders(bundleDescriptor.name, microserviceName)
         expect(bundleDescriptor.microservices.length).to.eq(1)
@@ -804,6 +869,15 @@ describe('convert', () => {
             ...pathSegments
         )
         expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(true)
+    }
+
+    function checkBundleFileDoesNotExist(bundleName: string, ...pathSegments: string[]) {
+        const filePath = path.resolve(
+            tempDirHelper.tmpDir,
+            bundleName,
+            ...pathSegments
+        )
+        expect(fs.existsSync(filePath), `${filePath} wasn't created`).to.eq(false)
     }
 
     function parseBundleDescriptor(bundleName: string): BundleDescriptor {
