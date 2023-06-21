@@ -55,7 +55,7 @@ export class MicroserviceService {
 
     this.addMicroserviceDescriptor({
       ...ms,
-      healthCheckPath: DEFAULT_HEALTH_CHECK_PATH
+      healthCheckPath: ms.healthCheckPath ?? DEFAULT_HEALTH_CHECK_PATH
     })
   }
 
