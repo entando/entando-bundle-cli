@@ -54,12 +54,12 @@ export const VALID_BUNDLE_FORMAT = `[${DOCKER_PREFIX}]<organization>/<repository
 export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 
-const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+export const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
 const versionRegExpValidator = regexp(
   ALLOWED_VERSION_REGEXP,
   INVALID_VERSION_MESSAGE
 )
-const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
+export const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
 const widgetCategoryLengthValidator = maxLength(MAX_WIDGET_CATEGORY_LENGTH)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
@@ -198,7 +198,7 @@ const COMMANDS_CONSTRAINTS: ObjectConstraints<Commands> = {
   }
 }
 
-const RESOURCES_CONSTRAINTS: ObjectConstraints<Resources> = {
+export const RESOURCES_CONSTRAINTS: ObjectConstraints<Resources> = {
   cpu: {
     required: false,
     type: 'string'
@@ -213,7 +213,7 @@ const RESOURCES_CONSTRAINTS: ObjectConstraints<Resources> = {
   }
 }
 
-const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
+export const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   name: {
     required: true,
     type: 'string',
