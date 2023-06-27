@@ -23,8 +23,8 @@ export class DefaultSvcInitializerService {
   private readonly bundleDescriptor: BundleDescriptor
   private templateVariables: { [key: string]: string } = {}
 
-  constructor() {
-    this.parentDirectory = process.cwd()
+  constructor(parentDirectory: string = process.cwd()) {
+    this.parentDirectory = parentDirectory
     this.bundleDescriptorService = new BundleDescriptorService(
       this.parentDirectory
     )

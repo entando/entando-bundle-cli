@@ -5,13 +5,15 @@ import * as path from 'node:path'
 import { CLIError } from "@oclif/errors"
 import { DEFAULT_VERSION, MicroserviceStack } from "../models/component"
 import { InitializerService } from "../services/initializer-service"
-import { BUNDLE_DESCRIPTOR_FILE_NAME, LOGS_FOLDER } from "../paths"
+import { BUNDLE_DESCRIPTOR_FILE_NAME, LOGS_FOLDER, SVC_FOLDER } from "../paths"
 import { writeFileSyncRecursive } from "../utils"
 import { YamlBundleDescriptorV1, YamlEnvironmentVariable, YamlPluginDescriptor } from "../models/yaml-bundle-descriptor"
 import { ConstraintsValidatorService } from "../services/constraints-validator-service"
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS_V1, YAML_PLUGIN_DESCRIPTOR_CONSTRAINTS_V1 } from "../models/yaml-bundle-descriptor-constraints"
 import { EnvironmentVariable, Microservice, SecretEnvironmentVariable, SimpleEnvironmentVariable } from "../models/bundle-descriptor"
 import { MicroserviceService } from "../services/microservice-service"
+import { FSService } from "../services/fs-service"
+import { SvcService } from "../services/svc-service"
 
 const DESCRIPTOR_NOT_FOUND = 'Bundle descriptor not found. Is this a v1 Bundle project?'
 const DESCRIPTOR_INVALID = 'Bundle descriptor invalid. Is this a v1 Bundle project?'
@@ -23,12 +25,17 @@ export default class Convert extends Command {
   static flags = {
     'bundle-path': Flags.string({
       description: 'the root folder is the one containing the descriptor.yaml file'
+    }),
+    'svc-path': Flags.string({
+      description: 'the services folder is the one containing the Docker Compose files',
+      required: false
     })
   }
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(Convert)
     const { "bundle-path": bundlePath = process.cwd() } = flags;
+    let { "svc-path": servicePath  } = flags;
     const register: string[] = [];
 
     this.isBundleDescriptorV5(bundlePath)
@@ -63,9 +70,22 @@ export default class Convert extends Command {
       register.push(...msStatus)
     }
 
+    // adds services
+    servicePath = servicePath ?? await CliUx.ux.prompt(
+      'Please provide the path to the service files (optional)',
+      { required: false }
+    )
+
+    if (servicePath) {
+      this.convertServiceFiles(servicePath, outDir)
+      register.push("The service files have been converted as possible, " +
+      `evaluate the output files that are available in ${outDir}/${SVC_FOLDER}`)
+    }
+
     register.push(
-      `Add the source files in new folders microfrontends`,
-      `If you want to change the bundle name, edit the folder name and entando.json`
+      "Add the source files in new folders microservices, microfrontends",
+      "Check that you have in your docker compose files a service name corresponding to the service filename",
+      "If you want to change the bundle name, edit the folder name and entando.json"
     )
 
 
@@ -180,5 +200,22 @@ export default class Convert extends Command {
     return path.basename(image).split(delimiter).shift()!
   }
 
+
+  private convertServiceFiles(servicePath: string, outDir: string) {
+    FSService.copyFolderRecursiveSync(
+      servicePath,
+      path.join(outDir, SVC_FOLDER)
+    )
+
+    const svcService: SvcService = new SvcService(this.config.bin, outDir)
+    const userAvailableServices = svcService.getUserAvailableServices()
+    
+    for (const svc of userAvailableServices) {
+      CliUx.ux.action.start(`Enabling service ${svc}`)
+      svcService.enableService(svc)
+      CliUx.ux.action.stop()
+    }
+
+  }
 
 }

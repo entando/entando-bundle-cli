@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  sample-svc:
+    image: sample-svc:1.0.0
+    environment:
+      - ENV1=VALUE1
+      - ENV2=VALUE2
+    ports:
+      - 127.0.0.1:9999:9999

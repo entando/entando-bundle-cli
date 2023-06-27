@@ -20,6 +20,8 @@ import { BundleDescriptor, DBMS } from '../../src/models/bundle-descriptor'
 import { YamlBundleDescriptorV1, YamlPluginDescriptorV1 } from "../../src/models/yaml-bundle-descriptor"
 import * as YAML from 'yaml'
 import { MicroserviceStack } from '../../src/models/component'
+import { CliUx } from '@oclif/core'
+import { writeFileSyncRecursive } from '../../src/utils'
 
 describe('convert', () => {
     const tempDirHelper = new TempDirHelper(__filename)
@@ -59,6 +61,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .command(['convert', '--bundle-path', `bundle-sample`])
         .it('runs convert bundle ', () => {
             const bundleName = 'bundle-sample-v5'
@@ -80,6 +83,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
         })
@@ -104,6 +108,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json as any
@@ -134,6 +139,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -177,6 +183,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -217,6 +224,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -256,6 +264,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -297,6 +306,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -373,6 +383,7 @@ describe('convert', () => {
             .stdout()
             .stderr()
             .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+            .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
             .do(() => {
                 process.chdir("bundle-sample")
                 const localDescV1Json = descV1Json
@@ -412,6 +423,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -444,6 +456,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json
@@ -484,6 +497,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             fs.writeFileSync(
@@ -502,6 +516,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json as any
@@ -523,6 +538,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json as any
@@ -543,6 +559,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json as any
@@ -563,6 +580,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             const localDescV1Json = descV1Json as any
@@ -583,6 +601,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             fs.rmSync(
@@ -601,6 +620,7 @@ describe('convert', () => {
         .stdout()
         .stderr()
         .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
         .do(() => {
             process.chdir("bundle-sample")
             fs.writeFileSync(
@@ -618,6 +638,118 @@ describe('convert', () => {
         })
         .it('throws an error when descriptor is a v5')
 
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .stub(CliUx.ux, 'prompt', () =>
+            sinon.stub().resolves(path.resolve(tempDirHelper.tmpDir, 'bundle-sample', "services"))
+        )
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json
+            const svc1 = YAML.parse(fs.readFileSync(path.resolve(testFolder, "resources/bundle-sample/sample-svc.yml"), 'utf-8'))
+            const svc2 = JSON.parse(JSON.stringify(svc1))
+
+            // edit svc name of svc1
+            svc1.svc1 = svc1["sample-svc"]
+            delete svc1["sample-svc"]
+
+            // edit svc name of svc1
+            svc2.svc2 = svc1["sample-svc"]
+            delete svc2["sample-svc"]
+
+            writeFileSyncRecursive(
+                path.resolve(tempDirHelper.tmpDir, 'bundle-sample', "services", 'svc1.yml'),
+                YAML.stringify(svc1)
+            )
+            writeFileSyncRecursive(
+                path.resolve(tempDirHelper.tmpDir, 'bundle-sample', "services", 'svc2.yml'),
+                YAML.stringify(svc2)
+            )
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+        })
+        .command(['convert'])
+        .it(`runs convert bundle converting the service files`, () => {
+            const bundleName = 'bundle-sample-v5'
+            checkFoldersStructure(bundleName)
+            expect(
+                (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+            ).to.equal(true)
+
+            const bundleDescriptor = parseBundleDescriptor(bundleName)
+            expect(bundleDescriptor.name).to.eq(bundleName)
+            expect(bundleDescriptor.version).to.eq('0.0.1')
+            expect(bundleDescriptor.description).to.eq(
+                'bundle-sample-v5 description'
+            )
+            expect(bundleDescriptor.type).to.eq('bundle')
+            expect(bundleDescriptor.svc?.length).to.eq(2)
+            expect(bundleDescriptor.svc?.[0]).to.eq("svc1")
+            expect(bundleDescriptor.svc?.[1]).to.eq("svc2")
+
+            checkBundleFile(bundleName, SVC_FOLDER, "svc1.yml")
+            checkBundleFile(bundleName, SVC_FOLDER, "svc2.yml")
+
+        })
+
+    test
+        .stdout()
+        .stderr()
+        .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+        .do(() => {
+            process.chdir("bundle-sample")
+            const localDescV1Json = descV1Json
+            const svc1 = YAML.parse(fs.readFileSync(path.resolve(testFolder, "resources/bundle-sample/sample-svc.yml"), 'utf-8'))
+            const svc2 = JSON.parse(JSON.stringify(svc1))
+
+            // edit svc name of svc1
+            svc1.sv1 = svc1["sample-svc"]
+            delete svc1["sample-svc"]
+
+            // edit svc name of svc1
+            svc2.svc2 = svc1["sample-svc"]
+            delete svc2["sample-svc"]
+
+            writeFileSyncRecursive(
+                path.resolve(tempDirHelper.tmpDir, 'bundle-sample', "services", 'svc1.yml'),
+                YAML.stringify(svc1)
+            )
+            writeFileSyncRecursive(
+                path.resolve(tempDirHelper.tmpDir, 'bundle-sample', "services", 'svc2.yml'),
+                YAML.stringify(svc2)
+            )
+            fs.writeFileSync(
+                path.resolve('descriptor.yaml'), YAML.stringify(localDescV1Json)
+            )
+
+        })
+        .command(['convert', '--svc-path', `${path.resolve(tempDirHelper.tmpDir, 'entando-bundle-cli-commands-convert-test', 'bundle-sample', 'services')}`])
+        .it(`runs convert bundle converting the service files (using --svc-path flag)`, () => {
+            const bundleName = 'bundle-sample-v5'
+            checkFoldersStructure(bundleName)
+            expect(
+                (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+            ).to.equal(true)
+
+            const bundleDescriptor = parseBundleDescriptor(bundleName)
+            expect(bundleDescriptor.name).to.eq(bundleName)
+            expect(bundleDescriptor.version).to.eq('0.0.1')
+            expect(bundleDescriptor.description).to.eq(
+                'bundle-sample-v5 description'
+            )
+            expect(bundleDescriptor.type).to.eq('bundle')
+            expect(bundleDescriptor.svc?.length).to.eq(2)
+            expect(bundleDescriptor.svc?.[0]).to.eq("svc1")
+            expect(bundleDescriptor.svc?.[1]).to.eq("svc2")
+
+            checkBundleFile(bundleName, SVC_FOLDER, "svc1.yml")
+            checkBundleFile(bundleName, SVC_FOLDER, "svc2.yml")
+
+        })
 
     function checkMicroservice(bundleDescriptor: BundleDescriptor, microserviceName: string) {
         checkMicroserviceFolders(bundleDescriptor.name, microserviceName)
