@@ -72,7 +72,7 @@ export default class Convert extends Command {
 
     // adds services
     servicePath = servicePath ?? await CliUx.ux.prompt(
-      'Services path (optional)',
+      'Please provide the path to the service files (optional)',
       { required: false }
     )
 
