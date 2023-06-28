@@ -9,6 +9,7 @@ import { EOL } from 'node:os'
 import * as sinon from 'sinon'
 import { assert } from 'chai'
 import * as fs from 'node:fs'
+import * as os from 'node:os'
 describe('Utilities', () => {
   it('InMemoryWritable', () => {
     const writable = new InMemoryWritable()
@@ -73,22 +74,13 @@ describe('Utilities', () => {
     )
   })
 
-  describe('Utilities writing files', () => {
-    const filePath = './path/to/nonexistent/file.txt'
+  it('should create directories recursively when `recursive` option is true', () => {
+    const data = 'Test data'
+    const options = { recursive: true }
+    const filePath = os.tmpdir() + '/path/to/nonexistent/file.txt'
 
-    it('should create directories recursively when `recursive` option is true', () => {
-      const data = 'Test data'
-      const options = { recursive: true }
+    writeFileSyncRecursive(filePath, data, options)
 
-      writeFileSyncRecursive(filePath, data, options)
-
-      assert.isTrue(fs.existsSync(filePath))
-    })
-
-    after(() => {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
-      }
-    })
+    assert.isTrue(fs.existsSync(filePath))
   })
 })
