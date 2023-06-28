@@ -247,6 +247,10 @@ export const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
     required: true,
     type: 'string'
   },
+  healthCheckIngress: {
+    required: true,
+    type: 'string'
+  },
   roles: {
     isArray: true,
     required: false,
