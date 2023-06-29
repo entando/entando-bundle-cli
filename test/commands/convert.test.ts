@@ -1821,7 +1821,7 @@ describe('convert', () => {
     expect(bundleDescriptor.microservices[0].name).to.eq(microserviceName)
     expect(bundleDescriptor.microservices[0].dbms).to.eq(DBMS.None)
     expect(bundleDescriptor.microservices[0].healthCheckPath).to.eq(
-      '/api/health'
+      '/actuator/health'
     )
     expect(bundleDescriptor.microservices[0].stack).to.eq(
       MicroserviceStack.Custom

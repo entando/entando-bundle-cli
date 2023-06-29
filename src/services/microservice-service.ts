@@ -31,7 +31,6 @@ export class MicroserviceService {
   }
 
   public addMicroservice(ms: Microservice): void {
-
     if (this.componentService.componentExists(ms.name)) {
       throw new CLIError(
         `A component (microservice or micro frontend) with name ${ms.name} already exists`
@@ -55,7 +54,7 @@ export class MicroserviceService {
 
     this.addMicroserviceDescriptor({
       ...ms,
-      healthCheckPath: DEFAULT_HEALTH_CHECK_PATH
+      healthCheckPath: ms.healthCheckPath ?? DEFAULT_HEALTH_CHECK_PATH
     })
   }
 
