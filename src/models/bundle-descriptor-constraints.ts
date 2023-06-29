@@ -17,8 +17,8 @@ import {
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
   WidgetParam
-} from '../models/bundle-descriptor'
-import { MicroFrontendStack, MicroserviceStack } from '../models/component'
+} from './bundle-descriptor'
+import { MicroFrontendStack, MicroserviceStack } from './component'
 import {
   fieldDependsOn,
   isMapOfStrings,
@@ -35,13 +35,13 @@ import {
   validateCustomElement
 } from '../services/constraints-validator-service'
 
-export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
+export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:([.-])[\da-z]+)*$/
 export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
 export const MAX_VERSION_LENGTH = 128
 export const MAX_NAME_LENGTH = 50
 export const MAX_WIDGET_CATEGORY_LENGTH = 80
 export const INVALID_NAME_MESSAGE =
-  'Name components may contain lowercase letters, digits and separators. A separator is defined as a period, one or two underscores, or one or more dashes. A name component may not start or end with a separator.'
+  'The Name may contain lowercase letters, digits and separators. A separator is defined as a period, or a dash. The name may not start or end with a separator.'
 export const INVALID_VERSION_MESSAGE =
   'Version may contain lowercase and uppercase letters, digits, underscores, periods and dashes. Version may not start with a period or a dash.'
 export const DOCKER_PREFIX = 'docker://'
@@ -54,7 +54,10 @@ export const VALID_BUNDLE_FORMAT = `[${DOCKER_PREFIX}]<organization>/<repository
 export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 
-export const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+export const nameRegExpValidator = regexp(
+  ALLOWED_NAME_REGEXP,
+  INVALID_NAME_MESSAGE
+)
 const versionRegExpValidator = regexp(
   ALLOWED_VERSION_REGEXP,
   INVALID_VERSION_MESSAGE
