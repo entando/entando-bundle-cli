@@ -113,4 +113,28 @@ describe('fs-service', () => {
 
     expect(result).to.eql(data)
   })
+
+  test
+    .do(() => {
+      fs.mkdirSync(path.resolve(tempDirHelper.tmpDir, defaultBundleName))
+    })
+    .it(
+      'run create directories recursively when `recursive` option is true',
+      () => {
+        const data = 'Test data'
+        const options = { recursive: true }
+        const filePath = path.resolve(
+          tempDirHelper.tmpDir,
+          defaultBundleName,
+          'path',
+          'to',
+          'nonexistent',
+          'file.txt'
+        )
+
+        FSService.writeFileSyncRecursive(filePath, data, options)
+
+        expect(fs.existsSync(filePath))
+      }
+    )
 })

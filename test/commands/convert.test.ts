@@ -34,8 +34,8 @@ import {
 import * as YAML from 'yaml'
 import { MicroserviceStack } from '../../src/models/component'
 import { CliUx } from '@oclif/core'
-import { writeFileSyncRecursive } from '../../src/utils'
 import * as inquirer from 'inquirer'
+import { FSService } from '../../src/services/fs-service'
 
 describe('convert', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -825,7 +825,7 @@ describe('convert', () => {
       svc2.svc2 = svc1['sample-svc']
       delete svc2['sample-svc']
 
-      writeFileSyncRecursive(
+      FSService.writeFileSyncRecursive(
         path.resolve(
           tempDirHelper.tmpDir,
           'bundle-sample',
@@ -834,7 +834,7 @@ describe('convert', () => {
         ),
         YAML.stringify(svc1)
       )
-      writeFileSyncRecursive(
+      FSService.writeFileSyncRecursive(
         path.resolve(
           tempDirHelper.tmpDir,
           'bundle-sample',
@@ -892,7 +892,7 @@ describe('convert', () => {
       svc2.svc2 = svc1['sample-svc']
       delete svc2['sample-svc']
 
-      writeFileSyncRecursive(
+      FSService.writeFileSyncRecursive(
         path.resolve(
           tempDirHelper.tmpDir,
           'bundle-sample',
@@ -901,7 +901,7 @@ describe('convert', () => {
         ),
         YAML.stringify(svc1)
       )
-      writeFileSyncRecursive(
+      FSService.writeFileSyncRecursive(
         path.resolve(
           tempDirHelper.tmpDir,
           'bundle-sample',
@@ -1589,7 +1589,7 @@ describe('convert', () => {
         ),
         YAML.stringify(localwidgetV1Json)
       )
-      writeFileSyncRecursive(
+      FSService.writeFileSyncRecursive(
         path.resolve(
           tempDirHelper.tmpDir,
           'bundle-sample',

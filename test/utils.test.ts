@@ -2,14 +2,11 @@ import { expect } from '@oclif/test'
 import {
   InMemoryWritable,
   ColorizedWritable,
-  animatedProgress,
-  writeFileSyncRecursive
+  animatedProgress
 } from '../src/utils'
 import { EOL } from 'node:os'
 import * as sinon from 'sinon'
-import { assert } from 'chai'
-import * as fs from 'node:fs'
-import * as os from 'node:os'
+
 describe('Utilities', () => {
   it('InMemoryWritable', () => {
     const writable = new InMemoryWritable()
@@ -72,15 +69,5 @@ describe('Utilities', () => {
     expect(output).eq(
       'progress [========================================] 100% | ETA: 13s | 6/10 | Time: 01:20:12'
     )
-  })
-
-  it('should create directories recursively when `recursive` option is true', () => {
-    const data = 'Test data'
-    const options = { recursive: true }
-    const filePath = os.tmpdir() + '/path/to/nonexistent/file.txt'
-
-    writeFileSyncRecursive(filePath, data, options)
-
-    assert.isTrue(fs.existsSync(filePath))
   })
 })

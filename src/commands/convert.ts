@@ -11,7 +11,6 @@ import {
   PSC_FOLDER,
   SVC_FOLDER
 } from '../paths'
-import { writeFileSyncRecursive } from '../utils'
 import { YamlBundleDescriptorV1 } from '../models/yaml-bundle-descriptor'
 import { ConstraintsValidatorService } from '../services/constraints-validator-service'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS_V1 } from '../models/yaml-bundle-descriptor-constraints'
@@ -19,6 +18,7 @@ import { PSCService } from '../services/psc-service'
 import { WidgetConverter } from '../services/convert/widget-converter'
 import { PluginConverter } from '../services/convert/plugin-converter'
 import { ServiceConverter } from '../services/convert/service-converter'
+import { FSService } from '../services/fs-service'
 
 const DESCRIPTION_CONVERT_LOG_FILE = 'CONVERSION LOG'
 const DESCRIPTOR_NOT_FOUND =
@@ -149,7 +149,7 @@ export default class Convert extends Command {
     const logsFolder = path.resolve(outDir, ...LOGS_FOLDER)
     const logsFile = path.join(logsFolder, `conversion-${oldName}-v1-to-v5.log`)
 
-    writeFileSyncRecursive(logsFile, register.join('\n'))
+    FSService.writeFileSyncRecursive(logsFile, register.join('\n'))
 
     this.log(
       `You can find the details at ${logsFile}\nYou can find the new bundle v5 with name ${newName} at ${outDir}`

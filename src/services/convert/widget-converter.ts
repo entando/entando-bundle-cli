@@ -27,7 +27,7 @@ import {
   YAML_WIDGET_CONFIG_CONSTRAINTS_V1,
   YAML_WIDGET_DESCRIPTOR_CONSTRAINTS_V1
 } from '../../models/yaml-bundle-descriptor-constraints'
-import { writeFileSyncRecursive } from '../../utils'
+import { FSService } from '../fs-service'
 
 const DELIMITER = '-'.repeat(process.stdout.columns ?? '10')
 const WIDGET_TO_MFE_DESCRIPTION = 'CONVERSION FROM WIDGET TO MICROFRONTENDS'
@@ -228,7 +228,7 @@ export class WidgetConverter {
         widget.customUiPath = customFtlName
       }
 
-      writeFileSyncRecursive(
+      FSService.writeFileSyncRecursive(
         path.resolve(
           outDir,
           PSC_FOLDER,
