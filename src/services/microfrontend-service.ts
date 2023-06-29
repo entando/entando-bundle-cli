@@ -33,16 +33,17 @@ export class MicroFrontendService {
   private readonly bundleDescriptorService: BundleDescriptorService
   private readonly componentService: ComponentService
 
-  constructor() {
-    this.microfrontendsPath = path.resolve(process.cwd(), MICROFRONTENDS_FOLDER)
-    this.bundleDescriptorService = new BundleDescriptorService()
-    this.componentService = new ComponentService()
+  constructor(bundleDirectory: string = process.cwd()) {
+    this.microfrontendsPath = path.resolve(
+      bundleDirectory,
+      MICROFRONTENDS_FOLDER
+    )
+    this.bundleDescriptorService = new BundleDescriptorService(bundleDirectory)
+    this.componentService = new ComponentService(bundleDirectory)
   }
 
   public addMicroFrontend(mfe: MicroFrontend): void {
-    const componentService = new ComponentService()
-
-    if (componentService.componentExists(mfe.name)) {
+    if (this.componentService.componentExists(mfe.name)) {
       throw new CLIError(
         `A component (microservice or micro frontend) with name ${mfe.name} already exists`
       )
@@ -65,11 +66,12 @@ export class MicroFrontendService {
 
     this.addMicroFrontendDescriptor({
       ...mfe,
-      group: DEFAULT_GROUP,
+      ...(mfe.group === undefined && { group: DEFAULT_GROUP }),
       publicFolder: DEFAULT_PUBLIC_FOLDER,
-      ...(mfe.type === MicroFrontendType.Widget && {
-        titles: this.getDefaultTitles(mfe.name)
-      }),
+      ...(mfe.type === MicroFrontendType.Widget &&
+        mfe.titles === undefined && {
+          titles: this.getDefaultTitles(mfe.name)
+        }),
       ...(mfe.type === MicroFrontendType.AppBuilder &&
         this.getAppBuilderFields(mfe))
     })
