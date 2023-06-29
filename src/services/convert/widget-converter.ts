@@ -132,6 +132,8 @@ export class WidgetConverter {
 
       // assign the type chosen by the user
       widget.type = type
+      // underscore allowed in v1 but not in v5
+      widget.code = widget.code && widget.code.replace(/_/g, '-')
 
       // validate the widget descriptor
       if (!WidgetConverter.validateWidget(widget, report)) {
