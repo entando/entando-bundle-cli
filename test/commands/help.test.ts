@@ -3,6 +3,7 @@ import { BaseBuildCommand } from '../../src/commands/base-build'
 import Build from '../../src/commands/build'
 import Pack from '../../src/commands/pack'
 import { SvcProcessResult } from '../../src/commands/svc/svc-process-result'
+import { BaseExecutionCommand } from '../../src/commands/base-execution-command'
 
 describe('Help command', () => {
   test
@@ -22,6 +23,7 @@ describe('Help command', () => {
   test.it('Test commands visibility in help', () => {
     expect(BaseBuildCommand.hidden).true
     expect(SvcProcessResult.hidden).true
+    expect(BaseExecutionCommand.hidden).true
     expect(Build.hidden).false
     expect(Pack.hidden).false
   })
