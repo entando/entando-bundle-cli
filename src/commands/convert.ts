@@ -5,7 +5,12 @@ import * as path from 'node:path'
 import { CLIError } from '@oclif/errors'
 import { DEFAULT_VERSION, MicroserviceStack } from '../models/component'
 import { InitializerService } from '../services/initializer-service'
-import { BUNDLE_DESCRIPTOR_FILE_NAME, LOGS_FOLDER, SVC_FOLDER } from '../paths'
+import {
+  BUNDLE_DESCRIPTOR_FILE_NAME,
+  LOGS_FOLDER,
+  PSC_FOLDER,
+  SVC_FOLDER
+} from '../paths'
 import { writeFileSyncRecursive } from '../utils'
 import {
   YamlBundleDescriptorV1,
@@ -26,6 +31,7 @@ import {
 import { MicroserviceService } from '../services/microservice-service'
 import { FSService } from '../services/fs-service'
 import { SvcService } from '../services/svc-service'
+import { PSCService } from '../services/psc-service'
 
 const DESCRIPTOR_NOT_FOUND =
   'Bundle descriptor not found. Is this a v1 Bundle project?'
@@ -107,6 +113,18 @@ export default class Convert extends Command {
           `evaluate the output files that are available in ${outDir}/${SVC_FOLDER}`
       )
     }
+
+    // import platform files
+    CliUx.ux.action.start(`Starting import platform files`)
+    const platformDescReport = PSCService.copyPSCFilesFromDirToAnother(
+      bundlePath,
+      path.resolve(outDir, PSC_FOLDER)
+    )
+    register.push(
+      'Report of platform files and their descriptors',
+      JSON.stringify(platformDescReport, null, 2)
+    )
+    CliUx.ux.action.stop()
 
     register.push(
       'Add the source files in new folders microservices, microfrontends',

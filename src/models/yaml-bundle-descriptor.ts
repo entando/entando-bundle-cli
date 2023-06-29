@@ -108,8 +108,26 @@ export const SUPPORTED_PSC_TYPES = [
   'resources'
 ] as const
 
+export const SUPPORTED_PSC_V1_TO_V5_TYPES  = [
+  'fragments',
+  'categories',
+  'pages',
+  'pageTemplates',
+  'contentTypes',
+  'contentTemplates',
+  'contents',
+  'assets',
+  'groups',
+  'labels',
+  'languages',
+  'pageModels',
+  'contentModels',
+  'resources'
+] as const
+
 export type SupportedPSC = typeof SUPPORTED_PSC_TYPES[number]
 export type SupportedComponents = SupportedPSC | 'plugins'
+export type SupportedPSCToConvert = typeof SUPPORTED_PSC_V1_TO_V5_TYPES[number]
 
 export type YamlBundleDescriptor = {
   name: string

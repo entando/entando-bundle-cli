@@ -3,7 +3,9 @@ import * as fs from 'node:fs'
 import { DESCRIPTORS_OUTPUT_FOLDER, GITKEEP_FILE, PSC_FOLDER } from '../paths'
 import {
   SupportedPSC,
-  SUPPORTED_PSC_TYPES
+  SUPPORTED_PSC_TYPES,
+  SUPPORTED_PSC_V1_TO_V5_TYPES,
+  SupportedPSCToConvert
 } from '../models/yaml-bundle-descriptor'
 import { FSService } from './fs-service'
 
@@ -11,6 +13,10 @@ const DESCRIPTOR_EXTENSIONS_REGEX = /\.ya?ml$/
 
 export type PSCDescriptors = {
   [key in SupportedPSC]?: string[]
+}
+
+export type PSCDescriptorsToConvert = {
+  [key in SupportedPSCToConvert]?: string[]
 }
 
 export class PSCService {
@@ -72,9 +78,39 @@ export class PSCService {
       fs.copyFileSync(source, destination)
     }
   }
+
+  public static copyPSCFilesFromDirToAnother(inDir: string, outDir: string): PSCDescriptorsToConvert {
+    const destination = path.resolve(outDir)
+    const descriptorsMap: PSCDescriptors = {}
+
+    for (const subFolder of fs
+      .readdirSync(inDir, { withFileTypes: true })
+      .filter(file => file.isDirectory())) {
+      const subFolderName = subFolder.name
+      if (isSupportedPSCForConversion(subFolderName)) {
+        const source = path.join(inDir, subFolderName)
+        const descriptors: string[] = []
+        PSCService.copyRecursiveAndAddDescriptors(
+          source,
+          path.join(destination, subFolderName),
+          descriptors
+        )
+        descriptorsMap[subFolderName] = descriptors.map(descriptor =>
+           FSService.toPosix(descriptor)
+        )
+      }
+    }
+
+    return descriptorsMap
+  }
 }
 
 function isSupportedPSC(value: string): value is SupportedPSC {
   const types: string[] = SUPPORTED_PSC_TYPES as unknown as string[]
   return types.includes(value)
+}
+
+
+function isSupportedPSCForConversion(value: string): value is SupportedPSCToConvert {
+  return (SUPPORTED_PSC_V1_TO_V5_TYPES as unknown as string[]).includes(value)
 }

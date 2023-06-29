@@ -54,7 +54,10 @@ export const VALID_BUNDLE_FORMAT = `[${DOCKER_PREFIX}]<organization>/<repository
 export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 
-export const nameRegExpValidator = regexp(ALLOWED_NAME_REGEXP, INVALID_NAME_MESSAGE)
+export const nameRegExpValidator = regexp(
+  ALLOWED_NAME_REGEXP,
+  INVALID_NAME_MESSAGE
+)
 const versionRegExpValidator = regexp(
   ALLOWED_VERSION_REGEXP,
   INVALID_VERSION_MESSAGE
