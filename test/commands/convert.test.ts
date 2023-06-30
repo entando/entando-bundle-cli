@@ -83,6 +83,7 @@ describe('convert', () => {
         force: true
       })
     })
+    sinon.restore()
   })
 
   after(() => {
@@ -1164,6 +1165,166 @@ describe('convert', () => {
         expect(mfe.category).to.eql('widget-category')
       }
     )
+
+  test
+    .stdout()
+    .stderr()
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .onFirstCall()
+        .resolves({ isMfe: true })
+        .onSecondCall()
+        .resolves({ type: MicroFrontendType.Widget })
+    )
+    .do(() => {
+      process.chdir('bundle-sample')
+      const localDescV1Json = descV1Json
+      localDescV1Json.components.widgets = ['widgets/widget.yaml']
+      const localwidgetV1Json: YamlWidgetDescriptorV1 = YAML.parse(
+        fs.readFileSync(
+          path.resolve(testFolder, 'resources/bundle-sample/widget.yaml'),
+          'utf-8'
+        )
+      )
+      localwidgetV1Json.customUiPath = 'wrong/path/sample.ftl'
+      fs.mkdirSync(
+        path.resolve(tempDirHelper.tmpDir, 'bundle-sample', 'widgets')
+      )
+      fs.writeFileSync(
+        path.resolve(
+          tempDirHelper.tmpDir,
+          'bundle-sample',
+          'widgets',
+          'widget.yaml'
+        ),
+        YAML.stringify(localwidgetV1Json)
+      )
+      fs.writeFileSync(
+        path.resolve('descriptor.yaml'),
+        YAML.stringify(localDescV1Json)
+      )
+    })
+    .command(['convert'])
+    .it(
+      'runs convert bundle with a valid mfe widget (with customUiPath wrong)',
+      () => {
+        const bundleName = 'bundle-sample-v5'
+        checkFoldersStructure(bundleName)
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+
+        const bundleDescriptor = parseBundleDescriptor(bundleName)
+        expect(bundleDescriptor.name).to.eq(bundleName)
+        expect(bundleDescriptor.version).to.eq('0.0.1')
+        expect(bundleDescriptor.description).to.eq(
+          'bundle-sample-v5 description'
+        )
+        expect(bundleDescriptor.type).to.eq('bundle')
+
+        checkMicrofrontend(bundleDescriptor, 'sample-widget')
+        checkFTLFileForMfe(bundleDescriptor.name, 'sample-widget', false)
+        const mfe = bundleDescriptor.microfrontends[0] as WidgetMicroFrontend
+        expect(bundleDescriptor.microfrontends[0].type).to.eql(
+          MicroFrontendType.Widget
+        )
+        expect(mfe.titles).to.eql({
+          en: 'sample widget',
+          it: 'widget campione'
+        })
+        expect(mfe.category).to.eql('widget-category')
+      }
+    )
+
+  test
+    .stdout()
+    .stderr()
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .onFirstCall()
+        .resolves({ isMfe: true })
+        .onSecondCall()
+        .resolves({ type: MicroFrontendType.Widget })
+    )
+    .do(() => {
+      process.chdir('bundle-sample')
+      const localDescV1Json = descV1Json
+      localDescV1Json.components.widgets = ['widgets/widget.yaml']
+      sinon.stub(fs, 'copyFileSync').throws(new Error('Error when copy ftl'))
+      const localwidgetV1Json: YamlWidgetDescriptorV1 = YAML.parse(
+        fs.readFileSync(
+          path.resolve(testFolder, 'resources/bundle-sample/widget.yaml'),
+          'utf-8'
+        )
+      )
+      fs.mkdirSync(
+        path.resolve(tempDirHelper.tmpDir, 'bundle-sample', 'widgets')
+      )
+      fs.writeFileSync(
+        path.resolve(
+          tempDirHelper.tmpDir,
+          'bundle-sample',
+          'widgets',
+          'widget.yaml'
+        ),
+        YAML.stringify(localwidgetV1Json)
+      )
+      fs.writeFileSync(
+        path.resolve(
+          tempDirHelper.tmpDir,
+          'bundle-sample',
+          'widgets',
+          'sample-widget-different-name.ftl'
+        ),
+        'custom ftl'
+      )
+      fs.writeFileSync(
+        path.resolve('descriptor.yaml'),
+        YAML.stringify(localDescV1Json)
+      )
+    })
+    .command(['convert'])
+    .it(
+      'runs convert bundle with a valid mfe widget (when copy custom ftl throws an error)',
+      () => {
+        const bundleName = 'bundle-sample-v5'
+        checkFoldersStructure(bundleName)
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+
+        const bundleDescriptor = parseBundleDescriptor(bundleName)
+        expect(bundleDescriptor.name).to.eq(bundleName)
+        expect(bundleDescriptor.version).to.eq('0.0.1')
+        expect(bundleDescriptor.description).to.eq(
+          'bundle-sample-v5 description'
+        )
+        expect(bundleDescriptor.type).to.eq('bundle')
+
+        checkMicrofrontend(bundleDescriptor, 'sample-widget')
+        checkFTLFileForMfe(bundleDescriptor.name, 'sample-widget', false)
+        const mfe = bundleDescriptor.microfrontends[0] as WidgetMicroFrontend
+        expect(bundleDescriptor.microfrontends[0].type).to.eql(
+          MicroFrontendType.Widget
+        )
+        expect(mfe.titles).to.eql({
+          en: 'sample widget',
+          it: 'widget campione'
+        })
+        expect(mfe.category).to.eql('widget-category')
+      }
+    )
+
   test
     .stdout()
     .stderr()

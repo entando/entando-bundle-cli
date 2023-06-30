@@ -161,12 +161,17 @@ export class WidgetConverter {
         )
         const customFtlName = `${microfrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
 
-        WidgetConverter.copyCustomFtl(
-          widgetDescriptorPath,
-          outputWidgetsPath,
-          widget.customUiPath,
-          customFtlName
-        )
+        try {
+          WidgetConverter.copyCustomFtl(
+            widgetDescriptorPath,
+            outputWidgetsPath,
+            widget.customUiPath,
+            customFtlName
+          )
+        } catch (error) {
+          WidgetConverter.debug((error as Error).message)
+          continue
+        }
 
         CliUx.ux.action.stop()
       }
@@ -322,9 +327,23 @@ export class WidgetConverter {
       fs.mkdirSync(to)
     }
 
-    fs.copyFileSync(
-      path.resolve(customFtlPath),
-      path.resolve(to, customFtlName)
-    )
+    if (!fs.existsSync(customFtlPath)) {
+      throw new Error(
+        `Custom widget template FTL at ${customFtlPath} not found. It will not be copied`
+      )
+    }
+
+    try {
+      fs.copyFileSync(
+        path.resolve(customFtlPath),
+        path.resolve(to, customFtlName)
+      )
+    } catch (error) {
+      throw new Error(
+        `Error copying the custom widget template FTL at ${customFtlPath}.\n${
+          (error as Error).message
+        }\nIt will not be copied`
+      )
+    }
   }
 }
