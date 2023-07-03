@@ -18,6 +18,10 @@ import { ConstraintsValidatorService } from '../constraints-validator-service'
 import { YAML_PLUGIN_DESCRIPTOR_CONSTRAINTS_V1 } from '../../models/yaml-bundle-descriptor-constraints'
 import { MicroserviceService } from '../microservice-service'
 
+const DELIMITER = '-'.repeat(process.stdout.columns ?? '10')
+const PLUGIN_TO_MICROSERVICE_DESCRIPTION =
+  'CONVERSION FROM PLUGINS TO MICROSERVICES'
+
 export class PluginConverter {
   private static debug = debugFactory(PluginConverter)
 
@@ -27,7 +31,11 @@ export class PluginConverter {
     pluginPaths: string[]
   ): string[] {
     const report: string[] = []
+    report.push(`\n${PLUGIN_TO_MICROSERVICE_DESCRIPTION}`)
+
     for (const pluginPath of pluginPaths) {
+      report.push(DELIMITER, `Start conversion of ${path.basename(pluginPath)}`)
+
       // read the plugin descriptor
       if (!fs.existsSync(path.resolve(bundlePath, pluginPath))) {
         const msg = `Plugin descriptor for plugin ${path.basename(
@@ -104,6 +112,7 @@ export class PluginConverter {
       )
     }
 
+    report.push(DELIMITER)
     return report
   }
 
