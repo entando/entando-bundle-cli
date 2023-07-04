@@ -4,7 +4,7 @@ import * as fs from 'node:fs'
 import { DESCRIPTORS_OUTPUT_FOLDER, PSC_FOLDER } from '../../src/paths'
 import { PSCService } from '../../src/services/psc-service'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
-import { writeFileSyncRecursive } from '../../src/utils'
+import { FSService } from '../../src/services/fs-service'
 
 describe('PSC Service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -98,7 +98,9 @@ describe('PSC Service', () => {
   })
 
   it('Copies PSC files from input dir to output dir', () => {
-    const bundleDir = tempDirHelper.createInitializedBundleDir('test-psc-copy-from-indir-to-outdir')
+    const bundleDir = tempDirHelper.createInitializedBundleDir(
+      'test-psc-copy-from-indir-to-outdir'
+    )
     const pscFolder = path.resolve(bundleDir, PSC_FOLDER)
     const pscFolderOut = path.resolve(bundleDir, 'out')
     fs.mkdirSync(pscFolderOut)
@@ -114,19 +116,12 @@ describe('PSC Service', () => {
       },
       {
         folder: 'groups',
-        files: [
-          'my-group-1-descriptor.yml',
-          'my-group-2-descriptor.yml'
-        ]
+        files: ['my-group-1-descriptor.yml', 'my-group-2-descriptor.yml']
       },
 
       {
         folder: 'assets',
-        files: [
-          '36/36-descriptor.yaml',
-          '42/42-descriptor.yaml',
-          '42/42.jpg'
-        ]
+        files: ['36/36-descriptor.yaml', '42/42-descriptor.yaml', '42/42.jpg']
       },
       {
         folder: 'invalid',
@@ -146,24 +141,38 @@ describe('PSC Service', () => {
       const folderPath = path.join(pscFolder, platform.folder)
       fs.mkdirSync(folderPath)
       for (const file of platform.files) {
-        writeFileSyncRecursive(path.join(folderPath, file), '')
+        FSService.writeFileSyncRecursive(path.join(folderPath, file), '')
       }
-
     }
 
-    const descriptors = PSCService.copyPSCFilesFromDirToAnother(pscFolder, pscFolderOut)
+    const descriptors = PSCService.copyPSCFilesFromDirToAnother(
+      pscFolder,
+      pscFolderOut
+    )
     expect(descriptors.groups!.length).eq(2)
-    expect(descriptors.groups).include(`${pscFolder}/groups/my-group-1-descriptor.yml`)
-    expect(descriptors.groups).include(`${pscFolder}/groups/my-group-2-descriptor.yml`)
+    expect(descriptors.groups).include(
+      `${pscFolder}/groups/my-group-1-descriptor.yml`
+    )
+    expect(descriptors.groups).include(
+      `${pscFolder}/groups/my-group-2-descriptor.yml`
+    )
     expect(descriptors.pageModels).deep.eq([
       `${pscFolder}/pageModels/my-page-model-descriptor.yaml`
     ])
     expect(descriptors.assets!.length).eq(2)
-    expect(descriptors.assets).include(`${pscFolder}/assets/36/36-descriptor.yaml`)
-    expect(descriptors.assets).include(`${pscFolder}/assets/42/42-descriptor.yaml`)
+    expect(descriptors.assets).include(
+      `${pscFolder}/assets/36/36-descriptor.yaml`
+    )
+    expect(descriptors.assets).include(
+      `${pscFolder}/assets/42/42-descriptor.yaml`
+    )
     expect((descriptors as any).invalid).undefined
 
-    verifyCopyOutDir(pscFolderOut, 'pageModels', 'my-page-model-descriptor.yaml')
+    verifyCopyOutDir(
+      pscFolderOut,
+      'pageModels',
+      'my-page-model-descriptor.yaml'
+    )
     verifyCopyOutDir(pscFolderOut, 'pageModels', 'my-page-model.ftl')
     verifyCopyOutDir(pscFolderOut, 'pageModels', 'a', 'b', 'test.txt')
     verifyCopyOutDir(pscFolderOut, 'assets', '36', '36-descriptor.yaml')

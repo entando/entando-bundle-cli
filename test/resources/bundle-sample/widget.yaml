@@ -1,0 +1,11 @@
+code: sample-widget
+titles:
+  en: sample widget
+  it: widget campione 
+group: customGroup
+customUiPath: sample-widget-different-name.ftl
+widgetCategory: widget-category
+configUi:
+  customElement: sample-config
+  resources:
+    - sample-widget/static/js/main.av191f20.js

@@ -3,8 +3,6 @@ import { EOL } from 'node:os'
 import color from '@oclif/color'
 import * as spinners from 'cli-spinners'
 import { CliUx } from '@oclif/core'
-import * as fs from 'node:fs'
-import * as path from 'node:path'
 
 export const EXIT_CODES = {
   SUCCESS: 0,
@@ -84,23 +82,4 @@ export function animatedProgress(): any {
       return `progress [${bar}] ${percentage}% | ETA: ${params.eta}s | ${params.value}/${params.total} | Time: ${elapsedTime}`
     }
   })
-}
-
-export function writeFileSyncRecursive(
-  file: fs.PathOrFileDescriptor,
-  data: string | NodeJS.ArrayBufferView,
-  options?: fs.WriteFileOptions & { recursive?: boolean }
-): void {
-
-  const recursive = options?.recursive ?? true
-
-  if (recursive) {
-    const { dir } = path.parse(file.toString())
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
-    }
-  }
-
-  fs.writeFileSync(file, data, options);
-
 }

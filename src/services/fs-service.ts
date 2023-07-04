@@ -128,4 +128,21 @@ export class FSService {
   public static toPosix(filePath: string): string {
     return filePath.split(path.sep).join(path.posix.sep)
   }
+
+  public static writeFileSyncRecursive(
+    file: fs.PathOrFileDescriptor,
+    data: string | NodeJS.ArrayBufferView,
+    options?: fs.WriteFileOptions & { recursive?: boolean }
+  ): void {
+    const recursive = options?.recursive ?? true
+
+    if (recursive) {
+      const { dir } = path.parse(file.toString())
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
+    }
+
+    fs.writeFileSync(file, data, options)
+  }
 }

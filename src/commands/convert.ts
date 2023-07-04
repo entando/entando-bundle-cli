@@ -3,7 +3,7 @@ import * as YAML from 'yaml'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { CLIError } from '@oclif/errors'
-import { DEFAULT_VERSION, MicroserviceStack } from '../models/component'
+import { DEFAULT_VERSION } from '../models/component'
 import { InitializerService } from '../services/initializer-service'
 import {
   BUNDLE_DESCRIPTOR_FILE_NAME,
@@ -11,33 +11,24 @@ import {
   PSC_FOLDER,
   SVC_FOLDER
 } from '../paths'
-import { writeFileSyncRecursive } from '../utils'
-import {
-  YamlBundleDescriptorV1,
-  YamlEnvironmentVariable,
-  YamlPluginDescriptor
-} from '../models/yaml-bundle-descriptor'
+import { YamlBundleDescriptorV1 } from '../models/yaml-bundle-descriptor'
 import { ConstraintsValidatorService } from '../services/constraints-validator-service'
-import {
-  YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS_V1,
-  YAML_PLUGIN_DESCRIPTOR_CONSTRAINTS_V1
-} from '../models/yaml-bundle-descriptor-constraints'
-import {
-  EnvironmentVariable,
-  Microservice,
-  SecretEnvironmentVariable,
-  SimpleEnvironmentVariable
-} from '../models/bundle-descriptor'
-import { MicroserviceService } from '../services/microservice-service'
-import { FSService } from '../services/fs-service'
-import { SvcService } from '../services/svc-service'
+import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS_V1 } from '../models/yaml-bundle-descriptor-constraints'
 import { PSCService } from '../services/psc-service'
+import { WidgetConverter } from '../services/convert/widget-converter'
+import { PluginConverter } from '../services/convert/plugin-converter'
+import { ServiceConverter } from '../services/convert/service-converter'
+import { FSService } from '../services/fs-service'
 
+const DESCRIPTION_CONVERT_LOG_FILE = 'CONVERSION LOG'
 const DESCRIPTOR_NOT_FOUND =
   'Bundle descriptor not found. Is this a v1 Bundle project?'
 const DESCRIPTOR_INVALID =
   'Bundle descriptor invalid. Is this a v1 Bundle project?'
 const DESCRIPTOR_V5_FOUND = 'The Bundle is already a v5'
+const MANUALLY_STEPS_DESCRIPTION = 'MANUALLY STEPS TO DO'
+const SERVICE_FILES_DESCRIPTION = 'CONVERSION OF SERVICE FILES'
+const PLATFORM_FILES_DESCRIPTION = 'CONVERSION OF PLATFORM FILES'
 
 export default class Convert extends Command {
   static description = 'Perform bundle conversion from v1 to v5'
@@ -69,10 +60,13 @@ export default class Convert extends Command {
     const { dir: parentDirectory } = path.parse(path.resolve(bundlePath))
     const outDir = path.join(parentDirectory, newName)
 
+    register.push(
+      `${DESCRIPTION_CONVERT_LOG_FILE}\n`,
+      `Starting conversion ${oldName} to v5`
+    )
+
     const options = { name: newName, parentDirectory, version: DEFAULT_VERSION }
     const initializer = new InitializerService(options)
-
-    register.push(`Starting conversion ${oldName} to v5`)
 
     // init phase
     CliUx.ux.action.start(`Starting conversion ${oldName} to v5`)
@@ -80,17 +74,16 @@ export default class Convert extends Command {
     CliUx.ux.action.stop()
 
     register.push(
-      `Initializing an empty bundle project named ${newName}... done`,
-      `${'*'.repeat(5)} Manually steps to do ${'*'.repeat(5)}`
+      `Initializing an empty bundle project named ${newName}... done`
     )
 
     const {
-      components: { plugins }
+      components: { plugins, widgets }
     } = parsedDescriptor
 
     // adds microservices
     if (plugins) {
-      const msStatus = this.convertPluginToMicroServices(
+      const msStatus = PluginConverter.convertPluginToMicroServices(
         bundlePath,
         outDir,
         plugins
@@ -98,19 +91,38 @@ export default class Convert extends Command {
       register.push(...msStatus)
     }
 
+    // convert widgets -> mfe or platform files
+    if (widgets) {
+      const widgetsToConvert = await WidgetConverter.getWidgetsToConvert(
+        widgets
+      )
+      const widgetToMfeStatus = WidgetConverter.convertWidgetsToMicrofrontends(
+        bundlePath,
+        outDir,
+        widgetsToConvert.mfes
+      )
+      const widgetToPscStatus = WidgetConverter.convertWidgetsToPlatformFiles(
+        bundlePath,
+        outDir,
+        widgetsToConvert.widgets
+      )
+      register.push(...widgetToMfeStatus, ...widgetToPscStatus)
+    }
+
     // adds services
     servicePath =
       servicePath ??
-      (await CliUx.ux.prompt(
-        'Please provide the path to the service files (optional)',
-        { required: false }
-      ))
+      (await CliUx.ux.prompt('Services path (optional)', { required: false }))
 
     if (servicePath) {
-      this.convertServiceFiles(servicePath, outDir)
+      ServiceConverter.convertServiceFiles(this.config.bin, servicePath, outDir)
       register.push(
+        `\n${SERVICE_FILES_DESCRIPTION}`,
         'The service files have been converted as possible, ' +
-          `evaluate the output files that are available in ${outDir}/${SVC_FOLDER}`
+          `evaluate the output files that are available in ${path.resolve(
+            outDir,
+            SVC_FOLDER
+          )}`
       )
     }
 
@@ -121,21 +133,23 @@ export default class Convert extends Command {
       path.resolve(outDir, PSC_FOLDER)
     )
     register.push(
+      `\n${PLATFORM_FILES_DESCRIPTION}`,
       'Report of platform files and their descriptors',
       JSON.stringify(platformDescReport, null, 2)
     )
     CliUx.ux.action.stop()
 
     register.push(
+      `\n${MANUALLY_STEPS_DESCRIPTION}`,
       'Add the source files in new folders microservices, microfrontends',
       'Check that you have in your docker compose files a service name corresponding to the service filename',
-      'If you want to change the bundle name, edit the folder name and entando.json'
+      'If you want to change the bundle name, edit the folder name and entando.json\n'
     )
 
     const logsFolder = path.resolve(outDir, ...LOGS_FOLDER)
     const logsFile = path.join(logsFolder, `conversion-${oldName}-v1-to-v5.log`)
 
-    writeFileSyncRecursive(logsFile, register.join('\n'))
+    FSService.writeFileSyncRecursive(logsFile, register.join('\n'))
 
     this.log(
       `You can find the details at ${logsFile}\nYou can find the new bundle v5 with name ${newName} at ${outDir}`
@@ -165,131 +179,6 @@ export default class Convert extends Command {
   private isBundleDescriptorV5(bundlePath: string) {
     if (fs.existsSync(path.resolve(bundlePath, BUNDLE_DESCRIPTOR_FILE_NAME))) {
       throw new CLIError(DESCRIPTOR_V5_FOUND)
-    }
-  }
-
-  private convertPluginToMicroServices(
-    bundlePath: string,
-    outDir: string,
-    pluginPaths: string[]
-  ): string[] {
-    const report: string[] = []
-    for (const pluginPath of pluginPaths) {
-      // read the plugin descriptor
-      if (!fs.existsSync(path.resolve(bundlePath, pluginPath))) {
-        const msg = `Plugin descriptor for plugin ${path.basename(
-          pluginPath
-        )} not found. It will be skipped.`
-        this.log(`${msg}`)
-        report.push(`${msg}\nCheck it if you want to include it`)
-        continue
-      }
-
-      const pluginYaml = fs.readFileSync(
-        path.resolve(bundlePath, pluginPath),
-        'utf-8'
-      )
-      const plugin: YamlPluginDescriptor = YAML.parse(pluginYaml)
-
-      // validate the plugin descriptor
-      try {
-        ConstraintsValidatorService.validateObjectConstraints(
-          plugin,
-          YAML_PLUGIN_DESCRIPTOR_CONSTRAINTS_V1
-        )
-      } catch (error) {
-        const microserviceId =
-          plugin.name ?? path.basename(pluginPath).split('.').shift()
-        const msg = `The microservice ${microserviceId} is invalid.\n${
-          (error as Error).message
-        }.\nIts conversion will be skipped.`
-        this.log(`${msg}`)
-        report.push(`${msg}\nCheck it if you want to include it`)
-        continue
-      }
-
-      // mapping from plugin to microservice
-      const {
-        name,
-        roles,
-        dbms,
-        healthCheckPath,
-        permissions,
-        environmentVariables,
-        securityLevel,
-        resources,
-        ingressPath,
-        image
-      } = plugin
-      const microservice = {
-        name: name ?? this.getNameFromImage(image),
-        roles,
-        dbms,
-        healthCheckPath,
-        permissions,
-        env: environmentVariables
-          ? this.generateEnvVarFromEnvYaml(environmentVariables)
-          : undefined,
-        securityLevel,
-        resources,
-        ingressPath,
-        stack: MicroserviceStack.Custom,
-        commands: {}
-      } as Microservice
-
-      // add the microservice
-      const microserviceService: MicroserviceService = new MicroserviceService(
-        outDir
-      )
-
-      CliUx.ux.action.start(`Adding a new microservice ${microservice.name}`)
-      microserviceService.addMicroservice(microservice)
-      CliUx.ux.action.stop()
-
-      report.push(
-        `The conversion of microservice ${microservice.name} was successful`
-      )
-    }
-
-    return report
-  }
-
-  private generateEnvVarFromEnvYaml(
-    yamlEnvVars: YamlEnvironmentVariable[]
-  ): EnvironmentVariable[] {
-    return yamlEnvVars.map(yamlEnvVar => {
-      const { name, valueFrom, value } = yamlEnvVar as {
-        name: string
-        valueFrom?: { secretKeyRef: { key: string; name: string } }
-        value?: string
-      }
-      return valueFrom
-        ? ({
-            name,
-            secretKeyRef: valueFrom.secretKeyRef
-          } as SecretEnvironmentVariable)
-        : ({ name, value } as SimpleEnvironmentVariable)
-    })
-  }
-
-  private getNameFromImage(image: string): string {
-    const delimiter = image.includes('@') ? '@' : ':'
-    return path.basename(image).split(delimiter).shift()!
-  }
-
-  private convertServiceFiles(servicePath: string, outDir: string) {
-    FSService.copyFolderRecursiveSync(
-      servicePath,
-      path.join(outDir, SVC_FOLDER)
-    )
-
-    const svcService: SvcService = new SvcService(this.config.bin, outDir)
-    const userAvailableServices = svcService.getUserAvailableServices()
-
-    for (const svc of userAvailableServices) {
-      CliUx.ux.action.start(`Enabling service ${svc}`)
-      svcService.enableService(svc)
-      CliUx.ux.action.stop()
     }
   }
 }

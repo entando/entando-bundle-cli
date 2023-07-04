@@ -108,7 +108,7 @@ export const SUPPORTED_PSC_TYPES = [
   'resources'
 ] as const
 
-export const SUPPORTED_PSC_V1_TO_V5_TYPES  = [
+export const SUPPORTED_PSC_V1_TO_V5_TYPES = [
   'fragments',
   'categories',
   'pages',
@@ -148,8 +148,8 @@ export enum DescriptorVersion {
 }
 
 export enum BundleType {
-  STANDARD_BUNDLE = "standard-bundle",
-  SYSTEM_LEVEL_BUNDLE = "system-level-bundle",
+  STANDARD_BUNDLE = 'standard-bundle',
+  SYSTEM_LEVEL_BUNDLE = 'system-level-bundle'
 }
 
 export type YamlBundleDescriptorV1 = {
@@ -158,7 +158,7 @@ export type YamlBundleDescriptorV1 = {
     [key in SupportedComponents]?: string[]
   }
   description?: string
-  "bundle-type"?: BundleType
+  'bundle-type'?: BundleType
   descriptorVersion?: DescriptorVersion.V1
   thumbnail?: string
   ext?: {
@@ -167,16 +167,40 @@ export type YamlBundleDescriptorV1 = {
 }
 
 export type YamlPluginDescriptorV1 = {
-  name?: string 
+  name?: string
   descriptorVersion?: string
-  image: string 
-  healthCheckPath: string 
-  deploymentBaseName?: string 
-  dbms: DBMS 
-  ingressPath?: string 
-  roles?: string[] 
+  image: string
+  healthCheckPath: string
+  deploymentBaseName?: string
+  dbms: DBMS
+  ingressPath?: string
+  roles?: string[]
   permissions?: Permission[]
-  securityLevel?: string 
+  securityLevel?: string
   environmentVariables?: YamlEnvironmentVariable[]
-  resources?: Resources 
+  resources?: Resources
 }
+
+export type BaseYamlWidgetDescriptorV1<T extends MicroFrontendType> = {
+  code: string
+  group: string
+  descriptorVersion?: string
+  type?: T
+  customUiPath?: string
+  parentName?: string
+  parentCode?: string
+  params?: WidgetParam[]
+  paramsDefaults?: { [name: string]: string }
+  configMfe?: string
+  contextParams?: string[]
+  nav?: Nav[]
+}
+
+export type YamlWidgetDescriptorV1 =
+  BaseYamlWidgetDescriptorV1<MicroFrontendType.Widget> & {
+    titles: { [lang: string]: string }
+    widgetCategory?: string
+  }
+
+export type YamlWidgetConfigDescriptorV1 =
+  BaseYamlWidgetDescriptorV1<MicroFrontendType.WidgetConfig>

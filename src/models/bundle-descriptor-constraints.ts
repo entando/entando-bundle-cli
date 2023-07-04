@@ -63,12 +63,14 @@ const versionRegExpValidator = regexp(
   INVALID_VERSION_MESSAGE
 )
 export const nameLengthValidator = maxLength(MAX_NAME_LENGTH)
-const widgetCategoryLengthValidator = maxLength(MAX_WIDGET_CATEGORY_LENGTH)
+export const widgetCategoryLengthValidator = maxLength(
+  MAX_WIDGET_CATEGORY_LENGTH
+)
 const bundleRegExpValidator = regexp(
   ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP,
   `Valid format is [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
 )
-const contextParamRegExpValidator = regexp(
+export const contextParamRegExpValidator = regexp(
   /(page|info|systemParam)_[\dA-Za-z]*/,
   VALID_CONTEXT_PARAM_FORMAT
 )
@@ -110,7 +112,7 @@ const ENVIRONMENT_VARIABLE_CONSTRAINTS: UnionTypeConstraints<EnvironmentVariable
     ]
   }
 
-const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
+export const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
   ApiClaim | ExternalApiClaim
 > = {
   constraints: [
@@ -186,7 +188,7 @@ export const PARAM_CONSTRAINTS: ObjectConstraints<WidgetParam> = {
   }
 }
 
-const COMMANDS_CONSTRAINTS: ObjectConstraints<Commands> = {
+export const COMMANDS_CONSTRAINTS: ObjectConstraints<Commands> = {
   build: {
     required: false,
     type: 'string'
