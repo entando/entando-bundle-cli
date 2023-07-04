@@ -222,15 +222,26 @@ export class WidgetConverter {
           WIDGETS_FOLDER
         )
 
-        WidgetConverter.copyCustomFtl(
-          widgetDescriptorPath,
-          outputWidgetsPath,
-          widget.customUiPath,
-          customFtlName
-        )
+        try {
+          WidgetConverter.copyCustomFtl(
+            widgetDescriptorPath,
+            outputWidgetsPath,
+            widget.customUiPath,
+            customFtlName
+          )
 
-        // set new location
-        widget.customUiPath = customFtlName
+          // set new location
+          widget.customUiPath = customFtlName
+        } catch (error) {
+          // delete customUiPath
+          delete widget.customUiPath
+          const additionalInfo =
+            'Check it if you want to include it, the widget will be copied in platforms without customUiPath'
+          WidgetConverter.debug(
+            `${(error as Error).message}\n${additionalInfo}`
+          )
+          report.push(`${(error as Error).message}\n${additionalInfo}`)
+        }
       }
 
       FSService.writeFileSyncRecursive(

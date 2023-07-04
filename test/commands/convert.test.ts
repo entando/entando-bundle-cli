@@ -1973,6 +1973,76 @@ describe('convert', () => {
       }
     )
 
+  test
+    .stdout()
+    .stderr()
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
+    .stub(
+      inquirer,
+      'prompt',
+      sinon.stub().onFirstCall().resolves({ isMfe: false })
+    )
+    .do(() => {
+      process.chdir('bundle-sample')
+      const localDescV1Json = descV1Json
+      localDescV1Json.components.widgets = ['widgets/widget.yaml']
+      const localwidgetV1Json: YamlWidgetDescriptorV1 = YAML.parse(
+        fs.readFileSync(
+          path.resolve(testFolder, 'resources/bundle-sample/widget.yaml'),
+          'utf-8'
+        )
+      )
+      localwidgetV1Json.customUiPath = 'wrong/path/sample.ftl'
+      fs.mkdirSync(
+        path.resolve(tempDirHelper.tmpDir, 'bundle-sample', 'widgets')
+      )
+      fs.writeFileSync(
+        path.resolve(
+          tempDirHelper.tmpDir,
+          'bundle-sample',
+          'widgets',
+          'widget.yaml'
+        ),
+        YAML.stringify(localwidgetV1Json)
+      )
+      fs.writeFileSync(
+        path.resolve('descriptor.yaml'),
+        YAML.stringify(localDescV1Json)
+      )
+    })
+    .command(['convert'])
+    .it(
+      'runs convert bundle with a valid widget (platform files - with customUiPath wrong)',
+      () => {
+        const bundleName = 'bundle-sample-v5'
+        checkFoldersStructure(bundleName)
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+
+        const bundleDescriptor = parseBundleDescriptor(bundleName)
+        expect(bundleDescriptor.name).to.eq(bundleName)
+        expect(bundleDescriptor.version).to.eq('0.0.1')
+        expect(bundleDescriptor.description).to.eq(
+          'bundle-sample-v5 description'
+        )
+        expect(bundleDescriptor.type).to.eq('bundle')
+
+        checkFTLFileForPscWidget(
+          bundleName,
+          'sample-widget-different-name.ftl',
+          false
+        )
+
+        const widgetDesc = parseWidgetDescriptorFromPscFolder(
+          bundleName,
+          'widget.yaml'
+        )
+        expect(widgetDesc.customUiPath).to.be.undefined
+      }
+    )
+
   function checkMicroservice(
     bundleDescriptor: BundleDescriptor,
     microserviceName: string
