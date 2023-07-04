@@ -2,7 +2,7 @@ import path = require('node:path')
 import * as fs from 'node:fs'
 import {
   YamlEnvironmentVariable,
-  YamlPluginDescriptor
+  YamlPluginDescriptorV1
 } from '../../models/yaml-bundle-descriptor'
 import * as YAML from 'yaml'
 import { debugFactory } from '../debug-factory-service'
@@ -46,11 +46,15 @@ export class PluginConverter {
         continue
       }
 
-      const pluginYaml = fs.readFileSync(
-        path.resolve(bundlePath, pluginPath),
-        'utf-8'
+      // read the plugin descriptor
+      const plugin = PluginConverter.parsePluginDescriptor(
+        path.resolve(bundlePath, pluginPath)
       )
-      const plugin: YamlPluginDescriptor = YAML.parse(pluginYaml)
+      if (plugin instanceof Error) {
+        PluginConverter.debug(`${plugin.message}\nIt will be skipped.`)
+        report.push(`${plugin.message}\nCheck it if you want to include it`)
+        continue
+      }
 
       // validate the plugin descriptor
       try {
@@ -137,5 +141,18 @@ export class PluginConverter {
           } as SecretEnvironmentVariable)
         : ({ name, value } as SimpleEnvironmentVariable)
     })
+  }
+
+  private static parsePluginDescriptor(
+    pluginPath: string
+  ): YamlPluginDescriptorV1 | Error {
+    try {
+      const pluginYaml = fs.readFileSync(pluginPath, 'utf-8')
+      return YAML.parse(pluginYaml)
+    } catch (error) {
+      return new Error(
+        `Failed to parse plugin descriptor: ${(error as Error).message}`
+      )
+    }
   }
 }
