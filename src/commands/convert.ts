@@ -27,11 +27,11 @@ const DESCRIPTOR_NOT_FOUND =
 const DESCRIPTOR_INVALID =
   'Bundle descriptor invalid. Is this a v1 Bundle project?'
 const DESCRIPTOR_V5_FOUND = 'The Bundle is already a v5'
-const MANUALLY_STEPS_DESCRIPTION = 'MANUALLY STEPS TO DO'
+const MANUAL_STEPS_DESCRIPTION = 'MANUAL STEPS TO DO'
 const SERVICE_FILES_DESCRIPTION = 'CONVERSION OF SERVICE FILES'
 const PLATFORM_FILES_DESCRIPTION = 'CONVERSION OF PLATFORM FILES'
-const MANUALLY_STEPS = [
-  `\n${MANUALLY_STEPS_DESCRIPTION}\n`,
+const MANUAL_STEPS = [
+  `\n${MANUAL_STEPS_DESCRIPTION}\n`,
   '- Add the source files in new folders microservices, microfrontends',
   '- Check that you have in your docker compose files a service name corresponding to the service filename',
   '- If you want to change the bundle name, edit the folder name and entando.json\n'
@@ -165,7 +165,7 @@ export default class Convert extends Command {
     register.push(...getPlatformDescription(platformDescReport))
     CliUx.ux.action.stop()
 
-    register.push(...MANUALLY_STEPS)
+    register.push(...MANUAL_STEPS)
 
     const logsFolder = path.resolve(outDir, ...LOGS_FOLDER)
     const logsFile = path.join(logsFolder, `conversion-${oldName}-v1-to-v5.log`)
