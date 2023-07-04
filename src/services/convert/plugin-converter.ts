@@ -74,38 +74,10 @@ export class PluginConverter {
       }
 
       // mapping from plugin to microservice
-      const {
-        name,
-        roles,
-        dbms,
-        healthCheckPath,
-        permissions,
-        environmentVariables,
-        securityLevel,
-        resources,
-        ingressPath,
-        image
-      } = plugin
-      const microservice = {
-        name: name ?? PluginConverter.getNameFromImage(image),
-        roles,
-        dbms,
-        healthCheckPath,
-        permissions,
-        env: environmentVariables
-          ? PluginConverter.generateEnvVarFromEnvYaml(environmentVariables)
-          : undefined,
-        securityLevel,
-        resources,
-        ingressPath,
-        stack: MicroserviceStack.Custom,
-        commands: {}
-      } as Microservice
+      const microservice = PluginConverter.mapPluginToMicroservice(plugin)
 
       // add the microservice
-      const microserviceService: MicroserviceService = new MicroserviceService(
-        outDir
-      )
+      const microserviceService = new MicroserviceService(outDir)
 
       CliUx.ux.action.start(`Adding a new microservice ${microservice.name}`)
       microserviceService.addMicroservice(microservice)
@@ -154,5 +126,25 @@ export class PluginConverter {
         `Failed to parse plugin descriptor: ${(error as Error).message}`
       )
     }
+  }
+
+  private static mapPluginToMicroservice(
+    plugin: YamlPluginDescriptorV1
+  ): Microservice {
+    return {
+      name: plugin.name ?? PluginConverter.getNameFromImage(plugin.image),
+      roles: plugin.roles,
+      dbms: plugin.dbms,
+      healthCheckPath: plugin.healthCheckPath,
+      permissions: plugin.permissions,
+      env: plugin.environmentVariables
+        ? PluginConverter.generateEnvVarFromEnvYaml(plugin.environmentVariables)
+        : undefined,
+      securityLevel: plugin.securityLevel,
+      resources: plugin.resources,
+      ingressPath: plugin.ingressPath,
+      stack: MicroserviceStack.Custom,
+      commands: {}
+    } as Microservice
   }
 }
