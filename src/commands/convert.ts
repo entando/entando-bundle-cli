@@ -14,21 +14,41 @@ import {
 import { YamlBundleDescriptorV1 } from '../models/yaml-bundle-descriptor'
 import { ConstraintsValidatorService } from '../services/constraints-validator-service'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS_V1 } from '../models/yaml-bundle-descriptor-constraints'
-import { PSCService } from '../services/psc-service'
+import { PSCDescriptorsToConvert, PSCService } from '../services/psc-service'
 import { WidgetConverter } from '../services/convert/widget-converter'
 import { PluginConverter } from '../services/convert/plugin-converter'
 import { ServiceConverter } from '../services/convert/service-converter'
 import { FSService } from '../services/fs-service'
 
+const DELIMITER = '-'.repeat(process.stdout.columns ?? '10')
 const DESCRIPTION_CONVERT_LOG_FILE = 'CONVERSION LOG'
 const DESCRIPTOR_NOT_FOUND =
   'Bundle descriptor not found. Is this a v1 Bundle project?'
 const DESCRIPTOR_INVALID =
   'Bundle descriptor invalid. Is this a v1 Bundle project?'
 const DESCRIPTOR_V5_FOUND = 'The Bundle is already a v5'
-const MANUALLY_STEPS_DESCRIPTION = 'MANUALLY STEPS TO DO'
+const MANUAL_STEPS_DESCRIPTION = 'MANUAL STEPS TO DO'
 const SERVICE_FILES_DESCRIPTION = 'CONVERSION OF SERVICE FILES'
 const PLATFORM_FILES_DESCRIPTION = 'CONVERSION OF PLATFORM FILES'
+const MANUAL_STEPS = [
+  `\n${MANUAL_STEPS_DESCRIPTION}\n`,
+  '- Add the source files in new folders microservices, microfrontends',
+  '- Check that you have in your docker compose files a service name corresponding to the service filename',
+  '- If you want to change the bundle name, edit the folder name and entando.json\n'
+]
+const getPlatformDescription = (
+  platformDescReport: PSCDescriptorsToConvert
+): string[] => {
+  return [
+    `\n${PLATFORM_FILES_DESCRIPTION}`,
+    DELIMITER,
+    'Report of platform files and their descriptors:\n',
+    Object.keys(platformDescReport).length === 0
+      ? 'No files found'
+      : JSON.stringify(platformDescReport, null, 2),
+    DELIMITER
+  ]
+}
 
 export default class Convert extends Command {
   static description = 'Perform bundle conversion from v1 to v5'
@@ -96,17 +116,25 @@ export default class Convert extends Command {
       const widgetsToConvert = await WidgetConverter.getWidgetsToConvert(
         widgets
       )
-      const widgetToMfeStatus = WidgetConverter.convertWidgetsToMicrofrontends(
-        bundlePath,
-        outDir,
-        widgetsToConvert.mfes
-      )
-      const widgetToPscStatus = WidgetConverter.convertWidgetsToPlatformFiles(
-        bundlePath,
-        outDir,
-        widgetsToConvert.widgets
-      )
-      register.push(...widgetToMfeStatus, ...widgetToPscStatus)
+
+      if (widgetsToConvert.mfes.length > 0) {
+        const widgetToMfeStatus =
+          WidgetConverter.convertWidgetsToMicrofrontends(
+            bundlePath,
+            outDir,
+            widgetsToConvert.mfes
+          )
+        register.push(...widgetToMfeStatus)
+      }
+
+      if (widgetsToConvert.widgets.length > 0) {
+        const widgetToPscStatus = WidgetConverter.convertWidgetsToPlatformFiles(
+          bundlePath,
+          outDir,
+          widgetsToConvert.widgets
+        )
+        register.push(...widgetToPscStatus)
+      }
     }
 
     // adds services
@@ -118,11 +146,13 @@ export default class Convert extends Command {
       ServiceConverter.convertServiceFiles(this.config.bin, servicePath, outDir)
       register.push(
         `\n${SERVICE_FILES_DESCRIPTION}`,
+        DELIMITER,
         'The service files have been converted as possible, ' +
           `evaluate the output files that are available in ${path.resolve(
             outDir,
             SVC_FOLDER
-          )}`
+          )}`,
+        DELIMITER
       )
     }
 
@@ -132,19 +162,10 @@ export default class Convert extends Command {
       bundlePath,
       path.resolve(outDir, PSC_FOLDER)
     )
-    register.push(
-      `\n${PLATFORM_FILES_DESCRIPTION}`,
-      'Report of platform files and their descriptors',
-      JSON.stringify(platformDescReport, null, 2)
-    )
+    register.push(...getPlatformDescription(platformDescReport))
     CliUx.ux.action.stop()
 
-    register.push(
-      `\n${MANUALLY_STEPS_DESCRIPTION}`,
-      'Add the source files in new folders microservices, microfrontends',
-      'Check that you have in your docker compose files a service name corresponding to the service filename',
-      'If you want to change the bundle name, edit the folder name and entando.json\n'
-    )
+    register.push(...MANUAL_STEPS)
 
     const logsFolder = path.resolve(outDir, ...LOGS_FOLDER)
     const logsFile = path.join(logsFolder, `conversion-${oldName}-v1-to-v5.log`)

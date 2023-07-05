@@ -30,7 +30,7 @@ import {
 import { FSService } from '../fs-service'
 
 const DELIMITER = '-'.repeat(process.stdout.columns ?? '10')
-const WIDGET_TO_MFE_DESCRIPTION = 'CONVERSION FROM WIDGET TO MICROFRONTENDS'
+const WIDGET_TO_MFE_DESCRIPTION = 'CONVERSION FROM WIDGETS TO MICROFRONTENDS'
 const WIDGET_TO_PSC_DESCRIPTION = 'COPY THE WIDGETS TO THE PLATFORM FILES'
 
 interface WidgetsToConvert {
@@ -151,9 +151,10 @@ export class WidgetConverter {
 
       // copy ftl
       if (widget.customUiPath) {
-        CliUx.ux.action.start(
-          `Custom widget template FTL found for widget ${microfrontend.name}, including it`
-        )
+        const msg = `Custom widget template FTL found for widget ${microfrontend.name}, including it`
+        CliUx.ux.action.start(msg)
+        report.push(msg)
+
         const outputWidgetsPath = path.resolve(
           outDir,
           MICROFRONTENDS_FOLDER,
@@ -169,7 +170,9 @@ export class WidgetConverter {
             customFtlName
           )
         } catch (error) {
-          WidgetConverter.debug((error as Error).message)
+          const msg = (error as Error).message
+          WidgetConverter.debug(msg)
+          report.push(`${msg}\nCheck it if you want to include it`)
           continue
         }
 

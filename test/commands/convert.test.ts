@@ -577,6 +577,52 @@ describe('convert', () => {
         path.resolve(tempDirHelper.tmpDir, 'bundle-sample', 'plugins')
       )
       fs.writeFileSync(
+        path.resolve(
+          tempDirHelper.tmpDir,
+          'bundle-sample',
+          'plugins',
+          'plugin.yaml'
+        ),
+        'key: value\nkey: value2'
+      )
+      fs.writeFileSync(
+        path.resolve('descriptor.yaml'),
+        YAML.stringify(localDescV1Json)
+      )
+    })
+    .command(['convert'])
+    .it(
+      `runs convert bundle with a invalid plugin (plugin descriptor is not a valid YAML)`,
+      () => {
+        const bundleName = 'bundle-sample-v5'
+        checkFoldersStructure(bundleName)
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+
+        const bundleDescriptor = parseBundleDescriptor(bundleName)
+        expect(bundleDescriptor.name).to.eq(bundleName)
+        expect(bundleDescriptor.version).to.eq('0.0.1')
+        expect(bundleDescriptor.description).to.eq(
+          'bundle-sample-v5 description'
+        )
+        expect(bundleDescriptor.type).to.eq('bundle')
+        expect(bundleDescriptor.microservices.length).to.eq(0)
+      }
+    )
+  test
+    .stdout()
+    .stderr()
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .stub(CliUx.ux, 'prompt', () => sinon.stub().resolves())
+    .do(() => {
+      process.chdir('bundle-sample')
+      const localDescV1Json = descV1Json
+      localDescV1Json.components.plugins = ['plugins/plugin.yaml']
+      fs.mkdirSync(
+        path.resolve(tempDirHelper.tmpDir, 'bundle-sample', 'plugins')
+      )
+      fs.writeFileSync(
         path.resolve('descriptor.yaml'),
         YAML.stringify(localDescV1Json)
       )
