@@ -1,27 +1,13 @@
-import { expect, test } from '@oclif/test'
+import {expect, test} from '@oclif/test'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import {
-  BUNDLE_DESCRIPTOR_FILE_NAME,
-  GITKEEP_FILE,
-  MICROSERVICES_FOLDER
-} from '../../../src/paths'
-import {
-  BundleDescriptor,
-  Microservice,
-  MicroFrontend
-} from '../../../src/models/bundle-descriptor'
-import {
-  BundleDescriptorService,
-  MISSING_DESCRIPTOR_ERROR
-} from '../../../src/services/bundle-descriptor-service'
-import { TempDirHelper } from '../../helpers/temp-dir-helper'
-import { ComponentHelper } from '../../helpers/mocks/component-helper'
-import {
-  DEFAULT_VERSION,
-  MicroserviceStack
-} from '../../../src/models/component'
-import { CLIError } from '@oclif/errors'
+import {BUNDLE_DESCRIPTOR_FILE_NAME, GITKEEP_FILE, MICROSERVICES_FOLDER} from '../../../src/paths'
+import {BundleDescriptor, HealthCheckIngress, MicroFrontend, Microservice} from '../../../src/models/bundle-descriptor'
+import {BundleDescriptorService, MISSING_DESCRIPTOR_ERROR} from '../../../src/services/bundle-descriptor-service'
+import {TempDirHelper} from '../../helpers/temp-dir-helper'
+import {ComponentHelper} from '../../helpers/mocks/component-helper'
+import {DEFAULT_VERSION, MicroserviceStack} from '../../../src/models/component'
+import {CLIError} from '@oclif/errors'
 
 describe('ms add', () => {
   const bundleDescriptor: BundleDescriptor = {
@@ -34,7 +20,8 @@ describe('ms add', () => {
 
   const defaultMsValues: Partial<Microservice> = {
     stack: MicroserviceStack.SpringBoot,
-    healthCheckPath: '/api/health'
+    healthCheckPath: '/api/health',
+    healthCheckIngress: HealthCheckIngress.Canonical
   }
 
   const tempDirHelper = new TempDirHelper(__filename)

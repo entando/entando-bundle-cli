@@ -1,13 +1,11 @@
 import {
   DBMS,
+  HealthCheckIngress,
   MicroFrontend,
   MicroFrontendType,
   Microservice
 } from '../../../src/models/bundle-descriptor'
-import {
-  MicroFrontendStack,
-  MicroserviceStack
-} from '../../../src/models/component'
+import {MicroFrontendStack, MicroserviceStack} from '../../../src/models/component'
 
 /**
  * Helper class for instantiating valid components to use in tests
@@ -22,6 +20,7 @@ export class ComponentHelper {
       stack: MicroserviceStack.SpringBoot,
       dbms: DBMS.MySQL,
       healthCheckPath: '/api/health',
+      healthCheckIngress: HealthCheckIngress.Canonical,
       ...partial
     }
   }

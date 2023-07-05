@@ -1,6 +1,7 @@
 import {
   ApiType,
   DBMS,
+  HealthCheckIngress,
   MicroFrontendAppBuilderSlot,
   MicroFrontendType,
   Nav,
@@ -80,6 +81,7 @@ export type YamlPluginDescriptor = {
   descriptorVersion: string
   image: string
   healthCheckPath: string
+  healthCheckIngress: HealthCheckIngress
   deploymentBaseName?: string
   dbms: DBMS
   ingressPath?: string
