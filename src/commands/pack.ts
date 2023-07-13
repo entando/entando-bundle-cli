@@ -32,7 +32,7 @@ import {
   INVALID_VERSION_MESSAGE,
   MAX_VERSION_LENGTH
 } from '../models/bundle-descriptor-constraints'
-import { ColorizedWritable } from '../utils'
+import { ColorizedWritable, isDebugEnabled } from '../utils'
 import { DEFAULT_PARALLEL_PROCESSES_SIZE } from '../services/process-executor-service'
 
 export default class Pack extends BaseBuildCommand {
@@ -83,9 +83,13 @@ export default class Pack extends BaseBuildCommand {
 
   configService = new ConfigService()
 
+  private readonly dockerBuildFailedMsg = 'Docker build failed with exit code'
+  private readonly enableDebugMsg = 'Enable debug mode to see docker build output.';
+
   public async run(): Promise<void> {
     BundleService.isValidBundleProject()
 
+    const debugEnabled = isDebugEnabled()
     const { flags } = await this.parse(Pack)
 
     this.validateMaxParallel(flags)
@@ -141,7 +145,8 @@ export default class Pack extends BaseBuildCommand {
       await this.buildBundleDockerImage(
         bundleDescriptor,
         dockerOrganization,
-        dockerfile
+        dockerfile,
+        debugEnabled
       )
 
       if (flags.registry) {
@@ -284,7 +289,8 @@ export default class Pack extends BaseBuildCommand {
   private async buildBundleDockerImage(
     bundleDescriptor: BundleDescriptor,
     dockerOrganization: string,
-    dockerfile: string
+    dockerfile: string,
+    debugEnabled: boolean
   ) {
     this.log(color.bold.blue('Creating bundle package...'))
     CliUx.ux.action.start('Building Bundle Docker image')
@@ -305,7 +311,7 @@ export default class Pack extends BaseBuildCommand {
       )
     } else if (typeof result === 'number') {
       this.error(
-        `Docker build failed with exit code ${result}. Enable debug mode to see docker build output`,
+        debugEnabled ? `${this.dockerBuildFailedMsg} ${result}.` : `${this.dockerBuildFailedMsg} ${result}. ${this.enableDebugMsg}`,
         { exit: result as number }
       )
     } else {

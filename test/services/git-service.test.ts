@@ -20,7 +20,7 @@ describe('git-service', () => {
   const defaultBundleName = 'git-mi'
   let bundleDir: string
   let git: GitService
-
+  const envCliDebugInitialValue = process.env.ENTANDO_CLI_DEBUG
   beforeEach(() => {
     git = new GitService(defaultBundleName, tempDirHelper.tmpDir)
   })
@@ -31,6 +31,8 @@ describe('git-service', () => {
       force: true
     })
     sinon.restore()
+    // reset debug env var option to the initial value
+    process.env.ENTANDO_CLI_DEBUG = envCliDebugInitialValue
   })
 
   test.it('runs initRepo ', async () => {
@@ -124,6 +126,40 @@ describe('git-service', () => {
       expect(error.message).to.contain('Enable debug mode')
     })
     .it('runs cloneRepo but throws error that needs debug')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      const gitEnv = new GitService(defaultBundleName, tempDirHelper.tmpDir)
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(() => {
+          return Promise.resolve(1)
+        })
+      await gitEnv.cloneRepo('https://aabbbccc.com/asd.git')
+    })
+    .catch(error => {
+      expect(error.message).to.contain('Cloning of git repository failed.')
+      expect(error.message).to.not.contain('Enable debug mode to see more details.')
+    })
+    .it('runs cloneRepo but throws error with debug enabled and no errorStream')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(() => {
+          return Promise.resolve(1)
+        })
+      await git.cloneRepo('https://aabbbccc.com/asd.git')
+    })
+    .catch(error => {
+      expect(error.message).to.contain('Cloning of git repository failed.')
+      expect(error.message).to.contain('Enable debug mode to see more details.')
+    })
+    .it('runs cloneRepo but throws error with debug disabled and no errorStream')
+
 
   test
     .do(() => {

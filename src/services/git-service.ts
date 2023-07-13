@@ -4,10 +4,16 @@ import { CLIError } from '@oclif/errors'
 import { debugFactory } from './debug-factory-service'
 import { FSService } from './fs-service'
 import { ProcessExecutorService } from './process-executor-service'
-import { InMemoryWritable } from '../utils'
+import {InMemoryWritable, isDebugEnabled} from '../utils'
 
 export class GitService {
   private static debug = debugFactory(GitService)
+
+  private readonly debugEnabled: boolean
+  private readonly enableDebugMsg = 'Enable debug mode to see more details.';
+  private readonly initErrMsg = 'Initialization of git repository failed.'
+  private readonly cloneErrMsg= 'Cloning of git repository failed.'
+
   private readonly bundleName: string
   private readonly parentDirectory: string
   private readonly fsService: FSService
@@ -16,6 +22,7 @@ export class GitService {
     this.bundleName = name
     this.parentDirectory = parentDirectory
     this.fsService = new FSService(name, parentDirectory)
+    this.debugEnabled = isDebugEnabled()
   }
 
   public async initRepo(): Promise<void> {
@@ -30,9 +37,9 @@ export class GitService {
       errorStream
     })
     if (result !== 0) {
+      const errorMsg= this.debugEnabled ? this.initErrMsg : `${this.initErrMsg} ${this.enableDebugMsg}`
       throw new CLIError(
-        errorStream.data.trim() ||
-          'Initialization of git repository failed. Enable debug mode to see more details.'
+        errorStream.data.trim() || errorMsg
       )
     }
   }
@@ -46,9 +53,9 @@ export class GitService {
       errorStream
     })
     if (result !== 0) {
+      const errorMsg = this.debugEnabled ? this.cloneErrMsg : `${this.cloneErrMsg} ${this.enableDebugMsg}`;
       throw new CLIError(
-        errorStream.data.trim() ||
-          'Cloning of git repository failed. Enable debug mode to see more details.'
+         errorStream.data.trim() || errorMsg
       )
     }
   }

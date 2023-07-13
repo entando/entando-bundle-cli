@@ -8,6 +8,11 @@ export const EXIT_CODES = {
   SUCCESS: 0,
   GENERIC_ERROR: 1
 }
+export function isDebugEnabled(): boolean {
+  return (
+    process.env.ENTANDO_CLI_DEBUG === 'true' ?? false
+  )
+}
 
 export class InMemoryWritable extends Writable {
   data = ''
