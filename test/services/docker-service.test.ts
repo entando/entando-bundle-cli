@@ -618,24 +618,20 @@ describe('DockerService', () => {
       )
     })
 
-  async function sinonStubUnableToRetrieveDigest() {
-    const stubParallelProcessExecutorService =
-      new StubParallelProcessExecutorService([1])
-    sinon
-      .stub(executors, 'ParallelProcessExecutorService')
-      .returns(stubParallelProcessExecutorService)
-
-    const digestsExecutor = DockerService.getDigestsExecutor(
-      'registry/org/my-bundle',
-      ['0.0.2', '0.0.1']
-    )
-    await digestsExecutor.getDigests()
-  }
-
   test
     .env({ ENTANDO_CLI_DEBUG: 'true' })
     .do(async () => {
-      await sinonStubUnableToRetrieveDigest();
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([1])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+
+      const digestsExecutor = DockerService.getDigestsExecutor(
+        'registry/org/my-bundle',
+        ['0.0.2', '0.0.1']
+      )
+      await digestsExecutor.getDigests()
     })
     .catch(error => {
       expect(error.message).contain(
@@ -649,7 +645,17 @@ describe('DockerService', () => {
 
   test
     .do(async () => {
-      await sinonStubUnableToRetrieveDigest();
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([1])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+
+      const digestsExecutor = DockerService.getDigestsExecutor(
+        'registry/org/my-bundle',
+        ['0.0.2', '0.0.1']
+      )
+      await digestsExecutor.getDigests()
     })
     .catch(error => {
       expect(error.message).contain(
