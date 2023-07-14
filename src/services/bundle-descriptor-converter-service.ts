@@ -112,14 +112,19 @@ export class BundleDescriptorConverterService {
         `Custom widget template FTL found for MFE ${microFrontend.name}, including it`
       )
 
-      fs.copyFileSync(
-        customUiFile,
+      const { dir, base: fileName } = path.parse(
         path.resolve(
           ...DESCRIPTORS_OUTPUT_FOLDER,
           WIDGETS_FOLDER,
           path.basename(customUiFile)
         )
       )
+
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
+
+      fs.copyFileSync(customUiFile, path.join(dir, fileName))
     }
 
     const filePath = path.join(
@@ -153,13 +158,17 @@ export class BundleDescriptorConverterService {
       ...('titles' in microFrontend && { titles: microFrontend.titles }),
       group: microFrontend.group,
       descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
-      customElement: microFrontend.customElement,
+      ...(microFrontend.customElement
+        ? { customElement: microFrontend.customElement }
+        : {}),
       apiClaims: microFrontend.apiClaims
         ? this.generateYamlApiClaims(microFrontend.apiClaims)
         : undefined,
-      ...(customUiFileExists && {
-        customUiPath: `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
-      }),
+      ...(customUiFileExists
+        ? {
+            customUiPath: `${microFrontend.name}${CUSTOM_WIDGET_TEMPLATE_EXTENSION}`
+          }
+        : {}),
       parentName: microFrontend.parentName,
       parentCode: microFrontend.parentCode,
       params: microFrontend.params || [],

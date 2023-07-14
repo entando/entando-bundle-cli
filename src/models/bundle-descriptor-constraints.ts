@@ -30,7 +30,8 @@ import {
   maxLength,
   exclusive,
   JsonPath,
-  JsonValidationError
+  JsonValidationError,
+  validateCustomElement
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
@@ -308,7 +309,7 @@ const WIDGET_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetMicroFrontend> =
       children: COMMANDS_CONSTRAINTS
     },
     customElement: {
-      required: true,
+      required: false,
       type: 'string'
     },
     type: {
@@ -394,7 +395,7 @@ const WIDGETCONFIG_MICROFRONTEND_CONSTRAINTS: ObjectConstraints<WidgetConfigMicr
       children: COMMANDS_CONSTRAINTS
     },
     customElement: {
-      required: true,
+      required: false,
       type: 'string'
     },
     type: {
@@ -467,7 +468,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       children: COMMANDS_CONSTRAINTS
     },
     customElement: {
-      required: true,
+      required: false,
       type: 'string'
     },
     type: {
@@ -541,7 +542,7 @@ const APPBUILDER_MICROFRONTEND_CONSTRAINTS: Array<
       children: COMMANDS_CONSTRAINTS
     },
     customElement: {
-      required: true,
+      required: false,
       type: 'string'
     },
     type: {
@@ -616,7 +617,9 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
       { key: 'paths' },
       { key: 'slot', value: MicroFrontendAppBuilderSlot.Content }
     ),
-    exclusive('parentName', 'parentCode')
+    exclusive('parentName', 'parentCode'),
+    exclusive('customElement', 'customUiPath'),
+    validateCustomElement()
   ]
 }
 

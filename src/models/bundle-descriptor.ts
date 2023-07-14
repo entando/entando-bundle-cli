@@ -73,7 +73,7 @@ type BaseMicroFrontend = {
   apiClaims?: Array<ApiClaim | ExternalApiClaim>
   commands?: Commands
   nav?: Nav[]
-  customElement: string
+  customElement?: string
   parentName?: string
   parentCode?: string
   params?: WidgetParam[]
