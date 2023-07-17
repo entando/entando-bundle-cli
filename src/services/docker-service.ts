@@ -326,7 +326,7 @@ export class DockerService {
     const output = outputStream.data
     const error = errorStream.data
     if (result !== 0) {
-      DockerService.debug(output)
+      DockerService.debug(error)
       DockerService.debug(output)
       throw new CLIError(
         error.includes('denied')
