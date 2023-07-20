@@ -17,10 +17,9 @@ import { ComponentService } from '../../src/services/component-service'
 import {
   ApiType,
   DBMS,
-  HealthCheckIngress,
-  MicroFrontendAppBuilderSlot,
+  SecurityLevel,
   MicroFrontendType,
-  SecurityLevel
+  MicroFrontendAppBuilderSlot
 } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
@@ -47,7 +46,6 @@ describe('bundle-descriptor-converter-service', () => {
           stack: MicroserviceStack.SpringBoot,
           dbms: DBMS.PostgreSQL,
           ingressPath: '/path/to/service',
-          healthCheckIngress: HealthCheckIngress.Canonical,
           healthCheckPath: '/path/to/check',
           roles: ['test-role'],
           permissions: [
@@ -79,7 +77,6 @@ describe('bundle-descriptor-converter-service', () => {
         {
           name: 'test-ms-no-dbms',
           stack: MicroserviceStack.Node,
-          healthCheckIngress: HealthCheckIngress.Canonical,
           healthCheckPath: '/api/health'
         }
       ],
@@ -314,7 +311,6 @@ describe('bundle-descriptor-converter-service', () => {
       image: 'docker-org/test-ms:0.0.5',
       dbms: 'postgresql',
       ingressPath: '/path/to/service',
-      healthCheckIngress: HealthCheckIngress.Canonical,
       healthCheckPath: '/path/to/check',
       roles: ['test-role'],
       permissions: [
@@ -358,7 +354,6 @@ describe('bundle-descriptor-converter-service', () => {
       descriptorVersion: 'v6',
       image: 'docker-org/test-ms-no-dbms:0.0.1',
       dbms: DBMS.None,
-      healthCheckIngress: HealthCheckIngress.Canonical,
       healthCheckPath: '/api/health'
     })
 
