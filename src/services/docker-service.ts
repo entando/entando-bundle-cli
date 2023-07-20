@@ -289,14 +289,15 @@ export class DockerService {
 
     const targetImages: string[] = []
     const options: ProcessExecutionOptions[] = []
+    const outputStream = new InMemoryWritable()
     for (const sourceImage of sourceImages) {
       const targetImage = getTargetImage(sourceImage)
       targetImages.push(targetImage)
       const command = `${DOCKER_COMMAND} tag ${sourceImage} ${targetImage}`
       options.push({
         command,
-        errorStream: DockerService.debug.outputStream,
-        outputStream: DockerService.debug.outputStream
+        outputStream,
+        errorStream: DockerService.debug.outputStream
       })
     }
 
@@ -326,8 +327,8 @@ export class DockerService {
     const output = outputStream.data
     const error = errorStream.data
     if (result !== 0) {
-      DockerService.debug(error)
       DockerService.debug(output)
+      DockerService.debug(error)
       throw new CLIError(
         error.includes('denied')
           ? `Unable to push docker image ${image}. Be sure that you have write access to that repository.\nYou may also logged in with a wrong user. Please execute "docker logout ${registry}" and try again`
