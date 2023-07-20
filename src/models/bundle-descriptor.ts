@@ -64,7 +64,7 @@ export type Microservice = {
   stack: MicroserviceStack
   /** Value used for defining custom pod names */
   healthCheckPath: string
-  healthCheckIngress?: HealthCheckIngress
+  healthCheckIngress: HealthCheckIngress
   deploymentBaseName?: string
   dbms?: DBMS
   ingressPath?: string
