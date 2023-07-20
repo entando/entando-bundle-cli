@@ -41,11 +41,6 @@ export enum SecurityLevel {
   Lenient = 'lenient'
 }
 
-export enum HealthCheckIngress {
-  Canonical = 'canonical',
-  Custom = 'custom'
-}
-
 export type WidgetParam = {
   name: string
   description?: string
@@ -64,7 +59,6 @@ export type Microservice = {
   stack: MicroserviceStack
   /** Value used for defining custom pod names */
   healthCheckPath: string
-  healthCheckIngress: HealthCheckIngress
   deploymentBaseName?: string
   dbms?: DBMS
   ingressPath?: string
