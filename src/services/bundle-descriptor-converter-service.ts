@@ -5,7 +5,6 @@ import {
   DBMS,
   EnvironmentVariable,
   ExternalApiClaim,
-  HealthCheckIngress,
   MicroFrontend,
   MicroFrontendType,
   Microservice,
@@ -253,8 +252,6 @@ export class BundleDescriptorConverterService {
       deploymentBaseName: microservice.deploymentBaseName,
       ingressPath: microservice.ingressPath,
       healthCheckPath: microservice.healthCheckPath,
-      healthCheckIngress:
-        microservice.healthCheckIngress ?? HealthCheckIngress.Canonical,
       roles: microservice.roles,
       permissions: microservice.permissions,
       securityLevel: microservice.securityLevel,
