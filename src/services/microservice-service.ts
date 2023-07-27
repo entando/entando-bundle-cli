@@ -1,7 +1,7 @@
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { CLIError } from '@oclif/errors'
-import {BundleDescriptor, HealthCheckIngress, Microservice} from '../models/bundle-descriptor'
+import { BundleDescriptor, Microservice } from '../models/bundle-descriptor'
 import { BundleDescriptorService } from './bundle-descriptor-service'
 import { ComponentService } from './component-service'
 import {
@@ -54,8 +54,7 @@ export class MicroserviceService {
 
     this.addMicroserviceDescriptor({
       ...ms,
-      healthCheckPath: ms.healthCheckPath ?? DEFAULT_HEALTH_CHECK_PATH,
-      healthCheckIngress: ms.healthCheckIngress ?? HealthCheckIngress.Canonical
+      healthCheckPath: ms.healthCheckPath ?? DEFAULT_HEALTH_CHECK_PATH
     })
   }
 

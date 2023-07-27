@@ -312,14 +312,15 @@ export class DockerService {
 
     const targetImages: string[] = []
     const options: ProcessExecutionOptions[] = []
+    const outputStream = new InMemoryWritable()
     for (const sourceImage of sourceImages) {
       const targetImage = getTargetImage(sourceImage)
       targetImages.push(targetImage)
       const command = `${DOCKER_COMMAND} tag ${sourceImage} ${targetImage}`
       options.push({
         command,
-        errorStream: DockerService.debug.outputStream,
-        outputStream: DockerService.debug.outputStream
+        outputStream,
+        errorStream: DockerService.debug.outputStream
       })
     }
 
@@ -353,8 +354,7 @@ export class DockerService {
     const error = errorStream.data
     if (result !== 0) {
       DockerService.debug(output)
-      DockerService.debug(output)
-
+      DockerService.debug(error)
       const errorMsg= debugEnabled ? `${errUnableToPushMsg} ${image}.` : `${errUnableToPushMsg} ${image}. ${enableDebugFailedCommandMsg}`
       throw new CLIError(
       error.includes('denied')

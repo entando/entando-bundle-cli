@@ -16,8 +16,7 @@ import {
   Resources,
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
-  WidgetParam,
-  HealthCheckIngress
+  WidgetParam
 } from './bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from './component'
 import {
@@ -247,11 +246,6 @@ export const MICROSERVICE_CONSTRAINTS: ObjectConstraints<Microservice> = {
   healthCheckPath: {
     required: true,
     type: 'string'
-  },
-  healthCheckIngress: {
-    required: false,
-    type: 'string',
-    validators: [values(HealthCheckIngress)]
   },
   roles: {
     isArray: true,
