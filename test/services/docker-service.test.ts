@@ -25,9 +25,12 @@ import { InMemoryWritable } from '../../src/utils'
 
 describe('DockerService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
+  const envCliDebugInitialValue = process.env.ENTANDO_CLI_DEBUG
 
   afterEach(function () {
     sinon.restore()
+    // reset debug env var option to the initial value
+    process.env.ENTANDO_CLI_DEBUG = envCliDebugInitialValue
   })
 
   test.it('Builds Docker image with standard Dockerfile', () => {
@@ -210,8 +213,25 @@ describe('DockerService', () => {
     })
     .catch(error => {
       expect(error.message).contain('Unable to check Docker images')
+      expect(error.message).contain('Enable debug mode to see failed command and its error stream')
     })
-    .it('Checks Docker images existence and docker ls command fails')
+    .it('Checks Docker images existence and docker ls command fails with debug not enabled')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      sinon
+        .stub(ComponentService.prototype, 'getVersionedComponents')
+        .returns([])
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.bundleImagesExists(bundleDescriptor, 'myorg')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to check Docker images')
+      expect(error.message).not.contain('Enable debug mode to see failed command and its error stream')
+    })
+    .it('Checks Docker images existence and docker ls command fails with debug enabled')
 
   test.it('Tries docker login with stored credentials', async () => {
     const executeProcessStub = sinon
@@ -340,8 +360,29 @@ describe('DockerService', () => {
     })
     .catch(error => {
       expect(error.message).contain('Unable to create Docker image tag')
+      expect(error.message).contain('Enable debug mode to see output of failed command')
     })
-    .it('Docker image tag creation fails')
+    .it('Docker image tag creation fails with debug not enabled')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      sinon
+        .stub(ComponentService.prototype, 'getVersionedComponents')
+        .returns([])
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([1])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+      await DockerService.setImagesRegistry(bundleDescriptor, 'org', 'registry')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to create Docker image tag')
+      expect(error.message).not.contain('Enable debug mode to see output of failed command')
+    })
+    .it('Docker image tag creation fails with debug enabled')
 
   test.it('Push image and retrieve digest', async () => {
     const executeProcessStub = sinon
@@ -398,8 +439,24 @@ describe('DockerService', () => {
     })
     .catch(error => {
       expect(error.message).contain('Unable to push Docker image')
+      expect(error.message).contain('Enable debug mode to see output of failed command')
     })
-    .it('Generic error while pushing image')
+    .it('Generic error while pushing image and debug not enabled')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.pushImage(
+        'myimage',
+        DockerService.getDefaultDockerRegistry()
+      )
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to push Docker image')
+      expect(error.message).not.contain('Enable debug mode to see output of failed command')
+    })
+    .it('Generic error while pushing image with debug enabled')
 
   test
     .do(async () => {
@@ -416,7 +473,39 @@ describe('DockerService', () => {
     .catch(error => {
       expect(error.message).contain('execute "docker logout my-registry"')
     })
-    .it('Access denied error while pushing image')
+    .it('Access denied error while pushing image with errorStream')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(() => {
+          return Promise.resolve(1)
+        })
+      await DockerService.pushImage('myimage', 'my-registry')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to push Docker image')
+      expect(error.message).not.contain('Enable debug mode to see output of failed command')
+    })
+    .it('Access denied error while pushing image with debug enabled')
+
+  test
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .callsFake(() => {
+          return Promise.resolve(1)
+        })
+      await DockerService.pushImage('myimage', 'my-registry')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to push Docker image')
+      expect(error.message).contain('Enable debug mode to see output of failed command')
+
+    })
+    .it('Access denied error while pushing image with debug not enabled')
 
   test
     .do(async () => {
@@ -466,6 +555,7 @@ describe('DockerService', () => {
     })
     .it('Tags retrieval fails if listing is not authorized')
 
+
   test
     .do(async () => {
       sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
@@ -475,8 +565,27 @@ describe('DockerService', () => {
       expect(error.message).contain(
         'Unable to list tags for Docker image registry/org/my-bundle'
       )
+      expect(error.message).contain(
+        'Enable debug mode to see output of failed command'
+      )
     })
-    .it('Tags retrieval fails on generic error')
+    .it('Tags retrieval fails on generic error with debug not enabled')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.listTags('registry/org/my-bundle')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to list tags for Docker image registry/org/my-bundle'
+      )
+      expect(error.message).not.contain(
+        'Enable debug mode to see output of failed command'
+      )
+    })
+    .it('Tags retrieval fails on generic error with debug enabled')
 
   test
     .env({
@@ -510,6 +619,7 @@ describe('DockerService', () => {
     })
 
   test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
     .do(async () => {
       const stubParallelProcessExecutorService =
         new StubParallelProcessExecutorService([1])
@@ -527,8 +637,35 @@ describe('DockerService', () => {
       expect(error.message).contain(
         'Unable to retrieve digests for Docker image registry/org/my-bundle'
       )
+      expect(error.message).not.contain(
+        'Enable debug mode to see output of failed command'
+      )
     })
-    .it('Digests retrieval fails on generic error')
+    .it('Digests retrieval fails on generic error with debug enabled')
+
+  test
+    .do(async () => {
+      const stubParallelProcessExecutorService =
+        new StubParallelProcessExecutorService([1])
+      sinon
+        .stub(executors, 'ParallelProcessExecutorService')
+        .returns(stubParallelProcessExecutorService)
+
+      const digestsExecutor = DockerService.getDigestsExecutor(
+        'registry/org/my-bundle',
+        ['0.0.2', '0.0.1']
+      )
+      await digestsExecutor.getDigests()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to retrieve digests for Docker image registry/org/my-bundle'
+      )
+      expect(error.message).contain(
+        'Enable debug mode to see output of failed command'
+      )
+    })
+    .it('Digests retrieval fails on generic error with debug not enabled')
 
   test
     .env({ ENTANDO_CLI_CRANE_BIN: 'path/to/crane' })
@@ -604,30 +741,68 @@ describe('DockerService', () => {
     })
     .catch(error => {
       expect(error.message).contain('Unable to retrieve image metadata')
+      expect(error.message).contain('Enable debug mode to see output of failed command')
     })
-    .it('Retrieval of first layer digest fails if crane config command fails')
+    .it('Retrieval of first layer digest fails if crane config command fails with debug not enabled')
+
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(1)
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to retrieve image metadata')
+      expect(error.message).not.contain('Enable debug mode to see output of failed command')
+    })
+    .it('Retrieval of first layer digest fails if crane config command fails with debug enabled')
+
+  async function sinonStubRetrievalFirstLayerDigestNotContainsValidLabel() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .callsFake(options => {
+        options.outputStream!.write(
+          JSON.stringify({
+            config: {Labels: {someLabel: 'someValue'}}
+          })
+        )
+        return Promise.resolve(0)
+      })
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
 
   test
     .do(async () => {
-      sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .callsFake(options => {
-          options.outputStream!.write(
-            JSON.stringify({
-              config: { Labels: { someLabel: 'someValue' } }
-            })
-          )
-          return Promise.resolve(0)
-        })
-      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+      await sinonStubRetrievalFirstLayerDigestNotContainsValidLabel();
     })
     .catch(error => {
       expect(error.message).contain(
         "Given Docker image doesn't contain required label"
       )
+      expect(error.message).contain(
+        "Enable debug mode to see retrieved content"
+      )
     })
     .it(
-      "Retrieval of first layer digest fails if config doesn't contains valid Docker label"
+      "Retrieval of first layer digest fails if config doesn't contains valid Docker label with debug not enabled"
+    )
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      await sinonStubRetrievalFirstLayerDigestNotContainsValidLabel();
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+      expect(error.message).not.contain(
+        "Enable debug mode to see retrieved content"
+      )
+    })
+    .it(
+      "Retrieval of first layer digest fails if config doesn't contains valid Docker label with debug enabled"
     )
 
   test
@@ -648,157 +823,314 @@ describe('DockerService', () => {
       expect(error.message).contain(
         "Given Docker image doesn't contain required label"
       )
+      expect(error.message).contain('Enable debug mode to see retrieved content')
     })
     .it(
-      "Retrieval of first layer digest fails if config doesn't contains Docker labels"
+      "Retrieval of first layer digest fails if config doesn't contains Docker labels with debug not enabled"
     )
-
   test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
     .do(async () => {
       sinon
         .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
         .callsFake(options => {
-          options.outputStream!.write(configContentStub)
-          return Promise.resolve(0)
-        })
-        .onSecondCall()
-        .callsFake(options => {
-          options.outputStream!.write('}invalid-json{')
+          options.outputStream!.write(
+            JSON.stringify({
+              config: {}
+            })
+          )
           return Promise.resolve(0)
         })
       await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        "Given Docker image doesn't contain required label"
+      )
+      expect(error.message).not.contain('Enable debug mode to see retrieved content')
+    })
+    .it(
+      "Retrieval of first layer digest fails if config doesn't contains Docker labels with debug enabled"
+    )
+
+  async function sinonStubRetrievalFirstLayerInvalidJson() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write('}invalid-json{')
+        return Promise.resolve(0)
+      })
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
+
+  test
+    .do(async () => {
+      await sinonStubRetrievalFirstLayerInvalidJson()
     })
     .catch(error => {
       expect(error.message).contain('Retrieved manifest contains invalid JSON')
+      expect(error.message).contain('Enable debug mode to see retrieved content')
     })
     .it(
-      'Retrieval of first layer digest fails if manifest contains invalid JSON'
+      'Retrieval of first layer digest fails if manifest contains invalid JSON with debug not enabled'
     )
+
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      await sinonStubRetrievalFirstLayerInvalidJson();
+    })
+    .catch(error => {
+      expect(error.message).contain('Retrieved manifest contains invalid JSON')
+      expect(error.message).not.contain('Enable debug mode to see retrieved content')
+    })
+    .it(
+      'Retrieval of first layer digest fails if manifest contains invalid JSON with debug enabled'
+    )
+
+  async function sinonStubRetrievalFirstLayerDigestFailsCrane() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write('{}')
+        return Promise.resolve(1);
+      })
+
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
 
   test
     .do(async () => {
-      sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
-        .callsFake(options => {
-          options.outputStream!.write(configContentStub)
-          return Promise.resolve(0)
-        })
-        .onSecondCall()
-        .callsFake(options => {
-          options.outputStream!.write('{}')
-          return Promise.resolve(1)
-        })
-      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+      await sinonStubRetrievalFirstLayerDigestFailsCrane();
     })
     .catch(error => {
       expect(error.message).contain('Unable to retrieve image manifest')
+      expect(error.message).contain('Enable debug mode to see output of failed command')
     })
-    .it('Retrieval of first layer digest fails if crane manifest command fails')
+    .it('Retrieval of first layer digest fails if crane manifest command fails with debug not enabled')
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      await sinonStubRetrievalFirstLayerDigestFailsCrane();
+    })
+    .catch(error => {
+      expect(error.message).contain('Unable to retrieve image manifest')
+      expect(error.message).not.contain('Enable debug mode to see output of failed command')
+
+    })
+    .it('Retrieval of first layer digest fails if crane manifest command fails with debug enabled')
+
+  async function sinonStubRetrievalFirstLayerHasNoLayerFields() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write('{}')
+        return Promise.resolve(0)
+      })
+
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
 
   test
     .do(async () => {
-      sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
-        .callsFake(options => {
-          options.outputStream!.write(configContentStub)
-          return Promise.resolve(0)
-        })
-        .onSecondCall()
-        .callsFake(options => {
-          options.outputStream!.write('{}')
-          return Promise.resolve(0)
-        })
-      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+      await sinonStubRetrievalFirstLayerHasNoLayerFields();
     })
     .catch(error => {
       expect(error.message).contain(
         'Unable to extract digest from retrieved manifest'
       )
+      expect(error.message).contain(
+        'Enable debug mode to see retrieved content'
+      )
     })
-    .it('Retrieval of first layer digest fails if layer has no layers field')
+    .it('Retrieval of first layer digest fails if layer has no layers field with debug not enabled')
 
   test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
     .do(async () => {
-      sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
-        .callsFake(options => {
-          options.outputStream!.write(configContentStub)
-          return Promise.resolve(0)
-        })
-        .onSecondCall()
-        .callsFake(options => {
-          options.outputStream!.write(
-            JSON.stringify({
-              layers: []
-            })
-          )
-          return Promise.resolve(0)
-        })
-      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+      await sinonStubRetrievalFirstLayerHasNoLayerFields();
     })
     .catch(error => {
       expect(error.message).contain(
         'Unable to extract digest from retrieved manifest'
       )
+      expect(error.message).not.contain(
+        'Enable debug mode to see retrieved content'
+      )
     })
-    .it('Retrieval of first layer digest fails if manifest has zero layers')
+    .it('Retrieval of first layer digest fails if layer has no layers field with debug enabled')
+
+  async function sinonStubRetrievalFirstLayerHasZeroLayers() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write(
+          JSON.stringify({
+            layers: []
+          })
+        )
+        return Promise.resolve(0)
+      })
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
 
   test
     .do(async () => {
-      sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
-        .callsFake(options => {
-          options.outputStream!.write(configContentStub)
-          return Promise.resolve(0)
-        })
-        .onSecondCall()
-        .callsFake(options => {
-          options.outputStream!.write(
-            JSON.stringify({
-              layers: [{}]
-            })
-          )
-          return Promise.resolve(0)
-        })
-      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+      await sinonStubRetrievalFirstLayerHasZeroLayers();
     })
     .catch(error => {
       expect(error.message).contain(
         'Unable to extract digest from retrieved manifest'
       )
+      expect(error.message).contain(
+        'Enable debug mode to see retrieved content'
+      )
     })
-    .it('Retrieval of first layer digest fails if layer has no digest field')
+    .it('Retrieval of first layer digest fails if manifest has zero layers with debug not enabled')
+
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      await sinonStubRetrievalFirstLayerHasZeroLayers();
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to extract digest from retrieved manifest'
+      )
+      expect(error.message).not.contain(
+        'Enable debug mode to see retrieved content'
+      )
+    })
+    .it('Retrieval of first layer digest fails if manifest has zero layers with debug enabled')
+
+  async function sinonStubRetrievalFirstLayerNoDigest() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write(
+          JSON.stringify({
+            layers: [{}]
+          })
+        )
+        return Promise.resolve(0)
+      })
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
 
   test
     .do(async () => {
-      sinon
-        .stub(ProcessExecutorService, 'executeProcess')
-        .onFirstCall()
-        .callsFake(options => {
-          options.outputStream!.write(configContentStub)
-          return Promise.resolve(0)
-        })
-        .onSecondCall()
-        .callsFake(options => {
-          options.outputStream!.write(manifestContentStub)
-          return Promise.resolve(0)
-        })
-        .onThirdCall()
-        .resolves(1)
-      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+      await sinonStubRetrievalFirstLayerNoDigest();
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to extract digest from retrieved manifest'
+      )
+      expect(error.message).contain(
+        'Enable debug mode to see retrieved content'
+      )
+    })
+    .it('Retrieval of first layer digest fails if layer has no digest field with debug not enabled')
+
+
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      await sinonStubRetrievalFirstLayerNoDigest();
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to extract digest from retrieved manifest'
+      )
+      expect(error.message).not.contain(
+        'Enable debug mode to see retrieved content'
+      )
+    })
+    .it('Retrieval of first layer digest fails if layer has no digest field with debug enabled')
+
+
+  async function sinonStubParsingYamlDescriptorCraneBlob() {
+    sinon
+      .stub(ProcessExecutorService, 'executeProcess')
+      .onFirstCall()
+      .callsFake(options => {
+        options.outputStream!.write(configContentStub)
+        return Promise.resolve(0)
+      })
+      .onSecondCall()
+      .callsFake(options => {
+        options.outputStream!.write(manifestContentStub)
+        return Promise.resolve(0)
+      })
+      .onThirdCall()
+      .resolves(1)
+    await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+  }
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      await sinonStubParsingYamlDescriptorCraneBlob();
     })
     .catch(error => {
       expect(error.message).contain(
         'Unable to parse YAML descriptor from bundle Docker image'
       )
+      expect(error.message).not.contain(
+        'Enable debug mode to see output of failed command'
+      )
     })
     .it(
-      'Parsing of YAML bundle descriptor from Docker image fails if crane blob command fails'
+      'Parsing of YAML bundle descriptor from Docker image fails if crane blob command fails with debug enabled'
+    )
+
+  test
+    .do(async () => {
+      await sinonStubParsingYamlDescriptorCraneBlob();
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Unable to parse YAML descriptor from bundle Docker image'
+      )
+      expect(error.message).contain(
+        'Enable debug mode to see output of failed command'
+      )
+    })
+    .it(
+      'Parsing of YAML bundle descriptor from Docker image fails if crane blob command fails with debug not enables'
     )
 
   test
@@ -858,9 +1190,46 @@ describe('DockerService', () => {
       expect(error.message).contain(
         'Retrieved descriptor contains invalid YAML'
       )
+      expect(error.message).contain(
+        'Enable debug mode to see retrieved content'
+      )
     })
     .it(
-      'Parsing of YAML bundle descriptor from Docker image fails if descriptor contains invalid YAML'
+      'Parsing of YAML bundle descriptor from Docker image fails if descriptor contains invalid YAML with debug not enabled'
+    )
+
+  test
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(async () => {
+      sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .onFirstCall()
+        .callsFake(options => {
+          options.outputStream!.write(configContentStub)
+          return Promise.resolve(0)
+        })
+        .onSecondCall()
+        .callsFake(options => {
+          options.outputStream!.write(manifestContentStub)
+          return Promise.resolve(0)
+        })
+        .onThirdCall()
+        .callsFake(options => {
+          options.outputStream!.write('}invalid-yaml{')
+          return Promise.resolve(0)
+        })
+      await DockerService.getYamlDescriptorFromImage('registry/org/bundle:tag')
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Retrieved descriptor contains invalid YAML'
+      )
+      expect(error.message).not.contain(
+        'Enable debug mode to see retrieved content'
+      )
+    })
+    .it(
+      'Parsing of YAML bundle descriptor from Docker image fails if descriptor contains invalid YAML with debug enabled'
     )
 
   test

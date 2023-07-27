@@ -46,9 +46,12 @@ import { CLIError } from '@oclif/errors'
 
 describe('pack', () => {
   const tempDirHelper = new TempDirHelper(__filename)
+  const envCliDebugInitialValue = process.env.ENTANDO_CLI_DEBUG
 
   afterEach(() => {
     sinon.restore()
+    // reset debug env var option to initial value
+    process.env.ENTANDO_CLI_DEBUG = envCliDebugInitialValue
   })
 
   beforeEach(() => {
@@ -471,6 +474,47 @@ describe('pack', () => {
   test
     .stderr()
     .stdout()
+    .env({ ENTANDO_CLI_DEBUG: 'true' })
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-bundle-docker-not-found')
+      stubBuildBundleDockerImage.restore()
+      stubBuildBundleDockerImage = sinon
+        .stub(DockerService, 'buildBundleDockerImage')
+        .resolves(2)
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      sinon.assert.calledOnce(stubBuildBundleDockerImage)
+      expect(error.message).to.contain('Docker build failed with')
+      expect(error.message).to.not.contain('Enable debug mode to see docker build output')
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('Docker build fails when command not found and debug enabled')
+
+
+  test
+    .stderr()
+    .stdout()
+    .do(() => {
+      tempDirHelper.createInitializedBundleDir('test-bundle-docker-not-found')
+      stubBuildBundleDockerImage.restore()
+      stubBuildBundleDockerImage = sinon
+        .stub(DockerService, 'buildBundleDockerImage')
+        .resolves(2)
+    })
+    .command(['pack', '--org', 'flag-organization'])
+    .catch(error => {
+      sinon.assert.calledOnce(stubBuildBundleDockerImage)
+      expect(error.message).to.contain('Docker build failed with')
+      expect(error.message).to.contain('Enable debug mode to see docker build output')
+      expect((error as CLIError).oclif.exit).eq(2)
+
+    })
+    .it('Docker build fails when command not found and debug disabled')
+
+  test
+    .stderr()
+    .stdout()
     .do(() => {
       const bundleDir = tempDirHelper.createInitializedBundleDir(
         'test-bundle-build-no-version'
@@ -784,7 +828,6 @@ describe('pack', () => {
       '--fail-fast'
     ])
     .catch(error => {
-      console.log(error.message)
       expect(error.message).to.contain(
         'The following components failed to build'
       )
