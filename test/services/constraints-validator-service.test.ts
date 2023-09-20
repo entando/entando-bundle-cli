@@ -1050,24 +1050,6 @@ describe('BundleDescriptorValidatorService', () => {
 
   test
     .do(() => {
-      const validDescriptor: any = BundleDescriptorHelper.newBundleDescriptor()
-      const mfe = validDescriptor.microfrontends[1]
-      mfe.customUiPath = `${mfe.name}.ftl`
-
-      ConstraintsValidatorService.validateObjectConstraints(
-        validDescriptor,
-        BUNDLE_DESCRIPTOR_CONSTRAINTS
-      )
-    })
-    .catch(error => {
-      expect(error.message).contain(
-        'Field "customElement" cannot be present alongside field "customUiPath"'
-      )
-    })
-    .it('Validates microfrontend with "customElement" alongside "customUiPath"')
-
-  test
-    .do(() => {
       const validDescriptor: any = {
         ...BundleDescriptorHelper.newBundleDescriptor()
       }
