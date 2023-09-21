@@ -643,7 +643,6 @@ const MICROFRONTEND_CONSTRAINTS: UnionTypeConstraints<MicroFrontend> = {
       { key: 'slot', value: MicroFrontendAppBuilderSlot.Content }
     ),
     exclusive('parentName', 'parentCode'),
-    exclusive('customElement', 'customUiPath'),
     validateCustomElement()
   ]
 }
