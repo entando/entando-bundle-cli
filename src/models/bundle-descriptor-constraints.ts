@@ -38,7 +38,7 @@ import {
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:([.-])[\da-z]+)*$/
 export const ALLOWED_VERSION_REGEXP = /^\w+[\w.-]*$/
 export const MAX_VERSION_LENGTH = 128
-export const MAX_NAME_LENGTH = 50
+export const MAX_NAME_LENGTH = 31
 export const MAX_WIDGET_CATEGORY_LENGTH = 80
 export const INVALID_NAME_MESSAGE =
   'The Name may contain lowercase letters, digits and separators. A separator is defined as a period, or a dash. The name may not start or end with a separator.'
