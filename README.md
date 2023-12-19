@@ -185,7 +185,7 @@ USAGE
 
 FLAGS
   -d, --digest               Include Docker images digests
-  -e, --tenants=<value>      Select the tenants to use, comma separated values
+  -e, --tenants=<value>      Select the tenant names to use, comma separated values
   -f, --force                Suppress the confirmation prompt in case of file overwrite
   -i, --image=<value>        Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
                              [docker://]<registry>/<organization>/<repository>
