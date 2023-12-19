@@ -19,6 +19,7 @@ import * as YAML from 'yaml'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { animatedProgress } from '../utils'
+import { MultiTenantsService } from '../services/multi-tenants-service'
 
 export default class GenerateCr extends Command {
 
@@ -38,7 +39,11 @@ export default class GenerateCr extends Command {
     '<%= config.bin %> <%= command.id %> -i my-registry/my-org/my-bundle',
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
     '<%= config.bin %> <%= command.id %> -o my-cr.yml',
-    '<%= config.bin %> <%= command.id %> -t prod,dev'
+    '<%= config.bin %> <%= command.id %> -t prod,dev',
+    '<%= config.bin %> <%= command.id %> -tenants primary',
+    '<%= config.bin %> <%= command.id %> -e primary',
+    '<%= config.bin %> <%= command.id %> -tenants primary tenant1 tenant2',
+    '<%= config.bin %> <%= command.id %> -e primary tenant1 tenant2'
   ]
 
   static flags = {
@@ -54,6 +59,10 @@ export default class GenerateCr extends Command {
     output: Flags.string({
       char: 'o',
       description: 'Write the result to the specified output file'
+    }),
+    tenants: Flags.string({
+      char: 'e',
+      description: 'Select the tenant names to use, comma separated values'
     }),
     force: Flags.boolean({
       char: 'f',
@@ -142,6 +151,19 @@ export default class GenerateCr extends Command {
       image = `${registry}/${dockerOrganization}/${bundleDescriptor.name}`
     }
 
+    CliUx.ux.action.start('Retrieving tenants list')
+    let cmdTenants: string[] = [];
+    let filteredCmdTenants:string[] = []
+    if (flags.tenants){
+      cmdTenants =  flags.tenants.split(",")
+      filteredCmdTenants=[...new Set(cmdTenants)]
+      if (cmdTenants!==undefined) {
+        await MultiTenantsService.validateTenantList(filteredCmdTenants)
+      }
+    }
+
+    CliUx.ux.action.stop()
+
     CliUx.ux.action.start('Retrieving bundle image tags')
     const tags = await DockerService.listTags(image)
     let digests: Map<string, string> = new Map()
@@ -177,15 +199,25 @@ export default class GenerateCr extends Command {
     const yamlDescriptor = await DockerService.getYamlDescriptorFromImage(
       latestTag
     )
+
+    let tenants: string[] =[]
+
+    const deployedBundleTenants = await MultiTenantsService.getEntandoDeBundleTenants(yamlDescriptor.name,image);
+
+    // eslint-disable-next-line new-cap
+    tenants = [...new Set([...deployedBundleTenants,...filteredCmdTenants])].sort(Intl.Collator().compare)
+
     const customResourceService = new CustomResourceService(
       image,
       filteredTags,
       digests,
-      yamlDescriptor
+      yamlDescriptor,
+      tenants
     )
     const crDescriptor = customResourceService.createCustomResource()
     const yamlContent = YAML.stringify(crDescriptor)
     CliUx.ux.action.stop()
+
     if (flags.output) {
       fs.writeFileSync(flags.output, yamlContent)
     } else {

@@ -51,6 +51,8 @@ export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
   /^(docker:\/\/)*[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
 export const VALID_BUNDLE_FORMAT = `[${DOCKER_PREFIX}]<organization>/<repository> or [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
 
+export const PRIMARY_TENANT = "primary"
+
 export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
 

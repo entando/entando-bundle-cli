@@ -1,4 +1,4 @@
-import { DOCKER_PREFIX } from '../models/bundle-descriptor-constraints'
+import { DOCKER_PREFIX, PRIMARY_TENANT } from '../models/bundle-descriptor-constraints'
 import {
   CustomResourceComponentLabels,
   CustomResourceDescriptor
@@ -43,16 +43,21 @@ export class CustomResourceService {
 
   private readonly yamlDescriptor: YamlBundleDescriptor
 
+  private readonly tenants: string[]
+
   public constructor(
     image: string,
     tags: string[],
     digests: Map<string, string>,
-    yamlDescriptor: YamlBundleDescriptor
+    yamlDescriptor: YamlBundleDescriptor,
+    tenants: string[],
   ) {
     this.image = image
     this.tags = tags
     this.digests = digests
     this.yamlDescriptor = yamlDescriptor
+    this.tenants = tenants ?? [PRIMARY_TENANT]
+    if (this.tenants.length === 0) this.tenants = [PRIMARY_TENANT]
   }
 
   public createCustomResource(): CustomResourceDescriptor {
@@ -66,6 +71,9 @@ export class CustomResourceService {
           BundleService.generateBundleId(this.image),
         labels: {
           'bundle-type': 'standard-bundle'
+        },
+        annotations: {
+          'entando.org/tenants': this.tenants.toString()
         }
       },
       spec: {
