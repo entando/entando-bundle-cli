@@ -33,6 +33,9 @@ describe('generate-cr', () => {
   const yamlDescriptor = BundleDescriptorHelper.newYamlBundleDescriptor()
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .command('generate-cr')
     .catch(error => {
       expect(error.message).contain('not an initialized bundle project')
@@ -42,6 +45,9 @@ describe('generate-cr', () => {
     .it('Exits if is not a valid bundle project')
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .stdout()
     .command(['generate-cr', '--image', 'invalid-format'])
     .catch(error => {
@@ -52,6 +58,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -69,6 +76,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -90,6 +98,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
     })
     .command('generate-cr')
@@ -103,6 +112,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
       sinon
         .stub(ConfigService.prototype, 'getProperty')
@@ -128,6 +138,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
       sinon
         .stub(ConfigService.prototype, 'getProperty')
@@ -173,6 +184,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
       sinon.stub(DockerService, 'listTags').resolves(tags)
       const stubDigestsExecutor =
@@ -208,6 +220,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves([])
     })
     .stdout()
@@ -227,6 +240,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -240,6 +254,9 @@ describe('generate-cr', () => {
     })
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .stdout()
     .stderr()
     .command(['generate-cr', '-o', 'path/to/my-cr.yml'])
@@ -255,6 +272,7 @@ describe('generate-cr', () => {
     .stdout()
     .stderr()
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       const existingCr = path.join(tempDirHelper.tmpDir, 'existing-cr-1.yml')
       fs.writeFileSync(existingCr, '')
@@ -273,6 +291,7 @@ describe('generate-cr', () => {
     .stdout()
     .stderr()
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -300,6 +319,7 @@ describe('generate-cr', () => {
     .stdout()
     .stderr()
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -324,6 +344,9 @@ describe('generate-cr', () => {
     )
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .stdout()
     .stderr()
     .command(['generate-cr', '-f', '-i', 'my-org/my-image'])
@@ -422,6 +445,12 @@ function createStubDigestsExecutor(resultsCount: number) {
   })(Array.from<number>({length: resultsCount}).fill(0))
 }
 
+function createStubEntandoDeBundleTenants() {
+  sinon
+    .stub(MultiTenantsService, 'getEntandoDeBundleTenants')
+    .resolves([])
+}
+
 function createStubMultiTenants(tags: string[], yamlDescriptor: YamlBundleDescriptor) {
     sinon
         .stub(MultiTenantsService, 'getSecretTenantCodes')
@@ -442,3 +471,4 @@ function createStubMultiTenants(tags: string[], yamlDescriptor: YamlBundleDescri
         .stub(DockerService, 'getYamlDescriptorFromImage')
         .resolves(yamlDescriptor)
 }
+
