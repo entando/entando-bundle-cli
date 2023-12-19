@@ -402,6 +402,7 @@ describe('generate-cr', () => {
       .stdout()
       .stderr()
       .do(() => {
+        createStubEntandoDeBundleTenants()
         sinon.stub(DockerService, 'listTags').resolves(allTags)
         const stubDigestsExecutor = createStubDigestsExecutor(expectedTags.length);
         sinon
