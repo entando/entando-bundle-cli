@@ -14,8 +14,19 @@ describe('CustomResourceService', () => {
       widgets: ['widgets/jeff-mfe.yaml', 'widgets/another-mfe.yaml']
     },
     descriptorVersion: 'v6',
-    thumbnail: 'data:image/png;base64,abcdef'
+    thumbnail: 'data:image/png;base64,abcdef',
   }
+    const mockYmlBundleDescriptorMultiTenants = {
+        name: 'mt-bundle',
+        description: 'This is an awesome bundle',
+        components: {
+            plugins: ['plugins/my-service.yaml', 'plugins/another-ms.yaml'],
+            widgets: ['widgets/my-mfe.yaml', 'widgets/another-mfe.yaml']
+        },
+        descriptorVersion: 'v6',
+        thumbnail: 'data:image/png;base64,abcdef',
+        tenants: ['tenant1','tenant2']
+    }
 
   beforeEach(() => {
     sinon.restore()
@@ -28,7 +39,8 @@ describe('CustomResourceService', () => {
         'registry/repo/image',
         ['0.0.2', '0.0.1'],
         new Map(),
-        mockYmlBundleDescriptor
+        mockYmlBundleDescriptor,
+        [],
       )
       const desc = customResourceService.createCustomResource()
       expect(desc.metadata.name).to.eq('jeff-bundle-b03baccb')
@@ -38,6 +50,7 @@ describe('CustomResourceService', () => {
       expect(desc.spec.details.description).to.eq(
         mockYmlBundleDescriptor.description
       )
+
       expect(desc.spec.details['dist-tags'].latest).to.eq('0.0.2')
       expect(desc.spec.details.versions).to.deep.eq(['0.0.2', '0.0.1'])
       expect(desc.spec.details.thumbnail).to.eq('data:image/png;base64,abcdef')
@@ -55,6 +68,7 @@ describe('CustomResourceService', () => {
           tarball: 'docker://registry/repo/image'
         }
       ])
+      expect(desc.metadata.annotations["entando.org/tenants"]).to.eq('primary')
     }
   )
 
@@ -68,7 +82,8 @@ describe('CustomResourceService', () => {
           ['0.0.1', 'sha256:123456'],
           ['0.0.2', 'sha256:654321']
         ]),
-        mockYmlBundleDescriptor
+        mockYmlBundleDescriptor,
+        []
       )
       const desc = customResourceService.createCustomResource()
       expect(desc.metadata.name).to.eq('jeff-bundle-b03baccb')
@@ -115,7 +130,8 @@ describe('CustomResourceService', () => {
       'registry/repo/image',
       ['0.0.2', '0.0.1'],
       new Map(),
-      mockYmlBundleDescriptor
+      mockYmlBundleDescriptor,
+      []
     )
     const desc = customResourceService.createCustomResource()
     expect(desc.metadata.labels.plugin).undefined
@@ -124,4 +140,22 @@ describe('CustomResourceService', () => {
     expect(desc.metadata.labels.category).to.eq('true')
     expect(desc.metadata.labels.label).undefined
   })
+
+  test.it(
+      'CustomResourceService should generate valid annotations with a list of tenants',
+      () => {
+          customResourceService = new CustomResourceService(
+              'registry/repo/image',
+              ['0.0.2', '0.0.1'],
+              new Map(),
+              mockYmlBundleDescriptorMultiTenants,
+              ['tenant1','tenant2'],
+          )
+          const desc = customResourceService.createCustomResource()
+
+          expect(desc.metadata.annotations["entando.org/tenants"]).to.eq(
+              mockYmlBundleDescriptorMultiTenants.tenants.toString()
+          )
+      }
+  )
 })

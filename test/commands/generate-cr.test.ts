@@ -15,6 +15,8 @@ import { StubParallelProcessExecutorService } from '../helpers/mocks/stub-proces
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { CliUx } from '@oclif/core'
+import { MultiTenantsService } from '../../src/services/multi-tenants-service'
+import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
 
 describe('generate-cr', () => {
   const tempDirHelper = new TempDirHelper(__filename)
@@ -31,6 +33,9 @@ describe('generate-cr', () => {
   const yamlDescriptor = BundleDescriptorHelper.newYamlBundleDescriptor()
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .command('generate-cr')
     .catch(error => {
       expect(error.message).contain('not an initialized bundle project')
@@ -40,6 +45,9 @@ describe('generate-cr', () => {
     .it('Exits if is not a valid bundle project')
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .stdout()
     .command(['generate-cr', '--image', 'invalid-format'])
     .catch(error => {
@@ -50,6 +58,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -67,6 +76,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -88,6 +98,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
     })
     .command('generate-cr')
@@ -101,6 +112,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
       sinon
         .stub(ConfigService.prototype, 'getProperty')
@@ -126,6 +138,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
       sinon
         .stub(ConfigService.prototype, 'getProperty')
@@ -171,6 +184,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(BundleService, 'isValidBundleProject')
       sinon.stub(DockerService, 'listTags').resolves(tags)
       const stubDigestsExecutor =
@@ -206,6 +220,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves([])
     })
     .stdout()
@@ -225,6 +240,7 @@ describe('generate-cr', () => {
 
   test
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -238,6 +254,9 @@ describe('generate-cr', () => {
     })
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .stdout()
     .stderr()
     .command(['generate-cr', '-o', 'path/to/my-cr.yml'])
@@ -253,6 +272,7 @@ describe('generate-cr', () => {
     .stdout()
     .stderr()
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       const existingCr = path.join(tempDirHelper.tmpDir, 'existing-cr-1.yml')
       fs.writeFileSync(existingCr, '')
@@ -271,6 +291,7 @@ describe('generate-cr', () => {
     .stdout()
     .stderr()
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -298,6 +319,7 @@ describe('generate-cr', () => {
     .stdout()
     .stderr()
     .do(() => {
+      createStubEntandoDeBundleTenants()
       sinon.stub(DockerService, 'listTags').resolves(tags)
       sinon
         .stub(DockerService, 'getYamlDescriptorFromImage')
@@ -322,6 +344,9 @@ describe('generate-cr', () => {
     )
 
   test
+    .do(() => {
+      createStubEntandoDeBundleTenants()
+    })
     .stdout()
     .stderr()
     .command(['generate-cr', '-f', '-i', 'my-org/my-image'])
@@ -330,6 +355,40 @@ describe('generate-cr', () => {
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it("generate-cr -f can't be used without -o")
+
+  test
+    .do(() => {
+        createStubMultiTenants(tags, yamlDescriptor);
+    })
+    .stdout()
+    .stderr()
+    .command([
+      'generate-cr',
+      '--tenants', 'primary,tenant1,errorTest'
+    ])
+    .catch(error => {
+      expect(error.message).contain(
+        "Tenant errorTest not found"
+      )
+      expect((error as CLIError).oclif.exit).eq(2)
+    })
+    .it('Generate CR with an invalid tenant passed as parameter should return an error')
+
+  test
+    .do(() => {
+        createStubMultiTenants(tags, yamlDescriptor);
+    })
+    .stdout()
+    .stderr()
+    .command([
+      'generate-cr',
+      '--tenants', 'primary,tenant1'
+    ])
+
+    .it('Generate CR with tenants should have a correct list of tenants in annotations', ctx => {
+        expect(ctx.stdout).to.contain('annotations:')
+        expect(ctx.stdout).to.contain('entando.org/tenants: primary,tenant1,tenant2')
+    })
 
 
   // TAG FILTERING TESTS
@@ -343,6 +402,7 @@ describe('generate-cr', () => {
       .stdout()
       .stderr()
       .do(() => {
+        createStubEntandoDeBundleTenants()
         sinon.stub(DockerService, 'listTags').resolves(allTags)
         const stubDigestsExecutor = createStubDigestsExecutor(expectedTags.length);
         sinon
@@ -385,3 +445,31 @@ function createStubDigestsExecutor(resultsCount: number) {
     }
   })(Array.from<number>({length: resultsCount}).fill(0))
 }
+
+function createStubEntandoDeBundleTenants() {
+  sinon
+    .stub(MultiTenantsService, 'getEntandoDeBundleTenants')
+    .resolves([])
+}
+
+function createStubMultiTenants(tags: string[], yamlDescriptor: YamlBundleDescriptor) {
+    sinon
+        .stub(MultiTenantsService, 'getSecretTenantCodes')
+        .resolves(['tenant1', 'tenant2'])
+    sinon
+        .stub(MultiTenantsService, 'getEntandoDeBundleTenants')
+        .resolves(['primary', 'tenant2'])
+    sinon.stub(BundleService, 'isValidBundleProject')
+    sinon
+        .stub(ConfigService.prototype, 'getProperty')
+        .withArgs(DOCKER_ORGANIZATION_PROPERTY)
+        .returns('my-org')
+    sinon.stub(DockerService, 'listTags').resolves(tags)
+    sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(BundleDescriptorHelper.newBundleDescriptor())
+    sinon
+        .stub(DockerService, 'getYamlDescriptorFromImage')
+        .resolves(yamlDescriptor)
+}
+

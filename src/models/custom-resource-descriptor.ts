@@ -34,6 +34,9 @@ export type CustomResourceDescriptor = {
       [key in CustomResourceComponentLabels]?: 'true' | 'false'
     } & {
       'bundle-type': string
+    },
+    annotations: {
+      'entando.org/tenants': string
     }
   }
   spec: {
