@@ -696,7 +696,11 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
           children: NAV_CONSTRAINTS
         }
       }
-    }
+    },
+    bundleDescriptorVersion: {
+      required: false,
+      type: 'string',
+    },
   }
 
 function microfrontendValidator(

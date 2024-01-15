@@ -35,7 +35,10 @@ export enum DBMS {
   Oracle = 'oracle',
   Embedded = 'embedded'
 }
-
+export enum BundleDescriptorVersion {
+  v5 = 'v5',
+  v6 = 'v6'
+}
 export enum SecurityLevel {
   Strict = 'strict',
   Lenient = 'lenient'
@@ -130,6 +133,7 @@ export type BundleDescriptor = {
   global?: {
     nav: Nav[]
   }
+  bundleDescriptorVersion?: BundleDescriptorVersion
 }
 
 export type BundleGroup = {

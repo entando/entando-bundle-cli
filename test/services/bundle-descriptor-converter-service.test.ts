@@ -19,7 +19,8 @@ import {
   DBMS,
   SecurityLevel,
   MicroFrontendType,
-  MicroFrontendAppBuilderSlot
+  MicroFrontendAppBuilderSlot,
+  BundleDescriptorVersion
 } from '../../src/models/bundle-descriptor'
 
 describe('bundle-descriptor-converter-service', () => {
@@ -417,6 +418,71 @@ describe('bundle-descriptor-converter-service', () => {
       descriptorVersion: 'v6',
       description: 'test-bundle-no-thumbnail description',
       components: {}
+    })
+  })
+
+  test.it('test bundle conversion with a specific bundle descriptor version', () => {
+    const bundleDir = tempDirHelper.createInitializedBundleDir(
+      'test-bundle-v5'
+    )
+    const bundleDescriptorPath = path.resolve(
+      bundleDir,
+      ...OUTPUT_FOLDER,
+      'descriptors',
+      BUNDLE_DESCRIPTOR_NAME
+    )
+
+    const converterService = new BundleDescriptorConverterService('docker-org')
+    const bundleDescriptorService = new BundleDescriptorService()
+
+    bundleDescriptorService.createBundleDescriptor({
+      name: 'test-bundle-v5',
+      version: '0.0.1',
+      type: 'bundle',
+      description: 'test-bundle-v5 description',
+      bundleDescriptorVersion: BundleDescriptorVersion.v5,
+      microservices: [
+        {
+          name: 'test-ms',
+          stack: MicroserviceStack.SpringBoot,
+          dbms: DBMS.PostgreSQL,
+          version: '0.0.1',
+          healthCheckPath: '/path/to/check'
+        }
+      ],
+      microfrontends: [
+        {
+          name: 'test-mfe',
+          customElement: 'test-mfe',
+          stack: MicroFrontendStack.React,
+          type: MicroFrontendType.Widget,
+          titles: {
+            en: 'mfe title',
+            it: 'titolo mfe'
+          },
+          group: 'free',
+          publicFolder: 'public',
+          configMfe: 'test-mfe-no-code',
+        }
+      ]
+    })
+
+    fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
+
+    converterService.generateYamlDescriptors({})
+
+    checkYamlFile(bundleDescriptorPath, {
+      name: 'test-bundle-v5',
+      descriptorVersion: 'v5',
+      description: 'test-bundle-v5 description',
+      components: {
+        plugins: [
+          "plugins/test-ms.yaml"
+        ],
+        widgets: [
+          "widgets/test-mfe.yaml"
+        ]
+      }
     })
   })
 })

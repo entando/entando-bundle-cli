@@ -11,7 +11,7 @@ import { MICROSERVICES_FOLDER } from '../../src/paths'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
 import { ComponentHelper } from '../helpers/mocks/component-helper'
-import { MicroFrontendType } from '../../src/models/bundle-descriptor'
+import { BundleDescriptorVersion, MicroFrontendType } from '../../src/models/bundle-descriptor'
 
 describe('component-service', () => {
   let componentService: ComponentService
@@ -179,6 +179,34 @@ describe('component-service', () => {
     })
     .it(
       'Checks for config MFE that has invalid requirements with non-existent mfe name'
+    )
+
+  test
+    .do(() => {
+      const bundleDescriptor = BundleDescriptorHelper.newBundleDescriptor()
+      bundleDescriptor.bundleDescriptorVersion = BundleDescriptorVersion.v5
+      bundleDescriptor.microservices = [
+        ComponentHelper.newMicroservice('ms-name-1', {
+          resources: {
+            cpu: '100m',
+            memory: '20gb',
+            storage: '10gb'
+          }
+        })
+      ]
+
+      sinon
+        .stub(BundleDescriptorService.prototype, 'getBundleDescriptor')
+        .returns(bundleDescriptor)
+      componentService.checkDescriptorFieldsCompatibility()
+    })
+    .catch(error => {
+      expect(error.message).contain(
+        'Incompatible "resources" field for the microservice ms-name-1, this field can\'t be set in v5 bundle version'
+      )
+    })
+    .it(
+      'Check bundle v5 fields compatibility'
     )
 
   test
