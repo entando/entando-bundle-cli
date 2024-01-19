@@ -86,11 +86,12 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "type" with value "external" requires field "bundle" to have a value'
+        'One field between "bundle" and "bundleReference" must be set.'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it('Validates external api claim type field dependency')
+
 
   test
     .do(() => {
@@ -296,12 +297,41 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'Field "type" with value "external" requires field "bundle" to have a value'
+        'One field between "bundle" and "bundleReference" must be set.'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
       'Validates mutual dependency between external API claim and bundle field'
+    )
+
+  test
+    .do(() => {
+      const invalidDescriptor: any =
+        BundleDescriptorHelper.newBundleDescriptor()
+      invalidDescriptor.microfrontends[1].apiClaims = [
+        {
+          name: 'bad-claim',
+          type: 'external',
+          serviceName: 'my-service',
+          bundle: "my-bundle",
+          bundleReference: "my-bundle-reference",
+        }
+      ]
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
+      expect(error.message).contain(
+        'It\'s not possible to set "bundle" and "bundleReference" at the same time.'
+      )
+      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
+    })
+    .it(
+      'Validates mutual exclusivity between bundle field and bundleReference field for external API claim'
     )
 
   test
@@ -331,6 +361,7 @@ describe('BundleDescriptorValidatorService', () => {
     .it(
       'Validates inverse mutual dependency between external API claim and bundle field'
     )
+
 
   test
     .do(() => {

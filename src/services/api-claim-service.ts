@@ -43,16 +43,22 @@ export class ApiClaimService {
       )
     }
 
-    const bundleId = BundleService.generateBundleId(apiClaim.bundle)
-    const cmService = new CmService()
-    const { ingressPath } = await cmService.getBundleMicroservice(
-      bundleId,
-      apiClaim.serviceName
-    )
-    const url = `${process.env.ENTANDO_CLI_BASE_URL}${ingressPath}`
+    let bundleId = ""
 
-    this.addApiClaim(mfeName, apiClaim)
-    this.updateMfeConfigApiClaim(mfeName, apiClaim.name, url)
+    if (apiClaim.bundle) {
+        bundleId = BundleService.generateBundleId(apiClaim.bundle)
+
+        const cmService = new CmService()
+        const { ingressPath } = await cmService.getBundleMicroservice(
+          bundleId,
+          apiClaim.serviceName
+        )
+
+        const url = `${process.env.ENTANDO_CLI_BASE_URL}${ingressPath}`
+
+        this.addApiClaim(mfeName, apiClaim)
+        this.updateMfeConfigApiClaim(mfeName, apiClaim.name, url)
+    }
   }
 
   public removeApiClaim(mfeName: string, claimName: string): void {

@@ -163,7 +163,8 @@ export interface ApiClaim {
 }
 
 export interface ExternalApiClaim extends ApiClaim {
-  bundle: string
+  bundle?: string
+  bundleReference?: string
 }
 
 export type Nav = {

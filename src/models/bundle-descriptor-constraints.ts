@@ -30,7 +30,8 @@ import {
   maxLength,
   exclusive,
   JsonPath,
-  JsonValidationError
+  JsonValidationError,
+  mutualExclusive
 } from '../services/constraints-validator-service'
 
 export const ALLOWED_NAME_REGEXP = /^[\da-z]+(?:(\.|_{1,2}|-+)[\da-z]+)*$/
@@ -139,17 +140,32 @@ const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
         type: 'string'
       },
       bundle: {
-        required: true,
+        required: false,
         type: 'string',
         validators: [bundleRegExpValidator]
+      },
+      bundleReference: {
+        required: false,
+        type: 'string',
       }
     }
   ],
   validators: [
-    mutualDependency(
-      { key: 'type', value: ApiType.External },
-      { key: 'bundle' }
-    )
+    mutualExclusive(
+      { key: 'bundle' },
+      { key: 'bundleReference' },
+      { key: 'type', value: ApiType.External }
+    ),
+    fieldDependsOn(
+      { key: 'bundle' },
+      { key: 'type', value: ApiType.External }
+
+    ),
+    fieldDependsOn(
+      { key: 'bundleReference' },
+      { key: 'type', value: ApiType.External }
+    ),
+
   ]
 }
 
