@@ -10,7 +10,10 @@ import {
   INVALID_VERSION_MESSAGE,
   VALID_CONTEXT_PARAM_FORMAT
 } from '../../src/models/bundle-descriptor-constraints'
-import { BundleDescriptorHelper } from '../helpers/mocks/bundle-descriptor-helper'
+import {
+  BundleDescriptorHelper,
+  mockBundleWithInvalidBundleDescriptorVersion,
+} from '../helpers/mocks/bundle-descriptor-helper'
 import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../../src/models/yaml-bundle-descriptor-constraints'
 import {
@@ -19,6 +22,7 @@ import {
 } from '../../src/models/component'
 import * as sinon from 'sinon'
 import { existsSyncMock } from '../helpers/mocks/validator-helper'
+import {BundleDescriptorService} from "../../src/services/bundle-descriptor-service";
 
 describe('BundleDescriptorValidatorService', () => {
   afterEach(() => {
@@ -31,6 +35,23 @@ describe('BundleDescriptorValidatorService', () => {
       BUNDLE_DESCRIPTOR_CONSTRAINTS
     )
   })
+
+  test
+    .do(() => {
+      const bundleDescriptorService = new BundleDescriptorService()
+      bundleDescriptorService.writeDescriptor(mockBundleWithInvalidBundleDescriptorVersion)
+      const invalidDescriptor = bundleDescriptorService.getBundleDescriptor();
+      console.log(invalidDescriptor)
+      ConstraintsValidatorService.validateObjectConstraints(
+        invalidDescriptor,
+        BUNDLE_DESCRIPTOR_CONSTRAINTS
+      )
+    })
+    .catch(error => {
+      console.log(error)
+      expect(error.message).contain('Field "bundleDescriptorVersion" is not valid. Allowed values are: v5, v6')
+    })
+    .it('Validates invalid bundleDescriptorVersion')
 
   test
     .do(() => {
@@ -1128,4 +1149,5 @@ describe('Validates YAML descriptor', () => {
       expect(error.message).contain('$.ext.nav[0].target')
     })
     .it('Validates invalid nav target')
+
 })

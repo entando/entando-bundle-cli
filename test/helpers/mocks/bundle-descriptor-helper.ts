@@ -118,6 +118,17 @@ export class BundleDescriptorHelper {
   }
 }
 
+export const mockBundleWithInvalidBundleDescriptorVersion=
+  `{
+    "name": "test-bundle-v99999",
+    "version": "0.0.1",
+    "type": "bundle",
+    "description": "test description",
+    "bundleDescriptorVersion": "v99999",
+    "microservices": [],
+    "microfrontends": []
+  }`
+
 export const mocksExpectedErrorWithInput = [
   {
     expectedLineError: 9,

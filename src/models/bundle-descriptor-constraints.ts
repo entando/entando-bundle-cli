@@ -16,7 +16,8 @@ import {
   Resources,
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
-  WidgetParam
+  WidgetParam,
+  BundleDescriptorVersion
 } from './bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from './component'
 import {
@@ -700,6 +701,7 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
     bundleDescriptorVersion: {
       required: false,
       type: 'string',
+      validators: [values(BundleDescriptorVersion)]
     },
   }
 
