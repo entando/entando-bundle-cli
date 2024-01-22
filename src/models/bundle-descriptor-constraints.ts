@@ -16,7 +16,8 @@ import {
   Resources,
   WidgetConfigMicroFrontend,
   WidgetMicroFrontend,
-  WidgetParam
+  WidgetParam,
+  BundleDescriptorVersion
 } from './bundle-descriptor'
 import { MicroFrontendStack, MicroserviceStack } from './component'
 import {
@@ -696,7 +697,12 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
           children: NAV_CONSTRAINTS
         }
       }
-    }
+    },
+    bundleDescriptorVersion: {
+      required: false,
+      type: 'string',
+      validators: [values(BundleDescriptorVersion)]
+    },
   }
 
 function microfrontendValidator(

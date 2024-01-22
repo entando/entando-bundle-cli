@@ -68,6 +68,7 @@ export class BundleDescriptorService {
       const componentService = new ComponentService()
       componentService.checkDuplicatedComponentNames()
       componentService.checkConfigMfes()
+      componentService.checkDescriptorFieldsCompatibility()
       return bundleDescriptor
     } catch (error) {
       throw new CLIError(

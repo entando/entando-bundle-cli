@@ -2,6 +2,7 @@ import {
   ApiClaim,
   ApiType,
   BundleDescriptor,
+  BundleDescriptorVersion,
   DBMS,
   EnvironmentVariable,
   ExternalApiClaim,
@@ -67,7 +68,7 @@ export class BundleDescriptorConverterService {
     const bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
 
     for (const microFrontend of bundleDescriptor.microfrontends) {
-      this.generateMicroFrontendYamlDescriptor(microFrontend)
+      this.generateMicroFrontendYamlDescriptor(microFrontend, bundleDescriptor.bundleDescriptorVersion)
     }
 
     const versionedMicroservices = this.componentService.getVersionedComponents(
@@ -80,7 +81,8 @@ export class BundleDescriptorConverterService {
       )!
       this.generateMicroserviceYamlDescriptor(
         microservice,
-        versionedMicroservice.version
+        versionedMicroservice.version,
+        bundleDescriptor.bundleDescriptorVersion
       )
     }
 
@@ -91,7 +93,7 @@ export class BundleDescriptorConverterService {
     )
   }
 
-  private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend) {
+  private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend, bundleDescriptorVersion: BundleDescriptorVersion | undefined) {
     const customUiFile = path.resolve(
       MICROFRONTENDS_FOLDER,
       microFrontend.name,
@@ -104,7 +106,8 @@ export class BundleDescriptorConverterService {
       | YamlWidgetConfigDescriptor
       | YamlAppBuilderWidgetDescriptor = this.mapMicroFrontendToYamlDescriptor(
       microFrontend,
-      customUiFileExists
+      customUiFileExists,
+      bundleDescriptorVersion
     )
 
     if (customUiFileExists) {
@@ -145,7 +148,8 @@ export class BundleDescriptorConverterService {
 
   private mapMicroFrontendToYamlDescriptor(
     microFrontend: MicroFrontend,
-    customUiFileExists: boolean
+    customUiFileExists: boolean,
+    bundleDescriptorVersion: BundleDescriptorVersion | undefined
   ):
     | YamlWidgetDescriptor
     | YamlWidgetConfigDescriptor
@@ -157,7 +161,7 @@ export class BundleDescriptorConverterService {
       type: microFrontend.type,
       ...('titles' in microFrontend && { titles: microFrontend.titles }),
       group: microFrontend.group,
-      descriptorVersion: WIDGET_DESCRIPTOR_VERSION,
+      descriptorVersion: bundleDescriptorVersion ?? WIDGET_DESCRIPTOR_VERSION,
       ...(microFrontend.customElement
         ? { customElement: microFrontend.customElement }
         : {}),
@@ -238,11 +242,12 @@ export class BundleDescriptorConverterService {
 
   private generateMicroserviceYamlDescriptor(
     microservice: Microservice,
-    version: string
+    version: string,
+    bundleDescriptorVersion?: string,
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
       name: microservice.name,
-      descriptorVersion: PLUGIN_DESCRIPTOR_VERSION,
+      descriptorVersion: bundleDescriptorVersion ?? PLUGIN_DESCRIPTOR_VERSION,
       dbms: microservice.dbms ?? DBMS.None,
       image: DockerService.getDockerImageName(
         this.dockerOrganization,
@@ -304,7 +309,7 @@ export class BundleDescriptorConverterService {
       description: bundleDescriptor.description,
       components: {},
       ext: bundleDescriptor.global,
-      descriptorVersion: BUNDLE_DESCRIPTOR_VERSION
+      descriptorVersion: bundleDescriptor.bundleDescriptorVersion ?? BUNDLE_DESCRIPTOR_VERSION
     }
     if (thumbnail?.base64) {
       yamlBundleDescriptor.thumbnail = thumbnail.base64

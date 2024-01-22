@@ -1,5 +1,5 @@
 import {
-  BundleDescriptor,
+  BundleDescriptor, BundleDescriptorVersion,
   Commands,
   MicroFrontend,
   MicroFrontendType,
@@ -48,7 +48,7 @@ export class ComponentService {
   }
 
   public getComponents(type?: ComponentType): Array<Component<ComponentType>> {
-    const { microfrontends, microservices }: BundleDescriptor =
+    const {microfrontends, microservices}: BundleDescriptor =
       this.bundleDescriptorService.getBundleDescriptor()
 
     let components: Array<Component<ComponentType>>
@@ -180,6 +180,20 @@ export class ComponentService {
       ) {
         throw new CLIError(
           `configMfe value ${mfe.configMfe} for MFE ${mfe.name} must be an existing widget-config MFE in the project or a platform provided config MFE, defined with the ${PREFIX_GLOBAL_WIDGET}<name> syntax`
+        )
+      }
+    }
+  }
+
+  public checkDescriptorFieldsCompatibility(): void {
+    const bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
+    const bundleDescriptorVersion = bundleDescriptor.bundleDescriptorVersion;
+
+    for (const ms of bundleDescriptor.microservices) {
+      // Microservice Resources has been added starting from v6 bundles
+      if (ms.resources && bundleDescriptorVersion === BundleDescriptorVersion.v5) {
+        throw new CLIError(
+          `Incompatible "resources" field for the microservice ${ms.name}, this field can't be set in v5 bundle version`
         )
       }
     }
