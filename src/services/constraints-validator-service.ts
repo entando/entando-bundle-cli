@@ -213,6 +213,27 @@ export function mutualDependency(
   }
 }
 
+export function mutualExclusive(
+  field1: Field,
+  field2: Field,
+  filter?: Field,
+  mandatoryField?: boolean): UnionTypeValidator {
+  mandatoryField ??= true
+
+  return function (object: any, jsonPath) {
+    if (filter===undefined || object[filter.key] === filter.value) {
+        if (object[field1.key] !== undefined && object[field2.key] !== undefined) {
+        const message = `It's not possible to set "${field1.key}" and "${field2.key}" at the same time.`
+        throw new PrioritizedValidationError(message, jsonPath)
+      }
+      else if (mandatoryField && object[field1.key] === undefined && object[field2.key] === undefined) {
+        const message = `One field between "${field1.key}" and "${field2.key}" must be set.`
+        throw new PrioritizedValidationError(message, jsonPath)
+      }
+    }
+  }
+}
+
 export function valueNotEqualTo(
   field: Field,
   targetField: Field

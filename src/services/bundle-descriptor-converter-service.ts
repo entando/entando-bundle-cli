@@ -207,14 +207,26 @@ export class BundleDescriptorConverterService {
     const yamlApiClaims: Array<YamlInternalApiClaim | YamlExternalApiClaim> = []
     for (const apiClaim of apiClaims) {
       if (apiClaim.type === ApiType.External) {
-        yamlApiClaims.push({
-          type: ApiType.External,
-          name: apiClaim.name,
-          pluginName: apiClaim.serviceName,
-          bundleId: BundleService.generateBundleId(
-            (apiClaim as ExternalApiClaim).bundle
-          )
-        })
+        const bundle = (apiClaim as ExternalApiClaim).bundle
+        const bundleReference = (apiClaim as ExternalApiClaim).bundleReference
+        let generatedBundleId = ""
+        if (bundleReference) {
+          yamlApiClaims.push({
+            type: ApiType.External,
+            name: apiClaim.name,
+            pluginName: apiClaim.serviceName,
+            bundleReference: bundleReference
+          })
+        }
+        else if (bundle){
+          generatedBundleId = BundleService.generateBundleId(bundle)
+          yamlApiClaims.push({
+            type: ApiType.External,
+            name: apiClaim.name,
+            pluginName: apiClaim.serviceName,
+            bundleId: generatedBundleId
+          })
+        }
       } else {
         yamlApiClaims.push({
           type: ApiType.Internal,

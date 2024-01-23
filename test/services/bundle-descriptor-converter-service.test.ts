@@ -25,6 +25,10 @@ import {
 describe('bundle-descriptor-converter-service', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
+  afterEach(() => {
+    sinon.restore()
+  })
+
   test.it('test bundle descriptors conversion', () => {
     const bundleDir = tempDirHelper.createInitializedBundleDir('test-bundle')
 
@@ -409,6 +413,97 @@ describe('bundle-descriptor-converter-service', () => {
       components: {}
     })
   })
+
+test.it('test bundle descriptors conversion using bundleReference for external Api claims', () => {
+  const bundleDir = tempDirHelper.createInitializedBundleDir('test-bundle-api-claim')
+
+  const bundleDescriptorService = new BundleDescriptorService()
+
+  bundleDescriptorService.createBundleDescriptor({
+    name: 'test-bundle',
+    version: '0.0.1',
+    type: 'bundle',
+    description: 'test description',
+    microservices: [],
+    microfrontends: [
+      {
+        name: 'test-mfe',
+        customElement: 'test-mfe',
+        stack: MicroFrontendStack.React,
+        type: MicroFrontendType.Widget,
+        titles: {
+          en: 'mfe title',
+          it: 'titolo mfe'
+        },
+        group: 'free',
+        publicFolder: 'public',
+        configMfe: 'test-mfe-no-code',
+        apiClaims: [
+          {
+            name: 'my-api-claim',
+            type: ApiType.Internal,
+            serviceName: 'my-ms'
+          },
+          {
+            name: 'my-external-api-claim',
+            type: ApiType.External,
+            serviceName: 'my-ms-2',
+            bundleReference: 'image-registry/image-org/bundle-ref-1'
+          }
+        ],
+      }
+    ]
+  })
+
+  fs.writeFileSync(`${bundleDir}/thumbnail.png`, 'this is a thumbnail')
+
+  const converterService = new BundleDescriptorConverterService('docker-org')
+
+  converterService.generateYamlDescriptors(
+    {
+      assets: ['assets/my-image.yml']
+    },
+    {
+      path: `${bundleDir}/thumbnail.png`,
+      size: 47,
+      status: ThumbnailStatusMessage.OK,
+      base64: Buffer.from('this is a thumbnail').toString('base64')
+    }
+  )
+
+  const mfeDescriptorPath = path.resolve(
+    bundleDir,
+    ...OUTPUT_FOLDER,
+    'descriptors',
+    'widgets',
+    'test-mfe.yaml'
+  )
+  checkYamlFile(mfeDescriptorPath, {
+    name: 'test-mfe',
+    customElement: 'test-mfe',
+    titles: {
+      en: 'mfe title',
+      it: 'titolo mfe'
+    },
+    group: 'free',
+    descriptorVersion: 'v5',
+    type: 'widget',
+    configMfe: 'test-mfe-no-code',
+    apiClaims: [
+      { name: 'my-api-claim', type: ApiType.Internal, pluginName: 'my-ms' },
+      {
+        name: 'my-external-api-claim',
+        type: ApiType.External,
+        pluginName: 'my-ms-2',
+        bundleReference: 'image-registry/image-org/bundle-ref-1'
+      }
+    ],
+    params: [],
+  })
+
+})
+
+
 })
 
 function checkYamlFile(filePath: string, expectedContent: any) {
