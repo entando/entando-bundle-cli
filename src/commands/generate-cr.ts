@@ -74,6 +74,16 @@ export default class GenerateCr extends Command {
       multiple: true,
       description: 'Accepted tag types, comma separated values. Accepted values are ' + [...GenerateCr.tagTypeStrategies.keys()].join(", ")
     }),
+    overwriteTenants: Flags.boolean({
+      char: 'v',
+      description: 'Overwrite the bundle cr tenants list with the value passed in the tenants parameter',
+      dependsOn: ['tenants']
+    }),
+    forceOverwriteTenants: Flags.boolean({
+      char: 'w',
+      description: 'Suppress the confirmation prompt in case of bundle cr tenants overwrite',
+      dependsOn: ['overwriteTenants'],
+    }),
   }
 
   public async run(): Promise<void> {
@@ -151,15 +161,32 @@ export default class GenerateCr extends Command {
       image = `${registry}/${dockerOrganization}/${bundleDescriptor.name}`
     }
 
-    CliUx.ux.action.start('Retrieving tenants list')
+    if (!flags.overwriteTenants) {
+      CliUx.ux.action.start('Retrieving tenants list')
+    }
+
     let cmdTenants: string[] = [];
     let filteredCmdTenants:string[] = []
-    if (flags.tenants){
-      cmdTenants =  flags.tenants.split(",")
-      filteredCmdTenants=[...new Set(cmdTenants)]
-      if (cmdTenants!==undefined) {
-        await MultiTenantsService.validateTenantList(filteredCmdTenants)
+
+    if ((flags.overwriteTenants) && (!flags.forceOverwriteTenants)) {
+      const overwriteAnnotations = await CliUx.ux.confirm(
+        color.yellow(
+          `The tenant list in the Bundle CR will be set to ${flags.tenants}.
+Please double check if the bundle is already deployed in the entando tenants, this operation will undeploy the bundle from tenants not passed as parameter.
+Do you want to write it skipping the entando-tenants-secret checks? [y/n]`
+        )
+      )
+      if (!overwriteAnnotations) {
+        return
       }
+    }
+
+    if (flags.tenants) {
+      cmdTenants = flags.tenants.split(",")
+      filteredCmdTenants = [...new Set(cmdTenants)]
+      if(!flags.overwriteTenants && cmdTenants !== undefined) {
+          await MultiTenantsService.validateTenantList(filteredCmdTenants)
+        }
     }
 
     CliUx.ux.action.stop()
@@ -201,11 +228,21 @@ export default class GenerateCr extends Command {
     )
 
     let tenants: string[] =[]
+    let deployedBundleTenants: string[] =[]
+    if(!flags.overwriteTenants) {
+      deployedBundleTenants = await MultiTenantsService.getEntandoDeBundleTenants(yamlDescriptor.name, image);
+    }
 
-    const deployedBundleTenants = await MultiTenantsService.getEntandoDeBundleTenants(yamlDescriptor.name,image);
-
-    // eslint-disable-next-line new-cap
-    tenants = [...new Set([...deployedBundleTenants,...filteredCmdTenants])].sort(Intl.Collator().compare)
+    // Force the tenants metadata using the list passed in tenants parameter skipping the tenant-secrets check
+    if (flags.overwriteTenants) {
+      if (flags.tenants) {
+        tenants = cmdTenants
+      }
+    }
+    else {
+      // eslint-disable-next-line new-cap
+      tenants = [...new Set([...deployedBundleTenants,...filteredCmdTenants])].sort(Intl.Collator().compare)
+    }
 
     const customResourceService = new CustomResourceService(
       image,
@@ -227,7 +264,6 @@ export default class GenerateCr extends Command {
   }
 
   public filterTagsByAllowedTypes(tagTypes: string[], tags: string[]): string[] {
-
     return tagTypes.flatMap(tagType => {
       const strategy = GenerateCr.tagTypeStrategies.get(tagType);
       return tags.filter((tag) => strategy && strategy(tag))
