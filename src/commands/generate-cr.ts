@@ -40,9 +40,9 @@ export default class GenerateCr extends Command {
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
     '<%= config.bin %> <%= command.id %> -o my-cr.yml',
     '<%= config.bin %> <%= command.id %> -t prod,dev',
-    '<%= config.bin %> <%= command.id %> -tenants primary',
+    '<%= config.bin %> <%= command.id %> --tenants primary',
     '<%= config.bin %> <%= command.id %> -e primary',
-    '<%= config.bin %> <%= command.id %> -tenants primary tenant1 tenant2',
+    '<%= config.bin %> <%= command.id %> --tenants primary tenant1 tenant2',
     '<%= config.bin %> <%= command.id %> -e primary tenant1 tenant2'
   ]
 
@@ -227,22 +227,15 @@ Do you want to write it skipping the entando-tenants-secret checks? [y/n]`
       latestTag
     )
 
-    let tenants: string[] =[]
     let deployedBundleTenants: string[] =[]
     if(!flags.overwriteTenants) {
       deployedBundleTenants = await MultiTenantsService.getEntandoDeBundleTenants(yamlDescriptor.name, image);
     }
 
     // Force the tenants metadata using the list passed in tenants parameter skipping the tenant-secrets check
-    if (flags.overwriteTenants) {
-      if (flags.tenants) {
-        tenants = cmdTenants
-      }
-    }
-    else {
+    const tenants = flags.overwriteTenants && flags.tenants ? cmdTenants :
       // eslint-disable-next-line new-cap
-      tenants = [...new Set([...deployedBundleTenants,...filteredCmdTenants])].sort(Intl.Collator().compare)
-    }
+      [...new Set([...deployedBundleTenants,...filteredCmdTenants])].sort(Intl.Collator().compare);
 
     const customResourceService = new CustomResourceService(
       image,
