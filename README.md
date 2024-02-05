@@ -181,16 +181,18 @@ Generate the Entando Custom Resource (CR) for a bundle project
 
 ```
 USAGE
-  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-e <value>] [-f -o <value>] [-t <value>]
+  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-f -o <value>] [-t <value>] [-w [-v -e <value>]]
 
 FLAGS
-  -d, --digest               Include Docker images digests
-  -e, --tenants=<value>      Select the tenant names to use, comma separated values
-  -f, --force                Suppress the confirmation prompt in case of file overwrite
-  -i, --image=<value>        Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
-                             [docker://]<registry>/<organization>/<repository>
-  -o, --output=<value>       Write the result to the specified output file
-  -t, --tagtypes=<value>...  Accepted tag types, comma separated values. Accepted values are dev, prod
+  -d, --digest                 Include Docker images digests
+  -e, --tenants=<value>        Select the tenant names to use, comma separated values
+  -f, --force                  Suppress the confirmation prompt in case of file overwrite
+  -i, --image=<value>          Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
+                               [docker://]<registry>/<organization>/<repository>
+  -o, --output=<value>         Write the result to the specified output file
+  -t, --tagtypes=<value>...    Accepted tag types, comma separated values. Accepted values are dev, prod
+  -v, --overwriteTenants       Overwrite the bundle cr tenants list with the value passed in the tenants parameter
+  -w, --forceOverwriteTenants  Suppress the confirmation prompt in case of bundle cr tenants overwrite
 
 DESCRIPTION
   Generate the Entando Custom Resource (CR) for a bundle project
@@ -208,11 +210,11 @@ EXAMPLES
 
   $ entando-bundle-cli generate-cr -t prod,dev
 
-  $ entando-bundle-cli generate-cr -tenants primary
+  $ entando-bundle-cli generate-cr --tenants primary
 
   $ entando-bundle-cli generate-cr -e primary
 
-  $ entando-bundle-cli generate-cr -tenants primary tenant1 tenant2
+  $ entando-bundle-cli generate-cr --tenants primary tenant1 tenant2
 
   $ entando-bundle-cli generate-cr -e primary tenant1 tenant2
 ```
