@@ -40,10 +40,10 @@ export default class GenerateCr extends Command {
     '<%= config.bin %> <%= command.id %> --image=my-org/my-bundle --digest',
     '<%= config.bin %> <%= command.id %> -o my-cr.yml',
     '<%= config.bin %> <%= command.id %> -t prod,dev',
-    '<%= config.bin %> <%= command.id %> --tenants primary',
+    '<%= config.bin %> <%= command.id %> --tenants=primary',
     '<%= config.bin %> <%= command.id %> -e primary',
-    '<%= config.bin %> <%= command.id %> --tenants primary tenant1 tenant2',
-    '<%= config.bin %> <%= command.id %> -e primary tenant1 tenant2'
+    '<%= config.bin %> <%= command.id %> --tenants=primary,tenant1,tenant2',
+    '<%= config.bin %> <%= command.id %> -e primary,tenant1,tenant2'
   ]
 
   static flags = {
@@ -66,8 +66,7 @@ export default class GenerateCr extends Command {
     }),
     force: Flags.boolean({
       char: 'f',
-      description: 'Suppress the confirmation prompt in case of file overwrite',
-      dependsOn: ['output']
+      description: 'Suppress the confirmation prompt if output or overwriteTenants are selected',
     }),
     tagtypes: Flags.string({
       char: 't',
@@ -75,19 +74,17 @@ export default class GenerateCr extends Command {
       description: 'Accepted tag types, comma separated values. Accepted values are ' + [...GenerateCr.tagTypeStrategies.keys()].join(", ")
     }),
     overwriteTenants: Flags.boolean({
-      char: 'v',
       description: 'Overwrite the bundle cr tenants list with the value passed in the tenants parameter',
       dependsOn: ['tenants']
-    }),
-    forceOverwriteTenants: Flags.boolean({
-      char: 'w',
-      description: 'Suppress the confirmation prompt in case of bundle cr tenants overwrite',
-      dependsOn: ['overwriteTenants'],
     }),
   }
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GenerateCr)
+
+    if (flags.force && (!flags.output && !flags.overwriteTenants)) {
+      this.error('Force flag can be used only if output or overwriteTenants are selected')
+    }
 
     if (flags.tagtypes
       && flags.tagtypes.length > 0
@@ -168,7 +165,7 @@ export default class GenerateCr extends Command {
     let cmdTenants: string[] = [];
     let filteredCmdTenants:string[] = []
 
-    if ((flags.overwriteTenants) && (!flags.forceOverwriteTenants)) {
+    if ((flags.overwriteTenants ) && (!flags.force )) {
       const overwriteAnnotations = await CliUx.ux.confirm(
         color.yellow(
           `The tenant list in the Bundle CR will be set to ${flags.tenants}.

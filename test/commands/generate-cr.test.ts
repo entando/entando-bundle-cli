@@ -343,6 +343,7 @@ describe('generate-cr', () => {
       }
     )
 
+
   test
     .do(() => {
       createStubEntandoDeBundleTenants()
@@ -351,10 +352,10 @@ describe('generate-cr', () => {
     .stderr()
     .command(['generate-cr', '-f', '-i', 'my-org/my-image'])
     .catch(error => {
-      expect(error.message).contain('must also be provided when using')
+      expect(error.message).contain('Force flag can be used only if output or overwriteTenants are selected')
       expect((error as CLIError).oclif.exit).eq(2)
     })
-    .it("generate-cr -f can't be used without -o")
+    .it("generate-cr -f can't be used without output or overwriteTenants flags")
 
   test
     .do(() => {
@@ -400,7 +401,7 @@ describe('generate-cr', () => {
       'generate-cr',
       '--tenants', 'tenant1',
       '--overwriteTenants',
-      '--forceOverwriteTenants'
+      '--force'
     ])
 
     .it('Generate CR with tenants and overwrite flags should have a correct list of tenants in metadata annotations', ctx => {
