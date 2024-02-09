@@ -30,14 +30,6 @@ describe('BundleDescriptorValidatorService', () => {
 
   let bundleDir: string
 
-  before(() => {
-    bundleDir = tempDirHelper.createInitializedBundleDir()
-  })
-
-  beforeEach(() => {
-    process.chdir(bundleDir)
-  })
-
   afterEach(() => {
     sinon.restore()
   })
@@ -52,6 +44,8 @@ describe('BundleDescriptorValidatorService', () => {
   test
     .do(() => {
       const bundleDescriptorService = new BundleDescriptorService()
+      bundleDir = tempDirHelper.createInitializedBundleDir()
+      process.chdir(bundleDir)
       bundleDescriptorService.writeDescriptor(mockBundleWithInvalidBundleDescriptorVersion)
       const invalidDescriptor = bundleDescriptorService.getBundleDescriptor();
       ConstraintsValidatorService.validateObjectConstraints(
