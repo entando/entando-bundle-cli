@@ -28,8 +28,6 @@ import {TempDirHelper} from "../helpers/temp-dir-helper";
 describe('BundleDescriptorValidatorService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
 
-  let bundleDir: string
-
   afterEach(() => {
     sinon.restore()
   })
@@ -44,7 +42,7 @@ describe('BundleDescriptorValidatorService', () => {
   test
     .do(() => {
       const bundleDescriptorService = new BundleDescriptorService()
-      bundleDir = tempDirHelper.createInitializedBundleDir()
+      const bundleDir = tempDirHelper.createInitializedBundleDir()
       process.chdir(bundleDir)
       bundleDescriptorService.writeDescriptor(mockBundleWithInvalidBundleDescriptorVersion)
       const invalidDescriptor = bundleDescriptorService.getBundleDescriptor();
