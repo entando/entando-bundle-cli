@@ -22,8 +22,8 @@ import {
 } from '../../src/models/component'
 import * as sinon from 'sinon'
 import { existsSyncMock } from '../helpers/mocks/validator-helper'
-import {BundleDescriptorService} from "../../src/services/bundle-descriptor-service";
-import {TempDirHelper} from "../helpers/temp-dir-helper";
+import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 
 describe('BundleDescriptorValidatorService', () => {
   const tempDirHelper = new TempDirHelper(__filename)
