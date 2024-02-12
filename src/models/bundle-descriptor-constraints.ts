@@ -32,6 +32,7 @@ import {
   maxLength,
   exclusive,
   JsonPath,
+  mutualExclusive,
   JsonValidationError,
   validateCustomElement
 } from '../services/constraints-validator-service'
@@ -52,7 +53,7 @@ export const ALLOWED_BUNDLE_WITH_REGISTRY_REGEXP =
   /^(docker:\/\/)*[\w.-]+(:\d+)?(?:\/[\w-]+){2}$/
 export const VALID_BUNDLE_FORMAT = `[${DOCKER_PREFIX}]<organization>/<repository> or [${DOCKER_PREFIX}]<registry>/<organization>/<repository>`
 
-export const PRIMARY_TENANT = "primary"
+export const PRIMARY_TENANT = 'primary'
 
 export const VALID_CONTEXT_PARAM_FORMAT =
   'Valid format for a contextParam is <code>_<value> where:\n - code is one of: page, info or systemParam\n - value is an alphanumeric string'
@@ -149,16 +150,26 @@ export const API_CLAIMS_CONSTRAINTS: UnionTypeConstraints<
         type: 'string'
       },
       bundle: {
-        required: true,
+        required: false,
         type: 'string',
         validators: [bundleRegExpValidator]
+      },
+      bundleReference: {
+        required: false,
+        type: 'string'
       }
     }
   ],
   validators: [
-    mutualDependency(
-      { key: 'type', value: ApiType.External },
-      { key: 'bundle' }
+    mutualExclusive(
+      { key: 'bundle' },
+      { key: 'bundleReference' },
+      { key: 'type', value: ApiType.External }
+    ),
+    fieldDependsOn({ key: 'bundle' }, { key: 'type', value: ApiType.External }),
+    fieldDependsOn(
+      { key: 'bundleReference' },
+      { key: 'type', value: ApiType.External }
     )
   ]
 }
@@ -702,7 +713,7 @@ export const BUNDLE_DESCRIPTOR_CONSTRAINTS: ObjectConstraints<BundleDescriptor> 
       required: false,
       type: 'string',
       validators: [values(BundleDescriptorVersion)]
-    },
+    }
   }
 
 function microfrontendValidator(
