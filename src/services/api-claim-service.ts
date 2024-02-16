@@ -43,13 +43,10 @@ export class ApiClaimService {
       )
     }
 
-    let bundleId = ''
-
     if (apiClaim.bundle) {
-      bundleId = BundleService.generateBundleId(apiClaim.bundle)
+      const bundleId = BundleService.generateBundleId(apiClaim.bundle)
 
-      const cmService = new CmService()
-      const { ingressPath } = await cmService.getBundleMicroservice(
+      const { ingressPath } = await new CmService().getBundleMicroservice(
         bundleId,
         apiClaim.serviceName
       )
