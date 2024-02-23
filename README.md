@@ -181,17 +181,18 @@ Generate the Entando Custom Resource (CR) for a bundle project
 
 ```
 USAGE
-  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-o <value>] [-f] [-t <value>] [--overwriteTenants -e
-    <value>]
+  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-f -o <value>] [-t <value>] [--forceOverwriteTenants
+    [--overwriteTenants -e <value>]]
 
 FLAGS
   -d, --digest               Include Docker images digests
   -e, --tenants=<value>      Select the tenant names to use, comma separated values
-  -f, --force                Suppress the confirmation prompt if output or overwriteTenants are selected
+  -f, --force                Suppress the confirmation prompt in case of file overwrite
   -i, --image=<value>        Name of the bundle Docker image with the format [docker://]<organization>/<repository> or
                              [docker://]<registry>/<organization>/<repository>
   -o, --output=<value>       Write the result to the specified output file
   -t, --tagtypes=<value>...  Accepted tag types, comma separated values. Accepted values are dev, prod
+  --forceOverwriteTenants    Suppress the confirmation prompt in case of bundle cr tenants overwrite
   --overwriteTenants         Overwrite the bundle cr tenants list with the value passed in the tenants parameter
 
 DESCRIPTION
