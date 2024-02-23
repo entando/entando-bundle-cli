@@ -66,7 +66,8 @@ export default class GenerateCr extends Command {
     }),
     force: Flags.boolean({
       char: 'f',
-      description: 'Suppress the confirmation prompt if output or overwriteTenants are selected',
+      description: 'Suppress the confirmation prompt in case of file overwrite',
+      dependsOn: ['output']
     }),
     tagtypes: Flags.string({
       char: 't',
@@ -76,6 +77,10 @@ export default class GenerateCr extends Command {
     overwriteTenants: Flags.boolean({
       description: 'Overwrite the bundle cr tenants list with the value passed in the tenants parameter',
       dependsOn: ['tenants']
+    }),
+    forceOverwriteTenants: Flags.boolean({
+      description: 'Suppress the confirmation prompt in case of bundle cr tenants overwrite',
+      dependsOn: ['overwriteTenants'],
     }),
   }
 
@@ -158,14 +163,14 @@ export default class GenerateCr extends Command {
       image = `${registry}/${dockerOrganization}/${bundleDescriptor.name}`
     }
 
-    if (!flags.overwriteTenants) {
+    if (flags.tenants && !flags.overwriteTenants) {
       CliUx.ux.action.start('Retrieving tenants list')
     }
 
     let cmdTenants: string[] = [];
     let filteredCmdTenants:string[] = []
 
-    if ((flags.overwriteTenants ) && (!flags.force )) {
+    if ((flags.overwriteTenants) && (!flags.forceOverwriteTenants)) {
       const overwriteAnnotations = await CliUx.ux.confirm(
         color.yellow(
           `The tenant list in the Bundle CR will be set to ${flags.tenants}.
