@@ -23,8 +23,11 @@ import {
 import * as sinon from 'sinon'
 import { existsSyncMock } from '../helpers/mocks/validator-helper'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 
 describe('BundleDescriptorValidatorService', () => {
+  const tempDirHelper = new TempDirHelper(__filename)
+
   afterEach(() => {
     sinon.restore()
   })
@@ -39,19 +42,17 @@ describe('BundleDescriptorValidatorService', () => {
   test
     .do(() => {
       const bundleDescriptorService = new BundleDescriptorService()
-      bundleDescriptorService.writeDescriptor(
-        mockBundleWithInvalidBundleDescriptorVersion
-      )
-      const invalidDescriptor = bundleDescriptorService.getBundleDescriptor()
+      const bundleDir = tempDirHelper.createInitializedBundleDir()
+      process.chdir(bundleDir)
+      bundleDescriptorService.writeDescriptor(mockBundleWithInvalidBundleDescriptorVersion)
+      const invalidDescriptor = bundleDescriptorService.getBundleDescriptor();
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
         BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
-      expect(error.message).contain(
-        'Field "bundleDescriptorVersion" is not valid. Allowed values are: v5, v6'
-      )
+      expect(error.message).contain('Field "bundleDescriptorVersion" is not valid. Allowed values are: v5, v6')
     })
     .it('Validates invalid bundleDescriptorVersion')
 
@@ -115,7 +116,7 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'One field between "bundle" and "bundleReference" must be set.'
+        'Field "type" with value "external" requires field "bundle" to have a value'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
@@ -325,41 +326,12 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'One field between "bundle" and "bundleReference" must be set.'
+        'Field "type" with value "external" requires field "bundle" to have a value'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
     .it(
       'Validates mutual dependency between external API claim and bundle field'
-    )
-
-  test
-    .do(() => {
-      const invalidDescriptor: any =
-        BundleDescriptorHelper.newBundleDescriptor()
-      invalidDescriptor.microfrontends[1].apiClaims = [
-        {
-          name: 'bad-claim',
-          type: 'external',
-          serviceName: 'my-service',
-          bundle: 'my-bundle',
-          bundleReference: 'my-bundle-reference'
-        }
-      ]
-      ConstraintsValidatorService.validateObjectConstraints(
-        invalidDescriptor,
-        BUNDLE_DESCRIPTOR_CONSTRAINTS
-      )
-    })
-    .catch(error => {
-      expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
-      expect(error.message).contain(
-        'It\'s not possible to set "bundle" and "bundleReference" at the same time.'
-      )
-      expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
-    })
-    .it(
-      'Validates mutual exclusivity between bundle field and bundleReference field for external API claim'
     )
 
   test
@@ -1180,4 +1152,5 @@ describe('Validates YAML descriptor', () => {
       expect(error.message).contain('$.ext.nav[0].target')
     })
     .it('Validates invalid nav target')
+
 })

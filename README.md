@@ -181,7 +181,8 @@ Generate the Entando Custom Resource (CR) for a bundle project
 
 ```
 USAGE
-  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-e <value>] [-f -o <value>] [-t <value>]
+  $ entando-bundle-cli generate-cr [-i <value>] [-d] [-f -o <value>] [-t <value>] [--forceOverwriteTenants
+    [--overwriteTenants -e <value>]]
 
 FLAGS
   -d, --digest               Include Docker images digests
@@ -191,6 +192,8 @@ FLAGS
                              [docker://]<registry>/<organization>/<repository>
   -o, --output=<value>       Write the result to the specified output file
   -t, --tagtypes=<value>...  Accepted tag types, comma separated values. Accepted values are dev, prod
+  --forceOverwriteTenants    Suppress the confirmation prompt in case of bundle cr tenants overwrite
+  --overwriteTenants         Overwrite the bundle cr tenants list with the value passed in the tenants parameter
 
 DESCRIPTION
   Generate the Entando Custom Resource (CR) for a bundle project
@@ -208,13 +211,13 @@ EXAMPLES
 
   $ entando-bundle-cli generate-cr -t prod,dev
 
-  $ entando-bundle-cli generate-cr -tenants primary
+  $ entando-bundle-cli generate-cr --tenants=primary
 
   $ entando-bundle-cli generate-cr -e primary
 
-  $ entando-bundle-cli generate-cr -tenants primary tenant1 tenant2
+  $ entando-bundle-cli generate-cr --tenants=primary,tenant1,tenant2
 
-  $ entando-bundle-cli generate-cr -e primary tenant1 tenant2
+  $ entando-bundle-cli generate-cr -e primary,tenant1,tenant2
 ```
 
 _See code: [dist/commands/generate-cr.ts](https://github.com/entando/entando-bundle-cli/blob/v1.2.0-SNAPSHOT/dist/commands/generate-cr.ts)_
