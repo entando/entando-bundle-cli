@@ -343,6 +343,7 @@ describe('generate-cr', () => {
       }
     )
 
+
   test
     .do(() => {
       createStubEntandoDeBundleTenants()
@@ -390,6 +391,61 @@ describe('generate-cr', () => {
         expect(ctx.stdout).to.contain('entando.org/tenants: primary,tenant1,tenant2')
     })
 
+  test
+    .do(() => {
+      createStubMultiTenants(tags, yamlDescriptor);
+    })
+    .stdout()
+    .stderr()
+    .command([
+      'generate-cr',
+      '--tenants', 'tenant1',
+      '--overwriteTenants',
+      '--forceOverwriteTenants'
+    ])
+
+    .it('Generate CR with tenants and overwrite flags should have a correct list of tenants in metadata annotations', ctx => {
+      expect(ctx.stdout).to.contain('annotations:')
+      expect(ctx.stdout).to.contain('entando.org/tenants: tenant1')
+    })
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      createStubMultiTenants(tags, yamlDescriptor);
+    })
+    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(false))
+    .command([
+      'generate-cr',
+      '--tenants', 'tenant1', '--overwriteTenants'
+    ])
+    .it(
+      "Generate CR stops if user doesn't want to overwrite the existing tenants metadata annotations",
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.notCalled(listTagsStub)
+      }
+    )
+
+  test
+    .stdout()
+    .stderr()
+    .do(() => {
+      createStubMultiTenants(tags, yamlDescriptor);
+    })
+    .stub(CliUx.ux, 'confirm', () => sinon.stub().resolves(true))
+    .command([
+      'generate-cr',
+      '--tenants', 'tenant1', '--overwriteTenants'
+    ])
+    .it(
+      'Generate CR proceeds if user wants to overwrite the existing tenants metadata annotations',
+      () => {
+        const listTagsStub = DockerService.listTags as sinon.SinonStub
+        sinon.assert.calledOnce(listTagsStub)
+      }
+    )
 
   // TAG FILTERING TESTS
   executeTagFilteringTest(['dev'], devTags);

@@ -22,9 +22,12 @@ import {
 } from '../../src/models/component'
 import * as sinon from 'sinon'
 import { existsSyncMock } from '../helpers/mocks/validator-helper'
-import {BundleDescriptorService} from "../../src/services/bundle-descriptor-service";
+import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
+import { TempDirHelper } from '../helpers/temp-dir-helper'
 
 describe('BundleDescriptorValidatorService', () => {
+  const tempDirHelper = new TempDirHelper(__filename)
+
   afterEach(() => {
     sinon.restore()
   })
@@ -39,16 +42,16 @@ describe('BundleDescriptorValidatorService', () => {
   test
     .do(() => {
       const bundleDescriptorService = new BundleDescriptorService()
+      const bundleDir = tempDirHelper.createInitializedBundleDir()
+      process.chdir(bundleDir)
       bundleDescriptorService.writeDescriptor(mockBundleWithInvalidBundleDescriptorVersion)
       const invalidDescriptor = bundleDescriptorService.getBundleDescriptor();
-      console.log(invalidDescriptor)
       ConstraintsValidatorService.validateObjectConstraints(
         invalidDescriptor,
         BUNDLE_DESCRIPTOR_CONSTRAINTS
       )
     })
     .catch(error => {
-      console.log(error)
       expect(error.message).contain('Field "bundleDescriptorVersion" is not valid. Allowed values are: v5, v6')
     })
     .it('Validates invalid bundleDescriptorVersion')
