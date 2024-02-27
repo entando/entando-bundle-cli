@@ -72,7 +72,8 @@ type YamlApiClaim<T extends ApiType> = {
 export type YamlInternalApiClaim = YamlApiClaim<ApiType.Internal>
 
 export type YamlExternalApiClaim = YamlApiClaim<ApiType.External> & {
-  bundleId: string
+  bundleId?: string
+  bundleReference?: string
 }
 
 export type YamlPluginDescriptor = {

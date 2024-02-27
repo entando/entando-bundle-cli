@@ -12,7 +12,7 @@ import {
 } from '../../src/models/bundle-descriptor-constraints'
 import {
   BundleDescriptorHelper,
-  mockBundleWithInvalidBundleDescriptorVersion,
+  mockBundleWithInvalidBundleDescriptorVersion
 } from '../helpers/mocks/bundle-descriptor-helper'
 import { YamlBundleDescriptor } from '../../src/models/yaml-bundle-descriptor'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../../src/models/yaml-bundle-descriptor-constraints'
@@ -116,7 +116,7 @@ describe('BundleDescriptorValidatorService', () => {
     })
     .catch(error => {
       expect(error.message).contain(
-        'Field "type" with value "external" requires field "bundle" to have a value'
+        'One field between "bundle" and "bundleReference" must be set.'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })
@@ -326,7 +326,7 @@ describe('BundleDescriptorValidatorService', () => {
     .catch(error => {
       expect(error.message).not.contain(UNION_TYPE_ERROR_MESSAGE)
       expect(error.message).contain(
-        'Field "type" with value "external" requires field "bundle" to have a value'
+        'One field between "bundle" and "bundleReference" must be set.'
       )
       expect(error.message).contain('$.microfrontends[1].apiClaims[0]')
     })

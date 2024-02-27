@@ -340,10 +340,12 @@ export default class Pack extends BaseBuildCommand {
     return Promise.all(
       externalApiClaims.map(async apiClaim => {
         const imageName = apiClaim.bundle
-        const tags = await DockerService.listTags(imageName)
-        return DockerService.getYamlDescriptorFromImage(
-          `${imageName}:${tags[0]}`
-        )
+        if (imageName) {
+          const tags = await DockerService.listTags(imageName)
+          return DockerService.getYamlDescriptorFromImage(
+            `${imageName}:${tags[0]}`
+          )
+        }
       })
     )
   }

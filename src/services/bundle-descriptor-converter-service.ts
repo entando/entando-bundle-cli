@@ -68,7 +68,10 @@ export class BundleDescriptorConverterService {
     const bundleDescriptor = this.bundleDescriptorService.getBundleDescriptor()
 
     for (const microFrontend of bundleDescriptor.microfrontends) {
-      this.generateMicroFrontendYamlDescriptor(microFrontend, bundleDescriptor.bundleDescriptorVersion)
+      this.generateMicroFrontendYamlDescriptor(
+        microFrontend,
+        bundleDescriptor.bundleDescriptorVersion
+      )
     }
 
     const versionedMicroservices = this.componentService.getVersionedComponents(
@@ -93,7 +96,10 @@ export class BundleDescriptorConverterService {
     )
   }
 
-  private generateMicroFrontendYamlDescriptor(microFrontend: MicroFrontend, bundleDescriptorVersion: BundleDescriptorVersion | undefined) {
+  private generateMicroFrontendYamlDescriptor(
+    microFrontend: MicroFrontend,
+    bundleDescriptorVersion: BundleDescriptorVersion | undefined
+  ) {
     const customUiFile = path.resolve(
       MICROFRONTENDS_FOLDER,
       microFrontend.name,
@@ -220,14 +226,25 @@ export class BundleDescriptorConverterService {
     const yamlApiClaims: Array<YamlInternalApiClaim | YamlExternalApiClaim> = []
     for (const apiClaim of apiClaims) {
       if (apiClaim.type === ApiType.External) {
-        yamlApiClaims.push({
-          type: ApiType.External,
-          name: apiClaim.name,
-          pluginName: apiClaim.serviceName,
-          bundleId: BundleService.generateBundleId(
-            (apiClaim as ExternalApiClaim).bundle
-          )
-        })
+        const bundle = (apiClaim as ExternalApiClaim).bundle
+        const bundleReference = (apiClaim as ExternalApiClaim).bundleReference
+        let generatedBundleId = ''
+        if (bundleReference) {
+          yamlApiClaims.push({
+            type: ApiType.External,
+            name: apiClaim.name,
+            pluginName: apiClaim.serviceName,
+            bundleReference: bundleReference
+          })
+        } else if (bundle) {
+          generatedBundleId = BundleService.generateBundleId(bundle)
+          yamlApiClaims.push({
+            type: ApiType.External,
+            name: apiClaim.name,
+            pluginName: apiClaim.serviceName,
+            bundleId: generatedBundleId
+          })
+        }
       } else {
         yamlApiClaims.push({
           type: ApiType.Internal,
@@ -243,7 +260,7 @@ export class BundleDescriptorConverterService {
   private generateMicroserviceYamlDescriptor(
     microservice: Microservice,
     version: string,
-    bundleDescriptorVersion?: string,
+    bundleDescriptorVersion?: string
   ) {
     const pluginDescriptor: YamlPluginDescriptor = {
       name: microservice.name,
@@ -309,7 +326,8 @@ export class BundleDescriptorConverterService {
       description: bundleDescriptor.description,
       components: {},
       ext: bundleDescriptor.global,
-      descriptorVersion: bundleDescriptor.bundleDescriptorVersion ?? BUNDLE_DESCRIPTOR_VERSION
+      descriptorVersion:
+        bundleDescriptor.bundleDescriptorVersion ?? BUNDLE_DESCRIPTOR_VERSION
     }
     if (thumbnail?.base64) {
       yamlBundleDescriptor.thumbnail = thumbnail.base64
