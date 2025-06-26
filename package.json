@@ -19,6 +19,7 @@
   "scripts": {
     "copy:resources": "shx cp -r src/resources dist/resources",
     "build": "shx rm -rf dist && tsc -b && npm run copy:resources && npm test",
+    "just-build": "shx rm -rf dist && tsc -b && npm run copy:resources",
     "coverage": "nyc npm run test",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
@@ -99,6 +100,7 @@
     "eslint-config-prettier": "^8.5.0",
     "globby": "11.0.4",
     "husky": "7.0.4",
+    "lint-staged": "^13.3.0",
     "mocha": "9.2.2",
     "nock": "^13.2.4",
     "nyc": "^15.1.0",
