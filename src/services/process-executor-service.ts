@@ -1,6 +1,9 @@
 import { ChildProcess, spawn, StdioOptions } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
+import * as path from 'node:path';
+
+const SHOULD_HIDE_PRIVATE_NODEJS = [null, undefined, "", "true"].includes(process.env.ENTANDO_CLI_HIDE_PRIVATE_NODEJS);
 
 export const DEFAULT_PARALLEL_PROCESSES_SIZE = 3
 export const COMMAND_NOT_FOUND_EXIT_CODE = 127
@@ -173,32 +176,54 @@ export class ParallelProcessExecutorService extends EventEmitter {
 }
 
 function setUpProcess(options: ProcessExecutionOptions) {
-  const process = spawn(options.command, {
+  const childProcess = spawn(options.command, {
     cwd: options.workDir,
     shell: 'bash',
     stdio: options.stdio,
-    env: options.env
+    env: buildChildEnvironment(options)
   })
 
   if (options.stdinWriter) {
-    options.stdinWriter(process.stdin!)
+    options.stdinWriter(childProcess.stdin!)
   }
 
-  if (process.stdout) {
-    process.stdout.on('data', chunk => {
+  if (childProcess.stdout) {
+    childProcess.stdout.on('data', chunk => {
       if (options.outputStream) {
         options.outputStream.write(chunk)
       }
     })
   }
 
-  if (process.stderr) {
-    process.stderr.on('data', chunk => {
+  if (childProcess.stderr) {
+    childProcess.stderr.on('data', chunk => {
       if (options.errorStream) {
         options.errorStream.write(chunk)
       }
     })
   }
 
-  return process
+  return childProcess
+}
+
+/**
+ * If ENTANDO_CLI_HIDE_PRIVATE_NODEJS is "true" or was not provided then
+ * the function returns an environment with a path that doesn't contain
+ * the (private) nodejs instance used to run the entando-bundle-cli
+ * 
+ * This allows to run the nodejs of the user environment
+ */
+function buildChildEnvironment(options: ProcessExecutionOptions) {
+  if (SHOULD_HIDE_PRIVATE_NODEJS) {
+    let privateNodeDir = path.dirname(process.execPath).replace(/\/bin$/, '');
+    privateNodeDir=privateNodeDir.endsWith('/') ? privateNodeDir : `${privateNodeDir}/`
+    const currentPath = (options.env || process.env).PATH || '';
+    const cleanedPath = currentPath
+      .split(path.delimiter)
+      .filter(p => !p.startsWith(privateNodeDir))
+      .join(path.delimiter);
+    return { ...options.env, PATH: cleanedPath };
+  }
+
+  return options.env
 }
