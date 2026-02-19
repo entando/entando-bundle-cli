@@ -215,13 +215,20 @@ function setUpProcess(options: ProcessExecutionOptions) {
  */
 function buildChildEnvironment(options: ProcessExecutionOptions) {
   if (SHOULD_HIDE_PRIVATE_NODEJS) {
-    let privateNodeDir = path.dirname(process.execPath).replace(/\/bin$/, '');
-    privateNodeDir=privateNodeDir.endsWith('/') ? privateNodeDir : `${privateNodeDir}/`
+    let privateNodeDir = path.dirname(process.execPath).replace(/[/\\]bin$/, '');
+    // Normalize to forward slashes for consistent matching (Git Bash on Windows uses POSIX paths)
+    const normalizedPrivateDir = privateNodeDir.replace(/\\/g, '/');
     const currentPath = (options.env || process.env).PATH || '';
+    // Support both ":" (POSIX/Git Bash) and ";" (native Windows) delimiters
+    const delimiter = currentPath.includes(';') ? ';' : ':';
     const cleanedPath = currentPath
-      .split(path.delimiter)
-      .filter(p => !p.startsWith(privateNodeDir))
-      .join(path.delimiter);
+      .split(delimiter)
+      .filter(p => {
+        const normalizedEntry = p.replace(/\\/g, '/');
+        return !normalizedEntry.startsWith(normalizedPrivateDir + '/') &&
+               normalizedEntry !== normalizedPrivateDir;
+      })
+      .join(delimiter);
     return { ...options.env, PATH: cleanedPath };
   }
 
