@@ -1,9 +1,11 @@
 import { ChildProcess, spawn, StdioOptions } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
-import * as path from 'node:path';
+import * as path from 'node:path'
 
-const SHOULD_HIDE_PRIVATE_NODEJS = [null, undefined, "", "true"].includes(process.env.ENTANDO_CLI_HIDE_PRIVATE_NODEJS);
+const SHOULD_HIDE_PRIVATE_NODEJS = [null, undefined, '', 'true'].includes(
+  process.env.ENTANDO_CLI_HIDE_PRIVATE_NODEJS
+)
 
 export const DEFAULT_PARALLEL_PROCESSES_SIZE = 3
 export const COMMAND_NOT_FOUND_EXIT_CODE = 127
@@ -210,19 +212,30 @@ function setUpProcess(options: ProcessExecutionOptions) {
  * If ENTANDO_CLI_HIDE_PRIVATE_NODEJS is "true" or was not provided then
  * the function returns an environment with a path that doesn't contain
  * the (private) nodejs instance used to run the entando-bundle-cli
- * 
+ *
  * This allows to run the nodejs of the user environment
  */
 function buildChildEnvironment(options: ProcessExecutionOptions) {
   if (SHOULD_HIDE_PRIVATE_NODEJS) {
-    let privateNodeDir = path.dirname(process.execPath).replace(/\/bin$/, '');
-    privateNodeDir=privateNodeDir.endsWith('/') ? privateNodeDir : `${privateNodeDir}/`
-    const currentPath = (options.env || process.env).PATH || '';
+    const privateNodeDir = path
+      .dirname(process.execPath)
+      .replace(/[/\\]bin$/, '')
+    // Normalize to forward slashes for consistent matching (Git Bash on Windows uses POSIX paths)
+    const normalizedPrivateDir = privateNodeDir.replace(/\\/g, '/')
+    const currentPath = (options.env || process.env).PATH || ''
+    // Support both ":" (POSIX/Git Bash) and ";" (native Windows) delimiters
+    const delimiter = currentPath.includes(';') ? ';' : ':'
     const cleanedPath = currentPath
-      .split(path.delimiter)
-      .filter(p => !p.startsWith(privateNodeDir))
-      .join(path.delimiter);
-    return { ...options.env, PATH: cleanedPath };
+      .split(delimiter)
+      .filter(p => {
+        const normalizedEntry = p.replace(/\\/g, '/')
+        return (
+          !normalizedEntry.startsWith(normalizedPrivateDir + '/') &&
+          normalizedEntry !== normalizedPrivateDir
+        )
+      })
+      .join(delimiter)
+    return { ...options.env, PATH: cleanedPath }
   }
 
   return options.env
