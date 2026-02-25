@@ -14,7 +14,7 @@ import { BundleDescriptor } from '../models/bundle-descriptor'
 import { ComponentService } from './component-service'
 import { CLIError } from '@oclif/errors'
 import { debugFactory } from './debug-factory-service'
-import {InMemoryWritable, isDebugEnabled} from '../utils'
+import { InMemoryWritable, isDebugEnabled } from '../utils'
 import { YamlBundleDescriptor } from '../models/yaml-bundle-descriptor'
 import { ConstraintsValidatorService } from './constraints-validator-service'
 import { YAML_BUNDLE_DESCRIPTOR_CONSTRAINTS } from '../models/yaml-bundle-descriptor-constraints'
@@ -29,23 +29,32 @@ const DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 const CRANE_BIN_NAME = 'crane'
 const ENTANDO_BUNDLE_NAME_LABEL = 'org.entando.bundle-name'
 
-const enableDebugErrorStreamMsg = 'Enable debug mode to see failed command and its error stream'
-const enableDebugRetrievedContentMsg ='Enable debug mode to see retrieved content'
-const enableDebugFailedCommandMsg ='Enable debug mode to see output of failed command'
+const enableDebugErrorStreamMsg =
+  'Enable debug mode to see failed command and its error stream'
+const enableDebugRetrievedContentMsg =
+  'Enable debug mode to see retrieved content'
+const enableDebugFailedCommandMsg =
+  'Enable debug mode to see output of failed command'
 
 const errUnableToCheckMsg = 'Unable to check Docker images.'
 const errUnableToCreateTagMsg = 'Unable to create Docker image tag.'
 const errUnableToPushMsg = 'Unable to push Docker image'
-const errUnableToRetrieveDigestMsg = 'Unable to retrieve digests for Docker image'
-const errUnableListTagMsg ='Unable to list tags for Docker image'
-const errUnableToParseYAMLMsg='Unable to parse YAML descriptor from bundle Docker image.'
-const errUnableToExtractDigestMsg='Unable to extract digest from retrieved manifest. Have you specified a valid bundle Docker image?\n'
-const errManifestContainsInvalidJSONMsg ='Retrieved manifest contains invalid JSON.'
-const errImageNotContainsLabelMsg = "Given Docker image doesn't contain required label " +
+const errUnableToRetrieveDigestMsg =
+  'Unable to retrieve digests for Docker image'
+const errUnableListTagMsg = 'Unable to list tags for Docker image'
+const errUnableToParseYAMLMsg =
+  'Unable to parse YAML descriptor from bundle Docker image.'
+const errUnableToExtractDigestMsg =
+  'Unable to extract digest from retrieved manifest. Have you specified a valid bundle Docker image?\n'
+const errManifestContainsInvalidJSONMsg =
+  'Retrieved manifest contains invalid JSON.'
+const errImageNotContainsLabelMsg =
+  "Given Docker image doesn't contain required label " +
   ENTANDO_BUNDLE_NAME_LABEL +
   '. Have you specified a valid bundle Docker image?\n'
 const errUnableToRetrieveMataDataMsg = 'Unable to retrieve image metadata.'
-const errDescriptorContainsInvalidYAML = 'Retrieved descriptor contains invalid YAML.'
+const errDescriptorContainsInvalidYAML =
+  'Retrieved descriptor contains invalid YAML.'
 const errUnableToRetrieveManifest = 'Unable to retrieve image manifest.'
 
 export type DockerBuildOptions = {
@@ -60,6 +69,11 @@ export type DockerBuildOptions = {
 export class DockerService {
   private static debug = debugFactory(DockerService)
 
+  private static readonly dockerBuildEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    BUILDX_NO_DEFAULT_ATTESTATIONS: '1'
+  }
+
   public static async buildDockerImage(
     options: DockerBuildOptions
   ): Promise<ProcessExecutionResult> {
@@ -67,7 +81,8 @@ export class DockerService {
       command: DockerService.getDockerBuildCommand(options),
       outputStream: options.outputStream,
       errorStream: options.outputStream,
-      workDir: options.path
+      workDir: options.path,
+      env: DockerService.dockerBuildEnv
     })
   }
 
@@ -83,7 +98,8 @@ export class DockerService {
         command: DockerService.getDockerBuildCommand(options),
         outputStream: options.outputStream,
         errorStream: options.outputStream,
-        workDir: options.path
+        workDir: options.path,
+        env: DockerService.dockerBuildEnv
       })
     }
 
@@ -184,10 +200,10 @@ export class DockerService {
     if (result !== 0) {
       DockerService.debug(outputStream.data)
 
-      const errorMsg= debugEnabled ? errUnableToCheckMsg : `${errUnableToCheckMsg} ${enableDebugErrorStreamMsg}`
-      throw new CLIError(
-        errorMsg
-      )
+      const errorMsg = debugEnabled
+        ? errUnableToCheckMsg
+        : `${errUnableToCheckMsg} ${enableDebugErrorStreamMsg}`
+      throw new CLIError(errorMsg)
     }
 
     const foundImages = outputStream.data.trim().split('\n')
@@ -327,10 +343,10 @@ export class DockerService {
     const results = await new ParallelProcessExecutorService(options).execute()
 
     if (results.some(result => result !== 0)) {
-      const errorMsg= debugEnabled ? errUnableToCreateTagMsg : `${errUnableToCreateTagMsg} ${enableDebugFailedCommandMsg}`
-      throw new CLIError(
-        errorMsg
-      )
+      const errorMsg = debugEnabled
+        ? errUnableToCreateTagMsg
+        : `${errUnableToCreateTagMsg} ${enableDebugFailedCommandMsg}`
+      throw new CLIError(errorMsg)
     }
 
     return targetImages
@@ -355,9 +371,11 @@ export class DockerService {
     if (result !== 0) {
       DockerService.debug(output)
       DockerService.debug(error)
-      const errorMsg= debugEnabled ? `${errUnableToPushMsg} ${image}.` : `${errUnableToPushMsg} ${image}. ${enableDebugFailedCommandMsg}`
+      const errorMsg = debugEnabled
+        ? `${errUnableToPushMsg} ${image}.`
+        : `${errUnableToPushMsg} ${image}. ${enableDebugFailedCommandMsg}`
       throw new CLIError(
-      error.includes('denied')
+        error.includes('denied')
           ? `${errUnableToPushMsg} ${image}. Be sure that you have write access to that repository.\nYou may also logged in with a wrong user. Please execute "docker logout ${registry}" and try again`
           : errorMsg
       )
@@ -403,11 +421,11 @@ export class DockerService {
     > {
       const results = await digestExecutor.execute()
 
-      const errorMsg= debugEnabled ? `${errUnableToRetrieveDigestMsg} ${imageName}.`: `${errUnableToRetrieveDigestMsg} ${imageName}. ${enableDebugFailedCommandMsg}`
+      const errorMsg = debugEnabled
+        ? `${errUnableToRetrieveDigestMsg} ${imageName}.`
+        : `${errUnableToRetrieveDigestMsg} ${imageName}. ${enableDebugFailedCommandMsg}`
       if (results.some(r => r !== 0)) {
-        throw new CLIError(
-          errorMsg
-        )
+        throw new CLIError(errorMsg)
       }
 
       const tagsWithDigests = new Map<string, string>()
@@ -432,7 +450,6 @@ export class DockerService {
     })
     const debugEnabled = isDebugEnabled()
 
-
     const output = outputStream.data
     const error = errorStream.data
 
@@ -456,10 +473,10 @@ export class DockerService {
     } else {
       DockerService.debug(output)
       DockerService.debug(error)
-      const errorMsg= debugEnabled ? `${errUnableListTagMsg} ${imageName}`: `${errUnableListTagMsg} ${imageName} ${enableDebugFailedCommandMsg}`
-      throw new CLIError(
-        errorMsg
-      )
+      const errorMsg = debugEnabled
+        ? `${errUnableListTagMsg} ${imageName}`
+        : `${errUnableListTagMsg} ${imageName} ${enableDebugFailedCommandMsg}`
+      throw new CLIError(errorMsg)
     }
   }
 
@@ -486,10 +503,10 @@ export class DockerService {
         parsedDescriptor = YAML.parse(output)
       } catch {
         DockerService.debug(output)
-        const errorMsg= debugEnabled ? errDescriptorContainsInvalidYAML : `${errDescriptorContainsInvalidYAML} ${enableDebugRetrievedContentMsg}`
-        throw new CLIError(
-          errorMsg
-        )
+        const errorMsg = debugEnabled
+          ? errDescriptorContainsInvalidYAML
+          : `${errDescriptorContainsInvalidYAML} ${enableDebugRetrievedContentMsg}`
+        throw new CLIError(errorMsg)
       }
 
       try {
@@ -514,10 +531,10 @@ export class DockerService {
     } else {
       DockerService.debug(errorStream.data)
       DockerService.debug(outputStream.data)
-      const errorMsg= debugEnabled ? errUnableToParseYAMLMsg : `${errUnableToParseYAMLMsg} ${enableDebugFailedCommandMsg}`
-      throw new CLIError(
-        errorMsg
-      )
+      const errorMsg = debugEnabled
+        ? errUnableToParseYAMLMsg
+        : `${errUnableToParseYAMLMsg} ${enableDebugFailedCommandMsg}`
+      throw new CLIError(errorMsg)
     }
   }
 
@@ -551,10 +568,10 @@ export class DockerService {
           } catch {
             DockerService.debug(output)
 
-            const errorMsg= debugEnabled ? errManifestContainsInvalidJSONMsg : `${errManifestContainsInvalidJSONMsg} ${enableDebugRetrievedContentMsg}`
-            throw new CLIError(
-              errorMsg
-            )
+            const errorMsg = debugEnabled
+              ? errManifestContainsInvalidJSONMsg
+              : `${errManifestContainsInvalidJSONMsg} ${enableDebugRetrievedContentMsg}`
+            throw new CLIError(errorMsg)
           }
 
           if (
@@ -567,32 +584,32 @@ export class DockerService {
 
           DockerService.debug(output)
 
-          const errorMsg= debugEnabled ? errUnableToExtractDigestMsg : `${errUnableToExtractDigestMsg}${enableDebugRetrievedContentMsg}`
-          throw new CLIError(
-            errorMsg
-          )
+          const errorMsg = debugEnabled
+            ? errUnableToExtractDigestMsg
+            : `${errUnableToExtractDigestMsg}${enableDebugRetrievedContentMsg}`
+          throw new CLIError(errorMsg)
         } else {
           DockerService.debug(outputStream.data)
-          const errorMsg= debugEnabled ? errUnableToRetrieveManifest : `${errUnableToRetrieveManifest} ${enableDebugFailedCommandMsg}`
+          const errorMsg = debugEnabled
+            ? errUnableToRetrieveManifest
+            : `${errUnableToRetrieveManifest} ${enableDebugFailedCommandMsg}`
 
-          throw new CLIError(
-            errorMsg
-          )
+          throw new CLIError(errorMsg)
         }
       } else {
         DockerService.debug(imageConfigOutput)
 
-        const errorMsg= debugEnabled ? errImageNotContainsLabelMsg : `${errImageNotContainsLabelMsg} ${enableDebugRetrievedContentMsg}`
-        throw new CLIError(
-          errorMsg
-        )
+        const errorMsg = debugEnabled
+          ? errImageNotContainsLabelMsg
+          : `${errImageNotContainsLabelMsg} ${enableDebugRetrievedContentMsg}`
+        throw new CLIError(errorMsg)
       }
     } else {
       DockerService.debug(outputStream.data)
-      const errorMsg= debugEnabled ? errUnableToRetrieveMataDataMsg : `${errUnableToRetrieveMataDataMsg} ${enableDebugFailedCommandMsg}`
-      throw new CLIError(
-        errorMsg
-      )
+      const errorMsg = debugEnabled
+        ? errUnableToRetrieveMataDataMsg
+        : `${errUnableToRetrieveMataDataMsg} ${enableDebugFailedCommandMsg}`
+      throw new CLIError(errorMsg)
     }
   }
 
@@ -610,7 +627,4 @@ export class DockerService {
       process.env.ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY ?? DEFAULT_DOCKER_REGISTRY
     )
   }
-
-
-
 }
