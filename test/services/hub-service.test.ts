@@ -2,6 +2,8 @@ import { expect, test } from '@oclif/test'
 import {
   demoBundle,
   demoBundleGroupList,
+  mockApiKey,
+  mockCatalogId,
   mockDomain,
   mockUri
 } from '../helpers/mocks/hub-api'
@@ -39,6 +41,54 @@ describe('hub-service', () => {
         'gitSrcRepoAddress',
         demoBundle.gitSrcRepoAddress
       )
+    })
+
+  for (const legacyHubUrl of [
+    'https://entando.com/entando-hub-api',
+    'https://www.entando.com/entando-hub-api/'
+  ]) {
+    test
+      .nock(mockDomain, api => api.get(mockUri).reply(200, demoBundleGroupList))
+      .it(
+        `replaces legacy hub url ${legacyHubUrl} with the default`,
+        async () => {
+          const hubService = new HubService(legacyHubUrl)
+          const bundleGroups = await hubService.loadBundleGroups()
+
+          expect(bundleGroups).to.have.length(2)
+        }
+      )
+  }
+
+  test
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .query({ catalogId: mockCatalogId })
+        .matchHeader('Entando-hub-api-key', mockApiKey)
+        .reply(200, demoBundleGroupList)
+    )
+    .it('keeps the catalogId when replacing a legacy hub url', async () => {
+      const hubService = new HubService(
+        `https://entando.com/entando-hub-api?catalogId=${mockCatalogId}`,
+        mockApiKey
+      )
+      const bundleGroups = await hubService.loadBundleGroups()
+
+      expect(bundleGroups).to.have.length(2)
+    })
+
+  test
+    .nock('https://my-hub.example.com/entando-hub-api', api =>
+      api.get(mockUri).reply(200, demoBundleGroupList)
+    )
+    .it('uses a custom hub url as is', async () => {
+      const hubService = new HubService(
+        'https://my-hub.example.com/entando-hub-api'
+      )
+      const bundleGroups = await hubService.loadBundleGroups()
+
+      expect(bundleGroups).to.have.length(2)
     })
 
   test

@@ -141,6 +141,46 @@ describe('init', () => {
       expect(bundleDescriptor.version).to.eq('0.0.1')
     })
 
+  test
+    .env({ ENTANDO_CLI_DEFAULT_HUB: 'https://entando.com/entando-hub-api' })
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .reply(200, [demoBundle])
+    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .do(async () => {
+      const init = new InitializerService({
+        name: 'bundle-with-legacy-hub',
+        version: '0.0.1',
+        parentDirectory: process.cwd()
+      })
+      await init.performBundleInit()
+      fs.rmSync(
+        path.resolve(process.cwd(), 'bundle-with-legacy-hub/microservices'),
+        { recursive: true, force: true }
+      )
+    })
+    .command(['init', 'bundle-with-legacy-hub', '--from-hub'])
+    .it(
+      'runs init --from-hub with the default hub when ent exports the legacy hub url',
+      () => {
+        checkFoldersStructure('bundle-with-legacy-hub')
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+      }
+    )
+
   const noDescriptorBundlename = 'bundle-with-fromhub-nodescriptor'
 
   test
