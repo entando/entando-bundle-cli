@@ -3,7 +3,7 @@ import { HubAPI } from '../api/hub-api'
 import { Bundle, BundleGroup } from '../api/hub-api'
 
 export class HubService {
-  private readonly defaultHubUrl = 'https://www.entando.com/entando-hub-api'
+  private readonly defaultHubUrl = 'https://auth.entando.com/entando-hub-api'
   private hubApi: HubAPI
 
   constructor(hubUrl?: string, apiKey?: string) {

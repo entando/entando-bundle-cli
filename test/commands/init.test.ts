@@ -362,7 +362,7 @@ describe('init', () => {
       'bundle-private-catalog',
       '--from-hub',
       '--hub-url',
-      'https://www.entando.com/entando-hub-api?catalogId=12',
+      'https://auth.entando.com/entando-hub-api?catalogId=12',
       '--hub-api-key',
       'abcdefghij1234567890'
     ])
@@ -403,7 +403,7 @@ describe('init', () => {
       'testProject',
       '--from-hub',
       '--hub-url',
-      'https://www.entando.com/entando-hub-api',
+      'https://auth.entando.com/entando-hub-api',
       '--hub-api-key',
       'sample_api_key'
     ])
@@ -422,7 +422,7 @@ describe('init', () => {
       'testProject',
       '--from-hub',
       '--hub-url',
-      'https://www.entando.com/entando-hub-api?catalogId=12'
+      'https://auth.entando.com/entando-hub-api?catalogId=12'
     ])
     .catch(error => {
       expect(error.message).to.contain(

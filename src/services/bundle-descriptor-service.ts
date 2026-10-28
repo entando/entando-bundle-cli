@@ -84,9 +84,12 @@ export class BundleDescriptorService {
       return parsedDescriptor
     } catch (error) {
       if (error instanceof SyntaxError) {
-        const matchPositionInfo = error.message.match(/position +\d+/m)
+        const indexCharError = this.getErrorPosition(
+          error.message,
+          descriptorFileContent
+        )
 
-        if (matchPositionInfo === null) {
+        if (indexCharError === undefined) {
           throw new CLIError(
             BUNDLE_DESCRIPTOR_FILE_NAME +
               ' is not valid.\n' +
@@ -94,7 +97,6 @@ export class BundleDescriptorService {
           )
         }
 
-        const indexCharError = Number(matchPositionInfo[0].split(' ').pop())
         const infoError = this.displayError(
           indexCharError,
           descriptorFileContent
@@ -108,6 +110,43 @@ export class BundleDescriptorService {
         )
       }
     }
+  }
+
+  private getErrorPosition(message: string, text: string): number | undefined {
+    const matchPositionInfo = message.match(/position +(\d+)/m)
+    if (matchPositionInfo !== null) {
+      return Number(matchPositionInfo[1])
+    }
+
+    // Newer V8 versions (Node >= 20) omit the position for unexpected tokens
+    // and show the surrounding source instead, e.g.
+    // Unexpected token ',', ..."[\n    ,{\n "... is not valid JSON
+    // The context spans up to 10 characters on each side of the error.
+    const contextMaxChars = 10
+    const matchContext = message.match(
+      /^Unexpected token '[\S\s]', (\.{3})?"([\S\s]*)"(\.{3})? is not valid JSON$/
+    )
+    if (matchContext === null) {
+      return undefined
+    }
+
+    const [, leadingDots, context, trailingDots] = matchContext
+    if (leadingDots === undefined && trailingDots === undefined) {
+      // short source shown entirely: fall back to the first unexpected token
+      const token = message.charAt("Unexpected token '".length)
+      const index = text.indexOf(token)
+      return index === -1 ? undefined : index
+    }
+
+    if (leadingDots === undefined) {
+      return Math.max(context.length - contextMaxChars, 0)
+    }
+
+    const contextStart =
+      trailingDots === undefined
+        ? text.length - context.length
+        : text.indexOf(context)
+    return contextStart === -1 ? undefined : contextStart + contextMaxChars
   }
 
   private displayError(indexCharPosition: number, text: string): string {
