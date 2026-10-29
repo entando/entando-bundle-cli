@@ -110,7 +110,7 @@ describe('Hub API', () => {
         expect.fail('Expected an error to be thrown')
       } catch (error) {
         expect((error as Error).message).to.equal(
-          'Error while contacting the Entando Hub'
+          `Error while contacting the Entando Hub at ${mockDomain}${mockUri}: Network error occurred`
         )
       }
     })

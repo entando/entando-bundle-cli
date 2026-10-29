@@ -72,7 +72,7 @@ describe('run command', () => {
     .command(['run', '--all-ms', '--all-mfe'])
     .catch(error => {
       expect(error.message).to.contain(
-        '--all-mfe= cannot also be provided when using --all-ms='
+        '--all-mfe=true cannot also be provided when using --all-ms'
       )
       expect((error as CLIError).oclif.exit).eq(2)
     })

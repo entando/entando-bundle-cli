@@ -6,16 +6,18 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-* [entando-bundle-cli](#entando-bundle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-* [Environment variables](#environment-variables)
-* [Development environment setup](#development-environment-setup)
+
+- [entando-bundle-cli](#entando-bundle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+- [Environment variables](#environment-variables)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @entando/entando-bundle-cli
 $ entando-bundle-cli COMMAND
@@ -27,36 +29,38 @@ USAGE
   $ entando-bundle-cli COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
-* [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
-* [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
-* [`entando-bundle-cli build [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-build-component---all-ms----all-mfe----all)
-* [`entando-bundle-cli convert`](#entando-bundle-cli-convert)
-* [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
-* [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
-* [`entando-bundle-cli images`](#entando-bundle-cli-images)
-* [`entando-bundle-cli info`](#entando-bundle-cli-info)
-* [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
-* [`entando-bundle-cli list`](#entando-bundle-cli-list)
-* [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
-* [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
-* [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
-* [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
-* [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
-* [`entando-bundle-cli publish`](#entando-bundle-cli-publish)
-* [`entando-bundle-cli run [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-run-component---all-ms----all-mfe----all)
-* [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
-* [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
-* [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
-* [`entando-bundle-cli svc logs [service...] [--all]`](#entando-bundle-cli-svc-logs-service---all)
-* [`entando-bundle-cli svc restart [service...] [--all]`](#entando-bundle-cli-svc-restart-service---all)
-* [`entando-bundle-cli svc start [service...] [--all]`](#entando-bundle-cli-svc-start-service---all)
-* [`entando-bundle-cli svc stop [service...] [--all]`](#entando-bundle-cli-svc-stop-service---all)
+
+- [`entando-bundle-cli api add MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-mfename-claimname)
+- [`entando-bundle-cli api add-ext MFENAME CLAIMNAME`](#entando-bundle-cli-api-add-ext-mfename-claimname)
+- [`entando-bundle-cli api rm MFENAME CLAIMNAME`](#entando-bundle-cli-api-rm-mfename-claimname)
+- [`entando-bundle-cli build [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-build-component---all-ms----all-mfe----all)
+- [`entando-bundle-cli convert`](#entando-bundle-cli-convert)
+- [`entando-bundle-cli generate-cr`](#entando-bundle-cli-generate-cr)
+- [`entando-bundle-cli help [COMMAND]`](#entando-bundle-cli-help-command)
+- [`entando-bundle-cli images`](#entando-bundle-cli-images)
+- [`entando-bundle-cli info`](#entando-bundle-cli-info)
+- [`entando-bundle-cli init NAME`](#entando-bundle-cli-init-name)
+- [`entando-bundle-cli list`](#entando-bundle-cli-list)
+- [`entando-bundle-cli mfe add NAME`](#entando-bundle-cli-mfe-add-name)
+- [`entando-bundle-cli mfe rm NAME`](#entando-bundle-cli-mfe-rm-name)
+- [`entando-bundle-cli ms add NAME`](#entando-bundle-cli-ms-add-name)
+- [`entando-bundle-cli ms rm NAME`](#entando-bundle-cli-ms-rm-name)
+- [`entando-bundle-cli pack`](#entando-bundle-cli-pack)
+- [`entando-bundle-cli publish`](#entando-bundle-cli-publish)
+- [`entando-bundle-cli run [component...] [--all-ms | --all-mfe | --all]`](#entando-bundle-cli-run-component---all-ms----all-mfe----all)
+- [`entando-bundle-cli svc disable SERVICENAME`](#entando-bundle-cli-svc-disable-servicename)
+- [`entando-bundle-cli svc enable SERVICENAME`](#entando-bundle-cli-svc-enable-servicename)
+- [`entando-bundle-cli svc list`](#entando-bundle-cli-svc-list)
+- [`entando-bundle-cli svc logs [service...] [--all]`](#entando-bundle-cli-svc-logs-service---all)
+- [`entando-bundle-cli svc restart [service...] [--all]`](#entando-bundle-cli-svc-restart-service---all)
+- [`entando-bundle-cli svc start [service...] [--all]`](#entando-bundle-cli-svc-start-service---all)
+- [`entando-bundle-cli svc stop [service...] [--all]`](#entando-bundle-cli-svc-stop-service---all)
 
 ## `entando-bundle-cli api add MFENAME CLAIMNAME`
 
@@ -289,7 +293,7 @@ EXAMPLES
 
   $ entando-bundle-cli init my-bundle --from-hub
 
-  $ entando-bundle-cli init my-bundle --from-hub --hub-url=https://www.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890
+  $ entando-bundle-cli init my-bundle --from-hub --hub-url=https://auth.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890
 ```
 
 _See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.2.0-SNAPSHOT/dist/commands/init.ts)_
@@ -639,6 +643,7 @@ EXAMPLES
 
   $ entando-bundle-cli svc stop ext-service1 ext-service2
 ```
+
 <!-- commandsstop -->
 
 # Environment variables
@@ -649,7 +654,7 @@ EXAMPLES
 - `ENTANDO_CLI_CRANE_BIN`: path to the crane executable
 - `ENTANDO_CLI_DEBUG`: boolean flag (`true`|`false`) used to enable debug logging (`false` by default)
 - `ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY`: Default Docker registry (`registry.hub.docker.com` by default)
-- `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://entando.com/entando-hub-api`
+- `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://auth.entando.com/entando-hub-api`
 - `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
 - `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
 

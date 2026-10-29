@@ -146,6 +146,82 @@ describe('BundleDescriptorService', () => {
     })
     .it('overflow position from JSON parse')
 
+  // Newer V8 versions (Node >= 20) omit the position and show the source
+  // around the unexpected token instead
+  const descriptorWithError = `{
+  "microservices": [
+    ,{
+      "name": "my-service"
+    }
+  ]
+}`
+  const errorIndex = descriptorWithError.indexOf(',')
+  const contextBefore = descriptorWithError.slice(errorIndex - 10, errorIndex)
+  const contextAfter = descriptorWithError.slice(errorIndex, errorIndex + 11)
+  const sourceContextMessages = [
+    {
+      description: 'source shown entirely',
+      message: `Unexpected token ',', "${descriptorWithError}" is not valid JSON`,
+      expectedLineError: 3
+    },
+    {
+      description: 'source truncated at both ends',
+      message: `Unexpected token ',', ..."${contextBefore}${contextAfter}"... is not valid JSON`,
+      expectedLineError: 3
+    },
+    {
+      description: 'source truncated at the start',
+      message: `Unexpected token ',', ..."${descriptorWithError.slice(
+        errorIndex - 10
+      )}" is not valid JSON`,
+      expectedLineError: 3
+    },
+    {
+      description: 'source truncated at the end',
+      message: `Unexpected token ',', "${descriptorWithError.slice(
+        0,
+        errorIndex + 11
+      )}"... is not valid JSON`,
+      expectedLineError: 3
+    },
+    {
+      description: 'token not found in source shown entirely',
+      message: `Unexpected token 'x', "${descriptorWithError}" is not valid JSON`
+    },
+    {
+      description: 'context not found in source',
+      message: `Unexpected token ',', ..."not in the descriptor"... is not valid JSON`
+    },
+    {
+      description: 'message without position or source context',
+      message: 'Unexpected end of JSON input'
+    }
+  ]
+
+  for (const mock of sourceContextMessages) {
+    test
+      .do(() => {
+        const bundleDescriptorService = new BundleDescriptorService()
+        bundleDescriptorService.writeDescriptor(descriptorWithError)
+        sinon.stub(JSON, 'parse').throws(new SyntaxError(mock.message))
+        new BundleDescriptorService(bundleDir).validateBundleDescriptor()
+      })
+      .catch(error => {
+        expect(error.message).contain(
+          BUNDLE_DESCRIPTOR_FILE_NAME + ' is not valid'
+        )
+        if (mock.expectedLineError === undefined) {
+          expect(error.message).contain(mock.message)
+        } else {
+          expect(error.message).contain(
+            'Malformed JSON at line ' + mock.expectedLineError
+          )
+          expect(error.message).contain('>>>>>>     ,{')
+        }
+      })
+      .it(`Error in JSON parse with source context: ${mock.description}`)
+  }
+
   for (const [index, mock] of mocksExpectedErrorWithInputOneLine.entries()) {
     test
       .do(() => {
