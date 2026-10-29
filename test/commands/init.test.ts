@@ -431,7 +431,9 @@ describe('init', () => {
       'sample_api_key'
     ])
     .catch(error => {
-      expect(error.message).to.contain('--hub-url= must also be provided')
+      expect(error.message).to.contain(
+        'must be provided when using --hub-api-key: --hub-url'
+      )
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits when hub-api-key flag is set without hub-url flag')
