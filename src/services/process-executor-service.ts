@@ -3,10 +3,6 @@ import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 import * as path from 'node:path'
 
-const SHOULD_HIDE_PRIVATE_NODEJS = [null, undefined, '', 'true'].includes(
-  process.env.ENTANDO_CLI_HIDE_PRIVATE_NODEJS
-)
-
 export const DEFAULT_PARALLEL_PROCESSES_SIZE = 3
 export const COMMAND_NOT_FOUND_EXIT_CODE = 127
 
@@ -209,34 +205,73 @@ function setUpProcess(options: ProcessExecutionOptions) {
 }
 
 /**
+ * Returns true if ENTANDO_CLI_HIDE_PRIVATE_NODEJS is "true" or was not provided.
+ * The variable is read at call time (not at module load) so that it can be tested.
+ * @returns true if the private nodejs must be removed from the child process PATH
+ */
+export function shouldHidePrivateNodejs(): boolean {
+  return [undefined, '', 'true'].includes(
+    process.env.ENTANDO_CLI_HIDE_PRIVATE_NODEJS
+  )
+}
+
+/**
+ * Returns the installation directory of the (private) nodejs instance
+ * used to run the entando-bundle-cli
+ * @returns the private nodejs installation directory
+ */
+function getPrivateNodeDir(): string {
+  return path.dirname(process.execPath).replace(/[/\\]bin$/, '')
+}
+
+/**
  * If ENTANDO_CLI_HIDE_PRIVATE_NODEJS is "true" or was not provided then
- * the function returns an environment with a path that doesn't contain
- * the (private) nodejs instance used to run the entando-bundle-cli
+ * the function returns the parent environment (options.env or process.env)
+ * with a PATH that doesn't contain the (private) nodejs instance used to run
+ * the entando-bundle-cli. All the other variables are preserved, since
+ * node/npm need them (e.g. SystemRoot, APPDATA, USERPROFILE, TEMP on Windows).
  *
  * This allows to run the nodejs of the user environment
+ * @param options the process execution options
+ * @param hidePrivateNodejs whether the private nodejs must be removed from PATH
+ * @param privateNodeDir the private nodejs installation directory
+ * @returns the environment of the child process (undefined means inherit)
  */
-function buildChildEnvironment(options: ProcessExecutionOptions) {
-  if (SHOULD_HIDE_PRIVATE_NODEJS) {
-    const privateNodeDir = path
-      .dirname(process.execPath)
-      .replace(/[/\\]bin$/, '')
-    // Normalize to forward slashes for consistent matching (Git Bash on Windows uses POSIX paths)
-    const normalizedPrivateDir = privateNodeDir.replace(/\\/g, '/')
-    const currentPath = (options.env || process.env).PATH || ''
-    // Support both ":" (POSIX/Git Bash) and ";" (native Windows) delimiters
-    const delimiter = currentPath.includes(';') ? ';' : ':'
-    const cleanedPath = currentPath
-      .split(delimiter)
-      .filter(p => {
-        const normalizedEntry = p.replace(/\\/g, '/')
-        return (
-          !normalizedEntry.startsWith(normalizedPrivateDir + '/') &&
-          normalizedEntry !== normalizedPrivateDir
-        )
-      })
-      .join(delimiter)
-    return { ...options.env, PATH: cleanedPath }
+export function buildChildEnvironment(
+  options: ProcessExecutionOptions,
+  hidePrivateNodejs: boolean = shouldHidePrivateNodejs(),
+  privateNodeDir: string = getPrivateNodeDir()
+): NodeJS.ProcessEnv | undefined {
+  if (!hidePrivateNodejs) {
+    return options.env
   }
 
-  return options.env
+  const baseEnv = options.env ?? process.env
+  // Normalize to forward slashes for consistent matching (Git Bash on Windows uses POSIX paths)
+  const normalizedPrivateDir = privateNodeDir.replace(/\\/g, '/')
+  // Look up PATH case-insensitively: on Windows the key may be "Path" and a
+  // copy of process.env is a plain (case-sensitive) object
+  const pathKey = Object.keys(baseEnv).find(k => k.toUpperCase() === 'PATH')
+  const currentPath = (pathKey && baseEnv[pathKey]) || ''
+  // Support both ":" (POSIX/Git Bash) and ";" (native Windows) delimiters
+  const delimiter = currentPath.includes(';') ? ';' : ':'
+  const cleanedPath = currentPath
+    .split(delimiter)
+    .filter(p => {
+      const normalizedEntry = p.replace(/\\/g, '/')
+      return (
+        !normalizedEntry.startsWith(normalizedPrivateDir + '/') &&
+        normalizedEntry !== normalizedPrivateDir
+      )
+    })
+    .join(delimiter)
+
+  const env: NodeJS.ProcessEnv = { ...baseEnv }
+  // Drop any case variant of PATH so that the child receives a single, filtered entry
+  for (const key of Object.keys(env)) {
+    if (key.toUpperCase() === 'PATH') delete env[key]
+  }
+
+  env.PATH = cleanedPath
+  return env
 }

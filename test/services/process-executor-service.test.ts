@@ -6,7 +6,8 @@ import { InMemoryWritable } from '../../src/utils'
 
 import {
   ProcessExecutorService,
-  ParallelProcessExecutorService
+  ParallelProcessExecutorService,
+  buildChildEnvironment
 } from '../../src/services/process-executor-service'
 import { getStubProcess } from '../helpers/mocks/stub-process'
 import { FakeStream } from '../helpers/mocks/fake-stream'
@@ -237,5 +238,133 @@ describe('ProcessExecutorService', () => {
 
     expect(results.length).to.equal(1)
     expect(results[0]).to.equal(error)
+  })
+})
+
+describe('buildChildEnvironment', () => {
+  const HIDE_VAR = 'ENTANDO_CLI_HIDE_PRIVATE_NODEJS'
+  let originalHideValue: string | undefined
+
+  beforeEach(() => {
+    originalHideValue = process.env[HIDE_VAR]
+  })
+
+  afterEach(() => {
+    if (originalHideValue === undefined) {
+      delete process.env[HIDE_VAR]
+    } else {
+      process.env[HIDE_VAR] = originalHideValue
+    }
+
+    sinon.restore()
+  })
+
+  it('Keeps the parent variables and filters only the private nodejs from PATH', () => {
+    const env = buildChildEnvironment(
+      {
+        command: 'test',
+        env: {
+          SystemRoot: 'C:\\Windows',
+          APPDATA: 'C:\\Users\\x\\AppData\\Roaming',
+          USERPROFILE: 'C:\\Users\\x',
+          TEMP: 'C:\\Temp',
+          PATH: '/opt/private-node/bin:/usr/bin'
+        }
+      },
+      true,
+      '/opt/private-node'
+    )
+
+    expect(env).to.deep.equal({
+      SystemRoot: 'C:\\Windows',
+      APPDATA: 'C:\\Users\\x\\AppData\\Roaming',
+      USERPROFILE: 'C:\\Users\\x',
+      TEMP: 'C:\\Temp',
+      PATH: '/usr/bin'
+    })
+  })
+
+  it('Inherits process.env when options.env is not provided', () => {
+    const env = buildChildEnvironment({ command: 'test' }, true, '/opt/private')
+    const nonPathKeys = Object.keys(process.env).filter(
+      k => k.toUpperCase() !== 'PATH'
+    )
+    expect(nonPathKeys.length).to.be.greaterThan(0)
+    for (const key of nonPathKeys) {
+      expect(env![key]).to.equal(process.env[key])
+    }
+  })
+
+  it('Replaces a Windows-style "Path" key with a single filtered PATH key', () => {
+    const env = buildChildEnvironment(
+      {
+        command: 'test',
+        env: { Path: 'C:\\priv\\bin;C:\\Windows', SystemRoot: 'C:\\Windows' }
+      },
+      true,
+      'C:\\priv'
+    )
+
+    const pathKeys = Object.keys(env!).filter(k => k.toUpperCase() === 'PATH')
+    expect(pathKeys).to.deep.equal(['PATH'])
+    expect(env!.PATH).to.equal('C:\\Windows')
+    expect(env!.SystemRoot).to.equal('C:\\Windows')
+  })
+
+  it('Removes a Git Bash style entry of a Windows private nodejs', () => {
+    const env = buildChildEnvironment(
+      {
+        command: 'test',
+        env: {
+          PATH: '/c/Users/x/.entando/node/bin:/usr/bin:/c/Users/x/.entando/node'
+        }
+      },
+      true,
+      '/c/Users/x/.entando/node'
+    )
+
+    expect(env!.PATH).to.equal('/usr/bin')
+  })
+
+  it('Returns options.env untouched when the private nodejs must not be hidden', () => {
+    const optionsEnv = { PATH: '/opt/private-node/bin:/usr/bin' }
+    expect(
+      buildChildEnvironment(
+        { command: 'test', env: optionsEnv },
+        false,
+        '/opt/private-node'
+      )
+    ).to.equal(optionsEnv)
+    expect(
+      buildChildEnvironment({ command: 'test' }, false, '/opt/private-node')
+    ).to.equal(undefined)
+  })
+
+  it('Reads ENTANDO_CLI_HIDE_PRIVATE_NODEJS at call time', () => {
+    process.env[HIDE_VAR] = 'false'
+    expect(buildChildEnvironment({ command: 'test' })).to.equal(undefined)
+    process.env[HIDE_VAR] = 'true'
+    expect(buildChildEnvironment({ command: 'test' })).to.not.equal(undefined)
+  })
+
+  it('Spawns the child process with the full parent environment', async () => {
+    process.env[HIDE_VAR] = 'true'
+    const stubProcess = getStubProcess()
+    const spawnStub = sinon.stub(cp, 'spawn').returns(stubProcess)
+
+    const promise = ProcessExecutorService.executeProcess({ command: 'test' })
+    stubProcess.emit('exit', 0, null)
+    await promise
+
+    const spawnEnv = (spawnStub.firstCall.args[1] as cp.SpawnOptions).env!
+    const nonPathKeys = Object.keys(process.env).filter(
+      k => k.toUpperCase() !== 'PATH'
+    )
+    expect(nonPathKeys.length).to.be.greaterThan(0)
+    for (const key of nonPathKeys) {
+      expect(spawnEnv[key]).to.equal(process.env[key])
+    }
+
+    expect(spawnEnv.PATH).to.not.equal(undefined)
   })
 })
