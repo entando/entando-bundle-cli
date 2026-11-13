@@ -10,3 +10,6 @@ oclif.manifest.json
 .idea
 *.tsbuildinfo
 yarn.lock
+/.REVIEW/
+/.PLAN/
+/.TESTING/

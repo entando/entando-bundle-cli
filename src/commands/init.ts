@@ -12,7 +12,7 @@ export default class Init extends Command {
     '<%= config.bin %> <%= command.id %> my-bundle',
     '<%= config.bin %> <%= command.id %> my-bundle --version=0.0.1',
     '<%= config.bin %> <%= command.id %> my-bundle --from-hub',
-    '<%= config.bin %> <%= command.id %> my-bundle --from-hub --hub-url=https://www.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890'
+    '<%= config.bin %> <%= command.id %> my-bundle --from-hub --hub-url=https://auth.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890'
   ]
 
   static args = [
