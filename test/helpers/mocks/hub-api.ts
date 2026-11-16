@@ -1,4 +1,4 @@
-export const mockDomain = 'https://www.entando.com/entando-hub-api'
+export const mockDomain = 'https://auth.entando.com/entando-hub-api'
 export const mockUri = '/ent/api/templates/bundlegroups'
 export const mockApiKey = 'abcdefghij1234567890'
 export const mockCatalogId = 12

@@ -76,7 +76,7 @@ export class HubAPI {
       if (
         axios.isAxiosError(error) &&
         error.response &&
-        (error.response?.data as { message: string }).message
+        (error.response.data as { message?: string } | undefined)?.message
       ) {
         const errorData = error.response.data as { message: string }
         HubAPI.debug(
@@ -88,7 +88,13 @@ export class HubAPI {
       HubAPI.debug(
         `Error while calling ${urlString}: ${(error as Error).message}`
       )
-      throw new Error('Error while contacting the Entando Hub')
+      const cause =
+        axios.isAxiosError(error) && error.response
+          ? `HTTP ${error.response.status}`
+          : (error as Error).message
+      throw new Error(
+        `Error while contacting the Entando Hub at ${urlString}: ${cause}`
+      )
     }
   }
 
