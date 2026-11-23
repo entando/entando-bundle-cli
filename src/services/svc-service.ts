@@ -21,6 +21,8 @@ enum DockerComposeCommand {
   LOGS = 'logs -f',
   RM = 'rm -f -s'
 }
+export const SVC_UID_ENV_VARIABLE = 'ENTANDO_SVC_UID'
+
 export class SvcService {
   private static debug = debugFactory(SvcService)
   private readonly parentDirectory: string
@@ -90,7 +92,9 @@ export class SvcService {
     }
 
     if (DefaultSvcInitializerService.getDefaultServices().includes(service)) {
-      const defaultSvcService = new DefaultSvcInitializerService(this.parentDirectory)
+      const defaultSvcService = new DefaultSvcInitializerService(
+        this.parentDirectory
+      )
       defaultSvcService.initializeService(service)
     }
 
@@ -113,10 +117,6 @@ export class SvcService {
       throw new CLIError(`Service ${service} is not enabled`)
     }
 
-    if (removeData) {
-      this.deleteServiceData(service)
-    }
-
     const svc = activeServices.filter(
       currentService => currentService !== service
     )
@@ -124,7 +124,24 @@ export class SvcService {
     this.bundleDescriptor.svc = svc
     this.bundleDescriptorService.writeBundleDescriptor(this.bundleDescriptor)
 
-    return this.executeDockerComposeCommand(DockerComposeCommand.RM, [service])
+    return this.removeService(service, removeData)
+  }
+
+  private async removeService(
+    service: string,
+    removeData: boolean
+  ): Promise<ProcessExecutionResult> {
+    // the compose file must still exist when "rm" runs, so files are deleted afterwards
+    const result = await this.executeDockerComposeCommand(
+      DockerComposeCommand.RM,
+      [service]
+    )
+
+    if (removeData) {
+      this.deleteServiceData(service)
+    }
+
+    return result
   }
 
   private deleteServiceData(service: string): void {
@@ -202,7 +219,8 @@ export class SvcService {
         serviceType === DockerComposeCommand.LOGS
           ? process.stdout
           : SvcService.debug.outputStream,
-      workDir: this.parentDirectory
+      workDir: this.parentDirectory,
+      env: SvcService.composeEnvironment()
     }
 
     // detects the presence docker-compose-plugin
@@ -219,6 +237,22 @@ export class SvcService {
     const cmd = `${COMPOSE_COMMAND}${COMPOSE_OPTIONS}`
 
     return ProcessExecutorService.executeProcess({ ...options, command: cmd })
+  }
+
+  // Environment for docker compose. On Linux the default service templates run some containers as the host user
+  // (e.g. keycloak, which writes into the bind-mounted svc/keycloak/keycloak-db folder), so the host uid is exported.
+  // A value already exported by the user is kept.
+  private static composeEnvironment(): NodeJS.ProcessEnv {
+    const env: NodeJS.ProcessEnv = { ...process.env }
+    if (
+      process.platform === 'linux' &&
+      typeof process.getuid === 'function' &&
+      env[SVC_UID_ENV_VARIABLE] === undefined
+    ) {
+      env[SVC_UID_ENV_VARIABLE] = String(process.getuid())
+    }
+
+    return env
   }
 
   private precheckEnabledServices(services: string[]): void {

@@ -1,13 +1,15 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-version: '3.7'
-
 services:
   postgresql:
     image: entando/entando-postgres-rocky:%POSTGRES_DOCKER_IMAGE%
     restart: always
-    # If you want to relocate the postgres data (volume) to your local directory, uncomment the lines below
+    # Without a volume, the data is lost whenever the container is recreated (e.g. on an image upgrade).
+    # If you want to persist the postgres data, uncomment the lines below.
+    # Mount /var/lib/pgsql (owned by the postgres user in the image): mounting the PGDATA folder
+    # (/var/lib/pgsql/data/userdata) directly makes the container fail on first boot.
+    # A persisted data folder cannot be opened by a newer PostgreSQL major version: use pg_dump/restore to upgrade.
     # volumes:
-    #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/postgresql/:/var/lib/postgresql/data/
+    #   - ~/volumes/entando-bundle-cli/%BUNDLENAME%/postgresql/:/var/lib/pgsql/
     environment:
       - POSTGRESQL_USER=%BUNDLENAME%-user
       - POSTGRESQL_PASSWORD=%BUNDLENAME%-password

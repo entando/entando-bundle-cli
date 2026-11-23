@@ -4,16 +4,36 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as sinon from 'sinon'
 import { TempDirHelper } from '../helpers/temp-dir-helper'
-import { SvcService } from '../../src/services/svc-service'
+import {
+  SvcService,
+  SVC_UID_ENV_VARIABLE
+} from '../../src/services/svc-service'
 import { BundleDescriptorService } from '../../src/services/bundle-descriptor-service'
 import { ProcessExecutorService } from '../../src/services/process-executor-service'
 import { SVC_FOLDER } from '../../src/paths'
+
+function commands(runStub: sinon.SinonStub): string[] {
+  return runStub.getCalls().map(call => call.args[0].command)
+}
+
+async function composeEnvironments(): Promise<NodeJS.ProcessEnv[]> {
+  const runStub = sinon
+    .stub(ProcessExecutorService, 'executeProcess')
+    .resolves(0)
+  await new SvcService('entando-bundle-cli').startServices(['keycloak'])
+  return runStub.getCalls().map(call => call.args[0].env!)
+}
 
 describe('svc-service', () => {
   let bundleDirectory: string
   let bundleDescriptorService: BundleDescriptorService
   const tempDirHelper = new TempDirHelper(__filename)
   let svcService: SvcService
+
+  const keycloakYaml = () =>
+    path.resolve(bundleDirectory, SVC_FOLDER, 'keycloak.yml')
+  const keycloakFolder = () =>
+    path.resolve(bundleDirectory, SVC_FOLDER, 'keycloak')
 
   before(() => {
     bundleDirectory = tempDirHelper.createInitializedBundleDir('sample-bundle')
@@ -34,7 +54,7 @@ describe('svc-service', () => {
       ...bundleDescriptor,
       svc: []
     })
-    const svcfiles = ['postgresql.yml', 'mysql.yml', 'postgresql.yml']
+    const svcfiles = ['postgresql.yml', 'mysql.yml', 'keycloak.yml']
     for (const svcfile of svcfiles) {
       const filepath = path.resolve(bundleDirectory, 'svc', svcfile)
       if (fs.existsSync(filepath)) {
@@ -492,7 +512,7 @@ describe('svc-service', () => {
       expect(result).to.not.eq(0)
     })
 
-  test.it('disable custom service removing service data', () => {
+  test.it('disable custom service removing service data', async () => {
     const myServiceYaml = path.resolve(
       bundleDirectory,
       SVC_FOLDER,
@@ -509,23 +529,144 @@ describe('svc-service', () => {
     expect(svcService.getEnabledServices().includes('myservice')).false
     svcService.enableService('myservice')
     expect(svcService.getEnabledServices().includes('myservice')).true
-    svcService.disableService('myservice', true)
+    sinon.stub(ProcessExecutorService, 'executeProcess').resolves(0)
+    await svcService.disableService('myservice', true)
     expect(svcService.getEnabledServices().includes('myservice')).false
     expect(fs.existsSync(myServiceYaml)).false
     expect(fs.existsSync(myServiceFolder)).false
   })
 
-  test.it('disable service when YAML file has already been removed', () => {
-    const svcService = new SvcService('entando-bundle-cli')
-    expect(svcService.getEnabledServices().includes('postgresql')).true
-    const myServiceYaml = path.resolve(
-      bundleDirectory,
-      SVC_FOLDER,
-      'postgresql.yml'
+  test.it(
+    'disable service when YAML file has already been removed',
+    async () => {
+      const svcService = new SvcService('entando-bundle-cli')
+      expect(svcService.getEnabledServices().includes('postgresql')).true
+      const myServiceYaml = path.resolve(
+        bundleDirectory,
+        SVC_FOLDER,
+        'postgresql.yml'
+      )
+      fs.rmSync(myServiceYaml)
+      sinon.stub(ProcessExecutorService, 'executeProcess').resolves(0)
+      await svcService.disableService('postgresql', true)
+      expect(svcService.getEnabledServices().includes('postgresql')).false
+    }
+  )
+
+  describe('disable removes the container before the files', () => {
+    test.it(
+      'removes the container, then the files (keycloak, remove=true)',
+      async () => {
+        const runStub = sinon.stub(ProcessExecutorService, 'executeProcess')
+        let ymlExistedDuringRm: boolean | undefined
+        runStub.onCall(0).resolves(0)
+        runStub.onCall(1).callsFake(async () => {
+          ymlExistedDuringRm = fs.existsSync(keycloakYaml())
+          return 0
+        })
+
+        await new SvcService('entando-bundle-cli').disableService(
+          'keycloak',
+          true
+        )
+
+        expect(commands(runStub)).to.deep.equal([
+          'docker compose > /dev/null 2>&1',
+          'docker compose -p sample-bundle -f svc/keycloak.yml rm -f -s keycloak'
+        ])
+        expect(ymlExistedDuringRm).to.eq(true)
+        expect(fs.existsSync(keycloakYaml())).false
+        expect(fs.existsSync(keycloakFolder())).false
+      }
     )
-    fs.rmSync(myServiceYaml)
-    svcService.disableService('postgresql', true)
-    expect(svcService.getEnabledServices().includes('postgresql')).false
+
+    test.it('keeps the files without removal (keycloak)', async () => {
+      const runStub = sinon
+        .stub(ProcessExecutorService, 'executeProcess')
+        .resolves(0)
+
+      await new SvcService('entando-bundle-cli').disableService(
+        'keycloak',
+        false
+      )
+
+      expect(commands(runStub)).to.deep.equal([
+        'docker compose > /dev/null 2>&1',
+        'docker compose -p sample-bundle -f svc/keycloak.yml rm -f -s keycloak'
+      ])
+      expect(fs.existsSync(keycloakYaml())).true
+      expect(fs.existsSync(path.join(keycloakFolder(), 'keycloak-db'))).true
+    })
+  })
+
+  describe('docker compose environment', () => {
+    const originalPlatform = Object.getOwnPropertyDescriptor(
+      process,
+      'platform'
+    )!
+    const originalGetuid = Object.getOwnPropertyDescriptor(process, 'getuid')
+    const originalUid = process.env[SVC_UID_ENV_VARIABLE]
+
+    function simulate(platform: string, uid?: number) {
+      Object.defineProperty(process, 'platform', { value: platform })
+      Object.defineProperty(process, 'getuid', {
+        value: uid === undefined ? undefined : () => uid,
+        configurable: true,
+        writable: true
+      })
+    }
+
+    afterEach(() => {
+      Object.defineProperty(process, 'platform', originalPlatform)
+      if (originalGetuid) {
+        Object.defineProperty(process, 'getuid', originalGetuid)
+      } else {
+        delete (process as any).getuid
+      }
+
+      if (originalUid === undefined) {
+        delete process.env[SVC_UID_ENV_VARIABLE]
+      } else {
+        process.env[SVC_UID_ENV_VARIABLE] = originalUid
+      }
+    })
+
+    test.it('exports the host uid on Linux', async () => {
+      delete process.env[SVC_UID_ENV_VARIABLE]
+      simulate('linux', 1234)
+
+      const environments = await composeEnvironments()
+
+      expect(environments).to.have.length(2)
+      for (const env of environments) {
+        expect(env[SVC_UID_ENV_VARIABLE]).to.eq('1234')
+        expect(env.PATH).to.eq(process.env.PATH)
+      }
+    })
+
+    for (const platform of ['darwin', 'win32']) {
+      test.it(`does not export the uid on ${platform}`, async () => {
+        delete process.env[SVC_UID_ENV_VARIABLE]
+        simulate(platform, platform === 'win32' ? undefined : 501)
+
+        const environments = await composeEnvironments()
+
+        for (const env of environments) {
+          expect(env).to.not.haveOwnProperty(SVC_UID_ENV_VARIABLE)
+        }
+      })
+    }
+
+    test.it('keeps a uid already exported by the user', async () => {
+      process.env[SVC_UID_ENV_VARIABLE] = '4321'
+      simulate('linux', 1234)
+
+      const environments = await composeEnvironments()
+
+      for (const env of environments) {
+        expect(env[SVC_UID_ENV_VARIABLE]).to.eq('4321')
+      }
+    })
   })
 
   test.it(

@@ -1,27 +1,35 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-version: '3.7'
 services:
   keycloak:
+    # entando-keycloak 7.5.x ships Keycloak 24.0.5 (Quarkus distribution)
     image: entando/entando-keycloak:%KEYCLOAK_DOCKER_IMAGE%
     restart: always
-    command: [
-        '-b',
-        '0.0.0.0',
-        '-Dkeycloak.profile.feature.scripts=enabled',
-        '-Dkeycloak.profile.feature.upload_scripts=enabled',
-        '-Dkeycloak.migration.action=import',
-        '-Dkeycloak.migration.provider=dir',
-        '-Dkeycloak.migration.dir=/opt/jboss/keycloak/realm-config',
-        '-Dkeycloak.migration.strategy=IGNORE_EXISTING', # use 'OVERWRITE_EXISTING' instead if you want to reset your current configuration
-        '-Djboss.socket.binding.port-offset=1000'
+    # Run as the host user so that Keycloak can write into ./keycloak/keycloak-db on Linux.
+    # The CLI sets ENTANDO_SVC_UID on Linux; if you run docker compose yourself, export ENTANDO_SVC_UID=$(id -u)
+    user: '${ENTANDO_SVC_UID:-1000}:0'
+    # The image entrypoint maps the legacy variables (KEYCLOAK_USER, DB_VENDOR, ...) to KC_* and then runs
+    # "kc.sh start" WITHOUT forwarding arguments, so a compose "command:" would be ignored.
+    # We reuse the variable mapping and start Keycloak in dev mode, importing the realms in ./keycloak/realm-config.
+    # Realms that already exist are skipped, so your changes survive restarts.
+    # To reset the configuration: stop keycloak and empty ./keycloak/keycloak-db (the realm is imported again on the next start)
+    entrypoint:
+      [
+        '/bin/bash',
+        '-c',
+        '. /opt/convert-vars.sh && exec /opt/keycloak/bin/kc.sh start-dev --import-realm'
       ]
     volumes:
-      - ./keycloak/realm-config:/opt/jboss/keycloak/realm-config
-      - ./keycloak/keycloak-db:/opt/jboss/keycloak/standalone/data
+      - ./keycloak/realm-config:/opt/keycloak/data/import:ro
+      - ./keycloak/keycloak-db:/opt/keycloak/data/h2
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
-      - DB_VENDOR=h2
+      # persistent H2 database stored in ./keycloak/keycloak-db
+      - DB_VENDOR=dev-file
+      # keep the historical port; the context path /auth is set by the image (KC_HTTP_RELATIVE_PATH)
+      - KC_HTTP_PORT=9080
+      # HTTPS is inactive until certificates are configured; the port is kept for compatibility
+      - KC_HTTPS_PORT=9443
     ports:
       - 9080:9080
       - 9443:9443
