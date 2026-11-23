@@ -293,7 +293,7 @@ EXAMPLES
 
   $ entando-bundle-cli init my-bundle --from-hub
 
-  $ entando-bundle-cli init my-bundle --from-hub --hub-url=https://auth.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890
+  $ entando-bundle-cli init my-bundle --from-hub --hub-url=https://www.entando.com/entando-hub-api?catalogId=1 --hub-api-key=1234567890
 ```
 
 _See code: [dist/commands/init.ts](https://github.com/entando/entando-bundle-cli/blob/v1.2.0-SNAPSHOT/dist/commands/init.ts)_
@@ -654,9 +654,16 @@ EXAMPLES
 - `ENTANDO_CLI_CRANE_BIN`: path to the crane executable
 - `ENTANDO_CLI_DEBUG`: boolean flag (`true`|`false`) used to enable debug logging (`false` by default)
 - `ENTANDO_CLI_DEFAULT_DOCKER_REGISTRY`: Default Docker registry (`registry.hub.docker.com` by default)
-- `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://auth.entando.com/entando-hub-api`
+- `ENTANDO_CLI_DEFAULT_HUB`: default domain of your Entando Hub - default sets to `https://entando.com/entando-hub-api`
 - `ENTANDO_CLI_ECR_TOKEN`: ECR/CM API authentication token
 - `ENTANDO_CLI_ECR_URL`: URL of ECR/CM API
+
+# macOS on Apple Silicon
+
+- The CLI runs on Node.js 14, which has no native Apple Silicon build: the x64 build installed by `ent check-env` runs through Rosetta 2. Run `ENTANDO_CLI_DEBUG=true ent bundle info` to see the runtime in use.
+- Micro frontends and microservices are built with your own Node.js and Maven, which can be native arm64.
+- Bundle images are always built for `linux/amd64`, the architecture of the target clusters. On Apple Silicon Docker builds them through emulation: enable "Use Rosetta for x86_64/amd64 emulation on Apple Silicon" in Docker Desktop to make it faster.
+- Keycloak runs natively. PostgreSQL, MySQL and Oracle images are published for amd64 only and run emulated; the generated `svc/*.yml` files of PostgreSQL and Oracle declare `platform: linux/amd64`.
 
 # Development environment setup
 
