@@ -141,6 +141,46 @@ describe('init', () => {
       expect(bundleDescriptor.version).to.eq('0.0.1')
     })
 
+  test
+    .env({ ENTANDO_CLI_DEFAULT_HUB: 'https://entando.com/entando-hub-api' })
+    .stub(
+      inquirer,
+      'prompt',
+      sinon
+        .stub()
+        .resolves({ bundlegroup: demoBundleGroupList[0], bundle: demoBundle })
+    )
+    .nock(mockDomain, api =>
+      api
+        .get(mockUri)
+        .reply(200, demoBundleGroupList)
+        .get(`${mockUri}/51`)
+        .reply(200, [demoBundle])
+    )
+    .stub(ProcessExecutorService, 'executeProcess', sinon.stub().resolves(0))
+    .do(async () => {
+      const init = new InitializerService({
+        name: 'bundle-with-legacy-hub',
+        version: '0.0.1',
+        parentDirectory: process.cwd()
+      })
+      await init.performBundleInit()
+      fs.rmSync(
+        path.resolve(process.cwd(), 'bundle-with-legacy-hub/microservices'),
+        { recursive: true, force: true }
+      )
+    })
+    .command(['init', 'bundle-with-legacy-hub', '--from-hub'])
+    .it(
+      'runs init --from-hub with the default hub when ent exports the legacy hub url',
+      () => {
+        checkFoldersStructure('bundle-with-legacy-hub')
+        expect(
+          (ProcessExecutorService.executeProcess as sinon.SinonStub).called
+        ).to.equal(true)
+      }
+    )
+
   const noDescriptorBundlename = 'bundle-with-fromhub-nodescriptor'
 
   test
@@ -362,7 +402,7 @@ describe('init', () => {
       'bundle-private-catalog',
       '--from-hub',
       '--hub-url',
-      'https://www.entando.com/entando-hub-api?catalogId=12',
+      'https://auth.entando.com/entando-hub-api?catalogId=12',
       '--hub-api-key',
       'abcdefghij1234567890'
     ])
@@ -391,7 +431,9 @@ describe('init', () => {
       'sample_api_key'
     ])
     .catch(error => {
-      expect(error.message).to.contain('--hub-url= must also be provided')
+      expect(error.message).to.contain(
+        'must be provided when using --hub-api-key: --hub-url'
+      )
       expect((error as CLIError).oclif.exit).eq(2)
     })
     .it('exits when hub-api-key flag is set without hub-url flag')
@@ -403,7 +445,7 @@ describe('init', () => {
       'testProject',
       '--from-hub',
       '--hub-url',
-      'https://www.entando.com/entando-hub-api',
+      'https://auth.entando.com/entando-hub-api',
       '--hub-api-key',
       'sample_api_key'
     ])
@@ -422,7 +464,7 @@ describe('init', () => {
       'testProject',
       '--from-hub',
       '--hub-url',
-      'https://www.entando.com/entando-hub-api?catalogId=12'
+      'https://auth.entando.com/entando-hub-api?catalogId=12'
     ])
     .catch(error => {
       expect(error.message).to.contain(
