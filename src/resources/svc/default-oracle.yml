@@ -3,6 +3,8 @@ services:
   oracle:
     # notice that this image has a size of 2.84 GB and takes several minutes to boot
     image: container-registry.oracle.com/database/express:%ORACLE_DOCKER_IMAGE%
+    # the image is published for amd64 only: on ARM hosts (e.g. Apple Silicon) Docker runs it emulated
+    platform: linux/amd64
     restart: always
     # If you want to relocate the oracle data (volume) to your local directory, uncomment the lines below
     # volumes:

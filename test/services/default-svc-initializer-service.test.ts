@@ -141,6 +141,19 @@ describe('create-default-svc-service', () => {
       expect(text).to.contain('/var/lib/pgsql/')
       expect(text).to.not.contain('/var/lib/postgresql/data')
     })
+
+    // images published for amd64 only declare their platform, multi-arch images run natively
+    const platforms: Record<string, string | undefined> = {
+      keycloak: undefined,
+      postgresql: 'linux/amd64',
+      oracle: 'linux/amd64'
+    }
+    for (const [service, platform] of Object.entries(platforms)) {
+      test.it(`${service}: platform ${platform ?? 'not declared'}`, () => {
+        const { yml } = generate(service)
+        expect(yml.services[service].platform).to.eq(platform)
+      })
+    }
   })
 
   function generate(service: string): { text: string; yml: any } {
