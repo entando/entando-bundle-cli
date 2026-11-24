@@ -7,7 +7,9 @@ import { InMemoryWritable } from '../../src/utils'
 import {
   ProcessExecutorService,
   ParallelProcessExecutorService,
-  buildChildEnvironment
+  buildChildEnvironment,
+  resetRosettaCheck,
+  shouldRunChildrenNatively
 } from '../../src/services/process-executor-service'
 import { getStubProcess } from '../helpers/mocks/stub-process'
 import { FakeStream } from '../helpers/mocks/fake-stream'
@@ -356,7 +358,8 @@ describe('buildChildEnvironment', () => {
     stubProcess.emit('exit', 0, null)
     await promise
 
-    const spawnEnv = (spawnStub.firstCall.args[1] as cp.SpawnOptions).env!
+    // the options are the last argument, also when spawning through "arch"
+    const spawnEnv = (spawnStub.firstCall.lastArg as cp.SpawnOptions).env!
     const nonPathKeys = Object.keys(process.env).filter(
       k => k.toUpperCase() !== 'PATH'
     )
@@ -366,5 +369,53 @@ describe('buildChildEnvironment', () => {
     }
 
     expect(spawnEnv.PATH).to.not.equal(undefined)
+  })
+})
+
+async function runAndGetSpawnArgs(): Promise<unknown[]> {
+  const stubProcess = getStubProcess()
+  const spawnStub = sinon.stub(cp, 'spawn').returns(stubProcess)
+  const promise = ProcessExecutorService.executeProcess({
+    command: "git -C 'my bundle' init"
+  })
+  stubProcess.emit('exit', 0, null)
+  await promise
+  return spawnStub.firstCall.args
+}
+
+describe('ProcessExecutorService on Apple Silicon', () => {
+  const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')!
+
+  beforeEach(() => {
+    resetRosettaCheck()
+    Object.defineProperty(process, 'platform', { value: 'darwin' })
+  })
+
+  afterEach(() => {
+    sinon.restore()
+    Object.defineProperty(process, 'platform', originalPlatform)
+    resetRosettaCheck()
+  })
+
+  it('Runs the child processes natively when translated by Rosetta 2', async () => {
+    sinon.stub(cp, 'execFileSync').returns('1\n')
+    const [file, args, options] = await runAndGetSpawnArgs()
+    expect(file).to.eq('/usr/bin/arch')
+    expect(args).to.deep.eq(['-arm64', 'bash', '-c', "git -C 'my bundle' init"])
+    expect((options as cp.SpawnOptions).shell).to.be.undefined
+  })
+
+  it('Runs the child processes through bash when native', async () => {
+    sinon.stub(cp, 'execFileSync').returns('0\n')
+    const [file, options] = await runAndGetSpawnArgs()
+    expect(file).to.eq("git -C 'my bundle' init")
+    expect((options as cp.SpawnOptions).shell).to.eq('bash')
+  })
+
+  it('Checks the translation only once', () => {
+    const execStub = sinon.stub(cp, 'execFileSync').returns('1\n')
+    expect(shouldRunChildrenNatively()).to.eq(true)
+    expect(shouldRunChildrenNatively()).to.eq(true)
+    sinon.assert.calledOnce(execStub)
   })
 })
