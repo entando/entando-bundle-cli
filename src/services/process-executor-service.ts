@@ -2,6 +2,7 @@ import { ChildProcess, spawn, StdioOptions } from 'node:child_process'
 import { EventEmitter, Writable } from 'node:stream'
 import { debugFactory } from './debug-factory-service'
 import * as path from 'node:path'
+import { isTranslatedByRosetta } from '../hooks/init/runtime-hook'
 
 export const DEFAULT_PARALLEL_PROCESSES_SIZE = 3
 export const COMMAND_NOT_FOUND_EXIT_CODE = 127
@@ -173,13 +174,47 @@ export class ParallelProcessExecutorService extends EventEmitter {
   }
 }
 
+let translatedByRosetta: boolean | undefined
+let translationChecked = false
+
+/**
+ * Tells whether the child processes must be forced to run natively, i.e. when
+ * the CLI is an x64 process translated by Rosetta 2 on Apple Silicon.
+ * Children of a translated process would otherwise run the x86_64 slice of
+ * universal binaries: /usr/bin/git, for instance, fails loading the arm64-only
+ * libxcrun of recent Command Line Tools ("missing compatible architecture").
+ * The check is done once, since it requires to spawn sysctl.
+ * @returns true if the child processes must be launched through "arch -arm64"
+ */
+export function shouldRunChildrenNatively(): boolean {
+  if (!translationChecked) {
+    translatedByRosetta = isTranslatedByRosetta()
+    translationChecked = true
+  }
+
+  return translatedByRosetta === true
+}
+
+// Clears the cached Rosetta 2 check (for tests)
+export function resetRosettaCheck(): void {
+  translationChecked = false
+  translatedByRosetta = undefined
+}
+
 function setUpProcess(options: ProcessExecutionOptions) {
-  const childProcess = spawn(options.command, {
+  const spawnOptions = {
     cwd: options.workDir,
-    shell: 'bash',
     stdio: options.stdio,
     env: buildChildEnvironment(options)
-  })
+  }
+  const childProcess = shouldRunChildrenNatively()
+    ? // same as shell: 'bash', but with the arm64 slice of every binary
+      spawn(
+        '/usr/bin/arch',
+        ['-arm64', 'bash', '-c', options.command],
+        spawnOptions
+      )
+    : spawn(options.command, { ...spawnOptions, shell: 'bash' })
 
   if (options.stdinWriter) {
     options.stdinWriter(childProcess.stdin!)
