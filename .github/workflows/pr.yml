@@ -97,9 +97,12 @@ jobs:
   # Node 14 has no native Apple Silicon build: ent installs the x64 one, which runs through Rosetta 2.
   # This job runs the build and the tests in the same setup.
 
-  macos-arm64-node14:
-    runs-on: macos-14
+  macos-arm64-node15:
+    # macos-14 was retired ("configuration 'macos-14-arm64-us-default' is not supported")
+    runs-on: macos-15
     steps:
+      - name: 'Ensure Rosetta 2'
+        run: arch -x86_64 /usr/bin/true 2>/dev/null || sudo softwareupdate --install-rosetta --agree-to-license
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
