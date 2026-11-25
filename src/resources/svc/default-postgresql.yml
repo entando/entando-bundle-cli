@@ -2,8 +2,6 @@
 services:
   postgresql:
     image: entando/entando-postgres-rocky:%POSTGRES_DOCKER_IMAGE%
-    # the image is published for amd64 only: on ARM hosts (e.g. Apple Silicon) Docker runs it emulated
-    platform: linux/amd64
     restart: always
     # Without a volume, the data is lost whenever the container is recreated (e.g. on an image upgrade).
     # If you want to persist the postgres data, uncomment the lines below.

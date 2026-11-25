@@ -145,7 +145,7 @@ describe('create-default-svc-service', () => {
     // images published for amd64 only declare their platform, multi-arch images run natively
     const platforms: Record<string, string | undefined> = {
       keycloak: undefined,
-      postgresql: 'linux/amd64',
+      postgresql: undefined,
       oracle: 'linux/amd64'
     }
     for (const [service, platform] of Object.entries(platforms)) {

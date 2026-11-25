@@ -6,12 +6,13 @@ Entando Bundle CLI, a tool to create and publish Entando bundles.
 [![Build Status](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg)](https://github.com/entando/entando-bundle-cli/actions/workflows/post-merge.yml/badge.svg?branch=develop)
 
 <!-- toc -->
-* [entando-bundle-cli](#entando-bundle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-* [Environment variables](#environment-variables)
-* [macOS on Apple Silicon](#macos-on-apple-silicon)
-* [Development environment setup](#development-environment-setup)
+
+- [entando-bundle-cli](#entando-bundle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+- [Environment variables](#environment-variables)
+- [macOS on Apple Silicon](#macos-on-apple-silicon)
+- [Development environment setup](#development-environment-setup)
 <!-- tocstop -->
 
 # Usage
@@ -663,7 +664,7 @@ EXAMPLES
 - The CLI runs on Node.js 14, which has no native Apple Silicon build: the x64 build installed by `ent check-env` runs through Rosetta 2. Run `ENTANDO_CLI_DEBUG=true ent bundle info` to see the runtime in use.
 - Micro frontends and microservices are built with your own Node.js and Maven, which can be native arm64.
 - Bundle images are always built for `linux/amd64`, the architecture of the target clusters. On Apple Silicon Docker builds them through emulation: enable "Use Rosetta for x86_64/amd64 emulation on Apple Silicon" in Docker Desktop to make it faster.
-- Keycloak runs natively. PostgreSQL, MySQL and Oracle images are published for amd64 only and run emulated; the generated `svc/*.yml` files of PostgreSQL and Oracle declare `platform: linux/amd64`.
+- Keycloak and PostgreSQL images are multi-arch and run natively. MySQL and Oracle images are published for amd64 only and run emulated; the generated `svc/oracle.yml` declares `platform: linux/amd64`.
 
 # Development environment setup
 
