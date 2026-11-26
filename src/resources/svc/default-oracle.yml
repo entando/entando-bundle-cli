@@ -1,6 +1,4 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-version: '3.7'
-
 services:
   oracle:
     # notice that this image has a size of 2.84 GB and takes several minutes to boot
